@@ -1,0 +1,318 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}{% if persona %}Editar{% else %}Registrar{% endif %} Persona{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header {% if persona %}bg-warning text-dark{% else %}bg-primary text-white{% endif %}">
+                    <h4 class="mb-0">
+                        {% if persona %}
+                            <i class="bi bi-pencil-square"></i> Editar Persona
+                        {% else %}
+                            <i class="bi bi-person-plus-fill"></i> Registrar Nueva Persona
+                        {% endif %}
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    {% if persona %}
+                    <div class="alert alert-light border mb-3">
+                        <strong>Editando:</strong> {{ persona.Nombre }} {{ persona.Apellido_Paterno }} ({{ persona.Rut }})
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        Complete los datos básicos de la persona. Luego podrá asignar roles específicos.
+                    </div>
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- RUT -->
+                        <div class="row mb-3">
+                            <div class="col-md-9">
+                                <label for="{{ form.rut_cuerpo.id_for_label }}" class="form-label">
+                                    RUT (sin dígito verificador) <span class="text-danger">*</span>
+                                </label>
+                                {{ form.rut_cuerpo }}
+                                {% if form.rut_cuerpo.errors %}
+                                    <div class="text-danger mt-1">{{ form.rut_cuerpo.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <label for="{{ form.rut_dv.id_for_label }}" class="form-label">
+                                    DV <span class="text-danger">*</span>
+                                </label>
+                                {{ form.rut_dv }}
+                                {% if form.rut_dv.errors %}
+                                    <div class="text-danger mt-1">{{ form.rut_dv.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Nombre completo -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.Nombre.id_for_label }}" class="form-label">
+                                    Nombre(s) <span class="text-danger">*</span>
+                                </label>
+                                {{ form.Nombre }}
+                                {% if form.Nombre.errors %}
+                                    <div class="text-danger mt-1">{{ form.Nombre.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <label for="{{ form.Apellido_Paterno.id_for_label }}" class="form-label">
+                                    Apellido Paterno <span class="text-danger">*</span>
+                                </label>
+                                {{ form.Apellido_Paterno }}
+                                {% if form.Apellido_Paterno.errors %}
+                                    <div class="text-danger mt-1">{{ form.Apellido_Paterno.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <label for="{{ form.Apellido_Materno.id_for_label }}" class="form-label">
+                                    Apellido Materno
+                                </label>
+                                {{ form.Apellido_Materno }}
+                                {% if form.Apellido_Materno.errors %}
+                                    <div class="text-danger mt-1">{{ form.Apellido_Materno.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Fecha y Sexo -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.Fecha_nacimiento.id_for_label }}" class="form-label">
+                                    Fecha de Nacimiento <span class="text-danger">*</span>
+                                </label>
+                                {{ form.Fecha_nacimiento }}
+                                {% if form.Fecha_nacimiento.errors %}
+                                    <div class="text-danger mt-1">{{ form.Fecha_nacimiento.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.Sexo.id_for_label }}" class="form-label">
+                                    Sexo <span class="text-danger">*</span>
+                                </label>
+                                {{ form.Sexo }}
+                                {% if form.Sexo.errors %}
+                                    <div class="text-danger mt-1">{{ form.Sexo.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Contacto -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.Telefono.id_for_label }}" class="form-label">
+                                    Teléfono <span class="text-danger">*</span>
+                                </label>
+                                {{ form.Telefono }}
+                                {% if form.Telefono.errors %}
+                                    <div class="text-danger mt-1">{{ form.Telefono.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.Email.id_for_label }}" class="form-label">
+                                    Correo Electrónico
+                                </label>
+                                {{ form.Email }}
+                                {% if form.Email.errors %}
+                                    <div class="text-danger mt-1">{{ form.Email.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Dirección -->
+                        <div class="mb-3">
+                            <label for="{{ form.Direccion.id_for_label }}" class="form-label">
+                                Dirección
+                            </label>
+                            {{ form.Direccion }}
+                            {% if form.Direccion.errors %}
+                                <div class="text-danger mt-1">{{ form.Direccion.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Información adicional -->
+                        <h5 class="mt-4 mb-3">Información Adicional</h5>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.Inmigrante.id_for_label }}" class="form-label">
+                                    ¿Es Inmigrante?
+                                </label>
+                                {{ form.Inmigrante }}
+                                {% if form.Inmigrante.errors %}
+                                    <div class="text-danger mt-1">{{ form.Inmigrante.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.Nacionalidad.id_for_label }}" class="form-label">
+                                    Nacionalidad
+                                </label>
+                                {{ form.Nacionalidad }}
+                                {% if form.Nacionalidad.errors %}
+                                    <div class="text-danger mt-1">{{ form.Nacionalidad.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.Pueblos_originarios.id_for_label }}" class="form-label">
+                                    Pueblos Originarios
+                                </label>
+                                {{ form.Pueblos_originarios }}
+                                {% if form.Pueblos_originarios.errors %}
+                                    <div class="text-danger mt-1">{{ form.Pueblos_originarios.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.Privada_de_Libertad.id_for_label }}" class="form-label">
+                                    ¿Privada de Libertad?
+                                </label>
+                                {{ form.Privada_de_Libertad }}
+                                {% if form.Privada_de_Libertad.errors %}
+                                    <div class="text-danger mt-1">{{ form.Privada_de_Libertad.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.Discapacidad.id_for_label }}" class="form-label">
+                                    ¿Tiene Discapacidad?
+                                </label>
+                                {{ form.Discapacidad }}
+                                {% if form.Discapacidad.errors %}
+                                    <div class="text-danger mt-1">{{ form.Discapacidad.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.Tipo_de_Discapacidad.id_for_label }}" class="form-label">
+                                    Tipo de Discapacidad
+                                </label>
+                                {{ form.Tipo_de_Discapacidad }}
+                                {% if form.Tipo_de_Discapacidad.errors %}
+                                    <div class="text-danger mt-1">{{ form.Tipo_de_Discapacidad.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.Trans_masculino.id_for_label }}" class="form-label">
+                                ¿Trans Masculino?
+                            </label>
+                            {{ form.Trans_masculino }}
+                            {% if form.Trans_masculino.errors %}
+                                <div class="text-danger mt-1">{{ form.Trans_masculino.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Observaciones -->
+                        <div class="mb-3">
+                            <label for="{{ form.Observaciones.id_for_label }}" class="form-label">
+                                Observaciones
+                            </label>
+                            {{ form.Observaciones }}
+                            {% if form.Observaciones.errors %}
+                                <div class="text-danger mt-1">{{ form.Observaciones.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        {% if persona %}
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                {{ form.Activo }}
+                                <label class="form-check-label" for="{{ form.Activo.id_for_label }}">
+                                    Persona Activa
+                                </label>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% if persona %}{% url 'gestion:detalle_persona' persona.pk %}{% else %}{% url 'gestion:lista_personas' %}{% endif %}" 
+                               class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn {% if persona %}btn-warning{% else %}btn-primary{% endif %}">
+                                <i class="bi bi-save"></i> 
+                                {% if persona %}Guardar Cambios{% else %}Registrar Persona{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if not persona %}
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6><i class="bi bi-lightbulb"></i> Próximos Pasos</h6>
+                    <p class="mb-0 small">
+                        Después de registrar, podrá asignar uno o más roles: 
+                        Paciente, Médico, Matrona o TENS.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/rut_validator.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const rutCuerpo = document.getElementById('id_rut_cuerpo');
+    const rutDv = document.getElementById('id_rut_dv');
+    const discapacidad = document.getElementById('id_Discapacidad');
+    const tipoDiscapacidad = document.getElementById('id_Tipo_de_Discapacidad');
+
+    if (rutCuerpo) {
+        rutCuerpo.addEventListener('input', function(e) {
+            let valor = e.target.value.replace(/\D/g, '');
+            e.target.value = valor.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        });
+
+        rutCuerpo.addEventListener('blur', function() {
+            const cuerpo = this.value.replace(/\./g, '');
+            if (cuerpo.length >= 7) {
+                const dvCalculado = RutValidator.calcularDV(cuerpo);
+                if (rutDv && !rutDv.value) {
+                    rutDv.value = dvCalculado;
+                }
+            }
+        });
+    }
+
+    if (rutDv) {
+        rutDv.addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase().slice(0, 1);
+        });
+    }
+
+    if (discapacidad && tipoDiscapacidad) {
+        function toggleTipoDiscapacidad() {
+            const tieneDiscapacidad = discapacidad.value === 'Si';
+            tipoDiscapacidad.disabled = !tieneDiscapacidad;
+            if (!tieneDiscapacidad) {
+                tipoDiscapacidad.value = '';
+            }
+        }
+        
+        toggleTipoDiscapacidad();
+        discapacidad.addEventListener('change', toggleTipoDiscapacidad);
+    }
+});
+</script>
+{% endblock %}

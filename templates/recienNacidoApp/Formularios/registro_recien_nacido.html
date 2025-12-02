@@ -1,0 +1,366 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registro de Recién Nacido{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+    }
+    
+    .section-title {
+        border-left: 4px solid #667eea;
+        padding-left: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .info-badge {
+        font-size: 0.85rem;
+        padding: 0.25rem 0.75rem;
+    }
+    
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>
+                        <i class="bi bi-person-plus-fill text-primary"></i>
+                        Registro de Recién Nacido
+                    </h2>
+                    <p class="text-muted mb-0">Complete los datos del recién nacido</p>
+                </div>
+                <a href="#" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <!-- Formulario Principal -->
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <!-- Errores Generales -->
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Error:</strong>
+                    {{ form.non_field_errors }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                <!-- SECCIÓN 1: RELACIÓN CON PARTO -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-link-45deg"></i> Relación con Parto
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.registro_parto.id_for_label }}" class="form-label required-field">
+                                    {{ form.registro_parto.label }}
+                                </label>
+                                {{ form.registro_parto }}
+                                {% if form.registro_parto.errors %}
+                                    <div class="text-danger small mt-1">{{ form.registro_parto.errors }}</div>
+                                {% endif %}
+                                {% if form.registro_parto.help_text %}
+                                    <small class="form-text text-muted">{{ form.registro_parto.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: DATOS DEL RECIÉN NACIDO -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-person-badge"></i> Datos del Recién Nacido
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Sexo -->
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.sexo.id_for_label }}" class="form-label required-field">
+                                    {{ form.sexo.label }}
+                                </label>
+                                {{ form.sexo }}
+                                {% if form.sexo.errors %}
+                                    <div class="text-danger small mt-1">{{ form.sexo.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Peso -->
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.peso.id_for_label }}" class="form-label required-field">
+                                    {{ form.peso.label }}
+                                </label>
+                                <div class="input-group">
+                                    {{ form.peso }}
+                                    <span class="input-group-text">g</span>
+                                </div>
+                                {% if form.peso.errors %}
+                                    <div class="text-danger small mt-1">{{ form.peso.errors }}</div>
+                                {% endif %}
+                                {% if form.peso.help_text %}
+                                    <small class="form-text text-muted">{{ form.peso.help_text }}</small>
+                                {% endif %}
+                            </div>
+
+                            <!-- Talla -->
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.talla.id_for_label }}" class="form-label required-field">
+                                    {{ form.talla.label }}
+                                </label>
+                                <div class="input-group">
+                                    {{ form.talla }}
+                                    <span class="input-group-text">cm</span>
+                                </div>
+                                {% if form.talla.errors %}
+                                    <div class="text-danger small mt-1">{{ form.talla.errors }}</div>
+                                {% endif %}
+                                {% if form.talla.help_text %}
+                                    <small class="form-text text-muted">{{ form.talla.help_text }}</small>
+                                {% endif %}
+                            </div>
+
+                            <!-- Fecha y Hora de Nacimiento -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.fecha_nacimiento.id_for_label }}" class="form-label required-field">
+                                    {{ form.fecha_nacimiento.label }}
+                                </label>
+                                {{ form.fecha_nacimiento }}
+                                {% if form.fecha_nacimiento.errors %}
+                                    <div class="text-danger small mt-1">{{ form.fecha_nacimiento.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Ligadura Tardía -->
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch mt-4">
+                                    {{ form.ligadura_tardia_cordon }}
+                                    <label class="form-check-label" for="{{ form.ligadura_tardia_cordon.id_for_label }}">
+                                        {{ form.ligadura_tardia_cordon.label }}
+                                    </label>
+                                </div>
+                                {% if form.ligadura_tardia_cordon.help_text %}
+                                    <small class="form-text text-muted">{{ form.ligadura_tardia_cordon.help_text }}</small>
+                                {% endif %}
+                            </div>
+
+                            <!-- APGAR -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.apgar_1_minuto.id_for_label }}" class="form-label required-field">
+                                    {{ form.apgar_1_minuto.label }}
+                                </label>
+                                {{ form.apgar_1_minuto }}
+                                {% if form.apgar_1_minuto.errors %}
+                                    <div class="text-danger small mt-1">{{ form.apgar_1_minuto.errors }}</div>
+                                {% endif %}
+                                {% if form.apgar_1_minuto.help_text %}
+                                    <small class="form-text text-muted">{{ form.apgar_1_minuto.help_text }}</small>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.apgar_5_minutos.id_for_label }}" class="form-label required-field">
+                                    {{ form.apgar_5_minutos.label }}
+                                </label>
+                                {{ form.apgar_5_minutos }}
+                                {% if form.apgar_5_minutos.errors %}
+                                    <div class="text-danger small mt-1">{{ form.apgar_5_minutos.errors }}</div>
+                                {% endif %}
+                                {% if form.apgar_5_minutos.help_text %}
+                                    <small class="form-text text-muted">{{ form.apgar_5_minutos.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 3: APEGO -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-heart-fill"></i> Apego Madre-Hijo
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Tiempo de Apego -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.tiempo_apego.id_for_label }}" class="form-label">
+                                    {{ form.tiempo_apego.label }}
+                                </label>
+                                <div class="input-group">
+                                    {{ form.tiempo_apego }}
+                                    <span class="input-group-text">minutos</span>
+                                </div>
+                                {% if form.tiempo_apego.errors %}
+                                    <div class="text-danger small mt-1">{{ form.tiempo_apego.errors }}</div>
+                                {% endif %}
+                                {% if form.tiempo_apego.help_text %}
+                                    <small class="form-text text-muted">{{ form.tiempo_apego.help_text }}</small>
+                                {% endif %}
+                            </div>
+
+                            <!-- Apego Canguro -->
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch mt-4">
+                                    {{ form.apego_canguro }}
+                                    <label class="form-check-label" for="{{ form.apego_canguro.id_for_label }}">
+                                        {{ form.apego_canguro.label }}
+                                    </label>
+                                </div>
+                                {% if form.apego_canguro.help_text %}
+                                    <small class="form-text text-muted">{{ form.apego_canguro.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 4: ACOMPAÑAMIENTO -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-people-fill"></i> Acompañamiento
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Checkboxes de Acompañamiento -->
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check form-switch">
+                                    {{ form.acompanamiento_preparto }}
+                                    <label class="form-check-label" for="{{ form.acompanamiento_preparto.id_for_label }}">
+                                        {{ form.acompanamiento_preparto.label }}
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check form-switch">
+                                    {{ form.acompanamiento_parto }}
+                                    <label class="form-check-label" for="{{ form.acompanamiento_parto.id_for_label }}">
+                                        {{ form.acompanamiento_parto.label }}
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check form-switch">
+                                    {{ form.acompanamiento_rn }}
+                                    <label class="form-check-label" for="{{ form.acompanamiento_rn.id_for_label }}">
+                                        {{ form.acompanamiento_rn.label }}
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Persona Acompañante -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.persona_acompanante.id_for_label }}" class="form-label">
+                                    {{ form.persona_acompanante.label }}
+                                </label>
+                                {{ form.persona_acompanante }}
+                                {% if form.persona_acompanante.errors %}
+                                    <div class="text-danger small mt-1">{{ form.persona_acompanante.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Motivo No Acompañado -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.motivo_no_acompanado.id_for_label }}" class="form-label">
+                                    {{ form.motivo_no_acompanado.label }}
+                                </label>
+                                {{ form.motivo_no_acompanado }}
+                                {% if form.motivo_no_acompanado.errors %}
+                                    <div class="text-danger small mt-1">{{ form.motivo_no_acompanado.errors }}</div>
+                                {% endif %}
+                                {% if form.motivo_no_acompanado.help_text %}
+                                    <small class="form-text text-muted">{{ form.motivo_no_acompanado.help_text }}</small>
+                                {% endif %}
+                            </div>
+
+                            <!-- Acompañante Secciona Cordón -->
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check form-switch">
+                                    {{ form.acompanante_secciona_cordon }}
+                                    <label class="form-check-label" for="{{ form.acompanante_secciona_cordon.id_for_label }}">
+                                        {{ form.acompanante_secciona_cordon.label }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <a href="#" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Registrar Recién Nacido
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ Formulario de Recién Nacido cargado');
+    
+    // Validación de Apgar en tiempo real
+    const apgar1 = document.querySelector('#{{ form.apgar_1_minuto.id_for_label }}');
+    const apgar5 = document.querySelector('#{{ form.apgar_5_minutos.id_for_label }}');
+    
+    if (apgar1 && apgar5) {
+        function validarApgar() {
+            const val1 = parseInt(apgar1.value);
+            const val5 = parseInt(apgar5.value);
+            
+            if (val1 && val5 && val5 < val1 - 2) {
+                apgar5.classList.add('is-invalid');
+            } else {
+                apgar5.classList.remove('is-invalid');
+            }
+        }
+        
+        apgar1.addEventListener('change', validarApgar);
+        apgar5.addEventListener('change', validarApgar);
+    }
+});
+</script>
+{% endblock %}

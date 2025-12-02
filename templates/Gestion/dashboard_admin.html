@@ -1,0 +1,224 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Sistema Obstétrico{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Navbar con letras BLANCAS */
+    .navbar-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        padding: 1rem 0;
+    }
+
+    .navbar-custom .navbar-brand,
+    .navbar-custom .nav-link,
+    .navbar-custom .dropdown-toggle {
+        color: #ffffff !important;
+        font-weight: 600;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .navbar-custom .nav-link:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+    }
+
+    .welcome-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .role-card {
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .role-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+
+    .role-card-header {
+        padding: 2rem;
+        color: white;
+        text-align: center;
+    }
+
+    .role-medico { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .role-matrona { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+    .role-tens { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .role-paciente { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .role-admin { background: linear-gradient(135deg, #FA8BFF 0%, #2BD2FF 50%, #2BFF88 100%); }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'gestion:dashboard_admin' %}">
+            <i class="bi bi-hospital-fill"></i> Sistema Obstétrico
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'gestion:dashboard_admin' %}">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-people-fill"></i> Gestión
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'gestion:registrar_persona' %}">Nueva Persona</a></li>
+                        <li><a class="dropdown-item" href="{% url 'gestion:lista_personas' %}">Ver Todas</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> {{ request.user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/admin/">Panel Admin</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">Cerrar Sesión</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid" style="margin-top: 100px;">
+    <div class="welcome-card">
+        <h2><i class="bi bi-emoji-smile"></i> ¡Bienvenido!</h2>
+        <p>{{ fecha_actual }} - Hospital Herminda Martín</p>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="stat-box">
+                <div class="stat-number">{{ total_medicos }}</div>
+                <div class="stat-label">Médicos</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-box">
+                <div class="stat-number">{{ total_matronas }}</div>
+                <div class="stat-label">Matronas</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-box">
+                <div class="stat-number">{{ total_tens }}</div>
+                <div class="stat-label">TENS</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-box">
+                <div class="stat-number">{{ total_pacientes }}</div>
+                <div class="stat-label">Pacientes</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-box">
+                <div class="stat-number">{{ total_admins }}</div>
+                <div class="stat-label">Admins</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-box">
+                <div class="stat-number">{{ total_personas }}</div>
+                <div class="stat-label">Total</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="role-card">
+                <div class="role-card-header role-medico">
+                    <i class="bi bi-hospital" style="font-size: 3rem;"></i>
+                    <h5>MÉDICO</h5>
+                    <span class="badge bg-light text-dark">{{ total_medicos }}</span>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'gestion:registrar_medico' %}" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-circle"></i> Registrar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="role-card">
+                <div class="role-card-header role-matrona">
+                    <i class="bi bi-heart-pulse-fill" style="font-size: 3rem;"></i>
+                    <h5>MATRONA</h5>
+                    <span class="badge bg-light text-dark">{{ total_matronas }}</span>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'gestion:registrar_matrona' %}" class="btn btn-success w-100">
+                        <i class="bi bi-plus-circle"></i> Registrar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="role-card">
+                <div class="role-card-header role-tens">
+                    <i class="bi bi-bandaid-fill" style="font-size: 3rem;"></i>
+                    <h5>TENS</h5>
+                    <span class="badge bg-light text-dark">{{ total_tens }}</span>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'gestion:registrar_tens' %}" class="btn btn-info w-100">
+                        <i class="bi bi-plus-circle"></i> Registrar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="role-card">
+                <div class="role-card-header role-paciente">
+                    <i class="bi bi-person-heart" style="font-size: 3rem;"></i>
+                    <h5>PACIENTE</h5>
+                    <span class="badge bg-light text-dark">{{ total_pacientes }}</span>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'gestion:registrar_paciente' %}" class="btn btn-warning w-100">
+                        <i class="bi bi-plus-circle"></i> Registrar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="role-card">
+                <div class="role-card-header role-admin">
+                    <i class="bi bi-shield-fill-check" style="font-size: 3rem;"></i>
+                    <h5>ADMINISTRADOR</h5>
+                    <span class="badge bg-light text-dark">{{ total_admins }}</span>
+                </div>
+                <div class="card-body">
+                    <a href="/admin/" class="btn btn-dark w-100">
+                        <i class="bi bi-shield-lock-fill"></i> Panel Admin
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

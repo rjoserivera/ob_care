@@ -1,0 +1,71 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Tamizaje VDRL{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-virus"></i> Tamizaje VDRL (Sífilis)
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Paso 5:</strong> Registre la información del tamizaje VDRL para detección de sífilis.
+                    </div>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Información de Tamizaje VDRL</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="{{ form.vdrl_resultado.id_for_label }}" class="form-label">
+                                        Resultado VDRL durante embarazo
+                                    </label>
+                                    {{ form.vdrl_resultado }}
+                                    {% if form.vdrl_resultado.errors %}
+                                        <div class="text-danger mt-1">{{ form.vdrl_resultado.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        {{ form.tratamiento_sifilis }}
+                                        <label class="form-check-label" for="{{ form.tratamiento_sifilis.id_for_label }}">
+                                            Tratamiento antibiótico por sífilis al momento del parto
+                                        </label>
+                                    </div>
+                                    {% if form.tratamiento_sifilis.errors %}
+                                        <div class="text-danger mt-1">{{ form.tratamiento_sifilis.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'ingreso_parto:tamizaje_sgb' ficha_parto.pk %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left-circle"></i> Anterior
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-arrow-right-circle"></i> Continuar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

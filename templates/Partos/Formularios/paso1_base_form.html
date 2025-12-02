@@ -1,0 +1,79 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Registro de Parto - Paso 1{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-clipboard-heart"></i> Registro de Parto - Paso 1 de 6
+                    </h4>
+                    <div class="progress mt-2" style="height: 5px;">
+                        <div class="progress-bar" role="progressbar" style="width: 16.66%"></div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Paso 1:</strong> Información básica del registro de parto.
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Paciente</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>RUT:</strong> {{ paciente.persona.Rut }}</p>
+                            <p><strong>Nombre:</strong> {{ paciente.persona.Nombre }} {{ paciente.persona.Apellido_Paterno }} {{ paciente.persona.Apellido_Materno }}</p>
+                            <p class="mb-0"><strong>Ficha:</strong> {{ ficha.numero_ficha }}</p>
+                        </div>
+                    </div>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <input type="hidden" name="ficha" value="{{ ficha.pk }}">
+
+                        <div class="mb-3">
+                            <label for="{{ form.fecha_hora_admision.id_for_label }}" class="form-label">
+                                Fecha y Hora de Admisión <span class="text-danger">*</span>
+                            </label>
+                            {{ form.fecha_hora_admision }}
+                            {% if form.fecha_hora_admision.errors %}
+                                <div class="text-danger mt-1">{{ form.fecha_hora_admision.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.fecha_hora_parto.id_for_label }}" class="form-label">
+                                Fecha y Hora del Parto
+                            </label>
+                            {{ form.fecha_hora_parto }}
+                            {% if form.fecha_hora_parto.errors %}
+                                <div class="text-danger mt-1">{{ form.fecha_hora_parto.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Puede completarse después</small>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'partos:seleccionar_ficha' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-arrow-right-circle"></i> Siguiente Paso
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
