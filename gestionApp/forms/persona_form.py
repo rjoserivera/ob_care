@@ -1,21 +1,22 @@
-# gestionApp/forms/persona_form.py
+# gestionApp/persona_form.py
 """
-Formulario corregido para el modelo Persona
-Compatible con nombres reales del modelo
+Formulario para registrar/editar Persona
+Solo datos básicos (sin ser paciente aún)
 """
 
 from django import forms
 from django.core.exceptions import ValidationError
-from gestionApp.models import (
-    CatalogoNacionalidad,
-    CatalogoPuebloOriginario,
-    CatalogoSexo,
-    Persona,
-)
+from .models import Persona, Nacionalidad, PuebloOriginario, Sexo
+from datetime import date
 
 
 class PersonaForm(forms.ModelForm):
-
+    """
+    Formulario para registrar/editar una Persona
+    Datos básicos solamente
+    Se vuelve Paciente cuando se crea una Ficha Obstétrica
+    """
+    
     class Meta:
         model = Persona
         fields = [
@@ -24,109 +25,138 @@ class PersonaForm(forms.ModelForm):
             'Apellido_Paterno',
             'Apellido_Materno',
             'Fecha_nacimiento',
-            'Sexo',
-            'Nacionalidad',
-            'Pueblos_originarios',
-            'Direccion',
+            'sexo',
+            'nacionalidad',
+            'pueblo_originario',
             'Telefono',
-            'Email',
+            'Direccion',
+            'Inmigrante',
+            'Discapacidad',
+            'Tipo_de_Discapacidad',
+            'Privada_de_Libertad',
+            'Trans_Masculino',
         ]
-
+        
         widgets = {
+            # Identificación
             'Rut': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ej: 12345678-9',
-                'maxlength': '12',
+                'pattern': '[0-9]{7,8}-[0-9Kk]',
             }),
+            
             'Nombre': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ingrese nombre',
+                'placeholder': 'Nombre de la persona',
             }),
+            
             'Apellido_Paterno': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ingrese apellido paterno',
+                'placeholder': 'Apellido paterno',
             }),
+            
             'Apellido_Materno': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ingrese apellido materno',
+                'placeholder': 'Apellido materno',
             }),
+            
+            # Datos básicos
             'Fecha_nacimiento': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
             }),
-            'Sexo': forms.Select(attrs={'class': 'form-select'}),
-            'Nacionalidad': forms.Select(attrs={'class': 'form-select'}),
-            'Pueblos_originarios': forms.Select(attrs={'class': 'form-select'}),
-            'Direccion': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese dirección',
+            
+            'sexo': forms.Select(attrs={
+                'class': 'form-select',
             }),
+            
+            'nacionalidad': forms.Select(attrs={
+                'class': 'form-select',
+            }),
+            
+            'pueblo_originario': forms.Select(attrs={
+                'class': 'form-select',
+            }),
+            
+            # Contacto
             'Telefono': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ej: +56912345678',
+                'placeholder': '+56 9 1234 5678',
+                'type': 'tel',
             }),
-            'Email': forms.EmailInput(attrs={
+            
+            'Direccion': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'correo@ejemplo.com',
+                'placeholder': 'Dirección completa',
+            }),
+            
+            # Situaciones especiales
+            'Inmigrante': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+            }),
+            
+            'Discapacidad': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+            }),
+            
+            'Tipo_de_Discapacidad': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Especificar tipo de discapacidad',
+            }),
+            
+            'Privada_de_Libertad': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+            }),
+            
+            'Trans_Masculino': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
             }),
         }
+    
+    def clean(self):
+        """Validaciones"""
+        cleaned_data = super().clean()
+        
+        # Validar fecha de nacimiento
+        fecha_nac = cleaned_data.get('Fecha_nacimiento')
+        if fecha_nac and fecha_nac > date.today():
+            raise ValidationError("❌ La fecha de nacimiento no puede ser en el futuro.")
+        
+        # Validar edad mínima
+        if fecha_nac:
+            from dateutil.relativedelta import relativedelta
+            edad = relativedelta(date.today(), fecha_nac).years
+            if edad < 10:
+                raise ValidationError("❌ La persona debe tener al menos 10 años.")
+        
+        # Validar que si marcó discapacidad, especifique tipo
+        if cleaned_data.get('Discapacidad') and not cleaned_data.get('Tipo_de_Discapacidad'):
+            raise ValidationError({
+                'Tipo_de_Discapacidad': 'Debe especificar el tipo de discapacidad.'
+            })
+        
+        return cleaned_data
 
-        labels = {
-            'Rut': 'RUT',
-            'Nombre': 'Nombre',
-            'Apellido_Paterno': 'Apellido Paterno',
-            'Apellido_Materno': 'Apellido Materno',
-            'Fecha_nacimiento': 'Fecha de Nacimiento',
-            'Sexo': 'Sexo',
-            'Nacionalidad': 'Nacionalidad',
-            'Pueblos_originarios': 'Pueblo Originario',
-            'Direccion': 'Dirección',
-            'Telefono': 'Teléfono',
-            'Email': 'Correo Electrónico',
-        }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields['Sexo'].queryset = CatalogoSexo.objects.filter(activo=True)
-        self.fields['Nacionalidad'].queryset = CatalogoNacionalidad.objects.filter(activo=True)
-        self.fields['Pueblos_originarios'].queryset = CatalogoPuebloOriginario.objects.filter(activo=True)
-
-        self.fields['Sexo'].empty_label = "Seleccione sexo"
-        self.fields['Nacionalidad'].empty_label = "Seleccione nacionalidad"
-        self.fields['Pueblos_originarios'].empty_label = "Seleccione (opcional)"
-
-    # --- Validaciones ---
-    def clean_Rut(self):
-        rut = self.cleaned_data.get('Rut')
-        if rut:
-            rut = rut.replace('.', '').upper().strip()
-
-            if '-' not in rut:
-                raise ValidationError('El RUT debe incluir guión. Ej: 12345678-9')
-
-            existe = (
-                Persona.objects.filter(Rut=rut)
-                .exclude(pk=self.instance.pk)
-                .exists()
-            )
-            if existe:
-                raise ValidationError('Ya existe una persona con este RUT.')
-
-        return rut
-
-    def clean_Nombre(self):
-        nombre = self.cleaned_data.get('Nombre')
-        return nombre.strip().title() if nombre else nombre
-
-    def clean_Apellido_Paterno(self):
-        apellido = self.cleaned_data.get('Apellido_Paterno')
-        return apellido.strip().title() if apellido else apellido
-
-    def clean_Apellido_Materno(self):
-        apellido = self.cleaned_data.get('Apellido_Materno')
-        return apellido.strip().title() if apellido else apellido
-
-    def clean_Email(self):
-        email = self.cleaned_data.get('Email')
-        return email.lower().strip() if email else email
+class BuscarPersonaForm(forms.Form):
+    """
+    Formulario para buscar una persona existente
+    """
+    
+    query = forms.CharField(
+        max_length=100,
+        required=True,
+        label='Buscar por RUT o Nombre',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ingrese RUT o nombre',
+            'autocomplete': 'off',
+        })
+    )
+    
+    def clean_query(self):
+        """Validar que tenga al menos 2 caracteres"""
+        query = self.cleaned_data.get('query', '').strip()
+        if len(query) < 2:
+            raise ValidationError("❌ Ingrese al menos 2 caracteres para buscar.")
+        return query

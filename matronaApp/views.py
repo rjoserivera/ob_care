@@ -1,552 +1,276 @@
+# matronaApp/views.py
+"""
+Vistas para matronaApp - Gestión de Fichas Obstétricas
+Al crear ficha, se crean automáticamente: Paciente + IngresoPaciente
+"""
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.views.generic import ListView, DetailView
-from django.http import JsonResponse
-from django.db.models import Q, Count, Prefetch
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from django.db.models import Q
+from django.http import JsonResponse
+from django.utils import timezone
 
-from matronaApp.models import FichaObstetrica, MedicamentoFicha
-from gestionApp.models import Persona, Paciente, Matrona
-from gestionApp.forms.persona_form import PersonaForm
-from matronaApp.forms.matrona_app_forms import FichaObstetricaForm, MedicamentoFichaForm
-from gestionApp.forms.paciente_form import PacienteForm
-from legacyApp.models import ControlesPrevios
+from gestionApp.models import Persona, Paciente
+from .models import FichaObstetrica, IngresoPaciente, MedicamentoFicha
+from .forms import FichaObstetricaForm, MedicamentoFichaForm
+from datetime import date
 
-
-
-def seleccionar_paciente_ficha(request):
-    return render(request, 'Matrona/Data/seleccionar_paciente_ficha.html')
 
 # ============================================
-# VISTA PRINCIPAL DEL MÓDULO MATRONA
+# MENÚ PRINCIPAL
 # ============================================
 
 @login_required
 def menu_matrona(request):
-    """Vista principal del módulo Matrona"""
+    """Menú principal del módulo Matrona"""
+    hoy = timezone.now().date()
+    
     context = {
-        'titulo': 'Menú Matrona',
-        'usuario': request.user,
-        'total_pacientes': Paciente.objects.count(),
-        'total_fichas_activas': FichaObstetrica.objects.filter(activa=True).count(),
-        #'ingresos_activos': IngresoPaciente.objects.filter(activo=True).count(),
-        'medicamentos_activos': MedicamentoFicha.objects.filter(activo=True).count(),
+        'total_fichas': FichaObstetrica.objects.filter(activa=True).count(),
+        'fichas_hoy': FichaObstetrica.objects.filter(
+            fecha_creacion__date=hoy,
+            activa=True
+        ).count(),
     }
-    return render(request, 'Matrona/Data/menu_matrona.html', context)
+    
+    return render(request, 'Matrona/menu_matrona.html', context)
 
 
 # ============================================
-# VISTAS DE PACIENTE
+# FICHAS OBSTÉTRICAS
 # ============================================
 
-class PacienteListView(ListView):
-    """Listado de todos los pacientes"""
-    model = Paciente
-    template_name = 'Matrona/Data/paciente_list.html'
-    context_object_name = 'pacientes'
-    
-    def get_queryset(self):
-        return Paciente.objects.filter(activo=True).select_related('persona')
-
-
-class PacienteDetailView(DetailView):
-    """Detalle de un paciente específico"""
-    model = Paciente
-    template_name = 'Matrona/Data/paciente_detail.html'
-    context_object_name = 'paciente'
-
-    def get_queryset(self):
-        return Paciente.objects.select_related('persona')
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        paciente = ctx["paciente"]
-        rut = (paciente.persona.Rut or "").strip()
-
-        try:
-            # Consulta SIEMPRE contra la BD legacy
-            controles = (ControlesPrevios.objects
-                         .using("legacy")
-                         .filter(paciente_rut__iexact=rut)
-                         .order_by("-fecha_control"))
-
-            controles = list(controles)   # materializa para el template
-
-            # seleccionar control por ?ctrl=<id> (o el más reciente)
-            sel_id = self.request.GET.get("ctrl")
-            seleccionado = None
-            if controles:
-                if sel_id:
-                    seleccionado = next((c for c in controles if str(c.id) == str(sel_id)), controles[0])
-                else:
-                    seleccionado = controles[0]
-
-            # Pre-formatear datos del control seleccionado para evitar problemas en el template
-            legacy_header = ""
-            legacy_badge = ""
-            legacy_tipo_profesional = ""
-            legacy_profesional_nombre = ""
-            
-            if seleccionado:
-                fecha_str = seleccionado.fecha_control.strftime("%d/%m/%Y") if seleccionado.fecha_control else "Sin fecha"
-                legacy_header = f"Control #{seleccionado.numero_control} - {fecha_str}"
-                legacy_badge = f"{seleccionado.semanas_gestacion}+{seleccionado.dias_gestacion} semanas"
-                
-                # Obtener el tipo de profesional usando get_profesional_tipo_display
-                if seleccionado.profesional_tipo:
-                    legacy_tipo_profesional = seleccionado.get_profesional_tipo_display()
-                else:
-                    legacy_tipo_profesional = "No especificado"
-                
-                # Limpiar el nombre del profesional (quitar el título si está incluido)
-                if seleccionado.profesional_nombre:
-                    nombre = seleccionado.profesional_nombre
-                    # Remover títulos comunes al inicio
-                    for titulo in ["Matrona ", "Dra. ", "Dr. ", "TENS "]:
-                        if nombre.startswith(titulo):
-                            nombre = nombre[len(titulo):]
-                            break
-                    legacy_profesional_nombre = nombre
-                else:
-                    legacy_profesional_nombre = "No especificado"
-            
-            ctx.update({
-                "legacy_controles": controles,
-                "legacy_total": len(controles),
-                "legacy_selected": seleccionado,
-                "legacy_selected_id": getattr(seleccionado, "id", None),
-                "legacy_fuente": "Base de datos histórica (LEGACY)",
-                "legacy_header": legacy_header,
-                "legacy_badge": legacy_badge,
-                "legacy_tipo_profesional": legacy_tipo_profesional,
-                "legacy_profesional_nombre": legacy_profesional_nombre,
-            })
-        except Exception as e:
-            # si algo falla, no rompas el detalle
-            import logging
-            logging.getLogger(__name__).exception("Fallo consultando LEGACY: %s", e)
-            ctx.update({
-                "legacy_controles": [],
-                "legacy_total": 0,
-                "legacy_selected": None,
-                "legacy_selected_id": None,
-                "legacy_fuente": "LEGACY (sin conexión)",
-                "legacy_error": True,
-            })
-
-        return ctx
-
-
-def registrar_paciente(request):
-    """Registrar un nuevo paciente"""
-    if request.method == 'POST':
-        form = PacienteForm(request.POST, prefix='paciente')
-        if form.is_valid():
-            paciente = form.save()
-            messages.success(request, "✅ Paciente registrado correctamente.")
-            return redirect('matrona:detalle_paciente', pk=paciente.pk)
-        else:
-            messages.error(request, "❌ Por favor corrige los errores en el formulario.")
-    else:
-        form = PacienteForm()
-    
-    return render(request, 'Matrona/Formularios/registrar_paciente.html', {'form': form})
-
-def buscar_paciente(request):
-    """Buscar paciente por RUT o nombre"""
+@login_required
+def seleccionar_persona_ficha(request):
+    """
+    Buscar una Persona para crear su Ficha Obstétrica
+    """
     query = request.GET.get('q', '').strip()
-    pacientes = []
+    personas = []
     
-    if query:
-        pacientes = Paciente.objects.filter(
-            Q(activo=True)
-        ).filter(
-            Q(persona__Rut__icontains=query) |
-            Q(persona__Nombre__icontains=query) |
-            Q(persona__Apellido_Paterno__icontains=query) |
-            Q(persona__Apellido_Materno__icontains=query)
-        ).select_related('persona')
+    if query and len(query) >= 2:
+        personas = Persona.objects.filter(
+            Q(Rut__icontains=query) |
+            Q(Nombre__icontains=query) |
+            Q(Apellido_Paterno__icontains=query) |
+            Q(Apellido_Materno__icontains=query),
+            Activo=True
+        ).order_by('Nombre')
     
-    return render(request, 'Matrona/Data/buscar_paciente.html', {
-        'pacientes': pacientes,
+    return render(request, 'Matrona/seleccionar_persona_ficha.html', {
+        'personas': personas,
         'query': query
     })
 
 
-# ============================================
-# VISTAS DE INGRESO HOSPITALARIO
-# ============================================
-
-def registrar_ingreso(request):
-    """Registrar ingreso hospitalario"""
-    paciente = None
-    initial_data = {}
-    
-    # Si viene el ID del paciente en la URL
-    paciente_id = request.GET.get('paciente_id')
-    if paciente_id:
-        paciente = get_object_or_404(Paciente, pk=paciente_id)
-        initial_data['paciente'] = paciente
-
-    if request.method == 'POST':
-        form = IngresoPacienteForm(request.POST)
-        if form.is_valid():
-            ingreso = form.save()
-            messages.success(request, "✅ Ingreso registrado correctamente.")
-            return redirect('matrona:detalle_ingreso', pk=ingreso.pk)
-        else:
-            messages.error(request, "❌ Por favor corrige los errores en el formulario.")
-    else:
-        form = IngresoPacienteForm(initial=initial_data)
-    
-    return render(request, 'Matrona/Formularios/registrar_ingreso.html', {
-        'form': form, 
-        'paciente': paciente
-    })
-
-def detalle_ingreso(request, pk):
-    """Ver detalle de un ingreso"""
-    ingreso = get_object_or_404(
-        IngresoPaciente.objects.select_related('paciente__persona'),
-        pk=pk
-    )
-    return render(request, 'Matrona/Formularios/detalle_ingresos.html', {
-        'ingreso': ingreso,
-        'paciente': ingreso.paciente
-    })
-
-# ============================================
-# VISTAS DE FICHA OBSTÉTRICA
-# ============================================
-
-def seleccionar_paciente_ficha(request):
+@login_required
+@transaction.atomic
+def crear_ficha_obstetrica(request, persona_pk):
     """
-    Vista para buscar y seleccionar un paciente antes de crear su ficha
-    """
-    query = request.GET.get('q', '').strip()
-    pacientes = []
+    Crear Ficha Obstétrica para una Persona
     
-    if query:
-        pacientes = Paciente.objects.filter(
-            Q(activo=True)
-        ).filter(
-            Q(persona__Rut__icontains=query) |
-            Q(persona__Nombre__icontains=query) |
-            Q(persona__Apellido_Paterno__icontains=query) |
-            Q(persona__Apellido_Materno__icontains=query)
-        ).select_related('persona').annotate(
-            num_fichas=Count('fichas_obstetricas')
-        )
+    AUTOMÁTICAMENTE CREA:
+    1. Paciente (si no existe)
+    2. IngresoPaciente
+    3. FichaObstetrica
     
-    return render(request, 'Matrona/Data/seleccionar_paciente_ficha.html', {
-        'pacientes': pacientes,
-        'query': query
-    })
-
-def crear_ficha_obstetrica(request, paciente_pk):
+    Todo en una transacción atómica
     """
-    Crear una nueva ficha obstétrica para un paciente
-    """
-    paciente = get_object_or_404(
-        Paciente.objects.select_related('persona'),
-        pk=paciente_pk,
-        activo=True
-    )
+    
+    persona = get_object_or_404(Persona, pk=persona_pk, Activo=True)
     
     if request.method == 'POST':
         form = FichaObstetricaForm(request.POST)
         
         if form.is_valid():
-            ficha = form.save(commit=False)
-            ficha.paciente = paciente
-            ficha.save()
-            form.save_m2m()  # Guardar las patologías (ManyToMany)
-            
-            messages.success(
-                request,
-                f"✅ Ficha obstétrica {ficha.numero_ficha} creada exitosamente."
-            )
-            return redirect('matrona:detalle_ficha', pk=ficha.pk)
+            try:
+                # ────────────────────────────────────────
+                # PASO 1: CREAR PACIENTE (si no existe)
+                # ────────────────────────────────────────
+                paciente, creado = Paciente.objects.get_or_create(
+                    persona=persona,
+                    defaults={
+                        'paridad': '',
+                        'control_prenatal': False,
+                        'Alergias': '',
+                        'Peso': None,
+                        'Talla': None,
+                        'IMC': None,
+                        'activo': True,
+                        'fecha_registro': timezone.now(),
+                    }
+                )
+                
+                if creado:
+                    messages.info(request, f"ℹ️ Paciente creado para {persona.Nombre}")
+                
+                # ────────────────────────────────────────
+                # PASO 2: CREAR INGRESOPACIENTE
+                # ────────────────────────────────────────
+                ingreso, _ = IngresoPaciente.objects.get_or_create(
+                    paciente=paciente,
+                    defaults={
+                        'motivo_ingreso': 'Creación de ficha obstétrica',
+                        'fecha_ingreso': date.today(),
+                        'hora_ingreso': timezone.now().time(),
+                        'edad_gestacional_semanas': form.cleaned_data.get('edad_gestacional_semanas'),
+                        'derivacion': '',
+                        'observaciones': '',
+                        'numero_ficha': form.cleaned_data.get('numero_ficha', ''),
+                        'activo': True,
+                    }
+                )
+                
+                # ────────────────────────────────────────
+                # PASO 3: CREAR FICHA OBSTÉTRICA
+                # ────────────────────────────────────────
+                ficha = form.save(commit=False)
+                ficha.paciente = paciente
+                ficha.matrona_responsable = request.user.matrona if hasattr(request.user, 'matrona') else None
+                ficha.save()
+                
+                messages.success(
+                    request,
+                    f"✅ Ficha obstétrica {ficha.numero_ficha} creada exitosamente"
+                )
+                
+                return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
+                
+            except Exception as e:
+                # Si falla algo, se revierte todo gracias a @transaction.atomic
+                messages.error(request, f"❌ Error: {str(e)}")
         else:
             messages.error(request, "❌ Por favor corrige los errores en el formulario.")
+    
     else:
-        # Preparar datos iniciales
-        initial_data = {
-            'paciente_id': paciente.pk,
-        }
-        form = FichaObstetricaForm(initial=initial_data)
+        form = FichaObstetricaForm(initial={
+            'edad_gestacional_semanas': None,
+        })
     
     context = {
         'form': form,
-        'paciente': paciente,
+        'persona': persona,
+        'titulo': f'Crear Ficha Obstétrica - {persona.Nombre} {persona.Apellido_Paterno}',
     }
     
-    return render(request, 'Matrona/Formularios/crear_ficha.html', context)
+    return render(request, 'Matrona/crear_ficha_obstetrica.html', context)
 
-def lista_fichas_paciente(request, paciente_pk):
-    """
-    Ver todas las fichas obstétricas de un paciente específico
-    """
-    paciente = get_object_or_404(
-        Paciente.objects.select_related('persona'),
-        pk=paciente_pk,
-        activo=True
-    )
-    
-    fichas = FichaObstetrica.objects.filter(
-        paciente=paciente
-    ).select_related(
-        'matrona_responsable__persona'
-    ).prefetch_related(
-        'patologias'
-    ).order_by('-fecha_creacion')
-    
-    return render(request, 'Matrona/Data/lista_fichas.html', {
-        'paciente': paciente,
-        'fichas': fichas
-    })
 
-def detalle_ficha(request, pk):
-    """
-    Ver detalle completo de una ficha obstétrica
-    """
+@login_required
+def detalle_ficha(request, ficha_pk):
+    """Ver detalle de una Ficha Obstétrica"""
+    
     ficha = get_object_or_404(
         FichaObstetrica.objects.select_related(
             'paciente__persona',
-            'matrona_responsable__persona'
-        ).prefetch_related('patologias'),
-        pk=pk
+            'matrona_responsable'
+        ).prefetch_related('medicamentos'),
+        pk=ficha_pk
     )
     
-    # Obtener medicamentos asociados
-    medicamentos = MedicamentoFicha.objects.filter(
-        ficha=ficha,
-        activo=True
-    ).order_by('-fecha_inicio')
+    medicamentos = ficha.medicamentos.filter(activo=True)
     
-    return render(request, 'Matrona/Data/detalle_ficha_v2.html', {
+    context = {
         'ficha': ficha,
         'paciente': ficha.paciente,
+        'persona': ficha.paciente.persona,
         'medicamentos': medicamentos,
-    })
-"""
-def editar_ficha(request, pk):
+    }
     
-    #Editar una ficha obstétrica existente
-    # Solo se pueden editar fichas activas
+    return render(request, 'Matrona/detalle_ficha.html', context)
+
+
+@login_required
+def editar_ficha(request, ficha_pk):
+    """Editar una Ficha Obstétrica"""
     
-    # Obtener la ficha con sus relaciones
-    ficha = get_object_or_404(
-        FichaObstetrica.objects.select_related(
-            'paciente__persona',
-            'matrona_responsable__persona'
-        ).prefetch_related('patologias'),
-        pk=pk
-    )
-    
-    # Verificar que la ficha esté activa
-    if not ficha.activa:
-        messages.warning(
-            request, 
-            "⚠️ No se puede editar una ficha cerrada. Si necesita modificarla, contacte al administrador."
-        )
-        return redirect('matrona:detalle_ficha', pk=ficha.pk)
-    
-    paciente = ficha.paciente
+    ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk)
     
     if request.method == 'POST':
-        # Crear formulario con los datos POST y la instancia existente
         form = FichaObstetricaForm(request.POST, instance=ficha)
         
         if form.is_valid():
-            # Guardar sin commit para asegurar el paciente
-            ficha_actualizada = form.save(commit=False)
-            ficha_actualizada.paciente = paciente  # Mantener el mismo paciente
-            ficha_actualizada.save()
-            
-            # Guardar relaciones ManyToMany (patologías)
-            form.save_m2m()
-            
-            messages.success(
-                request, 
-                f"✅ Ficha obstétrica {ficha.numero_ficha} actualizada exitosamente."
-            )
-            return redirect('matrona:detalle_ficha', pk=ficha.pk)
+            ficha = form.save()
+            messages.success(request, f"✅ Ficha {ficha.numero_ficha} actualizada")
+            return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
         else:
-            messages.error(
-                request, 
-                "❌ Por favor corrige los errores en el formulario."
-            )
+            messages.error(request, "❌ Por favor corrige los errores.")
+    
     else:
-        # GET: Mostrar formulario con datos actuales
-        initial_data = {
-            'paciente_id': paciente.pk,
-        }
-        
-        # CRÍTICO: Pasar instance para que se llenen los campos
-        form = FichaObstetricaForm(instance=ficha, initial=initial_data, prefix='ficha')
+        form = FichaObstetricaForm(instance=ficha)
     
     context = {
         'form': form,
         'ficha': ficha,
-        'paciente': paciente,
-        'editando': True,
+        'persona': ficha.paciente.persona,
+        'titulo': f'Editar Ficha - {ficha.numero_ficha}',
+        'es_edicion': True,
     }
     
-    return render(request, 'Matrona/Formularios/editar_ficha.html', context)
+    return render(request, 'Matrona/crear_ficha_obstetrica.html', context)
 
-def desactivar_ficha(request, pk):
-    """
-    #Cerrar/desactivar una ficha obstétrica
-    """
-    ficha = get_object_or_404(FichaObstetrica, pk=pk)
-    
-    if request.method == 'POST':
-        ficha.activa = not ficha.activa
-        ficha.save()
-        
-        estado = "activada" if ficha.activa else "cerrada"
-        messages.success(request, f"✅ Ficha {ficha.numero_ficha} {estado} exitosamente.")
-        
-        return redirect('matrona:detalle_ficha', pk=ficha.pk)
-    
-    return render(request, 'Matrona/Formularios/toggle_ficha.html', {
-        'ficha': ficha
-    })
 
+@login_required
+def lista_fichas_persona(request, persona_pk):
+    """Listar todas las fichas de una persona"""
+    
+    persona = get_object_or_404(Persona, pk=persona_pk, Activo=True)
+    
+    try:
+        paciente = Paciente.objects.get(persona=persona)
+        fichas = FichaObstetrica.objects.filter(
+            paciente=paciente
+        ).order_by('-fecha_creacion')
+    except Paciente.DoesNotExist:
+        fichas = []
+    
+    context = {
+        'persona': persona,
+        'fichas': fichas,
+        'titulo': f'Fichas de {persona.Nombre} {persona.Apellido_Paterno}',
+    }
+    
+    return render(request, 'Matrona/lista_fichas.html', context)
+
+
+@login_required
 def lista_todas_fichas(request):
-    """
-    #Listado general de todas las fichas obstétricas del sistema
-    """
+    """Listar todas las fichas del sistema"""
+    
     fichas = FichaObstetrica.objects.select_related(
         'paciente__persona',
-        'matrona_responsable__persona'
+        'matrona_responsable'
     ).order_by('-fecha_creacion')
     
-    # Filtros opcionales
+    # Filtro opcional
     activa = request.GET.get('activa')
     if activa == '1':
         fichas = fichas.filter(activa=True)
     elif activa == '0':
         fichas = fichas.filter(activa=False)
     
-    return render(request, 'Matrona/Data/todas_fichas.html', {
-        'fichas': fichas
-    })
-"""
+    context = {
+        'fichas': fichas,
+        'titulo': 'Todas las Fichas Obstétricas',
+    }
+    
+    return render(request, 'Matrona/todas_fichas.html', context)
 
 
 # ============================================
-# API REST (AJAX) - Para búsquedas dinámicas
-# ============================================
-def buscar_paciente_api(request):
-    """
-    Buscar paciente vía AJAX (retorna JSON)
-    Usado en formularios para autocompletar datos
-    """
-    rut = request.GET.get('rut', '').strip()
-    
-    if not rut:
-        return JsonResponse({
-            'encontrado': False,
-            'mensaje': 'RUT no proporcionado'
-        })
-    
-    try:
-        paciente = Paciente.objects.select_related('persona').get(
-            persona__Rut=rut,
-            activo=True
-        )
-        
-        return JsonResponse({
-            'encontrado': True,
-            'paciente': {
-                'id': paciente.pk,
-                'rut': paciente.persona.Rut,
-                'nombre_completo': f'{paciente.persona.Nombre} {paciente.persona.Apellido_Paterno} {paciente.persona.Apellido_Materno}',
-                'edad': paciente.Edad,
-                'telefono': paciente.persona.Telefono or '',
-                'estado_civil': paciente.get_Estado_civil_display(),
-                'prevision': paciente.get_Previcion_display(),
-                'acompanante': paciente.Acompañante or '',
-                'contacto_emergencia': paciente.Contacto_emergencia or '',
-            }
-        })
-    except Paciente.DoesNotExist:
-        return JsonResponse({
-            'encontrado': False,
-            'mensaje': 'No se encontró un paciente activo con ese RUT'
-        })
-
-def buscar_persona_api(request):
-    """
-    Buscar persona vía AJAX (retorna JSON)
-    Usado para verificar si una persona existe antes de crear paciente
-    """
-    rut = request.GET.get('rut', '').strip()
-    
-    if not rut:
-        return JsonResponse({
-            'encontrado': False,
-            'mensaje': 'RUT no proporcionado'
-        })
-    
-    try:
-        persona = Persona.objects.get(Rut=rut, Activo=True)
-        
-        # Verificar si ya es paciente
-        es_paciente = hasattr(persona, 'paciente')
-        
-        response_data = {
-            'encontrado': True,
-            'es_paciente': es_paciente,
-            'persona': {
-                'id': persona.pk,  # ID de la persona para vincular
-                'rut': persona.Rut,
-                'nombre_completo': f'{persona.Nombre} {persona.Apellido_Paterno} {persona.Apellido_Materno}',
-                'fecha_nacimiento': persona.Fecha_nacimiento.strftime('%d/%m/%Y'),
-                'telefono': persona.Telefono or '',
-                'direccion': persona.Direccion or '',
-                'email': persona.Email or '',
-                'sexo': persona.Sexo,
-            }
-        }
-        
-        # Si ya es paciente, incluir info del paciente
-        if es_paciente:
-            response_data['paciente_id'] = persona.paciente.pk
-            response_data['mensaje'] = 'Esta persona ya está registrada como paciente'
-        
-        return JsonResponse(response_data)
-        
-    except Persona.DoesNotExist:
-        return JsonResponse({
-            'encontrado': False,
-            'mensaje': 'No se encontró una persona con ese RUT'
-        })
-
-# ============================================
-# GESTIÓN DE MEDICAMENTOS EN FICHAS
+# MEDICAMENTOS EN FICHA
 # ============================================
 
+@login_required
 def agregar_medicamento_ficha(request, ficha_pk):
+    """Agregar medicamento a una ficha"""
     
-    #Vista para que la MATRONA asigne un medicamento a una ficha
-
-    from matronaApp.forms.medicamento_forms import MatronaAsignarMedicamento
-    
-    ficha = get_object_or_404(
-        FichaObstetrica.objects.select_related('paciente__persona'),
-        pk=ficha_pk
-    )
-    
-    # Verificar que la ficha esté activa
-    if not ficha.activa:
-        messages.error(request, "❌ No se pueden agregar medicamentos a una ficha cerrada.")
-        return redirect('matrona:detalle_ficha', pk=ficha.pk)
+    ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk)
     
     if request.method == 'POST':
-        form = MatronaAsignarMedicamento(request.POST)
+        form = MedicamentoFichaForm(request.POST)
         
         if form.is_valid():
             medicamento = form.save(commit=False)
@@ -554,17 +278,103 @@ def agregar_medicamento_ficha(request, ficha_pk):
             medicamento.save()
             
             messages.success(
-                request, 
-                f"✅ Medicamento {medicamento.nombre_medicamento} asignado exitosamente."
+                request,
+                f"✅ Medicamento {medicamento.nombre_medicamento} agregado"
             )
-            return redirect('matrona:detalle_ficha', pk=ficha.pk)
+            return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
         else:
-            messages.error(request, "❌ Por favor corrige los errores en el formulario.")
-    else:
-        form = MatronaAsignarMedicamento()
+            messages.error(request, "❌ Por favor corrige los errores.")
     
-    return render(request, 'Matrona/Formularios/agregar_medicamento.html', {
+    else:
+        form = MedicamentoFichaForm()
+    
+    context = {
         'form': form,
         'ficha': ficha,
-        'paciente': ficha.paciente
-    })
+        'titulo': 'Agregar Medicamento',
+    }
+    
+    return render(request, 'Matrona/agregar_medicamento.html', context)
+
+
+@login_required
+def editar_medicamento_ficha(request, medicamento_pk):
+    """Editar medicamento de una ficha"""
+    
+    medicamento = get_object_or_404(MedicamentoFicha, pk=medicamento_pk)
+    ficha = medicamento.ficha
+    
+    if request.method == 'POST':
+        form = MedicamentoFichaForm(request.POST, instance=medicamento)
+        
+        if form.is_valid():
+            medicamento = form.save()
+            messages.success(request, f"✅ Medicamento actualizado")
+            return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
+        else:
+            messages.error(request, "❌ Por favor corrige los errores.")
+    
+    else:
+        form = MedicamentoFichaForm(instance=medicamento)
+    
+    context = {
+        'form': form,
+        'medicamento': medicamento,
+        'ficha': ficha,
+        'titulo': 'Editar Medicamento',
+    }
+    
+    return render(request, 'Matrona/agregar_medicamento.html', context)
+
+
+@login_required
+def eliminar_medicamento_ficha(request, medicamento_pk):
+    """Eliminar medicamento (desactivar)"""
+    
+    medicamento = get_object_or_404(MedicamentoFicha, pk=medicamento_pk)
+    ficha = medicamento.ficha
+    
+    if request.method == 'POST':
+        medicamento.activo = False
+        medicamento.save()
+        
+        messages.success(request, f"✅ Medicamento eliminado")
+        return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
+    
+    context = {
+        'medicamento': medicamento,
+        'ficha': ficha,
+    }
+    
+    return render(request, 'Matrona/confirmar_eliminar_medicamento.html', context)
+
+
+# ============================================
+# API - BÚSQUEDA
+# ============================================
+
+@login_required
+def buscar_persona_api(request):
+    """API para buscar personas por AJAX"""
+    
+    query = request.GET.get('q', '').strip()
+    
+    if not query or len(query) < 2:
+        return JsonResponse({'resultados': []})
+    
+    personas = Persona.objects.filter(
+        Q(Rut__icontains=query) |
+        Q(Nombre__icontains=query) |
+        Q(Apellido_Paterno__icontains=query),
+        Activo=True
+    ).values('id', 'Rut', 'Nombre', 'Apellido_Paterno', 'Apellido_Materno')[:10]
+    
+    resultados = [
+        {
+            'id': p['id'],
+            'texto': f"{p['Rut']} - {p['Nombre']} {p['Apellido_Paterno']}",
+        }
+        for p in personas
+    ]
+    
+    return JsonResponse({'resultados': resultados})
