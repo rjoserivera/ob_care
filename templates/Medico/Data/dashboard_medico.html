@@ -1,0 +1,233 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Médico - Sistema Obstétrico{% endblock %}
+
+{% block extra_css %}
+<style>
+    .navbar-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        padding: 1rem 0;
+    }
+
+    .navbar-custom .navbar-brand,
+    .navbar-custom .nav-link {
+        color: #ffffff !important;
+        font-weight: 600;
+    }
+
+    .welcome-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        background: white;
+        border-left: 5px solid #667eea;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.95rem;
+    }
+
+    .action-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .action-card i {
+        font-size: 3rem;
+        color: #667eea;
+        margin-bottom: 1rem;
+    }
+
+    .action-card h5 {
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    .btn-action {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 10px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-action:hover {
+        transform: scale(1.05);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'authentication:dashboard_medico' %}">
+            <i class="bi bi-hospital-fill"></i> Médico - Sistema Obstétrico
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'gestion:persona_list' %}">
+                        <i class="bi bi-people"></i> Pacientes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'medico:listar_patologias' %}">
+                        <i class="bi bi-file-medical"></i> Patologías
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> {{ request.user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/admin/">Panel Admin</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'authentication:logout' %}">Cerrar Sesión</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid" style="margin-top: 100px; padding: 20px;">
+    <div class="welcome-card">
+        <h2><i class="bi bi-hospital"></i> ¡Bienvenido Médico!</h2>
+        <p>{{ request.user.get_full_name|default:request.user.username }}</p>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-number">{{ total_pacientes }}</div>
+                <div class="stat-label">Pacientes Activos</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-number">{{ total_fichas }}</div>
+                <div class="stat-label">Fichas Obstétricas</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-number">{{ partos_pendientes }}</div>
+                <div class="stat-label">Partos Pendientes</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-number">{{ total_fichas }}</div>
+                <div class="stat-label">Fichas en Atención</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones principales del médico -->
+    <div class="row">
+        <h4 class="mb-3">Acciones Disponibles</h4>
+
+        {% if puede_agregar_paciente %}
+        <div class="col-md-3 mb-4">
+            <div class="action-card">
+                <i class="bi bi-person-plus-fill"></i>
+                <h5>Agregar Paciente</h5>
+                <a href="{% url 'gestion:registrar_persona' %}" class="btn btn-action">
+                    Ir
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if puede_ver_historial %}
+        <div class="col-md-3 mb-4">
+            <div class="action-card">
+                <i class="bi bi-file-text"></i>
+                <h5>Ver Historial</h5>
+                <a href="{% url 'gestion:persona_list' %}" class="btn btn-action">
+                    Ir
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if puede_editar_ficha %}
+        <div class="col-md-3 mb-4">
+            <div class="action-card">
+                <i class="bi bi-pencil-square"></i>
+                <h5>Editar Ficha</h5>
+                <a href="{% url 'matrona:todas_fichas' %}" class="btn btn-action">
+                    Ir
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if puede_iniciar_parto %}
+        <div class="col-md-3 mb-4">
+            <div class="action-card">
+                <i class="bi bi-heart-pulse-fill"></i>
+                <h5>Iniciar Parto</h5>
+                <a href="{% url 'partos:seleccionar_ficha' %}" class="btn btn-action">
+                    Ir
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if puede_asignar_medicamentos %}
+        <div class="col-md-3 mb-4">
+            <div class="action-card">
+                <i class="bi bi-capsule"></i>
+                <h5>Asignar Medicamentos</h5>
+                <a href="{% url 'matrona:todas_fichas' %}" class="btn btn-action">
+                    Ir
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="col-md-3 mb-4">
+            <div class="action-card">
+                <i class="bi bi-search"></i>
+                <h5>Buscar Paciente</h5>
+                <a href="{% url 'gestion:buscar_persona' %}" class="btn btn-action">
+                    Ir
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

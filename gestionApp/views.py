@@ -10,9 +10,11 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import JsonResponse
 from django.views.generic import ListView, DetailView
+from django.utils.decorators import method_decorator
 
 from .models import Persona
 from .forms import PersonaForm, BuscarPersonaForm
+from authentication.decorators import roles_required
 
 
 # ============================================
@@ -20,10 +22,13 @@ from .forms import PersonaForm, BuscarPersonaForm
 # ============================================
 
 @login_required
+@roles_required('medico', 'administrador')
 def registrar_persona(request):
     """
     Registrar una Persona nueva en el sistema
     NO es paciente aún (se vuelve paciente al crear ficha)
+    
+    Restricción: Solo Médico y Administrador pueden registrar personas
     """
     
     if request.method == 'POST':
@@ -37,15 +42,19 @@ def registrar_persona(request):
                 
                 messages.success(
                     request,
-                    f"✅ Persona {persona.Nombre} {persona.Apellido_Paterno} registrada"
+                    f"✅ Persona {persona.Nombre} {persona.Apellido_Paterno} registrada exitosamente"
                 )
                 
+                # Redirigir al detalle de la persona
                 return redirect('gestion:detalle_persona', pk=persona.pk)
                 
             except Exception as e:
-                messages.error(request, f"❌ Error: {str(e)}")
+                messages.error(request, f"❌ Error al registrar: {str(e)}")
         else:
-            messages.error(request, "❌ Por favor corrige los errores en el formulario.")
+            if form.errors:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"❌ {field}: {error}")
     
     else:
         form = PersonaForm()
@@ -53,9 +62,29 @@ def registrar_persona(request):
     context = {
         'form': form,
         'titulo': 'Registrar Nueva Persona',
+        'subtitulo': 'Complete los datos básicos de la persona',
+        'button_text': 'Registrar Persona',
     }
     
-    return render(request, 'Gestion/registrar_persona.html', context)
+    return render(request, 'Gestion/Formularios/registrar_persona.html', context)
+
+
+# ============================================
+# DETALLE PERSONA
+# ============================================
+
+@login_required
+def detalle_persona(request, pk):
+    """Ver detalles de una Persona"""
+    
+    persona = get_object_or_404(Persona, pk=pk)
+    
+    context = {
+        'persona': persona,
+        'titulo': f'{persona.Nombre} {persona.Apellido_Paterno}',
+    }
+    
+    return render(request, 'Gestion/detalle_persona.html', context)
 
 
 # ============================================
@@ -63,8 +92,12 @@ def registrar_persona(request):
 # ============================================
 
 @login_required
+@roles_required('medico', 'administrador')
 def editar_persona(request, pk):
-    """Editar datos de una Persona"""
+    """
+    Editar datos de una Persona
+    Restricción: Solo Médico y Administrador
+    """
     
     persona = get_object_or_404(Persona, pk=pk, Activo=True)
     
@@ -73,7 +106,7 @@ def editar_persona(request, pk):
         
         if form.is_valid():
             persona = form.save()
-            messages.success(request, f"✅ Persona actualizada")
+            messages.success(request, f"✅ Datos de {persona.Nombre} actualizados")
             return redirect('gestion:detalle_persona', pk=persona.pk)
         else:
             messages.error(request, "❌ Por favor corrige los errores.")
@@ -85,39 +118,10 @@ def editar_persona(request, pk):
         'form': form,
         'persona': persona,
         'titulo': f'Editar: {persona.Nombre} {persona.Apellido_Paterno}',
-        'es_edicion': True,
+        'button_text': 'Guardar Cambios',
     }
     
-    return render(request, 'Gestion/registrar_persona.html', context)
-
-
-# ============================================
-# DETALLE DE PERSONA
-# ============================================
-
-@login_required
-def detalle_persona(request, pk):
-    """Ver detalles de una Persona"""
-    
-    persona = get_object_or_404(Persona, pk=pk, Activo=True)
-    
-    # Verificar si es paciente
-    from .models import Paciente
-    try:
-        paciente = Paciente.objects.get(persona=persona)
-        es_paciente = True
-    except Paciente.DoesNotExist:
-        paciente = None
-        es_paciente = False
-    
-    context = {
-        'persona': persona,
-        'paciente': paciente,
-        'es_paciente': es_paciente,
-        'titulo': f'{persona.Nombre} {persona.Apellido_Paterno}',
-    }
-    
-    return render(request, 'Gestion/detalle_persona.html', context)
+    return render(request, 'Gestion/Formularios/registrar_persona.html', context)
 
 
 # ============================================
@@ -128,29 +132,23 @@ def detalle_persona(request, pk):
 def persona_list(request):
     """Listar todas las personas activas"""
     
-    personas = Persona.objects.filter(
-        Activo=True
-    ).order_by('Nombre')
+    query = request.GET.get('q', '').strip()
     
-    # Filtro opcional por estado (paciente o no)
-    es_paciente = request.GET.get('es_paciente')
+    personas = Persona.objects.filter(Activo=True)
     
-    if es_paciente == '1':
-        # Solo personas que son pacientes
-        from .models import Paciente
-        pacientes_ids = Paciente.objects.values_list('persona_id', flat=True)
-        personas = personas.filter(id__in=pacientes_ids)
-    
-    elif es_paciente == '0':
-        # Solo personas que NO son pacientes
-        from .models import Paciente
-        pacientes_ids = Paciente.objects.values_list('persona_id', flat=True)
-        personas = personas.exclude(id__in=pacientes_ids)
+    if query:
+        personas = personas.filter(
+            Q(Nombre__icontains=query) |
+            Q(Apellido_Paterno__icontains=query) |
+            Q(Apellido_Materno__icontains=query) |
+            Q(Rut__icontains=query)
+        )
     
     context = {
         'personas': personas,
-        'titulo': 'Personas del Sistema',
+        'query': query,
         'total': personas.count(),
+        'titulo': 'Listado de Personas',
     }
     
     return render(request, 'Gestion/lista_personas.html', context)
@@ -162,71 +160,67 @@ def persona_list(request):
 
 @login_required
 def buscar_persona(request):
-    """Buscar una Persona por RUT o nombre"""
+    """Búsqueda avanzada de personas"""
     
     query = request.GET.get('q', '').strip()
     personas = []
     
     if query and len(query) >= 2:
         personas = Persona.objects.filter(
-            Q(Rut__icontains=query) |
             Q(Nombre__icontains=query) |
             Q(Apellido_Paterno__icontains=query) |
-            Q(Apellido_Materno__icontains=query),
+            Q(Apellido_Materno__icontains=query) |
+            Q(Rut__icontains=query),
             Activo=True
-        ).order_by('Nombre')
+        )
     
     context = {
         'personas': personas,
         'query': query,
-        'titulo': 'Búsqueda de Personas',
+        'titulo': 'Buscar Persona',
     }
     
     return render(request, 'Gestion/buscar_persona.html', context)
 
 
 # ============================================
-# ACTIVAR/DESACTIVAR PERSONA
+# DESACTIVAR PERSONA
 # ============================================
 
 @login_required
+@roles_required('administrador')
 def desactivar_persona(request, pk):
-    """Desactivar una Persona"""
+    """
+    Desactivar una Persona (no eliminar)
+    Restricción: Solo Administrador
+    """
     
     persona = get_object_or_404(Persona, pk=pk)
+    persona.Activo = False
+    persona.save()
     
-    if request.method == 'POST':
-        persona.Activo = False
-        persona.save()
-        messages.success(request, f"✅ Persona desactivada")
-        return redirect('gestion:persona_list')
-    
-    context = {
-        'persona': persona,
-        'accion': 'Desactivar',
-    }
-    
-    return render(request, 'Gestion/confirmar_accion.html', context)
+    messages.success(request, f"✅ Persona {persona.Nombre} desactivada")
+    return redirect('gestion:persona_list')
 
+
+# ============================================
+# ACTIVAR PERSONA
+# ============================================
 
 @login_required
+@roles_required('administrador')
 def activar_persona(request, pk):
-    """Activar una Persona"""
+    """
+    Activar una Persona desactivada
+    Restricción: Solo Administrador
+    """
     
     persona = get_object_or_404(Persona, pk=pk)
+    persona.Activo = True
+    persona.save()
     
-    if request.method == 'POST':
-        persona.Activo = True
-        persona.save()
-        messages.success(request, f"✅ Persona activada")
-        return redirect('gestion:persona_list')
-    
-    context = {
-        'persona': persona,
-        'accion': 'Activar',
-    }
-    
-    return render(request, 'Gestion/confirmar_accion.html', context)
+    messages.success(request, f"✅ Persona {persona.Nombre} activada")
+    return redirect('gestion:persona_list')
 
 
 # ============================================
@@ -235,26 +229,29 @@ def activar_persona(request, pk):
 
 @login_required
 def api_buscar_persona(request):
-    """API para búsqueda en tiempo real (AJAX)"""
+    """
+    API para búsqueda AJAX de personas
+    Retorna JSON
+    """
     
     query = request.GET.get('q', '').strip()
     
-    if not query or len(query) < 2:
+    if len(query) < 2:
         return JsonResponse({'resultados': []})
     
     personas = Persona.objects.filter(
-        Q(Rut__icontains=query) |
         Q(Nombre__icontains=query) |
-        Q(Apellido_Paterno__icontains=query),
+        Q(Apellido_Paterno__icontains=query) |
+        Q(Rut__icontains=query),
         Activo=True
-    ).values('id', 'Rut', 'Nombre', 'Apellido_Paterno')[:15]
+    )[:10]
     
     resultados = [
         {
-            'id': p['id'],
-            'rut': p['Rut'],
-            'nombre_completo': f"{p['Nombre']} {p['Apellido_Paterno']}",
-            'display': f"{p['Rut']} - {p['Nombre']} {p['Apellido_Paterno']}",
+            'id': p.pk,
+            'nombre': f'{p.Nombre} {p.Apellido_Paterno}',
+            'rut': p.Rut,
+            'edad': (2025 - p.Fecha_nacimiento.year) if p.Fecha_nacimiento else 'N/A',
         }
         for p in personas
     ]

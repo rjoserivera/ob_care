@@ -1,0 +1,455 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}{{ persona.Nombre }} - Sistema Obstétrico{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-container {
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+
+    .detail-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .detail-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+    }
+
+    .detail-title h2 {
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-title p {
+        opacity: 0.95;
+        margin-bottom: 0;
+    }
+
+    .detail-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .detail-section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #667eea;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .detail-section-title i {
+        color: #667eea;
+    }
+
+    .detail-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .detail-item {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 3px solid #667eea;
+    }
+
+    .detail-label {
+        color: #666;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.3rem;
+    }
+
+    .detail-value {
+        color: #333;
+        font-size: 1.05rem;
+        font-weight: 500;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-activo {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .badge-inactivo {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .badge-si {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .checkbox-display {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+    }
+
+    .checkbox-item i {
+        font-size: 1.2rem;
+    }
+
+    .checkbox-item.checked i {
+        color: #28a745;
+    }
+
+    .checkbox-item.unchecked i {
+        color: #6c757d;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e0e0e0;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #e9ecef;
+        color: #333;
+    }
+
+    .btn-secondary:hover {
+        background: #dee2e6;
+        color: #333;
+        text-decoration: none;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #c82333;
+        color: white;
+        text-decoration: none;
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb-item {
+        color: #667eea;
+    }
+
+    .breadcrumb-item.active {
+        color: #666;
+    }
+
+    .edad {
+        background: #667eea;
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .detail-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .detail-avatar {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+        }
+
+        .detail-title {
+            width: 100%;
+        }
+
+        .detail-row {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'gestion:persona_list' %}">Personas</a></li>
+            <li class="breadcrumb-item active">{{ persona.Nombre }}</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="detail-header">
+        <div class="detail-avatar">
+            <i class="bi bi-person-fill"></i>
+        </div>
+        <div class="detail-title" style="flex: 1;">
+            <h2>{{ persona.Nombre }} {{ persona.Apellido_Paterno }} {{ persona.Apellido_Materno }}</h2>
+            <p><strong>RUT:</strong> {{ persona.Rut }}</p>
+            <span class="badge {% if persona.Activo %}badge-activo{% else %}badge-inactivo{% endif %}">
+                {% if persona.Activo %}
+                    <i class="bi bi-check-circle"></i> Activo
+                {% else %}
+                    <i class="bi bi-x-circle"></i> Inactivo
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    <!-- Información Personal -->
+    <div class="detail-card">
+        <div class="detail-section-title">
+            <i class="bi bi-person-fill"></i> Información Personal
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-item">
+                <div class="detail-label">Nombre</div>
+                <div class="detail-value">{{ persona.Nombre }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Apellido Paterno</div>
+                <div class="detail-value">{{ persona.Apellido_Paterno }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Apellido Materno</div>
+                <div class="detail-value">{{ persona.Apellido_Materno }}</div>
+            </div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-item">
+                <div class="detail-label">Fecha de Nacimiento</div>
+                <div class="detail-value">
+                    {% if persona.Fecha_nacimiento %}
+                        {{ persona.Fecha_nacimiento|date:"d/m/Y" }}
+                        <span class="edad" title="Edad aproximada">
+                            {% with edad=2025|add:persona.Fecha_nacimiento.year|add:"-1" %}
+                                {{ edad }} años
+                            {% endwith %}
+                        </span>
+                    {% else %}
+                        <span class="text-muted">No registrado</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Sexo</div>
+                <div class="detail-value">
+                    {% if persona.Sexo %}
+                        {{ persona.Sexo.nombre }}
+                    {% else %}
+                        <span class="text-muted">No registrado</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Nacionalidad</div>
+                <div class="detail-value">
+                    {% if persona.Nacionalidad %}
+                        {{ persona.Nacionalidad.nombre }}
+                    {% else %}
+                        <span class="text-muted">No registrado</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contacto -->
+    <div class="detail-card">
+        <div class="detail-section-title">
+            <i class="bi bi-telephone-fill"></i> Información de Contacto
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-item">
+                <div class="detail-label">Teléfono</div>
+                <div class="detail-value">
+                    {% if persona.Telefono %}
+                        <a href="tel:{{ persona.Telefono }}" style="color: #667eea;">{{ persona.Telefono }}</a>
+                    {% else %}
+                        <span class="text-muted">No registrado</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Dirección</div>
+                <div class="detail-value">
+                    {% if persona.Direccion %}
+                        {{ persona.Direccion }}
+                    {% else %}
+                        <span class="text-muted">No registrado</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información Especial -->
+    <div class="detail-card">
+        <div class="detail-section-title">
+            <i class="bi bi-info-circle-fill"></i> Información Especial
+        </div>
+        
+        <div class="detail-row">
+            <div class="detail-item">
+                <div class="detail-label">Pueblos Originarios</div>
+                <div class="detail-value">
+                    {% if persona.Pueblos_originarios %}
+                        {{ persona.Pueblos_originarios.nombre }}
+                    {% else %}
+                        <span class="text-muted">No aplica</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-label" style="margin-top: 1rem;">Condiciones Especiales</div>
+        <div class="checkbox-display">
+            <div class="checkbox-item {% if persona.Inmigrante %}checked{% else %}unchecked{% endif %}">
+                <i class="bi {% if persona.Inmigrante %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
+                <span>Inmigrante</span>
+            </div>
+            
+            <div class="checkbox-item {% if persona.Discapacidad %}checked{% else %}unchecked{% endif %}">
+                <i class="bi {% if persona.Discapacidad %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
+                <span>Discapacidad</span>
+            </div>
+            
+            <div class="checkbox-item {% if persona.Privada_de_Libertad %}checked{% else %}unchecked{% endif %}">
+                <i class="bi {% if persona.Privada_de_Libertad %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
+                <span>Privada de Libertad</span>
+            </div>
+            
+            <div class="checkbox-item {% if persona.Trans_Masculino %}checked{% else %}unchecked{% endif %}">
+                <i class="bi {% if persona.Trans_Masculino %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
+                <span>Trans Masculino</span>
+            </div>
+        </div>
+
+        {% if persona.Discapacidad and persona.Tipo_de_Discapacidad %}
+        <div class="detail-item" style="margin-top: 1rem;">
+            <div class="detail-label">Tipo de Discapacidad</div>
+            <div class="detail-value">{{ persona.Tipo_de_Discapacidad }}</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Acciones -->
+    <div class="detail-card">
+        <div class="action-buttons">
+            <a href="{% url 'gestion:editar_persona' persona.pk %}" class="btn btn-primary">
+                <i class="bi bi-pencil-square"></i> Editar
+            </a>
+            
+            <a href="{% url 'gestion:persona_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+            
+            {% if persona.Activo %}
+            <form action="{% url 'gestion:desactivar_persona' persona.pk %}" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" onclick="return confirm('¿Desactivar esta persona?')">
+                    <i class="bi bi-x-circle"></i> Desactivar
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

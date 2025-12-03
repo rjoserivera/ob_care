@@ -1,0 +1,223 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard TENS - Sistema Obstétrico{% endblock %}
+
+{% block extra_css %}
+<style>
+    .navbar-custom {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+        padding: 1rem 0;
+    }
+
+    .navbar-custom .navbar-brand,
+    .navbar-custom .nav-link {
+        color: #ffffff !important;
+        font-weight: 600;
+    }
+
+    .welcome-card {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        background: white;
+        border-left: 5px solid #4facfe;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #4facfe;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.95rem;
+    }
+
+    .action-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .action-card i {
+        font-size: 3rem;
+        color: #4facfe;
+        margin-bottom: 1rem;
+    }
+
+    .action-card h5 {
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    .btn-action {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border: none;
+        padding: 10px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-action:hover {
+        transform: scale(1.05);
+        color: white;
+    }
+
+    .restricted {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    .restricted .btn-action {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'tens:menu_tens' %}">
+            <i class="bi bi-bandaid-fill"></i> TENS - Sistema Obstétrico
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> {{ request.user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item text-danger" href="{% url 'authentication:logout' %}">Cerrar Sesión</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid" style="margin-top: 100px; padding: 20px;">
+    <div class="welcome-card">
+        <h2><i class="bi bi-bandaid-fill"></i> ¡Bienvenido TENS!</h2>
+        <p>{{ request.user.get_full_name|default:request.user.username }}</p>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stat-box">
+                <div class="stat-number">{{ total_tratamientos }}</div>
+                <div class="stat-label">Tratamientos Aplicados</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box">
+                <div class="stat-number">{{ total_registros_tens }}</div>
+                <div class="stat-label">Registros TENS</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Pacientes en Atención</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones principales de TENS -->
+    <div class="row">
+        <h4 class="mb-3">Acciones Disponibles</h4>
+
+        {% if puede_aplicar_tratamiento %}
+        <div class="col-md-3 mb-4">
+            <div class="action-card">
+                <i class="bi bi-activity"></i>
+                <h5>Aplicar Tratamiento</h5>
+                <a href="{% url 'tens:buscar_paciente' %}" class="btn btn-action">
+                    Ir
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if puede_registrar_tratamiento %}
+        <div class="col-md-3 mb-4">
+            <div class="action-card">
+                <i class="bi bi-file-earmark-check"></i>
+                <h5>Registrar Tratamiento</h5>
+                <a href="{% url 'tens:parametros_tens' %}" class="btn btn-action">
+                    Ir
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if puede_buscar_paciente %}
+        <div class="col-md-3 mb-4">
+            <div class="action-card">
+                <i class="bi bi-search"></i>
+                <h5>Buscar Paciente</h5>
+                <a href="{% url 'tens:buscar_paciente' %}" class="btn btn-action">
+                    Ir
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Acciones restringidas (solo para visualización) -->
+        {% if not puede_asignar_medicamentos %}
+        <div class="col-md-3 mb-4 restricted" title="Solo disponible para Médico y Matrona">
+            <div class="action-card">
+                <i class="bi bi-lock-fill"></i>
+                <h5>Asignar Medicamentos</h5>
+                <button class="btn btn-action" disabled>
+                    Restringido
+                </button>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if not puede_ver_historial %}
+        <div class="col-md-3 mb-4 restricted" title="Solo disponible para Médico">
+            <div class="action-card">
+                <i class="bi bi-lock-fill"></i>
+                <h5>Ver Historial</h5>
+                <button class="btn btn-action" disabled>
+                    Restringido
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Nota informativa -->
+    <div class="alert alert-info mt-4" role="alert">
+        <i class="bi bi-info-circle"></i>
+        <strong>Tu rol permite:</strong> Aplicar tratamientos TENS, registrar tratamientos y buscar pacientes.
+        Para acciones adicionales, contacta con el personal médico.
+    </div>
+</div>
+{% endblock %}

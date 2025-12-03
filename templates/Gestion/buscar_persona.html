@@ -1,0 +1,241 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Buscar Persona - Sistema Obstétrico{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-container {
+        max-width: 800px;
+        margin: 4rem auto;
+        padding: 2rem;
+    }
+
+    .search-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .search-header h2 {
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+
+    .search-form {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .search-input-group {
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 1rem 1.5rem 1rem 3rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        border-color: #667eea;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .search-input-group i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #667eea;
+        font-size: 1.2rem;
+    }
+
+    .results-container {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .result-card {
+        padding: 1.5rem;
+        border-bottom: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .result-card:hover {
+        background: #f8f9fa;
+        transform: translateX(5px);
+    }
+
+    .result-card:last-child {
+        border-bottom: none;
+    }
+
+    .result-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .result-info {
+        color: #666;
+        font-size: 0.95rem;
+    }
+
+    .result-badge {
+        display: inline-block;
+        background: #667eea;
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        margin-left: 0.5rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        color: #666;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #ddd;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .btn-select {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        float: right;
+        margin-top: 0.5rem;
+    }
+
+    .btn-select:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+
+    .hint {
+        text-align: center;
+        color: #999;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 600px) {
+        .search-container {
+            margin: 2rem 1rem;
+            padding: 1rem;
+        }
+
+        .search-form {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <div class="search-header">
+        <h2><i class="bi bi-search"></i> {{ titulo }}</h2>
+        <p>Busca a la persona por nombre, apellido o RUT</p>
+    </div>
+
+    <div class="search-form">
+        <form method="get">
+            <div class="search-input-group">
+                <i class="bi bi-search"></i>
+                <input 
+                    type="text" 
+                    name="q" 
+                    class="search-input" 
+                    placeholder="Nombre, apellido o RUT..."
+                    value="{{ query }}"
+                    autofocus
+                    minlength="2"
+                >
+            </div>
+            <div class="hint">
+                Mínimo 2 caracteres para buscar
+            </div>
+        </form>
+    </div>
+
+    {% if personas %}
+    <div class="results-container">
+        <div style="padding: 1rem; background: #f8f9fa; border-bottom: 2px solid #e0e0e0;">
+            <strong>{{ personas|length }} resultado{{ personas|length|pluralize }}</strong> encontrado{{ personas|length|pluralize }}
+        </div>
+
+        {% for persona in personas %}
+        <div class="result-card">
+            <div class="result-name">
+                {{ persona.Nombre }} {{ persona.Apellido_Paterno }}
+                <span class="result-badge">
+                    {% if persona.Activo %}
+                        Activo
+                    {% else %}
+                        Inactivo
+                    {% endif %}
+                </span>
+            </div>
+            
+            <div class="result-info">
+                <strong>RUT:</strong> {{ persona.Rut }}<br>
+                <strong>Apellido Materno:</strong> {{ persona.Apellido_Materno }}<br>
+                {% if persona.Fecha_nacimiento %}
+                    <strong>Fecha de Nacimiento:</strong> {{ persona.Fecha_nacimiento|date:"d/m/Y" }}
+                {% endif %}
+                {% if persona.Telefono %}
+                    <br><strong>Teléfono:</strong> {{ persona.Telefono }}
+                {% endif %}
+            </div>
+
+            <a href="{% url 'gestion:detalle_persona' persona.pk %}" class="btn-select">
+                <i class="bi bi-arrow-right-circle"></i> Ver Detalles
+            </a>
+            <div style="clear: both;"></div>
+        </div>
+        {% endfor %}
+    </div>
+    {% elif query %}
+    <div class="results-container">
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <h4>Sin resultados</h4>
+            <p>No se encontraron personas con "<strong>{{ query }}</strong>"</p>
+            <a href="{% url 'gestion:registrar_persona' %}" style="color: #667eea; text-decoration: none; margin-top: 1rem; display: inline-block;">
+                ¿Deseas registrar una nueva persona?
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <div class="results-container">
+        <div class="empty-state">
+            <i class="bi bi-search"></i>
+            <h4>Comienza tu búsqueda</h4>
+            <p>Escribe el nombre, apellido o RUT de una persona en el campo de arriba</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
