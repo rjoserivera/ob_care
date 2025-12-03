@@ -4,19 +4,24 @@ from django.urls import path, include
 from inicioApp import views as inicio_views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),  # ← Admin de Django (para crear usuarios)
+    path('admin/', admin.site.urls),
     
-    # Página principal - SCREENSAVER
-    path('', inicio_views.screensaver, name='home'),  # ✅ SCREENSAVER
-    
-    # Autenticación
-    path('login/', views.CustomLoginView.as_view(), name='login'),  # ✅ LOGIN
-    path('logout/', views.custom_logout_view, name='logout'),
+    # Página principal
+    path('', inicio_views.home, name='home'),
     
     # Apps del sistema
     path('gestion/', include('gestionApp.urls')),
     path('matrona/', include('matronaApp.urls')),
     path('medico/', include('medicoApp.urls')),
     path('tens/', include('tensApp.urls')),
-    path('partos/', include('partosApp.urls')), 
+    path('partos/', include('partosApp.urls')),
+    
+    # Autenticación
+    path('', include('authentication.urls')),
 ]
+
+# ✅ DEBUG TOOLBAR (Solo en desarrollo)
+if settings.DEBUG:
+    urlpatterns += [
+        path('__debug__/', include('debug_toolbar.urls')),
+    ]

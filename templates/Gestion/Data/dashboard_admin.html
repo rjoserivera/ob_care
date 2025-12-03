@@ -62,7 +62,7 @@
 {% block content %}
 <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
     <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'gestion:dashboard_admin' %}">
+        <a class="navbar-brand" href="{% url 'authentication:dashboard_admin' %}">
             <i class="bi bi-hospital-fill"></i> Sistema Obstétrico
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -71,7 +71,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link active" href="{% url 'gestion:dashboard_admin' %}">
+                    <a class="nav-link active" href="{% url 'authentication:dashboard_admin' %}">
                         <i class="bi bi-speedometer2"></i> Dashboard
                     </a>
                 </li>
@@ -81,7 +81,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'gestion:registrar_persona' %}">Nueva Persona</a></li>
-                        <li><a class="dropdown-item" href="{% url 'gestion:lista_personas' %}">Ver Todas</a></li>
+                        <li><a class="dropdown-item" href="{% url 'gestion:persona_list' %}">Ver Todas</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
@@ -91,7 +91,7 @@
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="/admin/">Panel Admin</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">Cerrar Sesión</a></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'authentication:logout' %}">Cerrar Sesión</a></li>
                     </ul>
                 </li>
             </ul>
@@ -153,7 +153,7 @@
                     <span class="badge bg-light text-dark">{{ total_medicos }}</span>
                 </div>
                 <div class="card-body">
-                    <a href="{% url 'gestion:registrar_medico' %}" class="btn btn-primary w-100">
+                    <a href="{% url 'gestion:registrar_persona' %}" class="btn btn-primary w-100">
                         <i class="bi bi-plus-circle"></i> Registrar
                     </a>
                 </div>
@@ -168,7 +168,7 @@
                     <span class="badge bg-light text-dark">{{ total_matronas }}</span>
                 </div>
                 <div class="card-body">
-                    <a href="{% url 'gestion:registrar_matrona' %}" class="btn btn-success w-100">
+                    <a href="{% url 'gestion:registrar_persona' %}" class="btn btn-success w-100">
                         <i class="bi bi-plus-circle"></i> Registrar
                     </a>
                 </div>
@@ -183,7 +183,7 @@
                     <span class="badge bg-light text-dark">{{ total_tens }}</span>
                 </div>
                 <div class="card-body">
-                    <a href="{% url 'gestion:registrar_tens' %}" class="btn btn-info w-100">
+                    <a href="{% url 'gestion:registrar_persona' %}" class="btn btn-info w-100">
                         <i class="bi bi-plus-circle"></i> Registrar
                     </a>
                 </div>
@@ -198,7 +198,7 @@
                     <span class="badge bg-light text-dark">{{ total_pacientes }}</span>
                 </div>
                 <div class="card-body">
-                    <a href="{% url 'gestion:registrar_paciente' %}" class="btn btn-warning w-100">
+                    <a href="{% url 'gestion:registrar_persona' %}" class="btn btn-warning w-100">
                         <i class="bi bi-plus-circle"></i> Registrar
                     </a>
                 </div>

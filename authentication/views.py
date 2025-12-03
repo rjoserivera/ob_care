@@ -13,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class CustomLoginView(LoginView):
-    template_name = 'authentication/login.html'
+    template_name = 'Tem_authentication/login.html'  # ✅ CORREGIDO: Apunta a Tem_authentication
     form_class = CustomLoginForm
     redirect_authenticated_user = True
     
@@ -71,9 +71,9 @@ def custom_logout_view(request):
     return redirect("home")
 
 
-# -----------------------------
+# ─────────────────────────────────────────────
 # DASHBOARDS POR ROL
-# -----------------------------
+# ─────────────────────────────────────────────
 
 @method_decorator(login_required, name='dispatch')
 class DashboardAdminView(TemplateView):
