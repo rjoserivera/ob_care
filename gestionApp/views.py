@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from gestionApp.models import Persona
-from gestionApp.forms.Gestion_form import PersonaForm
+from gestionApp.forms.persona_form import PersonaForm
 
 
 # ============================================

@@ -5,10 +5,11 @@ from django.http import JsonResponse
 from django.db.models import Q, Count, Prefetch
 from django.contrib.auth.decorators import login_required
 
-from matronaApp.models import IngresoPaciente, FichaObstetrica, MedicamentoFicha
+from matronaApp.models import FichaObstetrica, MedicamentoFicha
 from gestionApp.models import Persona, Paciente, Matrona
-from gestionApp.forms.Gestion_form import PacienteForm
-from matronaApp.forms import IngresoPacienteForm, FichaObstetricaForm
+from gestionApp.forms.persona_form import PersonaForm
+from matronaApp.forms.matrona_app_forms import FichaObstetricaForm, MedicamentoFichaForm
+from gestionApp.forms.paciente_form import PacienteForm
 from legacyApp.models import ControlesPrevios
 
 
@@ -28,7 +29,7 @@ def menu_matrona(request):
         'usuario': request.user,
         'total_pacientes': Paciente.objects.count(),
         'total_fichas_activas': FichaObstetrica.objects.filter(activa=True).count(),
-        'ingresos_activos': IngresoPaciente.objects.filter(activo=True).count(),
+        #'ingresos_activos': IngresoPaciente.objects.filter(activo=True).count(),
         'medicamentos_activos': MedicamentoFicha.objects.filter(activo=True).count(),
     }
     return render(request, 'Matrona/Data/menu_matrona.html', context)
@@ -139,7 +140,7 @@ class PacienteDetailView(DetailView):
 def registrar_paciente(request):
     """Registrar un nuevo paciente"""
     if request.method == 'POST':
-        form = PacienteForm(request.POST)
+        form = PacienteForm(request.POST, prefix='paciente')
         if form.is_valid():
             paciente = form.save()
             messages.success(request, "✅ Paciente registrado correctamente.")
@@ -328,12 +329,12 @@ def detalle_ficha(request, pk):
         'paciente': ficha.paciente,
         'medicamentos': medicamentos,
     })
-
+"""
 def editar_ficha(request, pk):
-    """
-    Editar una ficha obstétrica existente
-    Solo se pueden editar fichas activas
-    """
+    
+    #Editar una ficha obstétrica existente
+    # Solo se pueden editar fichas activas
+    
     # Obtener la ficha con sus relaciones
     ficha = get_object_or_404(
         FichaObstetrica.objects.select_related(
@@ -383,7 +384,7 @@ def editar_ficha(request, pk):
         }
         
         # CRÍTICO: Pasar instance para que se llenen los campos
-        form = FichaObstetricaForm(instance=ficha, initial=initial_data)
+        form = FichaObstetricaForm(instance=ficha, initial=initial_data, prefix='ficha')
     
     context = {
         'form': form,
@@ -396,7 +397,7 @@ def editar_ficha(request, pk):
 
 def desactivar_ficha(request, pk):
     """
-    Cerrar/desactivar una ficha obstétrica
+    #Cerrar/desactivar una ficha obstétrica
     """
     ficha = get_object_or_404(FichaObstetrica, pk=pk)
     
@@ -415,7 +416,7 @@ def desactivar_ficha(request, pk):
 
 def lista_todas_fichas(request):
     """
-    Listado general de todas las fichas obstétricas del sistema
+    #Listado general de todas las fichas obstétricas del sistema
     """
     fichas = FichaObstetrica.objects.select_related(
         'paciente__persona',
@@ -432,7 +433,7 @@ def lista_todas_fichas(request):
     return render(request, 'Matrona/Data/todas_fichas.html', {
         'fichas': fichas
     })
-
+"""
 
 
 # ============================================
@@ -527,10 +528,11 @@ def buscar_persona_api(request):
 # ============================================
 # GESTIÓN DE MEDICAMENTOS EN FICHAS
 # ============================================
+
 def agregar_medicamento_ficha(request, ficha_pk):
-    """
-    Vista para que la MATRONA asigne un medicamento a una ficha
-    """
+    
+    #Vista para que la MATRONA asigne un medicamento a una ficha
+
     from matronaApp.forms.medicamento_forms import MatronaAsignarMedicamento
     
     ficha = get_object_or_404(
@@ -565,61 +567,4 @@ def agregar_medicamento_ficha(request, ficha_pk):
         'form': form,
         'ficha': ficha,
         'paciente': ficha.paciente
-    })
-
-def editar_medicamento_ficha(request, medicamento_pk):
-    """
-    Vista para que la MATRONA edite un medicamento asignado
-    """
-    from matronaApp.forms.medicamento_forms import MatronaAsignarMedicamento
-    
-    medicamento = get_object_or_404(
-        MedicamentoFicha.objects.select_related('ficha__paciente__persona'),
-        pk=medicamento_pk
-    )
-    
-    ficha = medicamento.ficha
-    
-    # Verificar que la ficha esté activa
-    if not ficha.activa:
-        messages.error(request, "❌ No se pueden editar medicamentos de una ficha cerrada.")
-        return redirect('matrona:detalle_ficha', pk=ficha.pk)
-    
-    if request.method == 'POST':
-        form = MatronaAsignarMedicamento(request.POST, instance=medicamento)
-        
-        if form.is_valid():
-            form.save()
-            messages.success(request, "✅ Medicamento actualizado exitosamente.")
-            return redirect('matrona:detalle_ficha', pk=ficha.pk)
-        else:
-            messages.error(request, "❌ Por favor corrige los errores en el formulario.")
-    else:
-        form = MatronaAsignarMedicamento(instance=medicamento)
-    
-    return render(request, 'Matrona/Formularios/editar_medicamento.html', {
-        'form': form,
-        'medicamento': medicamento,
-        'ficha': ficha,
-        'paciente': ficha.paciente
-    })
-
-def desactivar_medicamento_ficha(request, medicamento_pk):
-    """
-    Desactivar un medicamento (no se elimina, solo se marca como inactivo)
-    """
-    medicamento = get_object_or_404(MedicamentoFicha, pk=medicamento_pk)
-    
-    if request.method == 'POST':
-        medicamento.activo = False
-        medicamento.save()
-        
-        messages.success(
-            request,
-            f"✅ Medicamento {medicamento.nombre_medicamento} desactivado."
-        )
-        return redirect('matrona:detalle_ficha', pk=medicamento.ficha.pk)
-    
-    return render(request, 'Matrona/Formularios/desactivar_medicamento.html', {
-        'medicamento': medicamento
     })

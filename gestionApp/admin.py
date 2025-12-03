@@ -4,130 +4,148 @@
 
 from django.contrib import admin
 from gestionApp.models import (
-    Sexo, Nacionalidad, PuebloOriginario, EstadoCivil,
-    GrupoSanguineo, Prevision, Consultorio, DuctusVenosus,
-    Especialidad, Turno, NivelTENS, CertificacionTENS,
-    Persona, Paciente, Medico, Matrona, TENS
+    CatalogoSexo,
+    CatalogoNacionalidad,
+    CatalogoPuebloOriginario,
+    CatalogoEstadoCivil,
+    CatalogoPrevision,
+    CatalogoTurno,
+    CatalogoEspecialidad,
+    CatalogoNivelTens,
+    CatalogoCertificacion,
+    Persona,
+    Paciente,
+    Medico,
+    Matrona,
+    Tens,
 )
 
-@admin.register(Sexo)
-class SexoAdmin(admin.ModelAdmin):
+# ============================================
+# CATÁLOGOS
+# ============================================
+
+@admin.register(CatalogoSexo)
+class CatalogoSexoAdmin(admin.ModelAdmin):
     list_display = ['nombre', 'activo']
     list_filter = ['activo']
     search_fields = ['nombre']
 
-@admin.register(Nacionalidad)
-class NacionalidadAdmin(admin.ModelAdmin):
+
+@admin.register(CatalogoNacionalidad)
+class CatalogoNacionalidadAdmin(admin.ModelAdmin):
     list_display = ['nombre', 'codigo', 'activo']
     list_filter = ['activo']
     search_fields = ['nombre', 'codigo']
 
-@admin.register(PuebloOriginario)
-class PuebloOriginarioAdmin(admin.ModelAdmin):
+
+@admin.register(CatalogoPuebloOriginario)
+class CatalogoPuebloOriginarioAdmin(admin.ModelAdmin):
     list_display = ['nombre', 'activo']
     list_filter = ['activo']
     search_fields = ['nombre']
 
-@admin.register(EstadoCivil)
-class EstadoCivilAdmin(admin.ModelAdmin):
+
+@admin.register(CatalogoEstadoCivil)
+class CatalogoEstadoCivilAdmin(admin.ModelAdmin):
     list_display = ['nombre', 'activo']
     list_filter = ['activo']
     search_fields = ['nombre']
 
-@admin.register(GrupoSanguineo)
-class GrupoSanguineoAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'activo']
-    list_filter = ['activo']
-    search_fields = ['nombre']
 
-@admin.register(Prevision)
-class PrevisionAdmin(admin.ModelAdmin):
+@admin.register(CatalogoPrevision)
+class CatalogoPrevisionAdmin(admin.ModelAdmin):
     list_display = ['nombre', 'descripcion', 'activo']
     list_filter = ['activo']
     search_fields = ['nombre']
 
-@admin.register(Consultorio)
-class ConsultorioAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'comuna', 'activo']
-    list_filter = ['activo', 'comuna']
-    search_fields = ['nombre', 'comuna']
 
-@admin.register(DuctusVenosus)
-class DuctusVenosusAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'activo']
-    list_filter = ['activo']
-    search_fields = ['nombre']
-
-@admin.register(Especialidad)
-class EspecialidadAdmin(admin.ModelAdmin):
+@admin.register(CatalogoEspecialidad)
+class CatalogoEspecialidadAdmin(admin.ModelAdmin):
     list_display = ['nombre', 'tipo', 'activo']
     list_filter = ['tipo', 'activo']
     search_fields = ['nombre']
 
-@admin.register(Turno)
-class TurnoAdmin(admin.ModelAdmin):
+
+@admin.register(CatalogoTurno)
+class CatalogoTurnoAdmin(admin.ModelAdmin):
     list_display = ['nombre', 'hora_inicio', 'hora_fin', 'activo']
     list_filter = ['activo']
     search_fields = ['nombre']
 
-@admin.register(NivelTENS)
-class NivelTENSAdmin(admin.ModelAdmin):
+
+@admin.register(CatalogoNivelTens)
+class CatalogoNivelTensAdmin(admin.ModelAdmin):
     list_display = ['nombre', 'activo']
     list_filter = ['activo']
     search_fields = ['nombre']
 
-@admin.register(CertificacionTENS)
-class CertificacionTENSAdmin(admin.ModelAdmin):
+
+@admin.register(CatalogoCertificacion)
+class CatalogoCertificacionAdmin(admin.ModelAdmin):
     list_display = ['nombre', 'activo']
     list_filter = ['activo']
     search_fields = ['nombre']
+
+
+# ============================================
+# MODELOS PRINCIPALES
+# ============================================
 
 @admin.register(Persona)
 class PersonaAdmin(admin.ModelAdmin):
-    list_display = ['rut', 'nombre_completo', 'sexo', 'nacionalidad', 'activo']
-    list_filter = ['activo', 'sexo', 'nacionalidad']
-    search_fields = ['rut', 'nombre', 'apellido_paterno', 'apellido_materno']
-    readonly_fields = ['fecha_creacion', 'fecha_actualizacion']
+    list_display = ['Rut', 'nombre_completo', 'Sexo', 'Nacionalidad', 'Activo']
+    list_filter = ['Activo', 'Sexo', 'Nacionalidad']
+    search_fields = ['Rut', 'Nombre', 'Apellido_Paterno', 'Apellido_Materno']
+
     fieldsets = (
         ('Identidad', {
-            'fields': ('rut', 'nombre', 'apellido_paterno', 'apellido_materno', 'fecha_nacimiento')
+            'fields': ('Rut', 'Nombre', 'Apellido_Paterno', 'Apellido_Materno', 'Fecha_nacimiento')
         }),
         ('Demográfico', {
-            'fields': ('sexo', 'nacionalidad', 'pueblo_originario')
+            'fields': ('Sexo', 'Nacionalidad', 'Pueblos_originarios')
         }),
         ('Condiciones Especiales', {
-            'fields': ('inmigrante', 'discapacidad', 'tipo_de_discapacidad', 
-                       'privada_de_libertad', 'trans_masculino')
+            'fields': (
+                'Inmigrante',
+                'Discapacidad',
+                'Tipo_de_Discapacidad',
+                'Privada_de_Libertad',
+                'Trans_Masculino',
+            )
         }),
         ('Contacto', {
-            'fields': ('telefono', 'correo', 'direccion', 'region')
+            'fields': ('Telefono', 'Email', 'Direccion')
         }),
         ('Control', {
-            'fields': ('activo', 'fecha_creacion', 'fecha_actualizacion'),
+            'fields': ('Activo',),
             'classes': ('collapse',)
         }),
     )
 
+
 @admin.register(Paciente)
 class PacienteAdmin(admin.ModelAdmin):
-    list_display = ['persona', 'paridad', 'control_prenatal', 'grupo_sanguineo', 'activo']
-    list_filter = ['activo', 'control_prenatal', 'grupo_sanguineo']
-    search_fields = ['persona__nombre', 'persona__rut']
+    list_display = ['persona', 'paridad', 'control_prenatal', 'prevision', 'Activo']
+    list_filter = ['Activo', 'control_prenatal', 'prevision']
+    search_fields = ['persona__Nombre', 'persona__Rut']
+
 
 @admin.register(Medico)
 class MedicoAdmin(admin.ModelAdmin):
-    list_display = ['persona', 'registro_medico', 'especialidad', 'anos_experiencia', 'activo']
-    list_filter = ['activo', 'especialidad']
-    search_fields = ['persona__nombre', 'registro_medico']
+    list_display = ['persona', 'Registro_medico', 'Especialidad', 'Años_experiencia', 'Activo']
+    list_filter = ['Activo', 'Especialidad']
+    search_fields = ['persona__Nombre', 'Registro_medico']
+
 
 @admin.register(Matrona)
 class MatronaAdmin(admin.ModelAdmin):
-    list_display = ['persona', 'registro_medico', 'especialidad', 'anos_experiencia', 'activo']
-    list_filter = ['activo', 'especialidad']
-    search_fields = ['persona__nombre', 'registro_medico']
+    list_display = ['persona', 'Registro_medico', 'Especialidad', 'Años_experiencia', 'Activo']
+    list_filter = ['Activo', 'Especialidad']
+    search_fields = ['persona__Nombre', 'Registro_medico']
 
-@admin.register(TENS)
-class TENSAdmin(admin.ModelAdmin):
-    list_display = ['persona', 'nivel', 'certificacion', 'anos_experiencia', 'activo']
-    list_filter = ['activo', 'nivel', 'certificacion']
-    search_fields = ['persona__nombre']
+
+@admin.register(Tens)
+class TensAdmin(admin.ModelAdmin):
+    list_display = ['persona', 'Nivel', 'Certificaciones', 'Años_experiencia', 'Activo']
+    list_filter = ['Activo', 'Nivel', 'Certificaciones']
+    search_fields = ['persona__Nombre']

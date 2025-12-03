@@ -6,7 +6,12 @@ Compatible con nombres reales del modelo
 
 from django import forms
 from django.core.exceptions import ValidationError
-from gestionApp.models import Persona, Sexo, Nacionalidad, PuebloOriginario
+from gestionApp.models import (
+    CatalogoNacionalidad,
+    CatalogoPuebloOriginario,
+    CatalogoSexo,
+    Persona,
+)
 
 
 class PersonaForm(forms.ModelForm):
@@ -14,85 +19,86 @@ class PersonaForm(forms.ModelForm):
     class Meta:
         model = Persona
         fields = [
-            'rut',
-            'nombre',
-            'apellido_paterno',
-            'apellido_materno',
-            'fecha_nacimiento',
-            'sexo',
-            'nacionalidad',
-            'pueblo_originario',
-            'direccion',
-            'telefono',
-            'correo',
+            'Rut',
+            'Nombre',
+            'Apellido_Paterno',
+            'Apellido_Materno',
+            'Fecha_nacimiento',
+            'Sexo',
+            'Nacionalidad',
+            'Pueblos_originarios',
+            'Direccion',
+            'Telefono',
+            'Email',
         ]
 
         widgets = {
-            'rut': forms.TextInput(attrs={
+            'Rut': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ej: 12345678-9',
                 'maxlength': '12',
             }),
-            'nombre': forms.TextInput(attrs={
+            'Nombre': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ingrese nombre',
             }),
-            'apellido_paterno': forms.TextInput(attrs={
+            'Apellido_Paterno': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ingrese apellido paterno',
             }),
-            'apellido_materno': forms.TextInput(attrs={
+            'Apellido_Materno': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ingrese apellido materno',
             }),
-            'fecha_nacimiento': forms.DateInput(attrs={
+            'Fecha_nacimiento': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
             }),
-            'sexo': forms.Select(attrs={'class': 'form-select'}),
-            'nacionalidad': forms.Select(attrs={'class': 'form-select'}),
-            'pueblo_originario': forms.Select(attrs={'class': 'form-select'}),
-            'direccion': forms.TextInput(attrs={
+            'Sexo': forms.Select(attrs={'class': 'form-select'}),
+            'Nacionalidad': forms.Select(attrs={'class': 'form-select'}),
+            'Pueblos_originarios': forms.Select(attrs={'class': 'form-select'}),
+            'Direccion': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ingrese dirección',
             }),
-            'telefono': forms.TextInput(attrs={
+            'Telefono': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Ej: +56912345678',
             }),
-            'correo': forms.EmailInput(attrs={
+            'Email': forms.EmailInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'correo@ejemplo.com',
             }),
         }
 
         labels = {
-            'rut': 'RUT',
-            'nombre': 'Nombre',
-            'apellido_paterno': 'Apellido Paterno',
-            'apellido_materno': 'Apellido Materno',
-            'fecha_nacimiento': 'Fecha de Nacimiento',
-            'sexo': 'Sexo',
-            'nacionalidad': 'Nacionalidad',
-            'pueblo_originario': 'Pueblo Originario',
-            'direccion': 'Dirección',
-            'telefono': 'Teléfono',
-            'correo': 'Correo Electrónico',
+            'Rut': 'RUT',
+            'Nombre': 'Nombre',
+            'Apellido_Paterno': 'Apellido Paterno',
+            'Apellido_Materno': 'Apellido Materno',
+            'Fecha_nacimiento': 'Fecha de Nacimiento',
+            'Sexo': 'Sexo',
+            'Nacionalidad': 'Nacionalidad',
+            'Pueblos_originarios': 'Pueblo Originario',
+            'Direccion': 'Dirección',
+            'Telefono': 'Teléfono',
+            'Email': 'Correo Electrónico',
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['sexo'].queryset = Sexo.objects.filter(activo=True)
-        self.fields['nacionalidad'].queryset = Nacionalidad.objects.filter(activo=True)
-        self.fields['pueblo_originario'].queryset = PuebloOriginario.objects.filter(activo=True)
 
-        self.fields['sexo'].empty_label = "Seleccione sexo"
-        self.fields['nacionalidad'].empty_label = "Seleccione nacionalidad"
-        self.fields['pueblo_originario'].empty_label = "Seleccione (opcional)"
+        self.fields['Sexo'].queryset = CatalogoSexo.objects.filter(activo=True)
+        self.fields['Nacionalidad'].queryset = CatalogoNacionalidad.objects.filter(activo=True)
+        self.fields['Pueblos_originarios'].queryset = CatalogoPuebloOriginario.objects.filter(activo=True)
 
-    # --- Validaciones personalizadas ---
-    def clean_rut(self):
-        rut = self.cleaned_data.get('rut')
+        self.fields['Sexo'].empty_label = "Seleccione sexo"
+        self.fields['Nacionalidad'].empty_label = "Seleccione nacionalidad"
+        self.fields['Pueblos_originarios'].empty_label = "Seleccione (opcional)"
+
+    # --- Validaciones ---
+    def clean_Rut(self):
+        rut = self.cleaned_data.get('Rut')
         if rut:
             rut = rut.replace('.', '').upper().strip()
 
@@ -100,28 +106,27 @@ class PersonaForm(forms.ModelForm):
                 raise ValidationError('El RUT debe incluir guión. Ej: 12345678-9')
 
             existe = (
-                Persona.objects.filter(rut=rut)
+                Persona.objects.filter(Rut=rut)
                 .exclude(pk=self.instance.pk)
                 .exists()
             )
-
             if existe:
                 raise ValidationError('Ya existe una persona con este RUT.')
 
         return rut
 
-    def clean_nombre(self):
-        nombre = self.cleaned_data.get('nombre')
+    def clean_Nombre(self):
+        nombre = self.cleaned_data.get('Nombre')
         return nombre.strip().title() if nombre else nombre
 
-    def clean_apellido_paterno(self):
-        apellido = self.cleaned_data.get('apellido_paterno')
+    def clean_Apellido_Paterno(self):
+        apellido = self.cleaned_data.get('Apellido_Paterno')
         return apellido.strip().title() if apellido else apellido
 
-    def clean_apellido_materno(self):
-        apellido = self.cleaned_data.get('apellido_materno')
+    def clean_Apellido_Materno(self):
+        apellido = self.cleaned_data.get('Apellido_Materno')
         return apellido.strip().title() if apellido else apellido
 
-    def clean_correo(self):
-        email = self.cleaned_data.get('correo')
+    def clean_Email(self):
+        email = self.cleaned_data.get('Email')
         return email.lower().strip() if email else email
