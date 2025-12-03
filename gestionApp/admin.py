@@ -61,16 +61,16 @@ class CatalogoPrevisionAdmin(admin.ModelAdmin):
 
 @admin.register(CatalogoEspecialidad)
 class CatalogoEspecialidadAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'tipo', 'activo']
-    list_filter = ['tipo', 'activo']
-    search_fields = ['nombre']
+    list_display = ['nombre', 'codigo', 'activo']  # ✅ REMOVIDO 'tipo' (no existe)
+    list_filter = ['activo']  # ✅ REMOVIDO 'tipo' de filter
+    search_fields = ['nombre', 'codigo']
 
 
 @admin.register(CatalogoTurno)
 class CatalogoTurnoAdmin(admin.ModelAdmin):
-    list_display = ['nombre', 'hora_inicio', 'hora_fin', 'activo']
+    list_display = ['nombre', 'codigo', 'activo']  # ✅ REMOVIDO 'hora_inicio', 'hora_fin' (no existen)
     list_filter = ['activo']
-    search_fields = ['nombre']
+    search_fields = ['nombre', 'codigo']
 
 
 @admin.register(CatalogoNivelTens)
@@ -93,7 +93,7 @@ class CatalogoCertificacionAdmin(admin.ModelAdmin):
 
 @admin.register(Persona)
 class PersonaAdmin(admin.ModelAdmin):
-    list_display = ['Rut', 'nombre_completo', 'Sexo', 'Nacionalidad', 'Activo']
+    list_display = ['Rut', 'Nombre', 'Sexo', 'Nacionalidad', 'Activo']
     list_filter = ['Activo', 'Sexo', 'Nacionalidad']
     search_fields = ['Rut', 'Nombre', 'Apellido_Paterno', 'Apellido_Materno']
 
@@ -125,8 +125,8 @@ class PersonaAdmin(admin.ModelAdmin):
 
 @admin.register(Paciente)
 class PacienteAdmin(admin.ModelAdmin):
-    list_display = ['persona', 'paridad', 'control_prenatal', 'prevision', 'Activo']
-    list_filter = ['Activo', 'control_prenatal', 'prevision']
+    list_display = ['persona', 'paridad', 'control_prenatal', 'activo']  # ✅ CAMBIADO 'Activo' a 'activo'
+    list_filter = ['activo', 'control_prenatal']  # ✅ REMOVIDO 'prevision' (no es field)
     search_fields = ['persona__Nombre', 'persona__Rut']
 
 

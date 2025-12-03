@@ -1,4 +1,4 @@
-# matronaApp/ficha_obstetrica_form.py
+# matronaApp/forms/ficha_obstetrica_form.py
 """
 Formulario para crear/editar Ficha Obstétrica
 Incluye patologías como checkboxes SÍ/NO
@@ -6,7 +6,7 @@ Incluye patologías como checkboxes SÍ/NO
 
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import FichaObstetrica, MedicamentoFicha
+from matronaApp.models import FichaObstetrica, MedicamentoFicha  # ✅ CORRECTO
 from datetime import date
 
 
@@ -159,11 +159,12 @@ class FichaObstetricaForm(forms.ModelForm):
             
             'vdrl_resultado': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Resultado VDRL',
+                'placeholder': 'Resultado de VDRL',
             }),
             
-            'vdrl_tratamiento_atb': forms.CheckboxInput(attrs={
-                'class': 'form-check-input',
+            'vdrl_tratamiento_atb': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Tratamiento con antibiótico',
             }),
             
             'hepatitis_b_tomado': forms.CheckboxInput(attrs={
@@ -172,22 +173,23 @@ class FichaObstetricaForm(forms.ModelForm):
             
             'hepatitis_b_resultado': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Resultado Hepatitis B',
+                'placeholder': 'Positivo/Negativo',
             }),
             
-            'hepatitis_b_derivacion': forms.CheckboxInput(attrs={
-                'class': 'form-check-input',
+            'hepatitis_b_derivacion': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Derivación si es necesaria',
             }),
             
             'observaciones': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 3,
-                'placeholder': 'Observaciones generales',
+                'rows': 4,
+                'placeholder': 'Observaciones adicionales',
             }),
             
             'antecedentes_relevantes': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 3,
+                'rows': 4,
                 'placeholder': 'Antecedentes médicos relevantes',
             }),
             
@@ -197,28 +199,31 @@ class FichaObstetricaForm(forms.ModelForm):
         }
     
     def clean(self):
-        """Validaciones"""
+        """Validaciones adicionales"""
         cleaned_data = super().clean()
         
-        fecha_ultima_regla = cleaned_data.get('fecha_ultima_regla')
-        fecha_probable_parto = cleaned_data.get('fecha_probable_parto')
-        edad_gestacional = cleaned_data.get('edad_gestacional_semanas')
+        # Validar que la edad gestacional sea coherente
+        semanas = cleaned_data.get('edad_gestacional_semanas')
+        dias = cleaned_data.get('edad_gestacional_dias')
         
-        # Validar que no sean en el futuro
-        if fecha_ultima_regla and fecha_ultima_regla > date.today():
-            raise ValidationError("❌ La FUR no puede ser en el futuro.")
+        if semanas is not None and (semanas < 0 or semanas > 42):
+            raise ValidationError("La edad gestacional debe estar entre 0 y 42 semanas.")
         
-        # Validar edad gestacional lógica
-        if edad_gestacional and (edad_gestacional < 0 or edad_gestacional > 42):
-            raise ValidationError("❌ La edad gestacional debe estar entre 0 y 42 semanas.")
+        if dias is not None and (dias < 0 or dias > 6):
+            raise ValidationError("Los días deben estar entre 0 y 6.")
+        
+        # Validar fechas
+        fum = cleaned_data.get('fecha_ultima_regla')
+        fp = cleaned_data.get('fecha_probable_parto')
+        
+        if fum and fp and fum > fp:
+            raise ValidationError("La fecha de última regla no puede ser posterior al parto probable.")
         
         return cleaned_data
 
 
 class MedicamentoFichaForm(forms.ModelForm):
-    """
-    Formulario para agregar medicamentos a una ficha obstétrica
-    """
+    """Formulario para agregar medicamentos a una ficha"""
     
     class Meta:
         model = MedicamentoFicha
@@ -229,7 +234,7 @@ class MedicamentoFichaForm(forms.ModelForm):
             'frecuencia',
             'fecha_inicio',
             'fecha_termino',
-            'observaciones',
+            'indicaciones',
         ]
         
         widgets = {
@@ -240,12 +245,11 @@ class MedicamentoFichaForm(forms.ModelForm):
             
             'dosis': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ej: 500mg, 2 comprimidos',
+                'placeholder': 'Ej: 500mg',
             }),
             
-            'via_administracion': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ej: Oral, IV, IM',
+            'via_administracion': forms.Select(attrs={
+                'class': 'form-select',
             }),
             
             'frecuencia': forms.TextInput(attrs={
@@ -263,21 +267,9 @@ class MedicamentoFichaForm(forms.ModelForm):
                 'type': 'date',
             }),
             
-            'observaciones': forms.Textarea(attrs={
+            'indicaciones': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 2,
-                'placeholder': 'Observaciones',
+                'rows': 3,
+                'placeholder': 'Indicaciones y observaciones',
             }),
         }
-    
-    def clean(self):
-        """Validar fechas"""
-        cleaned_data = super().clean()
-        fecha_inicio = cleaned_data.get('fecha_inicio')
-        fecha_termino = cleaned_data.get('fecha_termino')
-        
-        if fecha_inicio and fecha_termino:
-            if fecha_termino < fecha_inicio:
-                raise ValidationError("❌ Fecha de término no puede ser anterior a inicio.")
-        
-        return cleaned_data

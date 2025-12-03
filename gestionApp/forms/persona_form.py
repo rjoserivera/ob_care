@@ -1,4 +1,4 @@
-# gestionApp/persona_form.py
+# gestionApp/forms/persona_form.py
 """
 Formulario para registrar/editar Persona
 Solo datos básicos (sin ser paciente aún)
@@ -6,7 +6,7 @@ Solo datos básicos (sin ser paciente aún)
 
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Persona, Nacionalidad, PuebloOriginario, Sexo
+from gestionApp.models import Persona  # ✅ CORRECTO
 from datetime import date
 
 
@@ -25,9 +25,9 @@ class PersonaForm(forms.ModelForm):
             'Apellido_Paterno',
             'Apellido_Materno',
             'Fecha_nacimiento',
-            'sexo',
-            'nacionalidad',
-            'pueblo_originario',
+            'Sexo',  # ✅ CORREGIDO
+            'Nacionalidad',  # ✅ CORREGIDO
+            'Pueblos_originarios',  # ✅ CORREGIDO
             'Telefono',
             'Direccion',
             'Inmigrante',
@@ -66,15 +66,15 @@ class PersonaForm(forms.ModelForm):
                 'type': 'date',
             }),
             
-            'sexo': forms.Select(attrs={
+            'Sexo': forms.Select(attrs={  # ✅ CORREGIDO
                 'class': 'form-select',
             }),
             
-            'nacionalidad': forms.Select(attrs={
+            'Nacionalidad': forms.Select(attrs={  # ✅ CORREGIDO
                 'class': 'form-select',
             }),
             
-            'pueblo_originario': forms.Select(attrs={
+            'Pueblos_originarios': forms.Select(attrs={  # ✅ CORREGIDO
                 'class': 'form-select',
             }),
             

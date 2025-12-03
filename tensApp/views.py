@@ -7,7 +7,7 @@ from django.utils import timezone
 from gestionApp.models import Tens, Persona, Paciente
 from matronaApp.models import (
     FichaObstetrica, MedicamentoFicha, AdministracionMedicamento, IngresoPaciente )
-from tensApp.forms.administracion_forms import AdministracionMedicamentoForm
+#from tensApp.forms.administracion_forms import AdministracionMedicamentoForm
 # from gestionApp.forms.tens_forms import BuscarPacienteForm, RegistroTensForm  # ❌ COMENTAR ESTA LÍNEA
 from tensApp.models import  RegistroTens
 

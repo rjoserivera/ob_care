@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Sistema Obstétrico - Hospital Herminda Martín{% endblock %}</title>
+    <title>{% block title %}Sistema Obstétrico{% endblock %}</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -12,53 +12,149 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white !important;
+        }
+
+        .navbar-brand i {
+            margin-right: 0.5rem;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+        }
+
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        main {
+            min-height: calc(100vh - 150px);
+        }
+
+        footer {
+            margin-top: auto;
+            border-top: 1px solid #dee2e6;
+        }
+
+        /* Alert Styles */
+        .alert {
+            border: none;
+            border-left: 4px solid;
+            border-radius: 4px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            border-left-color: #17a2b8;
+            color: #0c5460;
+        }
+
+        /* Container Padding */
+        .container-fluid {
+            padding: 1rem;
+        }
+    </style>
+    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container-fluid">
+            <!-- Brand -->
             <a class="navbar-brand" href="{% url 'home' %}">
-                <i class="bi bi-hospital"></i> Sistema Obstétrico
+                <i class="bi bi-hospital-fill"></i> 
+                Gestor Obstétrico
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            
+            <!-- Toggle Button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
+            <!-- Navigation Links -->
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <!-- Inicio -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">
-                            <i class="bi bi-house"></i> Inicio
-                        </a>
-                    </li>
+                <ul class="navbar-nav ms-auto">
                     
                     <!-- Médico -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-clipboard2-pulse"></i> Médico
+                            <i class="bi bi-stethoscope"></i> Médico
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{% url 'medico:menu_medico' %}">
                                 <i class="bi bi-house-door"></i> Menú Médico
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><h6 class="dropdown-header">Catálogo de Patologías</h6></li>
+                            <li><h6 class="dropdown-header">Patologías</h6></li>
                             <li><a class="dropdown-item" href="{% url 'medico:listar_patologias' %}">
-                                <i class="bi bi-journal-medical"></i> Ver Catálogo
+                                <i class="bi bi-list-check"></i> Ver Patologías
                             </a></li>
                             <li><a class="dropdown-item" href="{% url 'medico:registrar_patologia' %}">
                                 <i class="bi bi-plus-circle"></i> Registrar Patología
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li class="dropdown-item disabled">
-                                <small class="text-muted">
-                                    <i class="bi bi-lock"></i> Gestión exclusiva del médico
-                                </small>
-                            </li>
+                            <li><h6 class="dropdown-header">Historial</h6></li>
+                            <li><a class="dropdown-item" href="{% url 'medico:buscar_paciente' %}">
+                                <i class="bi bi-search"></i> Buscar Paciente
+                            </a></li>
                         </ul>
                     </li>
-                    
+
                     <!-- Matrona -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
@@ -70,20 +166,11 @@
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><h6 class="dropdown-header">Pacientes</h6></li>
-                            <li><a class="dropdown-item" href="{% url 'matrona:registrar_paciente' %}">
-                                <i class="bi bi-person-plus"></i> Registrar Paciente
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'matrona:lista_pacientes' %}">
-                                <i class="bi bi-people"></i> Ver Pacientes
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'matrona:buscar_paciente' %}">
-                                <i class="bi bi-search"></i> Buscar Paciente
+                            <li><a class="dropdown-item" href="{% url 'matrona:seleccionar_persona_ficha' %}">
+                                <i class="bi bi-person-plus"></i> Crear Ficha Obstétrica
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><h6 class="dropdown-header">Fichas Obstétricas</h6></li>
-                            <li><a class="dropdown-item" href="{% url 'matrona:seleccionar_paciente_ficha' %}">
-                                <i class="bi bi-file-earmark-plus"></i> Nueva Ficha
-                            </a></li>
                             <li><a class="dropdown-item" href="{% url 'matrona:todas_fichas' %}">
                                 <i class="bi bi-folder-fill"></i> Ver Todas las Fichas
                             </a></li>
@@ -100,12 +187,40 @@
                                 <i class="bi bi-house-door"></i> Menú Tens
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><h6 class="dropdown-header">Funciones Tens</h6></li>
+                            <li><h6 class="dropdown-header">Pacientes</h6></li>
                             <li><a class="dropdown-item" href="{% url 'tens:buscar_paciente' %}">
                                 <i class="bi bi-search"></i> Buscar Paciente
                             </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Signos Vitales</h6></li>
                             <li><a class="dropdown-item" href="{% url 'tens:parametros_tens' %}">
                                 <i class="bi bi-clipboard2-pulse"></i> Registrar Signos Vitales
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'tens:listar_tratamientos' %}">
+                                <i class="bi bi-pill"></i> Ver Tratamientos
+                            </a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Partos -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-baby"></i> Partos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'partos:menu_partos' %}">
+                                <i class="bi bi-house-door"></i> Menú Partos
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Registro</h6></li>
+                            <li><a class="dropdown-item" href="{% url 'partos:seleccionar_ficha' %}">
+                                <i class="bi bi-file-earmark-plus"></i> Registrar Parto
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'partos:listar_partos' %}">
+                                <i class="bi bi-folder-fill"></i> Ver Partos
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'partos:estadisticas' %}">
+                                <i class="bi bi-bar-chart"></i> Estadísticas
                             </a></li>
                         </ul>
                     </li>
@@ -119,15 +234,16 @@
                             <li><a class="dropdown-item" href="{% url 'gestion:registrar_persona' %}">
                                 <i class="bi bi-person-plus"></i> Registrar Persona
                             </a></li>
-                            <li><a class="dropdown-item" href="{% url 'gestion:lista_personas' %}">
+                            <li><a class="dropdown-item" href="{% url 'gestion:persona_list' %}">
                                 <i class="bi bi-list-ul"></i> Ver Personas
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'gestion:buscar_persona' %}">
+                                <i class="bi bi-search"></i> Buscar Persona
                             </a></li>
                         </ul>
                     </li>
-                </ul>
-                
-                <!-- Usuario -->
-                <ul class="navbar-nav">
+
+                    <!-- Usuario -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle"></i> Usuario

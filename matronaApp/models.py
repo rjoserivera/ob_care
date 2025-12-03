@@ -23,7 +23,29 @@ class CatalogoViaAdministracion(models.Model):
     def __str__(self):
         return self.nombre
 
-
+class IngresoPaciente(models.Model):
+    """
+    Registro de ingreso de paciente al módulo de matrona
+    Se crea automáticamente cuando se crea una Ficha Obstétrica
+    """
+    paciente = models.OneToOneField(Paciente, on_delete=models.CASCADE, related_name='ingreso_matrona')
+    
+    motivo_ingreso = models.CharField(max_length=500)
+    fecha_ingreso = models.DateField()
+    hora_ingreso = models.TimeField()
+    edad_gestacional_semanas = models.PositiveIntegerField(null=True, blank=True)
+    derivacion = models.CharField(max_length=500, blank=True)
+    observaciones = models.TextField(blank=True)
+    numero_ficha = models.CharField(max_length=30, blank=True)
+    activo = models.BooleanField(default=True)
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        app_label = 'matronaApp'
+        ordering = ['-fecha_ingreso']
+    
+    def __str__(self):
+        return f"Ingreso: {self.paciente.persona.Nombre} - {self.fecha_ingreso}"
 class FichaObstetrica(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
     matrona_responsable = models.ForeignKey(Matrona, on_delete=models.SET_NULL, null=True, blank=True)

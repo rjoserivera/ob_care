@@ -10,23 +10,23 @@ from recienNacidoApp.models import RegistroRecienNacido, DocumentosParto
 from matronaApp.models import FichaObstetrica
 from gestionApp.models import Paciente
 
-from partosApp.forms import (
-    # Formularios de Parto
-    RegistroPartoBaseForm,
-    TrabajoDePartoForm,
-    InformacionPartoForm,
-    PuerperioForm,
-    AnestesiaAnalgesiaForm,
-    ProfesionalesForm,
-    RegistroPartoCompletoForm,
-    # Formularios de Recién Nacido
-    RegistroRecienNacidoForm,
-    DatosRecienNacidoForm,
-    ApegoAcompanamientoForm,
-    # Formularios de Documentos
-    DocumentosPartoForm,
-)
-
+# ❌ COMENTAR ESTAS LÍNEAS - NO HAY FORMULARIOS EN PARTOSAPP
+# from partosApp.forms import (
+#     # Formularios de Parto
+#     RegistroPartoBaseForm,
+#     TrabajoDePartoForm,
+#     InformacionPartoForm,
+#     PuerperioForm,
+#     AnestesiaAnalgesiaForm,
+#     ProfesionalesForm,
+#     RegistroPartoCompletoForm,
+#     # Formularios de Recién Nacido
+#     RegistroRecienNacidoForm,
+#     DatosRecienNacidoForm,
+#     ApegoAcompanamientoForm,
+#     # Formularios de Documentos
+#     DocumentosPartoForm,
+# )
 
 # ============================================
 # MENÚ PRINCIPAL
