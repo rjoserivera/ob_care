@@ -241,11 +241,17 @@ class PersonaForm(forms.ModelForm):
             raise ValidationError('La fecha de nacimiento no puede ser en el futuro.')
         
         # Validar edad razonable (mayor que 10 años)
-        from dateutil.relativedelta import relativedelta
-        hace_10_anos = date.today() - relativedelta(years=10)
-        
-        if fecha > hace_10_anos:
-            raise ValidationError('La persona debe tener al menos 10 años.')
+        try:
+            from dateutil.relativedelta import relativedelta
+            hace_10_anos = date.today() - relativedelta(years=10)
+            
+            if fecha > hace_10_anos:
+                raise ValidationError('La persona debe tener al menos 10 años.')
+        except ImportError:
+            # Si dateutil no está instalado, usar cálculo simple
+            anos = (date.today() - fecha).days // 365
+            if anos < 10:
+                raise ValidationError('La persona debe tener al menos 10 años.')
         
         return fecha
     
@@ -261,3 +267,35 @@ class PersonaForm(forms.ModelForm):
                 raise ValidationError('El teléfono debe tener al menos 8 dígitos.')
         
         return telefono
+
+
+class BuscarPersonaForm(forms.Form):
+    """
+    Formulario para buscar personas
+    Búsqueda simple por texto
+    """
+    
+    q = forms.CharField(
+        max_length=100,
+        required=False,
+        label='Buscar',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nombre, apellido o RUT...',
+            'autocomplete': 'off',
+        })
+    )
+    
+    def clean_q(self):
+        """Validar búsqueda"""
+        q = self.cleaned_data.get('q', '').strip()
+        
+        # Si está vacío, está permitido (búsqueda sin filtro)
+        if not q:
+            return q
+        
+        # Si tiene contenido, debe tener mínimo 2 caracteres
+        if len(q) < 2:
+            raise ValidationError('Ingrese al menos 2 caracteres para buscar.')
+        
+        return q
