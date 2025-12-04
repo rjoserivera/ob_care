@@ -1,10 +1,6 @@
-"""
-partosApp/forms/__init__.py
-Importa todos los formularios de registro de parto
-"""
-
-from .forms import (
+from .registro_parto import (
     RegistroPartoBaseForm,
+    RegistroPartoObservacionesForm,
     RegistroPartoObstetricoForm,
     RegistroPartoAlubramientoForm,
     RegistroPartoPerinealForm,
@@ -12,7 +8,7 @@ from .forms import (
     RegistroPartoApegoForm,
     RegistroPartoProfesionalesForm,
     RegistroPartoLeyDomingaForm,
-    RegistroPartoObservacionesForm,
+    RegistroPartoComplicacionesForm,
 )
 
 __all__ = [
@@ -24,5 +20,5 @@ __all__ = [
     'RegistroPartoApegoForm',
     'RegistroPartoProfesionalesForm',
     'RegistroPartoLeyDomingaForm',
-    'RegistroPartoObservacionesForm',
+    'RegistroPartoComplicacionesForm',
 ]

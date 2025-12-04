@@ -1,5 +1,3 @@
-Models ingresopartoapp completo · PY
-Copiar
 
 """
 ingresoPartoApp/models.py

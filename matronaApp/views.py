@@ -231,3 +231,33 @@ def menu_matrona(request):
         'fichas_recientes': fichas_recientes
     }
     return render(request, 'Matrona/menu_matrona.html', context)
+
+@login_required
+def seleccionar_persona_ficha(request):
+    """Seleccionar paciente para crear ficha obstétrica"""
+    try:
+        pacientes = Paciente.objects.filter(activo=True).select_related('persona').order_by('persona__Nombre')
+    except:
+        from gestionApp.models import Paciente
+        pacientes = Paciente.objects.filter(activo=True).select_related('persona').order_by('persona__Nombre')
+    
+    search_query = request.GET.get('q', '')
+    if search_query:
+        pacientes = pacientes.filter(
+            Q(persona__Nombre__icontains=search_query) |
+            Q(persona__Rut__icontains=search_query) |
+            Q(persona__Apellido_Paterno__icontains=search_query)
+        )
+    
+    paginator = Paginator(pacientes, 20)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'pacientes': page_obj.object_list,
+        'titulo': 'Seleccionar Paciente para Ficha Obstétrica',
+        'search_query': search_query,
+        'total_pacientes': paginator.count
+    }
+    return render(request, 'Matrona/seleccionar_paciente_ficha.html', context)
