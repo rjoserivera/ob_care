@@ -1,11 +1,12 @@
 """
-matronaApp/forms.py
+matronaApp/forms/crear ficha obstetrica.py
 Formularios para fichas obstétricas con todos los nuevos campos
 Usa FK a catálogos, NO choices
 """
 
 from django import forms
-from ..models import FichaObstetrica, MedicamentoFicha
+from models import FichaObstetrica, MedicamentoFicha, CatalogoConsultorioOrigen, CatalogoViaAdministracion
+
 
 class FichaObstetricaForm(forms.ModelForm):
     """Formulario para crear/editar ficha obstétrica"""

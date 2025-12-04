@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Crear Ficha Obstétrica{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'matrona:menu_matrona' %}">Matrona</a></li>
+            <li class="breadcrumb-item active">Nueva Ficha Obstétrica</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1>📋 Crear Ficha Obstétrica</h1>
+            <p class="text-muted">Completa los datos de la ficha obstétrica. Todos los campos marcados con * son obligatorios.</p>
+        </div>
+    </div>
+
+    <!-- Datos Paciente (Pre-cargados) -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">📌 Datos del Paciente</h5>
+                </div>
+                <div class="card-body">
+                    {% if persona %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Nombre:</strong> {{ persona.Nombre }} {{ persona.Apellido_Paterno }} {{ persona.Apellido_Materno }}</p>
+                            <p><strong>RUT:</strong> {{ persona.Rut }}</p>
+                            <p><strong>Edad:</strong> 
+                                {% with edad=persona.edad %}
+                                    {{ edad }} años
+                                {% endwith %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Fecha Nacimiento:</strong> {{ persona.Fecha_nacimiento|date:"d/m/Y" }}</p>
+                            <p><strong>Teléfono:</strong> {{ persona.Telefono|default:"No registrado" }}</p>
+                            <p><strong>Dirección:</strong> {{ persona.Direccion|default:"No registrada" }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <a href="{% url 'gestion:editar_persona' persona.pk %}" class="btn btn-sm btn-outline-secondary">
+                        ✏️ Editar Datos Personales
+                    </a>
+                    {% else %}
+                    <div class="alert alert-danger">
+                        ⚠️ Error: No se encontró la información de la paciente
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario Ficha Obstétrica -->
+    <form method="post" class="needs-validation">
+        {% csrf_token %}
+
+        <!-- Sección 1: Identificación -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">1️⃣ Identificación</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.numero_ficha.id_for_label }}" class="form-label">
+                                    Número Ficha <span class="text-danger">*</span>
+                                </label>
+                                {{ form.numero_ficha }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.nombre_acompanante.id_for_label }}" class="form-label">
+                                    Nombre Acompañante
+                                </label>
+                                {{ form.nombre_acompanante }}
+                                <small class="form-text text-muted">Opcional</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección 2: Datos Generales -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">2️⃣ Datos Generales</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="{{ form.plan_de_parto.id_for_label }}" class="form-label form-check">
+                                    {{ form.plan_de_parto }}
+                                    Plan de Parto
+                                </label>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="{{ form.visita_guiada.id_for_label }}" class="form-label form-check">
+                                    {{ form.visita_guiada }}
+                                    Visita Guiada
+                                </label>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="{{ form.imc.id_for_label }}" class="form-label">IMC</label>
+                                {{ form.imc }}
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="{{ form.consultorio_origen.id_for_label }}" class="form-label">
+                                    Consultorio Origen
+                                </label>
+                                {{ form.consultorio_origen }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección 3: Historia Obstétrica -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">3️⃣ Historia Obstétrica</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2 mb-3">
+                                <label for="{{ form.numero_gestas.id_for_label }}" class="form-label">
+                                    Gestaciones <span class="text-danger">*</span>
+                                </label>
+                                {{ form.numero_gestas }}
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="{{ form.numero_partos.id_for_label }}" class="form-label">
+                                    Partos <span class="text-danger">*</span>
+                                </label>
+                                {{ form.numero_partos }}
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="{{ form.partos_vaginales.id_for_label }}" class="form-label">
+                                    Vaginales
+                                </label>
+                                {{ form.partos_vaginales }}
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="{{ form.partos_cesareas.id_for_label }}" class="form-label">
+                                    Cesáreas
+                                </label>
+                                {{ form.partos_cesareas }}
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="{{ form.numero_abortos.id_for_label }}" class="form-label">
+                                    Abortos
+                                </label>
+                                {{ form.numero_abortos }}
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="{{ form.nacidos_vivos.id_for_label }}" class="form-label">
+                                    Nacidos Vivos
+                                </label>
+                                {{ form.nacidos_vivos }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección 4: Embarazo Actual -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">4️⃣ Embarazo Actual</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="{{ form.fecha_ultima_regla.id_for_label }}" class="form-label">
+                                    FUM (Última Menstruación)
+                                </label>
+                                {{ form.fecha_ultima_regla }}
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="{{ form.fecha_probable_parto.id_for_label }}" class="form-label">
+                                    FPP (Probable Parto)
+                                </label>
+                                {{ form.fecha_probable_parto }}
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="{{ form.edad_gestacional_semanas.id_for_label }}" class="form-label">
+                                    Semanas <span class="text-danger">*</span>
+                                </label>
+                                {{ form.edad_gestacional_semanas }}
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="{{ form.edad_gestacional_dias.id_for_label }}" class="form-label">
+                                    Días
+                                </label>
+                                {{ form.edad_gestacional_dias }}
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="{{ form.peso_actual.id_for_label }}" class="form-label">
+                                    Peso (kg)
+                                </label>
+                                {{ form.peso_actual }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="{{ form.talla_actual.id_for_label }}" class="form-label">
+                                    Talla (cm)
+                                </label>
+                                {{ form.talla_actual }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección 5: Patologías -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">5️⃣ Patologías y Complicaciones</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.preeclampsia_severa.id_for_label }}" class="form-label form-check">
+                                    {{ form.preeclampsia_severa }}
+                                    Preeclampsia Severa
+                                </label>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.eclampsia.id_for_label }}" class="form-label form-check">
+                                    {{ form.eclampsia }}
+                                    Eclampsia
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.sepsis_infeccion_sistemia.id_for_label }}" class="form-label form-check">
+                                    {{ form.sepsis_infeccion_sistemia }}
+                                    Sepsis/Infección Sistémica Grave
+                                </label>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.infeccion_ovular.id_for_label }}" class="form-label form-check">
+                                    {{ form.infeccion_ovular }}
+                                    Infección Ovular/Corioamnionitis
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.otras_patologias.id_for_label }}" class="form-label">
+                                    Otras Patologías
+                                </label>
+                                {{ form.otras_patologias }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección 6: Control Prenatal -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">6️⃣ Control Prenatal</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.control_prenatal.id_for_label }}" class="form-label form-check">
+                                    {{ form.control_prenatal }}
+                                    ¿Tuvo Control Prenatal? <span class="text-danger">*</span>
+                                </label>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.numero_controles.id_for_label }}" class="form-label">
+                                    Número de Controles
+                                </label>
+                                {{ form.numero_controles }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="row mb-4">
+            <div class="col-md-12 text-end">
+                <a href="{% url 'matrona:menu_matrona' %}" class="btn btn-secondary">
+                    ❌ Cancelar
+                </a>
+                <button type="submit" class="btn btn-success btn-lg">
+                    ✅ Crear Ficha Obstétrica
+                </button>
+            </div>
+        </div>
+
+        <!-- Errores de Formulario -->
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">Errores en el formulario:</h4>
+            {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </form>
+
+</div>
+
+<!-- CSS Bootstrap -->
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 1rem;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 0.25rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .form-check-input {
+        width: 1.25em;
+        height: 1.25em;
+        margin-top: 0.3125em;
+    }
+    
+    .text-danger {
+        color: #dc3545;
+    }
+</style>
+
+{% endblock %}

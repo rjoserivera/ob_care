@@ -1,7 +1,8 @@
-# ============================================
-# partosApp/models.py
-# VERSIÓN SIN CHOICES - FK A TABLAS CATÁLOGO
-# ============================================
+"""
+partosApp/models.py - VERSION CORREGIDA
+Modelos para registro de parto - Datos completos del proceso de parto
+CORREGIDO: Esterilización agregada + Nombre de clase sin espacio
+"""
 
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -9,59 +10,8 @@ from django.utils import timezone
 
 
 # ============================================
-# TABLAS CATÁLOGO PARA partosApp
+# CATÁLOGOS PARA PARTOS
 # ============================================
-
-class CatalogoVihSala(models.Model):
-    """Catálogo para VIH tomado en sala"""
-    codigo = models.CharField(max_length=20, unique=True)
-    descripcion = models.CharField(max_length=100)
-    activo = models.BooleanField(default=True)
-    orden = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        db_table = 'catalogo_vih_sala'
-        ordering = ['orden', 'descripcion']
-        verbose_name = 'Catálogo VIH Sala'
-        verbose_name_plural = 'Catálogo VIH Sala'
-
-    def __str__(self):
-        return self.descripcion
-
-
-class CatalogoRoturaMembrana(models.Model):
-    """Catálogo para tipos de rotura de membrana"""
-    codigo = models.CharField(max_length=10, unique=True)
-    descripcion = models.CharField(max_length=100)
-    activo = models.BooleanField(default=True)
-    orden = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        db_table = 'catalogo_rotura_membrana'
-        ordering = ['orden', 'descripcion']
-        verbose_name = 'Catálogo Rotura Membrana'
-        verbose_name_plural = 'Catálogo Rotura Membrana'
-
-    def __str__(self):
-        return self.descripcion
-
-
-class CatalogoRegimen(models.Model):
-    """Catálogo para tipos de régimen en trabajo de parto"""
-    codigo = models.CharField(max_length=20, unique=True)
-    descripcion = models.CharField(max_length=100)
-    activo = models.BooleanField(default=True)
-    orden = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        db_table = 'catalogo_regimen'
-        ordering = ['orden', 'descripcion']
-        verbose_name = 'Catálogo Régimen'
-        verbose_name_plural = 'Catálogo Régimen'
-
-    def __str__(self):
-        return self.descripcion
-
 
 class CatalogoTipoParto(models.Model):
     """Catálogo para tipos de parto"""
@@ -73,28 +23,29 @@ class CatalogoTipoParto(models.Model):
     class Meta:
         db_table = 'catalogo_tipo_parto'
         ordering = ['orden', 'descripcion']
-        verbose_name = 'Catálogo Tipo de Parto'
-        verbose_name_plural = 'Catálogo Tipos de Parto'
+        verbose_name = 'Catálogo Tipo Parto'
+        verbose_name_plural = 'Catálogo Tipos Parto'
 
     def __str__(self):
         return self.descripcion
 
 
 class CatalogoClasificacionRobson(models.Model):
-    """Catálogo para clasificación de Robson (12 grupos)"""
+    """Catálogo para Clasificación de Robson (12 grupos)"""
     codigo = models.CharField(max_length=20, unique=True)
+    numero_grupo = models.IntegerField(unique=True)
     descripcion = models.CharField(max_length=200)
     activo = models.BooleanField(default=True)
     orden = models.PositiveIntegerField(default=0)
 
     class Meta:
         db_table = 'catalogo_clasificacion_robson'
-        ordering = ['orden', 'codigo']
+        ordering = ['numero_grupo']
         verbose_name = 'Catálogo Clasificación Robson'
         verbose_name_plural = 'Catálogo Clasificación Robson'
 
     def __str__(self):
-        return f"{self.codigo} - {self.descripcion}"
+        return f"Grupo {self.numero_grupo} - {self.descripcion}"
 
 
 class CatalogoPosicionParto(models.Model):
@@ -131,53 +82,108 @@ class CatalogoEstadoPerine(models.Model):
         return self.descripcion
 
 
-class CatalogoSangradoPostparto(models.Model):
-    """Catálogo para niveles de sangrado postparto"""
+class CatalogoCausaCesarea(models.Model):
+    """Catálogo para causas de cesárea"""
+    codigo = models.CharField(max_length=20, unique=True)
+    descripcion = models.CharField(max_length=200)
+    activo = models.BooleanField(default=True)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        db_table = 'catalogo_causa_cesarea'
+        ordering = ['orden', 'descripcion']
+        verbose_name = 'Catálogo Causa Cesárea'
+        verbose_name_plural = 'Catálogo Causas Cesárea'
+
+    def __str__(self):
+        return self.descripcion
+
+
+class CatalogoMotivoPartoNoAcompanado(models.Model):
+    """Catálogo para motivos de parto sin acompañamiento - NOMBRE CORREGIDO"""
     codigo = models.CharField(max_length=20, unique=True)
     descripcion = models.CharField(max_length=100)
     activo = models.BooleanField(default=True)
     orden = models.PositiveIntegerField(default=0)
 
     class Meta:
-        db_table = 'catalogo_sangrado_postparto'
+        db_table = 'catalogo_motivo_parto_no_acompanado'
         ordering = ['orden', 'descripcion']
-        verbose_name = 'Catálogo Sangrado Postparto'
-        verbose_name_plural = 'Catálogo Sangrado Postparto'
+        verbose_name = 'Catálogo Motivo Parto No Acompañado'
+        verbose_name_plural = 'Catálogo Motivos Parto No Acompañado'
+
+    def __str__(self):
+        return self.descripcion
+
+
+class CatalogoPersonaAcompanante(models.Model):
+    """Catálogo para tipo de persona acompañante"""
+    codigo = models.CharField(max_length=20, unique=True)
+    descripcion = models.CharField(max_length=50)
+    activo = models.BooleanField(default=True)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        db_table = 'catalogo_persona_acompanante'
+        ordering = ['orden', 'descripcion']
+        verbose_name = 'Catálogo Persona Acompañante'
+        verbose_name_plural = 'Catálogo Personas Acompañante'
+
+    def __str__(self):
+        return self.descripcion
+
+
+class CatalogoMetodoNoFarmacologico(models.Model):
+    """Catálogo para métodos de analgesia no farmacológica"""
+    codigo = models.CharField(max_length=20, unique=True)
+    descripcion = models.CharField(max_length=100)
+    activo = models.BooleanField(default=True)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        db_table = 'catalogo_metodo_no_farmacologico'
+        ordering = ['orden', 'descripcion']
+        verbose_name = 'Catálogo Método No Farmacológico'
+        verbose_name_plural = 'Catálogo Métodos No Farmacológicos'
 
     def __str__(self):
         return self.descripcion
 
 
 # ============================================
-# MODELO PRINCIPAL: REGISTRO DE PARTO
+# MODELO: REGISTRO DE PARTO (COMPLETO Y CORREGIDO)
 # ============================================
 
 class RegistroParto(models.Model):
     """
-    Registro del proceso de parto
-    SIN CHOICES - Usa FK a tablas catálogo
+    Registro completo del proceso de parto
+    Incluye anestesia, analgesia, apego, acompañamiento y todas las complicaciones
+    CORREGIDO: Esterilización agregada + Nombres de clase corregidos
     """
-
+    
     # ============================================
     # RELACIONES
     # ============================================
     
-    ficha = models.ForeignKey(
+    ficha_obstetrica = models.ForeignKey(
         'matronaApp.FichaObstetrica',
         on_delete=models.PROTECT,
         related_name='registros_parto',
         verbose_name='Ficha Obstétrica'
     )
     
-    ficha_ingreso = models.OneToOneField(
+    ficha_ingreso_parto = models.OneToOneField(
         'ingresoPartoApp.FichaParto',
         on_delete=models.PROTECT,
         related_name='registro_parto',
         null=True,
         blank=True,
-        verbose_name='Ficha de Ingreso',
-        help_text='Vincula con la ficha de ingreso'
+        verbose_name='Ficha de Ingreso a Parto'
     )
+    
+    # ============================================
+    # SECCIÓN 1: IDENTIFICACIÓN
+    # ============================================
     
     numero_registro = models.CharField(
         max_length=20,
@@ -187,245 +193,102 @@ class RegistroParto(models.Model):
     )
     
     # ============================================
-    # FECHAS Y HORAS
+    # SECCIÓN 2: FECHAS Y HORAS
     # ============================================
     
     fecha_hora_admision = models.DateTimeField(
         default=timezone.now,
-        verbose_name='Fecha y Hora de Admisión',
-        help_text='Cuando ingresa para el parto'
+        verbose_name='Fecha y Hora de Admisión'
     )
     
     fecha_hora_parto = models.DateTimeField(
         null=True,
         blank=True,
-        verbose_name='Fecha y Hora del Parto',
-        help_text='Momento exacto del nacimiento'
+        verbose_name='Fecha y Hora del Parto'
     )
     
     # ============================================
-    # SECCIÓN 1: TRABAJO DE PARTO
+    # SECCIÓN 3: INFORMACIÓN OBSTÉTRICA
     # ============================================
     
-    vih_tomado_prepartos = models.BooleanField(
-        default=False,
-        verbose_name='VIH tomado en Prepartos',
-        help_text='¿Se tomó VIH al ingresar a prepartos?'
-    )
-    
-    # FK a catálogo (antes era CHOICES)
-    vih_sala = models.ForeignKey(
-        CatalogoVihSala,
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        related_name='registros_parto',
-        verbose_name='VIH tomado en Sala',
-        help_text='Sala donde se tomó el VIH (si aplica)'
-    )
-    
-    @property
-    def vih_tomado_sala(self):
-        """Alias para compatibilidad con código existente"""
-        return self.vih_sala.codigo if self.vih_sala else None
-    
-    # Edad Gestacional
     edad_gestacional_semanas = models.IntegerField(
         validators=[MinValueValidator(20), MaxValueValidator(42)],
-        verbose_name='Semanas de Embarazo',
-        help_text='Semanas completas al momento del parto'
+        verbose_name='Semanas de Embarazo'
     )
     
     edad_gestacional_dias = models.IntegerField(
         default=0,
         validators=[MinValueValidator(0), MaxValueValidator(6)],
-        verbose_name='Días adicionales',
-        help_text='Ej: 38 semanas y 4 días'
+        verbose_name='Días adicionales'
     )
     
-    # Monitoreo
-    monitor_ttc = models.BooleanField(
-        default=False,
-        verbose_name='Monitor TTC',
-        help_text='¿Se usó monitor de contracciones?'
-    )
-    
-    induccion = models.BooleanField(
-        default=False,
-        verbose_name='Inducción',
-        help_text='¿Se indujo el parto?'
-    )
-    
-    aceleracion_correccion = models.BooleanField(
-        default=False,
-        verbose_name='Aceleración o Corrección',
-        help_text='¿Se aceleró el trabajo de parto?'
-    )
-    
-    numero_tactos_vaginales = models.IntegerField(
-        default=0,
-        validators=[MinValueValidator(0)],
-        verbose_name='Número de Tactos Vaginales (TV)',
-        help_text='Número total de exámenes vaginales realizados'
-    )
-    
-    # FK a catálogo (antes era CHOICES)
-    rotura_membrana_catalogo = models.ForeignKey(
-        CatalogoRoturaMembrana,
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        related_name='registros_parto',
-        verbose_name='Rotura de Membrana'
-    )
-    
-    @property
-    def rotura_membrana(self):
-        """Alias para compatibilidad"""
-        return self.rotura_membrana_catalogo.codigo if self.rotura_membrana_catalogo else None
-    
-    tiempo_membranas_rotas = models.IntegerField(
-        null=True,
-        blank=True,
-        validators=[MinValueValidator(0)],
-        verbose_name='Tiempo Membranas Rotas (minutos)',
-        help_text='Tiempo transcurrido con membranas rotas'
-    )
-    
-    # Tiempos del Parto
-    tiempo_dilatacion = models.IntegerField(
-        null=True,
-        blank=True,
-        validators=[MinValueValidator(0)],
-        verbose_name='Tiempo Dilatación (minutos)',
-        help_text='Duración de la fase de dilatación'
-    )
-    
-    tiempo_expulsivo = models.IntegerField(
-        null=True,
-        blank=True,
-        validators=[MinValueValidator(0)],
-        verbose_name='Tiempo Expulsivo (minutos)',
-        help_text='Duración de la fase expulsiva'
-    )
-    
-    # ============================================
-    # SECCIÓN 2: INFORMACIÓN DEL PARTO
-    # ============================================
-    
-    libertad_movimiento = models.BooleanField(
-        default=True,
-        verbose_name='Libertad de Movimiento en Trabajo de Parto',
-        help_text='¿La paciente tuvo libertad de movimiento?'
-    )
-    
-    # FK a catálogo (antes era CHOICES)
-    tipo_regimen_catalogo = models.ForeignKey(
-        CatalogoRegimen,
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        related_name='registros_parto',
-        verbose_name='Tipo de Régimen en Trabajo de Parto'
-    )
-    
-    @property
-    def tipo_regimen(self):
-        """Alias para compatibilidad"""
-        return self.tipo_regimen_catalogo.codigo if self.tipo_regimen_catalogo else None
-    
-    # FK a catálogo (antes era CHOICES)
-    tipo_parto_catalogo = models.ForeignKey(
+    tipo_parto = models.ForeignKey(
         CatalogoTipoParto,
         on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        related_name='registros_parto',
         verbose_name='Tipo de Parto'
     )
     
-    @property
-    def tipo_parto(self):
-        """Alias para compatibilidad"""
-        return self.tipo_parto_catalogo.codigo if self.tipo_parto_catalogo else None
-    
-    alumbramiento_dirigido = models.BooleanField(
-        default=True,
-        verbose_name='Alumbramiento Dirigido',
-        help_text='¿Se realizó alumbramiento dirigido?'
-    )
-    
-    # FK a catálogo (antes era CHOICES)
-    clasificacion_robson_catalogo = models.ForeignKey(
+    clasificacion_robson = models.ForeignKey(
         CatalogoClasificacionRobson,
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='registros_parto',
-        verbose_name='Clasificación de Robson',
-        help_text='Clasificación de Robson para cesáreas'
+        verbose_name='Clasificación de Robson'
     )
     
-    @property
-    def clasificacion_robson(self):
-        """Alias para compatibilidad"""
-        return self.clasificacion_robson_catalogo.codigo if self.clasificacion_robson_catalogo else None
-    
-    # FK a catálogo (antes era CHOICES)
-    posicion_materna_catalogo = models.ForeignKey(
+    posicion_parto = models.ForeignKey(
         CatalogoPosicionParto,
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='registros_parto',
-        verbose_name='Posición Materna en el Parto'
+        verbose_name='Posición Materna en Parto'
     )
-    
-    @property
-    def posicion_materna_parto(self):
-        """Alias para compatibilidad"""
-        return self.posicion_materna_catalogo.codigo if self.posicion_materna_catalogo else None
     
     ofrecimiento_posiciones_alternativas = models.BooleanField(
-        default=True,
-        verbose_name='Ofrecimiento de Posiciones Alternativas del Parto',
-        help_text='¿Se ofrecieron posiciones alternativas?'
+        default=False,
+        verbose_name='¿Se ofrecieron Posiciones Alternativas?'
     )
     
     # ============================================
-    # SECCIÓN 3: PUERPERIO
+    # SECCIÓN 4: ALUMBRAMIENTO
     # ============================================
     
-    # FK a catálogo (antes era CHOICES)
-    estado_perine_catalogo = models.ForeignKey(
+    alumbramiento_dirigido = models.BooleanField(
+        default=False,
+        verbose_name='¿Se realizó Alumbramiento Dirigido?'
+    )
+    
+    retira_placenta = models.BooleanField(
+        default=False,
+        verbose_name='¿Retira Placenta?'
+    )
+    
+    estampado_placenta = models.BooleanField(
+        default=False,
+        verbose_name='¿Estampado de Placenta?'
+    )
+    
+    # ============================================
+    # SECCIÓN 5: PERINÉ Y COMPLICACIONES
+    # ============================================
+    
+    estado_perine = models.ForeignKey(
         CatalogoEstadoPerine,
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='registros_parto',
         verbose_name='Estado del Periné'
     )
     
-    @property
-    def estado_perine(self):
-        """Alias para compatibilidad"""
-        return self.estado_perine_catalogo.codigo if self.estado_perine_catalogo else None
-    
-    esterilizacion = models.BooleanField(
-        default=False,
-        verbose_name='Esterilización',
-        help_text='¿Se realizó esterilización?'
-    )
-    
-    revision = models.BooleanField(
-        default=True,
-        verbose_name='Revisión del Canal del Parto'
-    )
-    
-    # Complicaciones del Puerperio
+    # Complicaciones puerperales
     inercia_uterina = models.BooleanField(
         default=False,
         verbose_name='Inercia Uterina'
+    )
+    
+    manejo_quirurgico_inercia = models.BooleanField(
+        default=False,
+        verbose_name='Manejo Quirúrgico de Inercia Uterina'
     )
     
     restos_placentarios = models.BooleanField(
@@ -443,9 +306,14 @@ class RegistroParto(models.Model):
         verbose_name='Alteración de la Coagulación'
     )
     
-    manejo_quirurgico_inercia = models.BooleanField(
+    revision_utero = models.BooleanField(
         default=False,
-        verbose_name='Manejo Quirúrgico de Inercia Uterina'
+        verbose_name='Revisión de Útero'
+    )
+    
+    hemorragia_postparto = models.BooleanField(
+        default=False,
+        verbose_name='Hemorragia Postparto'
     )
     
     histerectomia_obstetrica = models.BooleanField(
@@ -458,100 +326,75 @@ class RegistroParto(models.Model):
         verbose_name='Transfusión Sanguínea'
     )
     
-    # Contacto y lactancia
-    contacto_piel_piel = models.BooleanField(
+    # ============================================
+    # SECCIÓN 6: ESTERILIZACIÓN (AGREGADA)
+    # ============================================
+    
+    esterilizacion = models.BooleanField(
         default=False,
-        verbose_name='Contacto Piel a Piel'
+        verbose_name='¿Se realizó Esterilización?',
+        help_text='Ligadura tubaria, vasectomía, etc.'
     )
     
-    lactancia_primera_hora = models.BooleanField(
-        default=False,
-        verbose_name='Lactancia en la Primera Hora'
+    tipo_esterilizacion = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name='Tipo de Esterilización',
+        help_text='Ligadura tubaria, vasectomía, histerectomía, etc.'
     )
     
-    apego_precoz = models.BooleanField(
-        default=False,
-        verbose_name='Apego Precoz'
-    )
-    
-    # FK a catálogo (antes era CHOICES)
-    sangrado_postparto_catalogo = models.ForeignKey(
-        CatalogoSangradoPostparto,
-        on_delete=models.PROTECT,
+    fecha_hora_esterilizacion = models.DateTimeField(
         null=True,
         blank=True,
-        related_name='registros_parto',
-        verbose_name='Sangrado Postparto'
-    )
-    
-    @property
-    def sangrado_postparto(self):
-        """Alias para compatibilidad"""
-        return self.sangrado_postparto_catalogo.codigo if self.sangrado_postparto_catalogo else None
-    
-    hemorragia_postparto = models.BooleanField(
-        default=False,
-        verbose_name='Hemorragia Postparto'
-    )
-    
-    retencion_placentaria = models.BooleanField(
-        default=False,
-        verbose_name='Retención Placentaria'
+        verbose_name='Fecha y Hora de Esterilización'
     )
     
     # ============================================
-    # SECCIÓN 4: ANESTESIA Y ANALGESIA
+    # SECCIÓN 7: ANESTESIA Y ANALGESIA
     # ============================================
     
+    # Anestesia Neuroaxial
     anestesia_neuroaxial = models.BooleanField(
         default=False,
         verbose_name='Anestesia Neuroaxial'
     )
     
+    # Óxido Nitroso
     oxido_nitroso = models.BooleanField(
         default=False,
         verbose_name='Óxido Nitroso'
     )
     
+    # Analgesia Endovenosa
     analgesia_endovenosa = models.BooleanField(
         default=False,
         verbose_name='Analgesia Endovenosa'
     )
     
+    # Anestesia General
     anestesia_general = models.BooleanField(
         default=False,
         verbose_name='Anestesia General'
     )
     
+    # Anestesia Local
     anestesia_local = models.BooleanField(
         default=False,
         verbose_name='Anestesia Local'
     )
     
+    # Analgesia NO Farmacológica
     analgesia_no_farmacologica = models.BooleanField(
         default=False,
-        verbose_name='Analgesia No Farmacológica'
+        verbose_name='Analgesia NO Farmacológica'
     )
     
-    # Métodos no farmacológicos
-    balon_kinesico = models.BooleanField(
-        default=False,
-        verbose_name='Balón Kinésico'
-    )
-    
-    lenteja_parto = models.BooleanField(
-        default=False,
-        verbose_name='Lenteja de Parto'
-    )
-    
-    rebozo = models.BooleanField(
-        default=False,
-        verbose_name='Rebozo'
-    )
-    
-    aromaterapia = models.BooleanField(
-        default=False,
-        verbose_name='Aromaterapia'
+    metodos_no_farmacologicos = models.ManyToManyField(
+        CatalogoMetodoNoFarmacologico,
+        blank=True,
+        related_name='registros_parto',
+        verbose_name='Métodos NO Farmacológicos Usados',
+        help_text='Balón Kinésico, Lenteja, Rebozo, Aromaterapia, etc.'
     )
     
     # Peridural
@@ -562,7 +405,7 @@ class RegistroParto(models.Model):
     
     peridural_indicada_medico = models.BooleanField(
         default=False,
-        verbose_name='Peridural Indicada por Médico'
+        verbose_name='Peridural Indicada por Médico GO'
     )
     
     peridural_administrada = models.BooleanField(
@@ -570,47 +413,145 @@ class RegistroParto(models.Model):
         verbose_name='Peridural Administrada'
     )
     
-    tiempo_espera_peridural = models.IntegerField(
+    tiempo_espera_peridural_minutos = models.PositiveIntegerField(
+        default=0,
         null=True,
         blank=True,
-        validators=[MinValueValidator(0)],
-        verbose_name='Tiempo de Espera Peridural (minutos)'
+        verbose_name='Tiempo de Espera Peridural (minutos)',
+        help_text='Tiempo entre indicación y administración'
     )
     
     # ============================================
-    # SECCIÓN 5: PROFESIONALES Y OBSERVACIONES
+    # SECCIÓN 8: APEGO Y ACOMPAÑAMIENTO
     # ============================================
     
-    profesional_responsable = models.CharField(
-        max_length=200,
+    tiempo_apego_minutos = models.PositiveIntegerField(
+        default=0,
+        null=True,
         blank=True,
-        verbose_name='Profesional Responsable'
+        verbose_name='Tiempo de Apego (minutos)'
     )
     
-    alumno = models.CharField(
-        max_length=200,
-        blank=True,
-        verbose_name='Alumno'
+    apego_canguro = models.BooleanField(
+        default=False,
+        verbose_name='Apego Canguro'
     )
     
-    causa_cesarea = models.TextField(
+    acompanamiento_preparto = models.BooleanField(
+        default=False,
+        verbose_name='¿Tuvo Acompañamiento Preparto?'
+    )
+    
+    acompanamiento_parto = models.BooleanField(
+        default=False,
+        verbose_name='¿Tuvo Acompañamiento en Parto?'
+    )
+    
+    acompanamiento_rn = models.BooleanField(
+        default=False,
+        verbose_name='¿Tuvo Acompañamiento con RN?'
+    )
+    
+    motivo_parto_no_acompanado = models.ForeignKey(
+        CatalogoMotivoPartoNoAcompanado,  # ✅ NOMBRE CORREGIDO
+        on_delete=models.SET_NULL,
+        null=True,
         blank=True,
+        related_name='registros_parto_no_acompanado',
+        verbose_name='Motivo Parto NO Acompañado'
+    )
+    
+    persona_acompanante = models.ForeignKey(
+        CatalogoPersonaAcompanante,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='registros_parto_acompanante',
+        verbose_name='Persona Acompañante'
+    )
+    
+    acompanante_secciona_cordon = models.BooleanField(
+        default=False,
+        verbose_name='¿Acompañante Secciona Cordón?'
+    )
+    
+    ligadura_tardia_cordon = models.BooleanField(
+        default=False,
+        verbose_name='Ligadura Tardía del Cordón (>1 minuto)'
+    )
+    
+    # ============================================
+    # SECCIÓN 9: PROFESIONALES
+    # ============================================
+    
+    profesional_responsable_nombre = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='Profesional Responsable (Nombre)'
+    )
+    
+    profesional_responsable_apellido = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='Profesional Responsable (Apellido)'
+    )
+    
+    alumno_nombre = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='Alumno/a (Nombre)',
+        help_text='Si aplica'
+    )
+    
+    alumno_apellido = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='Alumno/a (Apellido)',
+        help_text='Si aplica'
+    )
+    
+    causa_cesarea = models.ForeignKey(
+        CatalogoCausaCesarea,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='registros_parto_causa',
         verbose_name='Causa de Cesárea',
-        help_text='Si aplica, indicar la causa'
+        help_text='Solo si tipo de parto es cesárea'
     )
+    
+    uso_sala_saip = models.BooleanField(
+        default=False,
+        verbose_name='¿Uso de Sala SAIP?'
+    )
+    
+    # ============================================
+    # SECCIÓN 10: LEY DOMINGA (N° 21.372)
+    # ============================================
+    
+    ley_dominga_recuerdos = models.TextField(
+        blank=True,
+        verbose_name='Ley Dominga - Cuáles Recuerdos',
+        help_text='Especificar cuáles recuerdos se entregan'
+    )
+    
+    ley_dominga_justificacion = models.TextField(
+        blank=True,
+        verbose_name='Ley Dominga - Justificación',
+        help_text='Si no se entregan, justificar motivo'
+    )
+    
+    # ============================================
+    # SECCIÓN 11: INFORMACIÓN GENERAL
+    # ============================================
     
     observaciones = models.TextField(
         blank=True,
         verbose_name='Observaciones'
     )
     
-    uso_sala_saip = models.BooleanField(
-        default=False,
-        verbose_name='Uso de Sala SAIP'
-    )
-    
     # ============================================
-    # METADATOS
+    # SECCIÓN 12: METADATA
     # ============================================
     
     fecha_creacion = models.DateTimeField(
@@ -634,12 +575,12 @@ class RegistroParto(models.Model):
         verbose_name_plural = 'Registros de Parto'
         indexes = [
             models.Index(fields=['numero_registro']),
-            models.Index(fields=['ficha', '-fecha_hora_parto']),
+            models.Index(fields=['ficha_obstetrica', '-fecha_hora_parto']),
             models.Index(fields=['-fecha_hora_parto']),
         ]
-    
+
     def __str__(self):
-        return f"{self.numero_registro} - {self.ficha.paciente.persona.Nombre}"
+        return f"{self.numero_registro} - {self.ficha_obstetrica.paciente.persona.Nombre}"
     
     def save(self, *args, **kwargs):
         """Generar número automático si no existe"""
@@ -655,11 +596,6 @@ class RegistroParto(models.Model):
             self.numero_registro = f"PARTO-{numero:06d}"
         super().save(*args, **kwargs)
     
-    @property
-    def edad_gestacional_completa(self):
-        """Retorna edad gestacional en formato '38+4'"""
-        return f"{self.edad_gestacional_semanas}+{self.edad_gestacional_dias}"
-    
     def tiene_complicaciones(self):
         """Verifica si hubo complicaciones en el puerperio"""
         return any([
@@ -668,7 +604,10 @@ class RegistroParto(models.Model):
             self.trauma,
             self.alteracion_coagulacion,
             self.hemorragia_postparto,
-            self.retencion_placentaria,
+            self.esterilizacion,
         ])
-
-
+    
+    @property
+    def edad_gestacional_completa(self):
+        """Retorna edad gestacional en formato '38+4'"""
+        return f"{self.edad_gestacional_semanas}+{self.edad_gestacional_dias}"
