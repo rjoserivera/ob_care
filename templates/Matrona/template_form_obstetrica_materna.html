@@ -1,365 +1,720 @@
-{% extends "base.html" %}
+{% extends 'Shared/base.html' %}
 {% load static %}
 
 {% block title %}Crear Ficha Obstétrica{% endblock %}
 
+{% block extra_css %}
+<style>
+    .ficha-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+    }
+
+    .ficha-header {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .ficha-header h2 {
+        margin-bottom: 0.5rem;
+    }
+
+    .persona-info-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border-left: 5px solid #11998e;
+    }
+
+    .persona-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: #666;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.3rem;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .ficha-form {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #11998e;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        color: #11998e;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control, .form-select {
+        padding: 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #11998e;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(17, 153, 142, 0.1);
+    }
+
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0 0 0;
+    }
+
+    .errorlist li {
+        color: #dc3545;
+        font-size: 0.9rem;
+        background: #f8d7da;
+        padding: 0.5rem;
+        border-left: 3px solid #dc3545;
+        margin-bottom: 0.3rem;
+    }
+
+    .form-text {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 0.3rem;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(17, 153, 142, 0.3);
+    }
+
+    .btn-secondary {
+        background: #e0e0e0;
+        color: #333;
+    }
+
+    .btn-secondary:hover {
+        background: #d0d0d0;
+    }
+
+    .readonly-field {
+        background-color: #f8f9fa;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        border-left: 4px solid #0c5460;
+        color: #0c5460;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border-left: 4px solid #721c24;
+        color: #721c24;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid mt-4">
+<div class="ficha-container">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
             <li class="breadcrumb-item"><a href="{% url 'matrona:menu_matrona' %}">Matrona</a></li>
-            <li class="breadcrumb-item active">Nueva Ficha Obstétrica</li>
+            <li class="breadcrumb-item active">Crear Ficha Obstétrica</li>
         </ol>
     </nav>
 
     <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h1>📋 Crear Ficha Obstétrica</h1>
-            <p class="text-muted">Completa los datos de la ficha obstétrica. Todos los campos marcados con * son obligatorios.</p>
+    <div class="ficha-header">
+        <h2><i class="bi bi-file-earmark-medical"></i> Crear Ficha Obstétrica</h2>
+        <p>Completa los datos de la ficha obstétrica. Los campos en verde se calculan automáticamente.</p>
+    </div>
+
+    <!-- Información Paciente -->
+    {% if persona %}
+    <div class="persona-info-card">
+        <h3 style="margin-bottom: 1.5rem; color: #333;">
+            <i class="bi bi-person-check-fill"></i> Información de la Persona
+        </h3>
+
+        <div class="persona-info-grid">
+            <div class="info-item">
+                <div class="info-label">Nombre Completo</div>
+                <div class="info-value">{{ persona.Nombre }} {{ persona.Apellido_Paterno }} {{ persona.Apellido_Materno }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">RUT</div>
+                <div class="info-value">{{ persona.Rut }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Edad</div>
+                <div class="info-value">{{ edad }} años</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Fecha de Nacimiento</div>
+                <div class="info-value">{{ persona.Fecha_nacimiento|date:"d/m/Y" }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Teléfono</div>
+                <div class="info-value">{{ persona.Telefono|default:"No registrado" }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Dirección</div>
+                <div class="info-value">{{ persona.Direccion|default:"No registrada" }}</div>
+            </div>
         </div>
     </div>
 
-    <!-- Datos Paciente (Pre-cargados) -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card border-info">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">📌 Datos del Paciente</h5>
+    <!-- Formulario -->
+    <div class="ficha-form">
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            <strong>Nota:</strong> Los campos de Semanas de Gestación, Fecha Probable de Parto e IMC se calculan automáticamente 
+            basándose en la Fecha de Última Menstruación, Peso y Talla.
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <!-- ERRORES GENERALES -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    <strong>Errores en el formulario:</strong>
+                    {% for error in form.non_field_errors %}
+                        <div>• {{ error }}</div>
+                    {% endfor %}
                 </div>
-                <div class="card-body">
-                    {% if persona %}
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Nombre:</strong> {{ persona.Nombre }} {{ persona.Apellido_Paterno }} {{ persona.Apellido_Materno }}</p>
-                            <p><strong>RUT:</strong> {{ persona.Rut }}</p>
-                            <p><strong>Edad:</strong> 
-                                {% with edad=persona.edad %}
-                                    {{ edad }} años
-                                {% endwith %}
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Fecha Nacimiento:</strong> {{ persona.Fecha_nacimiento|date:"d/m/Y" }}</p>
-                            <p><strong>Teléfono:</strong> {{ persona.Telefono|default:"No registrado" }}</p>
-                            <p><strong>Dirección:</strong> {{ persona.Direccion|default:"No registrada" }}</p>
-                        </div>
+            {% endif %}
+
+            <!-- SECCIÓN 1: DATOS INICIALES -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-calendar-check"></i> Datos Iniciales
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Nombre Acompañante</label>
+                        {{ form.nombre_acompanante }}
+                        {% if form.nombre_acompanante.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.nombre_acompanante.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
                     </div>
-                    <hr>
-                    <a href="{% url 'gestion:editar_persona' persona.pk %}" class="btn btn-sm btn-outline-secondary">
-                        ✏️ Editar Datos Personales
-                    </a>
-                    {% else %}
-                    <div class="alert alert-danger">
-                        ⚠️ Error: No se encontró la información de la paciente
+                </div>
+            </div>
+
+            <!-- SECCIÓN 2: DATOS GENERALES -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-info-circle"></i> Datos Generales del Embarazo
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            {{ form.plan_de_parto }}
+                            ¿Tiene Plan de Parto?
+                        </label>
                     </div>
+
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            {{ form.visita_guiada }}
+                            ¿Realizó Visita Guiada?
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Consultorio o Centro de Origen</label>
+                        {{ form.consultorio_origen }}
+                        {% if form.consultorio_origen.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.consultorio_origen.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        <small class="form-text">Si no aparecen opciones, contacta al administrador del sistema</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 3: MEDIDAS ANTROPOMÉTRICAS -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-scale-balanced"></i> Medidas Antropométricas
+                </div>
+
+                <p style="color: #666; margin-bottom: 1rem; font-size: 0.95rem;">
+                    <strong>Importante para embarazadas:</strong> Ingrese el peso y talla actuales. El IMC se calculará automáticamente y es esencial para el seguimiento del embarazo.
+                </p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Peso Actual (kg) <span style="color: red;">*</span></label>
+                        {{ form.peso_actual }}
+                        <small class="form-text">Ej: 65.5 kg</small>
+                        {% if form.peso_actual.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.peso_actual.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Talla (cm) <span style="color: red;">*</span></label>
+                        {{ form.talla_actual }}
+                        <small class="form-text">Ej: 165 cm</small>
+                        {% if form.talla_actual.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.talla_actual.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label"><strong>IMC (Calculado Automáticamente)</strong></label>
+                        {{ form.imc }}
+                        <small class="form-text" style="color: green; font-weight: bold;">Se actualiza al ingresar peso y talla</small>
+                        {% if form.imc.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.imc.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Tabla de referencia IMC -->
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 1rem; border-left: 4px solid #11998e;">
+                    <strong style="color: #333;">Interpretación del IMC:</strong>
+                    <ul style="margin: 0.5rem 0 0 1.5rem; color: #666; font-size: 0.95rem;">
+                        <li>&lt; 18.5: Bajo peso</li>
+                        <li>18.5 - 24.9: Peso normal</li>
+                        <li>25 - 29.9: Sobrepeso</li>
+                        <li>≥ 30: Obesidad</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 4: HISTORIA OBSTÉTRICA -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-heart-pulse"></i> Historia Obstétrica
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Número de Gestaciones <span style="color: red;">*</span></label>
+                        {{ form.numero_gestas }}
+                        <small class="form-text">Incluye embarazos anteriores + actual</small>
+                        {% if form.numero_gestas.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.numero_gestas.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Número de Partos</label>
+                        {{ form.numero_partos }}
+                        <small class="form-text">Partos anteriores (vaginales + cesáreas)</small>
+                        {% if form.numero_partos.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.numero_partos.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Partos Vaginales</label>
+                        {{ form.partos_vaginales }}
+                        {% if form.partos_vaginales.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.partos_vaginales.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Partos por Cesárea</label>
+                        {{ form.partos_cesareas }}
+                        {% if form.partos_cesareas.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.partos_cesareas.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Número de Abortos</label>
+                        {{ form.numero_abortos }}
+                        {% if form.numero_abortos.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.numero_abortos.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Nacidos Vivos</label>
+                        {{ form.nacidos_vivos }}
+                        {% if form.nacidos_vivos.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.nacidos_vivos.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 5: EMBARAZO ACTUAL -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-calendar-heart"></i> Embarazo Actual
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Fecha Última Menstruación (FUM) <span style="color: red;">*</span></label>
+                        {{ form.fecha_ultima_regla }}
+                        <small class="form-text">{{ form.fecha_ultima_regla.help_text }}</small>
+                        {% if form.fecha_ultima_regla.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.fecha_ultima_regla.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Semanas de Gestación (Calculadas)</label>
+                        {{ form.edad_gestacional_semanas }}
+                        {% if form.edad_gestacional_semanas.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.edad_gestacional_semanas.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Días Adicionales (Calculados)</label>
+                        {{ form.edad_gestacional_dias }}
+                        {% if form.edad_gestacional_dias.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.edad_gestacional_dias.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Fecha Probable de Parto (Calculada)</label>
+                        {{ form.fecha_probable_parto }}
+                        {% if form.fecha_probable_parto.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.fecha_probable_parto.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 6: PATOLOGÍAS -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-exclamation-triangle"></i> Patologías
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            {{ form.preeclampsia_severa }}
+                            ¿Preeclampsia Severa?
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            {{ form.eclampsia }}
+                            ¿Eclampsia?
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            {{ form.sepsis_infeccion_sistemia }}
+                            ¿Sepsis o Infección Sistémica?
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            {{ form.infeccion_ovular }}
+                            ¿Infección Ovular?
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Otras Patologías</label>
+                    {{ form.otras_patologias }}
+                    {% if form.otras_patologias.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.otras_patologias.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
                     {% endif %}
                 </div>
             </div>
-        </div>
+
+            <!-- SECCIÓN 7: CONTROL PRENATAL -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-clipboard-check"></i> Control Prenatal
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            {{ form.control_prenatal }}
+                            ¿Tuvo Control Prenatal?
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Número de Controles</label>
+                        {{ form.numero_controles }}
+                        {% if form.numero_controles.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.numero_controles.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTONES -->
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Crear Ficha
+                </button>
+
+                <a href="{% url 'matrona:seleccionar_persona_ficha' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
+            </div>
+        </form>
     </div>
 
-    <!-- Formulario Ficha Obstétrica -->
-    <form method="post" class="needs-validation">
-        {% csrf_token %}
-
-        <!-- Sección 1: Identificación -->
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">1️⃣ Identificación</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.numero_ficha.id_for_label }}" class="form-label">
-                                    Número Ficha <span class="text-danger">*</span>
-                                </label>
-                                {{ form.numero_ficha }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.nombre_acompanante.id_for_label }}" class="form-label">
-                                    Nombre Acompañante
-                                </label>
-                                {{ form.nombre_acompanante }}
-                                <small class="form-text text-muted">Opcional</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección 2: Datos Generales -->
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">2️⃣ Datos Generales</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <label for="{{ form.plan_de_parto.id_for_label }}" class="form-label form-check">
-                                    {{ form.plan_de_parto }}
-                                    Plan de Parto
-                                </label>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="{{ form.visita_guiada.id_for_label }}" class="form-label form-check">
-                                    {{ form.visita_guiada }}
-                                    Visita Guiada
-                                </label>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="{{ form.imc.id_for_label }}" class="form-label">IMC</label>
-                                {{ form.imc }}
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="{{ form.consultorio_origen.id_for_label }}" class="form-label">
-                                    Consultorio Origen
-                                </label>
-                                {{ form.consultorio_origen }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección 3: Historia Obstétrica -->
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">3️⃣ Historia Obstétrica</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-2 mb-3">
-                                <label for="{{ form.numero_gestas.id_for_label }}" class="form-label">
-                                    Gestaciones <span class="text-danger">*</span>
-                                </label>
-                                {{ form.numero_gestas }}
-                            </div>
-                            <div class="col-md-2 mb-3">
-                                <label for="{{ form.numero_partos.id_for_label }}" class="form-label">
-                                    Partos <span class="text-danger">*</span>
-                                </label>
-                                {{ form.numero_partos }}
-                            </div>
-                            <div class="col-md-2 mb-3">
-                                <label for="{{ form.partos_vaginales.id_for_label }}" class="form-label">
-                                    Vaginales
-                                </label>
-                                {{ form.partos_vaginales }}
-                            </div>
-                            <div class="col-md-2 mb-3">
-                                <label for="{{ form.partos_cesareas.id_for_label }}" class="form-label">
-                                    Cesáreas
-                                </label>
-                                {{ form.partos_cesareas }}
-                            </div>
-                            <div class="col-md-2 mb-3">
-                                <label for="{{ form.numero_abortos.id_for_label }}" class="form-label">
-                                    Abortos
-                                </label>
-                                {{ form.numero_abortos }}
-                            </div>
-                            <div class="col-md-2 mb-3">
-                                <label for="{{ form.nacidos_vivos.id_for_label }}" class="form-label">
-                                    Nacidos Vivos
-                                </label>
-                                {{ form.nacidos_vivos }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección 4: Embarazo Actual -->
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">4️⃣ Embarazo Actual</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <label for="{{ form.fecha_ultima_regla.id_for_label }}" class="form-label">
-                                    FUM (Última Menstruación)
-                                </label>
-                                {{ form.fecha_ultima_regla }}
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="{{ form.fecha_probable_parto.id_for_label }}" class="form-label">
-                                    FPP (Probable Parto)
-                                </label>
-                                {{ form.fecha_probable_parto }}
-                            </div>
-                            <div class="col-md-2 mb-3">
-                                <label for="{{ form.edad_gestacional_semanas.id_for_label }}" class="form-label">
-                                    Semanas <span class="text-danger">*</span>
-                                </label>
-                                {{ form.edad_gestacional_semanas }}
-                            </div>
-                            <div class="col-md-2 mb-3">
-                                <label for="{{ form.edad_gestacional_dias.id_for_label }}" class="form-label">
-                                    Días
-                                </label>
-                                {{ form.edad_gestacional_dias }}
-                            </div>
-                            <div class="col-md-2 mb-3">
-                                <label for="{{ form.peso_actual.id_for_label }}" class="form-label">
-                                    Peso (kg)
-                                </label>
-                                {{ form.peso_actual }}
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <label for="{{ form.talla_actual.id_for_label }}" class="form-label">
-                                    Talla (cm)
-                                </label>
-                                {{ form.talla_actual }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección 5: Patologías -->
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">5️⃣ Patologías y Complicaciones</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="{{ form.preeclampsia_severa.id_for_label }}" class="form-label form-check">
-                                    {{ form.preeclampsia_severa }}
-                                    Preeclampsia Severa
-                                </label>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="{{ form.eclampsia.id_for_label }}" class="form-label form-check">
-                                    {{ form.eclampsia }}
-                                    Eclampsia
-                                </label>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="{{ form.sepsis_infeccion_sistemia.id_for_label }}" class="form-label form-check">
-                                    {{ form.sepsis_infeccion_sistemia }}
-                                    Sepsis/Infección Sistémica Grave
-                                </label>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="{{ form.infeccion_ovular.id_for_label }}" class="form-label form-check">
-                                    {{ form.infeccion_ovular }}
-                                    Infección Ovular/Corioamnionitis
-                                </label>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12 mb-3">
-                                <label for="{{ form.otras_patologias.id_for_label }}" class="form-label">
-                                    Otras Patologías
-                                </label>
-                                {{ form.otras_patologias }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección 6: Control Prenatal -->
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">6️⃣ Control Prenatal</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.control_prenatal.id_for_label }}" class="form-label form-check">
-                                    {{ form.control_prenatal }}
-                                    ¿Tuvo Control Prenatal? <span class="text-danger">*</span>
-                                </label>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.numero_controles.id_for_label }}" class="form-label">
-                                    Número de Controles
-                                </label>
-                                {{ form.numero_controles }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Botones de Acción -->
-        <div class="row mb-4">
-            <div class="col-md-12 text-end">
-                <a href="{% url 'matrona:menu_matrona' %}" class="btn btn-secondary">
-                    ❌ Cancelar
-                </a>
-                <button type="submit" class="btn btn-success btn-lg">
-                    ✅ Crear Ficha Obstétrica
-                </button>
-            </div>
-        </div>
-
-        <!-- Errores de Formulario -->
-        {% if form.non_field_errors %}
-        <div class="alert alert-danger" role="alert">
-            <h4 class="alert-heading">Errores en el formulario:</h4>
-            {% for error in form.non_field_errors %}
-            <p>{{ error }}</p>
-            {% endfor %}
-        </div>
-        {% endif %}
-
-    </form>
-
+    {% else %}
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle"></i>
+        <strong>Error:</strong> No se encontró la información de la persona. 
+        <a href="{% url 'matrona:seleccionar_persona_ficha' %}">Volver a seleccionar</a>
+    </div>
+    {% endif %}
 </div>
 
-<!-- CSS Bootstrap -->
-<style>
-    .card {
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        margin-bottom: 1rem;
-    }
-    
-    .form-control, .form-select {
-        border-radius: 0.25rem;
-    }
-    
-    .form-control:focus, .form-select:focus {
-        border-color: #80bdff;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    }
-    
-    .form-check-input {
-        width: 1.25em;
-        height: 1.25em;
-        margin-top: 0.3125em;
-    }
-    
-    .text-danger {
-        color: #dc3545;
-    }
-</style>
+{% endblock %}
 
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fumInput = document.getElementById('id_fecha_ultima_regla');
+    const semanasInput = document.getElementById('id_edad_gestacional_semanas');
+    const diasInput = document.getElementById('id_edad_gestacional_dias');
+    const fppInput = document.getElementById('id_fecha_probable_parto');
+    const pesoInput = document.getElementById('id_peso_actual');
+    const tallaInput = document.getElementById('id_talla_actual');
+    const imcInput = document.getElementById('id_imc');
+
+    // Función para calcular semanas y FPP
+    function calcularEdadGestacional() {
+        const fum = fumInput.value;
+        if (!fum) return;
+
+        const fumDate = new Date(fum);
+        const hoy = new Date();
+
+        // Calcular días transcurridos
+        const milisegundos = hoy - fumDate;
+        const diasTranscurridos = Math.floor(milisegundos / (1000 * 60 * 60 * 24));
+
+        // Calcular semanas y días
+        const semanas = Math.floor(diasTranscurridos / 7);
+        const dias = diasTranscurridos % 7;
+
+        // Validar que no exceda 42 semanas
+        if (semanas > 42) {
+            semanasInput.value = 42;
+            diasInput.value = 6;
+        } else {
+            semanasInput.value = semanas;
+            diasInput.value = dias;
+        }
+
+        // Calcular FPP (FUM + 280 días = 40 semanas)
+        const fppDate = new Date(fumDate);
+        fppDate.setDate(fppDate.getDate() + 280);
+
+        // Formatear fecha para input type="date"
+        const year = fppDate.getFullYear();
+        const month = String(fppDate.getMonth() + 1).padStart(2, '0');
+        const day = String(fppDate.getDate()).padStart(2, '0');
+        fppInput.value = `${year}-${month}-${day}`;
+    }
+
+    // Función para calcular IMC
+    function calcularIMC() {
+        const peso = parseFloat(pesoInput.value);
+        const talla = parseFloat(tallaInput.value);
+
+        if (peso && talla && peso > 0 && talla > 0) {
+            // Convertir talla de cm a metros
+            const tallaMetros = talla / 100;
+            const imc = peso / (tallaMetros * tallaMetros);
+            imcInput.value = imc.toFixed(2);
+        } else {
+            imcInput.value = '';
+        }
+    }
+
+    // Eventos al cambiar FUM
+    fumInput.addEventListener('change', calcularEdadGestacional);
+    fumInput.addEventListener('blur', calcularEdadGestacional);
+
+    // Eventos al cambiar peso o talla
+    pesoInput.addEventListener('change', calcularIMC);
+    pesoInput.addEventListener('keyup', calcularIMC);
+    pesoInput.addEventListener('blur', calcularIMC);
+    
+    tallaInput.addEventListener('change', calcularIMC);
+    tallaInput.addEventListener('keyup', calcularIMC);
+    tallaInput.addEventListener('blur', calcularIMC);
+
+    // Calcular al cargar si hay datos
+    calcularEdadGestacional();
+    calcularIMC();
+});
+</script>
 {% endblock %}

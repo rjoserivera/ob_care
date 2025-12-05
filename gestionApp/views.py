@@ -2,6 +2,7 @@
 """
 Vistas para gestionApp - Gestión de Personas
 Las personas se convierten en Pacientes cuando se crea una Ficha Obstétrica
+ACTUALIZADO: Cálculo correcto de edad con datetime
 """
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -11,10 +12,35 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.views.generic import ListView, DetailView
 from django.utils.decorators import method_decorator
+from datetime import date
 
 from .models import Persona
 from .forms import PersonaForm, BuscarPersonaForm
 from authentication.decorators import roles_required
+
+
+# ============================================
+# FUNCIÓN HELPER: Calcular Edad
+# ============================================
+
+def calcular_edad(fecha_nacimiento):
+    """
+    Calcula la edad correctamente basada en la fecha de nacimiento
+    
+    Parámetros:
+        fecha_nacimiento: date object
+    
+    Retorna:
+        int: edad en años
+    """
+    hoy = date.today()
+    edad = hoy.year - fecha_nacimiento.year
+    
+    # Restar 1 si el cumpleaños aún no ha ocurrido este año
+    if (hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day):
+        edad -= 1
+    
+    return edad
 
 
 # ============================================
@@ -75,12 +101,21 @@ def registrar_persona(request):
 
 @login_required
 def detalle_persona(request, pk):
-    """Ver detalles de una Persona"""
+    """
+    Ver detalles de una Persona
+    Calcula la edad correctamente
+    """
     
     persona = get_object_or_404(Persona, pk=pk)
     
+    # ✅ CALCULAR EDAD CORRECTAMENTE
+    edad = None
+    if persona.Fecha_nacimiento:
+        edad = calcular_edad(persona.Fecha_nacimiento)
+    
     context = {
         'persona': persona,
+        'edad': edad,
         'titulo': f'{persona.Nombre} {persona.Apellido_Paterno}',
     }
     
@@ -231,7 +266,7 @@ def activar_persona(request, pk):
 def api_buscar_persona(request):
     """
     API para búsqueda AJAX de personas
-    Retorna JSON
+    Retorna JSON con edad calculada correctamente
     """
     
     query = request.GET.get('q', '').strip()
@@ -246,14 +281,14 @@ def api_buscar_persona(request):
         Activo=True
     )[:10]
     
-    resultados = [
-        {
+    resultados = []
+    for p in personas:
+        edad = calcular_edad(p.Fecha_nacimiento) if p.Fecha_nacimiento else 'N/A'
+        resultados.append({
             'id': p.pk,
             'nombre': f'{p.Nombre} {p.Apellido_Paterno}',
             'rut': p.Rut,
-            'edad': (2025 - p.Fecha_nacimiento.year) if p.Fecha_nacimiento else 'N/A',
-        }
-        for p in personas
-    ]
+            'edad': edad,
+        })
     
     return JsonResponse({'resultados': resultados})
