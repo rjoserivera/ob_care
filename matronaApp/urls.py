@@ -1,7 +1,7 @@
 """
 matronaApp/urls.py
 URLs para matronaApp
-Actualizado: Solo incluye vistas que existen
+Actualizado: Incluye nueva ruta crear_ficha_persona
 """
 
 from django.urls import path
@@ -15,6 +15,7 @@ urlpatterns = [
     
     # Fichas obstétricas
     path('ficha/crear/<int:paciente_pk>/', views.crear_ficha_obstetrica, name='crear_ficha'),
+    path('ficha/crear-persona/<int:persona_pk>/', views.crear_ficha_obstetrica_persona, name='crear_ficha_persona'),
     path('ficha/<int:ficha_pk>/editar/', views.editar_ficha_obstetrica, name='editar_ficha'),
     path('ficha/<int:ficha_pk>/', views.detalle_ficha_obstetrica, name='detalle_ficha'),
     path('fichas/', views.lista_fichas_obstetrica, name='lista_fichas'),

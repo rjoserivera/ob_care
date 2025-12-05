@@ -1,77 +1,68 @@
 """
-matronaApp/forms/ficha_obstetrica.py
-Formularios para FichaObstetrica
-CORREGIDO: Solo incluye campos que existen en el modelo
+matronaApp/forms/ficha_obstetrica_form.py
+FORMULARIO CORREGIDO - Consultorio carga dinámicamente
 """
 
 from django import forms
-from ..models import FichaObstetrica, MedicamentoFicha, CatalogoViaAdministracion
+from django.utils import timezone
+from ..models import FichaObstetrica, MedicamentoFicha, CatalogoConsultorioOrigen
 
 
 class FichaObstetricaForm(forms.ModelForm):
     """
     Formulario para crear/editar Ficha Obstétrica
-    INCLUYE SOLO los campos que existen en el modelo FichaObstetrica
+    - Consultorio se carga dinámicamente de la BD
+    - Cálculos automáticos de edad gestacional y FPP
     """
     
+    # Campos de cálculo
     edad_gestacional_semanas = forms.IntegerField(
-        min_value=1,
-        max_value=42,
+        label='Semanas de Gestación (Calculadas)',
         required=False,
-        label='Semanas de Gestación',
         widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'placeholder': '0-42'
+            'class': 'form-control readonly-field',
+            'readonly': 'readonly',
+            'id': 'id_edad_gestacional_semanas'
         })
     )
     
     edad_gestacional_dias = forms.IntegerField(
+        label='Días Adicionales (Calculados)',
+        required=False,
         min_value=0,
         max_value=6,
-        required=False,
-        label='Días Adicionales',
         widget=forms.NumberInput(attrs={
-            'class': 'form-control',
-            'placeholder': '0-6'
+            'class': 'form-control readonly-field',
+            'readonly': 'readonly',
+            'id': 'id_edad_gestacional_dias'
         })
     )
     
     class Meta:
         model = FichaObstetrica
         fields = [
-            # Sección Identificación
             'nombre_acompanante',
-            
-            # Sección Datos Generales
             'plan_de_parto',
             'visita_guiada',
             'imc',
             'consultorio_origen',
-            
-            # Sección Historia Obstétrica
             'numero_gestas',
             'numero_partos',
             'partos_vaginales',
             'partos_cesareas',
             'numero_abortos',
             'nacidos_vivos',
-            
-            # Sección Embarazo Actual
             'fecha_ultima_regla',
             'fecha_probable_parto',
             'edad_gestacional_semanas',
             'edad_gestacional_dias',
             'peso_actual',
             'talla_actual',
-            
-            # Sección Patologías
             'preeclampsia_severa',
             'eclampsia',
             'sepsis_infeccion_sistemia',
             'infeccion_ovular',
             'otras_patologias',
-            
-            # Sección Control Prenatal
             'control_prenatal',
             'numero_controles',
         ]
@@ -81,129 +72,134 @@ class FichaObstetricaForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Nombre del acompañante'
             }),
-            
             'plan_de_parto': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
-            
             'visita_guiada': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
-            
             'imc': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ej: 24.5',
-                'step': '0.1'
+                'step': '0.01',
+                'placeholder': '0.00'
             }),
-            
             'consultorio_origen': forms.Select(attrs={
-                'class': 'form-select'
+                'class': 'form-select',
+                'id': 'id_consultorio_origen'
             }),
-            
             'numero_gestas': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'min': '1'
+                'min': '1',
+                'placeholder': 'Ej: 2'
             }),
-            
             'numero_partos': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '0'
             }),
-            
             'partos_vaginales': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '0'
             }),
-            
             'partos_cesareas': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '0'
             }),
-            
             'numero_abortos': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '0'
             }),
-            
             'nacidos_vivos': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '0'
             }),
-            
             'fecha_ultima_regla': forms.DateInput(attrs={
                 'class': 'form-control',
-                'type': 'date'
+                'type': 'date',
+                'id': 'id_fecha_ultima_regla'
             }),
-            
             'fecha_probable_parto': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date'
+                'class': 'form-control readonly-field',
+                'type': 'date',
+                'readonly': 'readonly',
+                'id': 'id_fecha_probable_parto'
             }),
-            
             'peso_actual': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Kg',
-                'step': '0.1'
+                'step': '0.1',
+                'placeholder': 'kg'
             }),
-            
             'talla_actual': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'cm',
-                'step': '0.1'
+                'step': '0.1',
+                'placeholder': 'cm'
             }),
-            
             'preeclampsia_severa': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
-            
             'eclampsia': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
-            
             'sepsis_infeccion_sistemia': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
-            
             'infeccion_ovular': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
-            
             'otras_patologias': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 3,
-                'placeholder': 'Describir otras patologías'
+                'rows': '3',
+                'placeholder': 'Describa otras patologías'
             }),
-            
             'control_prenatal': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
-            
             'numero_controles': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '0'
             }),
         }
     
+    def __init__(self, *args, **kwargs):
+        """Inicializar el formulario con consultorios de la BD"""
+        super().__init__(*args, **kwargs)
+        
+        # Cargar consultorios dinámicamente de la BD
+        self.fields['consultorio_origen'].queryset = CatalogoConsultorioOrigen.objects.filter(activo=True).order_by('nombre')
+        self.fields['consultorio_origen'].empty_label = '-- Seleccione un consultorio --'
+    
     def clean(self):
+        """Validaciones personalizadas"""
         cleaned_data = super().clean()
         
-        # Validar que partos_vaginales + partos_cesareas = numero_partos
-        numero_partos = cleaned_data.get('numero_partos')
-        partos_vaginales = cleaned_data.get('partos_vaginales')
-        partos_cesareas = cleaned_data.get('partos_cesareas')
+        # Validar que numero_gestas >= numero_partos
+        gestas = cleaned_data.get('numero_gestas')
+        partos = cleaned_data.get('numero_partos')
+        if gestas and partos and gestas < partos:
+            self.add_error('numero_partos', 'El número de partos no puede ser mayor al número de gestaciones')
         
-        if numero_partos and partos_vaginales and partos_cesareas:
-            if partos_vaginales + partos_cesareas != numero_partos:
-                raise forms.ValidationError(
-                    'La suma de partos vaginales y cesáreas debe ser igual al número de partos'
-                )
+        # Validar que partos_vaginales + partos_cesareas == numero_partos
+        vaginales = cleaned_data.get('partos_vaginales', 0)
+        cesareas = cleaned_data.get('partos_cesareas', 0)
+        if partos and (vaginales + cesareas) != partos:
+            self.add_error('partos_vaginales', f'La suma de partos vaginales ({vaginales}) + cesáreas ({cesareas}) debe ser igual al total ({partos})')
+        
+        # Validar FUM
+        fum = cleaned_data.get('fecha_ultima_regla')
+        if fum:
+            hoy = timezone.now().date()
+            if fum > hoy:
+                self.add_error('fecha_ultima_regla', 'La FUM no puede ser una fecha futura')
+            
+            dias_transcurridos = (hoy - fum).days
+            if dias_transcurridos > 294:  # Más de 42 semanas
+                self.add_error('fecha_ultima_regla', 'La FUM parece estar muy lejana (más de 42 semanas)')
         
         return cleaned_data
 
 
 class MedicamentoFichaForm(forms.ModelForm):
     """
-    Formulario para agregar medicamentos a una ficha
+    Formulario para agregar medicamentos a una ficha obstétrica
     """
     
     class Meta:
@@ -213,46 +209,21 @@ class MedicamentoFichaForm(forms.ModelForm):
             'dosis',
             'via_administracion',
             'frecuencia',
-            'fecha_inicio',
-            'fecha_termino',
-            'indicaciones',
         ]
-        
         widgets = {
             'medicamento': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Nombre del medicamento'
+                'placeholder': 'Ej: Oxitocina, Misoprostol, etc.'
             }),
-            
             'dosis': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ej: 500mg'
+                'placeholder': 'Ej: 10 mg'
             }),
-            
             'via_administracion': forms.Select(attrs={
                 'class': 'form-select'
             }),
-            
             'frecuencia': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ej: Cada 6 horas'
-            }),
-            
-            'fecha_inicio': forms.DateTimeInput(attrs={
-                'class': 'form-control',
-                'type': 'datetime-local'
-            }),
-            
-            'fecha_termino': forms.DateTimeInput(attrs={
-                'class': 'form-control',
-                'type': 'datetime-local'
-            }),
-            
-            'indicaciones': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 3,
-                'placeholder': 'Indicaciones especiales'
+                'placeholder': 'Ej: Cada 6 horas, Una sola dosis, etc.'
             }),
         }
-
-

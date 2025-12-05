@@ -80,32 +80,23 @@
         }
 
         .alert-success {
+            border-color: #28a745;
             background-color: #d4edda;
-            border-left-color: #28a745;
-            color: #155724;
         }
 
-        .alert-error {
+        .alert-danger {
+            border-color: #dc3545;
             background-color: #f8d7da;
-            border-left-color: #dc3545;
-            color: #721c24;
         }
 
         .alert-warning {
+            border-color: #ffc107;
             background-color: #fff3cd;
-            border-left-color: #ffc107;
-            color: #856404;
         }
 
         .alert-info {
+            border-color: #17a2b8;
             background-color: #d1ecf1;
-            border-left-color: #17a2b8;
-            color: #0c5460;
-        }
-
-        /* Container Padding */
-        .container-fluid {
-            padding: 1rem;
         }
     </style>
     
@@ -115,21 +106,16 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container-fluid">
-            <!-- Brand -->
             <a class="navbar-brand" href="{% url 'home' %}">
-                <i class="bi bi-hospital-fill"></i> 
-                Gestor Obstétrico
+                <i class="bi bi-hospital"></i>
+                Obstetric Care
             </a>
-            
-            <!-- Toggle Button -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
-            <!-- Navigation Links -->
+            
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    
                     <!-- Médico -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
@@ -171,8 +157,8 @@
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><h6 class="dropdown-header">Fichas Obstétricas</h6></li>
-                            <li><a class="dropdown-item" href="{% url 'matrona:todas_fichas' %}">
-                                <i class="bi bi-folder-fill"></i> Ver Todas las Fichas
+                            <li><a class="dropdown-item" href="{% url 'matrona:menu_matrona' %}">
+                                <i class="bi bi-folder-fill"></i> Ver Mis Fichas
                             </a></li>
                         </ul>
                     </li>
@@ -196,7 +182,7 @@
                             <li><a class="dropdown-item" href="{% url 'tens:parametros_tens' %}">
                                 <i class="bi bi-clipboard2-pulse"></i> Registrar Signos Vitales
                             </a></li>
-                            <li><a class="dropdown-item" href="{% url 'tens:listar_tratamientos' %}">
+                            <li><a class="dropdown-item" href="{% url 'tens:menu_tens' %}">
                                 <i class="bi bi-pill"></i> Ver Tratamientos
                             </a></li>
                         </ul>
@@ -213,14 +199,11 @@
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><h6 class="dropdown-header">Registro</h6></li>
-                            <li><a class="dropdown-item" href="{% url 'partos:seleccionar_ficha' %}">
+                            <li><a class="dropdown-item" href="{% url 'partos:menu_partos' %}">
                                 <i class="bi bi-file-earmark-plus"></i> Registrar Parto
                             </a></li>
-                            <li><a class="dropdown-item" href="{% url 'partos:listar_partos' %}">
-                                <i class="bi bi-folder-fill"></i> Ver Partos
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'partos:estadisticas' %}">
-                                <i class="bi bi-bar-chart"></i> Estadísticas
+                            <li><a class="dropdown-item" href="{% url 'partos:lista_registros' %}">
+                                <i class="bi bi-folder-fill"></i> Ver Registros de Partos
                             </a></li>
                         </ul>
                     </li>
@@ -253,7 +236,7 @@
                                 <i class="bi bi-gear"></i> Configuración
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#">
+                            <li><a class="dropdown-item" href="{% url 'authentication:logout' %}">
                                 <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
                             </a></li>
                         </ul>

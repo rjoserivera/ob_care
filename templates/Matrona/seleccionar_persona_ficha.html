@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function selectPersona(personaId, personaNombre) {
     // Redirigir a crear ficha con persona pre-seleccionada
-    window.location.href = `{% url 'matrona:crear_ficha' %}?persona_id=${personaId}`;
+    window.location.href = `/matrona/ficha/crear-persona/${personaId}/`;
 }
 </script>
 {% endblock %}

@@ -233,6 +233,170 @@ def menu_matrona(request):
     return render(request, 'Matrona/menu_matrona.html', context)
 
 @login_required
+def crear_ficha_obstetrica_persona(request, persona_pk):
+    """Crear ficha a partir de Persona (obtiene/crea Paciente automáticamente)"""
+    from gestionApp.models import Persona
+    
+    persona = get_object_or_404(Persona, pk=persona_pk)
+    
+    # Obtener o crear paciente
+    paciente, created = Paciente.objects.get_or_create(
+        persona=persona,
+        defaults={'activo': True}
+    )
+    
+    if not paciente.activo:
+        paciente.activo = True
+        paciente.save()
+    
+    if request.method == 'POST':
+        form = FichaObstetricaForm(request.POST)
+        if form.is_valid():
+            ficha = form.save(commit=False)
+            ficha.paciente = paciente
+            ficha.numero_ficha = f"FO-{FichaObstetrica.objects.count() + 1:06d}"
+            ficha.save()
+            messages.success(request, f'✅ Ficha Obstétrica {ficha.numero_ficha} creada')
+            return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
+        else:
+            messages.error(request, '❌ Corrige los errores en el formulario')
+    else:
+        form = FichaObstetricaForm()
+    
+    context = {
+        'form': form,
+        'paciente': paciente,
+        'persona': persona,
+        'titulo': 'Crear Ficha Obstétrica',
+        'accion': 'crear'
+    }
+    return render(request, 'Matrona/form_obstetrica_materna.html', context)
+
+@login_required
+def crear_ficha_obstetrica_persona(request, persona_pk):
+    """
+    Crear nueva ficha obstétrica a partir de una Persona
+    URL: /matrona/ficha/crear-persona/<persona_pk>/
+    
+    Si la persona no tiene un paciente creado, lo crea automáticamente
+    """
+    from gestionApp.models import Persona
+    
+    # Obtener la persona
+    persona = get_object_or_404(Persona, pk=persona_pk)
+    
+    # Obtener o crear el paciente
+    paciente, created = Paciente.objects.get_or_create(
+        persona=persona,
+        defaults={'activo': True}
+    )
+    
+    # Si el paciente existe pero no estaba activo, lo activamos
+    if not paciente.activo:
+        paciente.activo = True
+        paciente.save()
+    
+    if request.method == 'POST':
+        form = FichaObstetricaForm(request.POST)
+        if form.is_valid():
+            ficha = form.save(commit=False)
+            ficha.paciente = paciente
+            ficha.numero_ficha = f"FO-{FichaObstetrica.objects.count() + 1:06d}"
+            ficha.save()
+            messages.success(
+                request,
+                f'✅ Ficha Obstétrica {ficha.numero_ficha} creada exitosamente'
+            )
+            return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
+        else:
+            messages.error(request, '❌ Por favor corrige los errores en el formulario')
+    else:
+        form = FichaObstetricaForm()
+    
+    context = {
+        'form': form,
+        'paciente': paciente,
+        'persona': persona,
+        'titulo': 'Crear Ficha Obstétrica',
+        'accion': 'crear'
+    }
+    return render(request, 'Matrona/crear_ficha_obstetrica.html', context)@login_required
+def crear_ficha_obstetrica_persona(request, persona_pk):
+    """
+    Crear nueva ficha obstétrica a partir de una Persona
+    URL: /matrona/ficha/crear-persona/<persona_pk>/
+    
+    Si la persona no tiene un paciente creado, lo crea automáticamente
+    """
+    
+    # Obtener la persona
+    persona = get_object_or_404(Persona, pk=persona_pk)
+    
+    # Obtener o crear el paciente
+    paciente, created = Paciente.objects.get_or_create(
+        persona=persona,
+        defaults={'activo': True}
+    )
+    
+    # Si el paciente existe pero no estaba activo, lo activamos
+    if not paciente.activo:
+        paciente.activo = True
+        paciente.save()
+    
+    if request.method == 'POST':
+        form = FichaObstetricaForm(request.POST)
+        if form.is_valid():
+            # Obtener el consultorio_origen del formulario (es texto)
+            consultorio_texto = form.cleaned_data.get('consultorio_origen', '')
+            
+            # Crear la ficha SIN consultorio_origen primero
+            ficha = form.save(commit=False)
+            ficha.paciente = paciente
+            ficha.numero_ficha = f"FO-{FichaObstetrica.objects.count() + 1:06d}"
+            
+            # NO asignar consultorio_origen aquí, será guardado como descripción
+            ficha.consultorio_origen = None  # Dejar como NULL por ahora
+            
+            try:
+                ficha.save()
+                
+                # Guardar el consultorio en otras_patologias como nota (temporal)
+                # O crear un nuevo campo de nota en el futuro
+                if consultorio_texto:
+                    # Aquí puedes guardar en otra parte si quieres
+                    pass
+                
+                messages.success(
+                    request,
+                    f'✅ Ficha Obstétrica {ficha.numero_ficha} creada exitosamente'
+                )
+                return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
+            except Exception as e:
+                messages.error(request, f'❌ Error al crear la ficha: {str(e)}')
+        else:
+            # Mostrar errores específicos
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'❌ {field}: {error}')
+    else:
+        form = FichaObstetricaForm()
+    
+    context = {
+        'form': form,
+        'paciente': paciente,
+        'persona': persona,
+        'titulo': 'Crear Ficha Obstétrica',
+        'accion': 'crear'
+    }
+    return render(request, 'Matrona/crear_ficha_obstetrica.html', context)
+
+
+
+
+
+
+
+@login_required
 def seleccionar_persona_ficha(request):
     """Seleccionar paciente para crear ficha obstétrica"""
     try:
@@ -260,4 +424,4 @@ def seleccionar_persona_ficha(request):
         'search_query': search_query,
         'total_pacientes': paginator.count
     }
-    return render(request, 'Matrona/seleccionar_paciente_ficha.html', context)
+    return render(request, 'Matrona/seleccionar_persona_ficha.html', context)

@@ -1,0 +1,424 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Detalles - Ficha Obstétrica{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ficha-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+    }
+
+    .ficha-header {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border-left: 5px solid #11998e;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: #666;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.3rem;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #11998e;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(17, 153, 142, 0.3);
+    }
+
+    .btn-secondary {
+        background: #e0e0e0;
+        color: #333;
+    }
+
+    .btn-secondary:hover {
+        background: #d0d0d0;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .badge-success {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .badge-warning {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-danger {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border-left: 4px solid #28a745;
+        color: #155724;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ficha-container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'matrona:menu_matrona' %}">Matrona</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'matrona:lista_fichas' %}">Fichas Obstétricas</a></li>
+            <li class="breadcrumb-item active">Detalles</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="ficha-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h2 style="margin-bottom: 0.5rem;">
+                    <i class="bi bi-file-earmark-medical"></i> Ficha Obstétrica
+                </h2>
+                <p style="margin: 0;">{{ ficha.numero_ficha }}</p>
+            </div>
+            <div>
+                <span class="badge badge-success">✅ Creada exitosamente</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensaje de éxito -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle"></i> {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- INFORMACIÓN DEL PACIENTE -->
+    <div class="info-card">
+        <div class="section-title">
+            <i class="bi bi-person-check-fill"></i> Información del Paciente
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Nombre Completo</div>
+                <div class="info-value">{{ paciente.persona.Nombre }} {{ paciente.persona.Apellido_Paterno }} {{ paciente.persona.Apellido_Materno }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">RUT</div>
+                <div class="info-value">{{ paciente.persona.Rut }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Edad</div>
+                <div class="info-value">{% now "Y" as current_year %}{{ current_year|add:paciente.persona.Fecha_nacimiento.year|add:"-1" }} años</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Teléfono</div>
+                <div class="info-value">{{ paciente.persona.Telefono|default:"No registrado" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DATOS GENERALES DEL EMBARAZO -->
+    <div class="info-card">
+        <div class="section-title">
+            <i class="bi bi-info-circle"></i> Datos Generales del Embarazo
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Plan de Parto</div>
+                <div class="info-value">{% if ficha.plan_de_parto %}<span class="badge badge-success">✅ Sí</span>{% else %}<span class="badge badge-warning">❌ No</span>{% endif %}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Visita Guiada</div>
+                <div class="info-value">{% if ficha.visita_guiada %}<span class="badge badge-success">✅ Sí</span>{% else %}<span class="badge badge-warning">❌ No</span>{% endif %}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">IMC</div>
+                <div class="info-value">{{ ficha.imc|floatformat:2 }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Consultorio Origen</div>
+                <div class="info-value">{{ ficha.consultorio_origen }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Acompañante</div>
+                <div class="info-value">{{ ficha.nombre_acompanante|default:"No registrado" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MEDIDAS ANTROPOMÉTRICAS -->
+    <div class="info-card">
+        <div class="section-title">
+            <i class="bi bi-scale-balanced"></i> Medidas Antropométricas
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Peso Actual</div>
+                <div class="info-value">{{ ficha.peso_actual }} kg</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Talla</div>
+                <div class="info-value">{{ ficha.talla_actual }} cm</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">IMC Calculado</div>
+                <div class="info-value">{{ ficha.imc|floatformat:2 }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORIA OBSTÉTRICA -->
+    <div class="info-card">
+        <div class="section-title">
+            <i class="bi bi-heart-pulse"></i> Historia Obstétrica
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Número de Gestaciones</div>
+                <div class="info-value">{{ ficha.numero_gestas }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Número de Partos</div>
+                <div class="info-value">{{ ficha.numero_partos }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Partos Vaginales</div>
+                <div class="info-value">{{ ficha.partos_vaginales }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Partos por Cesárea</div>
+                <div class="info-value">{{ ficha.partos_cesareas }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Número de Abortos</div>
+                <div class="info-value">{{ ficha.numero_abortos }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Nacidos Vivos</div>
+                <div class="info-value">{{ ficha.nacidos_vivos }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EMBARAZO ACTUAL -->
+    <div class="info-card">
+        <div class="section-title">
+            <i class="bi bi-calendar-heart"></i> Embarazo Actual
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Fecha Última Menstruación (FUM)</div>
+                <div class="info-value">{{ ficha.fecha_ultima_regla|date:"d/m/Y" }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Edad Gestacional</div>
+                <div class="info-value">{{ ficha.edad_gestacional_semanas }} semanas, {{ ficha.edad_gestacional_dias }} días</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Fecha Probable de Parto (FPP)</div>
+                <div class="info-value">{{ ficha.fecha_probable_parto|date:"d/m/Y" }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Control Prenatal</div>
+                <div class="info-value">{% if ficha.control_prenatal %}<span class="badge badge-success">✅ Sí</span>{% else %}<span class="badge badge-warning">❌ No</span>{% endif %}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Número de Controles</div>
+                <div class="info-value">{{ ficha.numero_controles }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PATOLOGÍAS -->
+    {% if ficha.preeclampsia_severa or ficha.eclampsia or ficha.sepsis_infeccion_sistemia or ficha.infeccion_ovular or ficha.otras_patologias %}
+    <div class="info-card" style="border-left-color: #dc3545;">
+        <div class="section-title" style="color: #dc3545; border-bottom-color: #dc3545;">
+            <i class="bi bi-exclamation-triangle"></i> Patologías Detectadas
+        </div>
+
+        <div class="info-grid">
+            {% if ficha.preeclampsia_severa %}
+            <div class="info-item" style="background: #f8d7da;">
+                <div class="info-label">⚠️ Preeclampsia Severa</div>
+                <div class="info-value"><span class="badge badge-danger">SÍ</span></div>
+            </div>
+            {% endif %}
+
+            {% if ficha.eclampsia %}
+            <div class="info-item" style="background: #f8d7da;">
+                <div class="info-label">⚠️ Eclampsia</div>
+                <div class="info-value"><span class="badge badge-danger">SÍ</span></div>
+            </div>
+            {% endif %}
+
+            {% if ficha.sepsis_infeccion_sistemia %}
+            <div class="info-item" style="background: #f8d7da;">
+                <div class="info-label">⚠️ Sepsis o Infección Sistémica</div>
+                <div class="info-value"><span class="badge badge-danger">SÍ</span></div>
+            </div>
+            {% endif %}
+
+            {% if ficha.infeccion_ovular %}
+            <div class="info-item" style="background: #f8d7da;">
+                <div class="info-label">⚠️ Infección Ovular</div>
+                <div class="info-value"><span class="badge badge-danger">SÍ</span></div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if ficha.otras_patologias %}
+        <div style="margin-top: 1rem; padding: 1rem; background: #fff3cd; border-radius: 8px;">
+            <strong>Otras Patologías:</strong>
+            <p>{{ ficha.otras_patologias }}</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- INFORMACIÓN DE LA FICHA -->
+    <div class="info-card">
+        <div class="section-title">
+            <i class="bi bi-clock-history"></i> Información Administrativa
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Número de Ficha</div>
+                <div class="info-value">{{ ficha.numero_ficha }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Fecha de Creación</div>
+                <div class="info-value">{{ ficha.fecha_creacion|date:"d/m/Y H:i" }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Estado</div>
+                <div class="info-value">{% if ficha.activa %}<span class="badge badge-success">✅ Activa</span>{% else %}<span class="badge badge-warning">⚠️ Inactiva</span>{% endif %}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTONES DE ACCIÓN -->
+    <div class="button-group">
+        <a href="{% url 'matrona:editar_ficha' ficha.pk %}" class="btn btn-primary">
+            <i class="bi bi-pencil"></i> Editar Ficha
+        </a>
+
+        <a href="{% url 'matrona:lista_fichas' %}" class="btn btn-secondary">
+            <i class="bi bi-list"></i> Ver Todas las Fichas
+        </a>
+
+        <a href="{% url 'matrona:menu_matrona' %}" class="btn btn-secondary">
+            <i class="bi bi-house"></i> Volver al Menú
+        </a>
+    </div>
+</div>
+
+{% endblock %}

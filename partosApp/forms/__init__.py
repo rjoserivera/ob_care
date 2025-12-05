@@ -1,6 +1,10 @@
+"""
+partosApp/forms/__init__.py
+LIMPIO - Solo importar lo que realmente existe
+"""
+
 from .registro_parto import (
     RegistroPartoBaseForm,
-    RegistroPartoObservacionesForm,
     RegistroPartoObstetricoForm,
     RegistroPartoAlubramientoForm,
     RegistroPartoPerinealForm,
@@ -8,17 +12,6 @@ from .registro_parto import (
     RegistroPartoApegoForm,
     RegistroPartoProfesionalesForm,
     RegistroPartoLeyDomingaForm,
+    RegistroPartoObservacionesForm,
     RegistroPartoComplicacionesForm,
 )
-
-__all__ = [
-    'RegistroPartoBaseForm',
-    'RegistroPartoObstetricoForm',
-    'RegistroPartoAlubramientoForm',
-    'RegistroPartoPerinealForm',
-    'RegistroPartoAnestesiaForm',
-    'RegistroPartoApegoForm',
-    'RegistroPartoProfesionalesForm',
-    'RegistroPartoLeyDomingaForm',
-    'RegistroPartoComplicacionesForm',
-]
