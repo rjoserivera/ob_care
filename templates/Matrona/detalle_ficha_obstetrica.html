@@ -1,7 +1,7 @@
 {% extends 'Shared/base.html' %}
 {% load static %}
 
-{% block title %}Detalles - Ficha Obstétrica{% endblock %}
+{% block title %}Ficha {{ ficha.numero_ficha }} - Sistema Obstétrico{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -13,54 +13,76 @@
     .ficha-header {
         background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
         color: white;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
+        padding: 1.25rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .ficha-header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .ficha-header h2 {
+        margin: 0;
+        font-size: 1.3rem;
+    }
+
+    .ficha-numero {
+        background: rgba(255,255,255,0.25);
+        padding: 0.3rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
     }
 
     .info-card {
         background: white;
         border-radius: 15px;
-        padding: 2rem;
-        margin-bottom: 2rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
         box-shadow: 0 5px 20px rgba(0,0,0,0.08);
         border-left: 5px solid #11998e;
     }
 
     .info-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
     }
 
     .info-item {
-        padding: 1rem;
+        padding: 0.8rem;
         background: #f8f9fa;
         border-radius: 8px;
     }
 
     .info-label {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         color: #666;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.2rem;
     }
 
     .info-value {
-        font-size: 1.1rem;
+        font-size: 1rem;
         color: #333;
         font-weight: 500;
     }
 
     .section-title {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         font-weight: 600;
         color: #333;
-        padding-bottom: 1rem;
+        padding-bottom: 0.8rem;
         border-bottom: 2px solid #11998e;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
         display: flex;
         align-items: center;
         gap: 0.5rem;
@@ -81,7 +103,9 @@
         cursor: pointer;
         transition: all 0.3s ease;
         text-decoration: none;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .btn-primary {
@@ -92,6 +116,20 @@
     .btn-primary:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(17, 153, 142, 0.3);
+        color: white;
+    }
+
+    .btn-parto {
+        background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        color: white;
+        font-size: 1.1rem;
+        padding: 1rem 2rem;
+    }
+
+    .btn-parto:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 65, 108, 0.4);
+        color: white;
     }
 
     .btn-secondary {
@@ -101,61 +139,161 @@
 
     .btn-secondary:hover {
         background: #d0d0d0;
-    }
-
-    .btn-danger {
-        background: #dc3545;
-        color: white;
-    }
-
-    .btn-danger:hover {
-        background: #c82333;
+        color: #333;
     }
 
     .badge {
         display: inline-block;
-        padding: 0.5rem 1rem;
+        padding: 0.4rem 0.8rem;
         border-radius: 20px;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
 
-    .badge-success {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    .badge-warning {
-        background: #fff3cd;
-        color: #856404;
-    }
-
-    .badge-danger {
-        background: #f8d7da;
-        color: #721c24;
-    }
-
-    .alert {
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1rem;
-    }
-
-    .alert-success {
-        background-color: #d4edda;
-        border-left: 4px solid #28a745;
-        color: #155724;
-    }
-
-    .alert-danger {
-        background-color: #f8d7da;
-        border-left: 4px solid #721c24;
-        color: #721c24;
-    }
+    .badge-success { background: #d4edda; color: #155724; }
+    .badge-warning { background: #fff3cd; color: #856404; }
+    .badge-danger { background: #f8d7da; color: #721c24; }
 
     .patologia-warning {
-        background-color: #f8d7da;
+        background-color: #fff5f5;
         border-left-color: #dc3545;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal-parto {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        animation: modalSlide 0.3s ease;
+    }
+
+    @keyframes modalSlide {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-icon { font-size: 4rem; color: #ff416c; margin-bottom: 1rem; }
+    .modal-title { font-size: 1.5rem; font-weight: 700; color: #333; margin-bottom: 0.5rem; }
+    .modal-subtitle { color: #666; margin-bottom: 1.5rem; }
+
+    .modal-paciente {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-paciente strong { color: #333; font-size: 1.1rem; }
+
+    .countdown-container { display: none; margin: 1.5rem 0; }
+    .countdown-container.active { display: block; }
+
+    .countdown-circle {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto 1rem;
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .countdown-number { font-size: 2.5rem; font-weight: 700; color: white; }
+    .countdown-text { color: #666; font-size: 0.9rem; }
+
+    .modal-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+
+    .btn-confirmar {
+        background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        color: white;
+        padding: 0.8rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-confirmar:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
+    }
+
+    .btn-confirmar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-cancelar {
+        background: #e0e0e0;
+        color: #333;
+        padding: 0.8rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .btn-cancelar:hover { background: #d0d0d0; }
+
+    .notificacion-info {
+        background: #e3f2fd;
+        border-left: 4px solid #2196f3;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        text-align: left;
+    }
+
+    .notificacion-info h4 { color: #1565c0; margin-bottom: 0.5rem; font-size: 0.9rem; }
+    .notificacion-info ul { margin: 0; padding-left: 1.2rem; font-size: 0.85rem; color: #555; }
+
+    .action-card {
+        background: linear-gradient(135deg, #fff5f5 0%, #ffe0e6 100%);
+        border: 2px dashed #ff416c;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .action-card h3 { color: #ff416c; margin-bottom: 0.5rem; }
+    .action-card p { color: #666; margin-bottom: 1rem; }
+
+    @media (max-width: 768px) {
+        .ficha-header { flex-direction: column; gap: 1rem; text-align: center; }
+        .ficha-header-left { flex-direction: column; }
+        .info-grid { grid-template-columns: 1fr; }
+        .button-group { flex-direction: column; }
+        .btn { width: 100%; justify-content: center; }
+        .modal-buttons { flex-direction: column; }
     }
 </style>
 {% endblock %}
@@ -165,39 +303,40 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="/">Inicio</a></li>
             <li class="breadcrumb-item"><a href="{% url 'matrona:menu_matrona' %}">Matrona</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'matrona:lista_fichas' %}">Fichas Obstétricas</a></li>
-            <li class="breadcrumb-item active">Detalles</li>
+            <li class="breadcrumb-item"><a href="{% url 'matrona:lista_fichas' %}">Fichas</a></li>
+            <li class="breadcrumb-item active">{{ ficha.numero_ficha }}</li>
         </ol>
     </nav>
 
     <!-- Header -->
     <div class="ficha-header">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="ficha-header-left">
+            <i class="bi bi-file-earmark-medical" style="font-size: 1.8rem;"></i>
             <div>
-                <h2 style="margin-bottom: 0.5rem;">
-                    <i class="bi bi-file-earmark-medical"></i> Ficha Obstétrica
-                </h2>
-                <p style="margin: 0;">{{ ficha.numero_ficha }}</p>
+                <h2>Ficha Obstétrica</h2>
+                <span class="ficha-numero">{{ ficha.numero_ficha }}</span>
             </div>
-            <div>
-                {% if ficha.activa %}
-                    <span class="badge badge-success">✅ Activa</span>
-                {% else %}
-                    <span class="badge badge-warning">⚠️ Inactiva</span>
-                {% endif %}
-            </div>
+        </div>
+        <div>
+            {% if ficha.activa %}
+                <span class="badge badge-success">✅ Activa</span>
+            {% else %}
+                <span class="badge badge-danger">❌ Inactiva</span>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Mensaje de éxito -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-success">
-                <i class="bi bi-check-circle"></i> {{ message }}
-            </div>
-        {% endfor %}
+    <!-- CARD ACCIÓN: INICIAR PARTO -->
+    {% if ficha.activa and not ficha.ficha_parto %}
+    <div class="action-card">
+        <h3><i class="bi bi-heart-pulse-fill"></i> Proceso de Parto</h3>
+        <p>Cuando la paciente esté lista, inicie el proceso de parto para registrar toda la información del nacimiento.</p>
+        <button type="button" class="btn btn-parto" onclick="abrirModalParto()">
+            <i class="bi bi-play-circle-fill"></i> Iniciar Proceso de Parto
+        </button>
+    </div>
     {% endif %}
 
     <!-- INFORMACIÓN DEL PACIENTE -->
@@ -205,33 +344,27 @@
         <div class="section-title">
             <i class="bi bi-person-check-fill"></i> Información del Paciente
         </div>
-
         <div class="info-grid">
             <div class="info-item">
                 <div class="info-label">Nombre Completo</div>
                 <div class="info-value">{{ persona.Nombre }} {{ persona.Apellido_Paterno }} {{ persona.Apellido_Materno }}</div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">RUT</div>
                 <div class="info-value">{{ persona.Rut }}</div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">Edad</div>
                 <div class="info-value">{{ edad }} años</div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">Fecha Nacimiento</div>
                 <div class="info-value">{{ persona.Fecha_nacimiento|date:"d/m/Y" }}</div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">Teléfono</div>
                 <div class="info-value">{{ persona.Telefono|default:"No registrado" }}</div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">Dirección</div>
                 <div class="info-value">{{ persona.Direccion|default:"No registrada" }}</div>
@@ -244,7 +377,6 @@
         <div class="section-title">
             <i class="bi bi-info-circle"></i> Datos Generales del Embarazo
         </div>
-
         <div class="info-grid">
             <div class="info-item">
                 <div class="info-label">Plan de Parto</div>
@@ -256,7 +388,6 @@
                     {% endif %}
                 </div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">Visita Guiada</div>
                 <div class="info-value">
@@ -267,17 +398,14 @@
                     {% endif %}
                 </div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">IMC</div>
-                <div class="info-value">{{ ficha.imc|floatformat:2 }}</div>
+                <div class="info-value">{{ ficha.imc|default:"--" }}</div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">Consultorio Origen</div>
                 <div class="info-value">{{ ficha.consultorio_origen|default:"No registrado" }}</div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">Acompañante</div>
                 <div class="info-value">{{ ficha.nombre_acompanante|default:"No registrado" }}</div>
@@ -288,39 +416,37 @@
     <!-- MEDIDAS ANTROPOMÉTRICAS -->
     <div class="info-card">
         <div class="section-title">
-            <i class="bi bi-scale-balanced"></i> Medidas Antropométricas
+            <i class="bi bi-rulers"></i> Medidas Antropométricas
         </div>
-
         <div class="info-grid">
             <div class="info-item">
                 <div class="info-label">Peso Actual</div>
-                <div class="info-value">{{ ficha.peso_actual }} kg</div>
+                <div class="info-value">{{ ficha.peso_actual|default:"--" }} kg</div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">Talla</div>
-                <div class="info-value">{{ ficha.talla_actual }} cm</div>
+                <div class="info-value">{{ ficha.talla|default:"--" }} cm</div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">IMC Calculado</div>
-                <div class="info-value">{{ ficha.imc|floatformat:2 }}</div>
+                <div class="info-value">{{ ficha.imc|default:"--" }}</div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">Clasificación IMC</div>
                 <div class="info-value">
-                    {% with imc=ficha.imc %}
-                        {% if imc < 18.5 %}
+                    {% if ficha.imc %}
+                        {% if ficha.imc < 18.5 %}
                             <span class="badge badge-warning">Bajo peso</span>
-                        {% elif imc < 25 %}
-                            <span class="badge badge-success">Peso normal</span>
-                        {% elif imc < 30 %}
+                        {% elif ficha.imc < 25 %}
+                            <span class="badge badge-success">Normal</span>
+                        {% elif ficha.imc < 30 %}
                             <span class="badge badge-warning">Sobrepeso</span>
                         {% else %}
                             <span class="badge badge-danger">Obesidad</span>
                         {% endif %}
-                    {% endwith %}
+                    {% else %}
+                        --
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -331,33 +457,27 @@
         <div class="section-title">
             <i class="bi bi-heart-pulse"></i> Historia Obstétrica
         </div>
-
         <div class="info-grid">
             <div class="info-item">
-                <div class="info-label">Número de Gestaciones</div>
+                <div class="info-label">N° Gestaciones</div>
                 <div class="info-value">{{ ficha.numero_gestas }}</div>
             </div>
-
             <div class="info-item">
-                <div class="info-label">Número de Partos</div>
+                <div class="info-label">N° Partos</div>
                 <div class="info-value">{{ ficha.numero_partos }}</div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">Partos Vaginales</div>
                 <div class="info-value">{{ ficha.partos_vaginales }}</div>
             </div>
-
             <div class="info-item">
-                <div class="info-label">Partos por Cesárea</div>
+                <div class="info-label">Cesáreas</div>
                 <div class="info-value">{{ ficha.partos_cesareas }}</div>
             </div>
-
             <div class="info-item">
-                <div class="info-label">Número de Abortos</div>
+                <div class="info-label">Abortos</div>
                 <div class="info-value">{{ ficha.numero_abortos }}</div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">Nacidos Vivos</div>
                 <div class="info-value">{{ ficha.nacidos_vivos }}</div>
@@ -370,23 +490,19 @@
         <div class="section-title">
             <i class="bi bi-calendar-heart"></i> Embarazo Actual
         </div>
-
         <div class="info-grid">
             <div class="info-item">
-                <div class="info-label">Fecha Última Menstruación (FUM)</div>
-                <div class="info-value">{{ ficha.fecha_ultima_regla|date:"d/m/Y" }}</div>
+                <div class="info-label">FUM</div>
+                <div class="info-value">{{ ficha.fecha_ultima_regla|date:"d/m/Y"|default:"No registrada" }}</div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">Edad Gestacional</div>
                 <div class="info-value">{{ ficha.edad_gestacional_semanas }}+{{ ficha.edad_gestacional_dias }} semanas</div>
             </div>
-
             <div class="info-item">
-                <div class="info-label">Fecha Probable de Parto (FPP)</div>
-                <div class="info-value">{{ ficha.fecha_probable_parto|date:"d/m/Y" }}</div>
+                <div class="info-label">FPP</div>
+                <div class="info-value">{{ ficha.fecha_probable_parto|date:"d/m/Y"|default:"No calculada" }}</div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">Control Prenatal</div>
                 <div class="info-value">
@@ -397,21 +513,19 @@
                     {% endif %}
                 </div>
             </div>
-
             <div class="info-item">
-                <div class="info-label">Número de Controles</div>
-                <div class="info-value">{{ ficha.numero_controles }}</div>
+                <div class="info-label">N° Controles</div>
+                <div class="info-value">{{ ficha.numero_controles|default:"0" }}</div>
             </div>
         </div>
     </div>
 
     <!-- PATOLOGÍAS -->
-    {% if ficha.preeclampsia_severa or ficha.eclampsia or ficha.sepsis_infeccion_sistemia or ficha.infeccion_ovular or ficha.otras_patologias %}
+    {% if ficha.preeclampsia_severa or ficha.eclampsia or ficha.sepsis_infeccion_sistemia or ficha.infeccion_ovular %}
     <div class="info-card patologia-warning">
         <div class="section-title" style="color: #dc3545; border-bottom-color: #dc3545;">
             <i class="bi bi-exclamation-triangle"></i> ⚠️ Patologías Detectadas
         </div>
-
         <div class="info-grid">
             {% if ficha.preeclampsia_severa %}
             <div class="info-item" style="background: #f8d7da;">
@@ -419,21 +533,18 @@
                 <div class="info-value"><span class="badge badge-danger">SÍ PRESENTE</span></div>
             </div>
             {% endif %}
-
             {% if ficha.eclampsia %}
             <div class="info-item" style="background: #f8d7da;">
                 <div class="info-label">⚠️ Eclampsia</div>
                 <div class="info-value"><span class="badge badge-danger">SÍ PRESENTE</span></div>
             </div>
             {% endif %}
-
             {% if ficha.sepsis_infeccion_sistemia %}
             <div class="info-item" style="background: #f8d7da;">
-                <div class="info-label">⚠️ Sepsis o Infección Sistémica</div>
+                <div class="info-label">⚠️ Sepsis / Infección</div>
                 <div class="info-value"><span class="badge badge-danger">SÍ PRESENTE</span></div>
             </div>
             {% endif %}
-
             {% if ficha.infeccion_ovular %}
             <div class="info-item" style="background: #f8d7da;">
                 <div class="info-label">⚠️ Infección Ovular</div>
@@ -441,69 +552,166 @@
             </div>
             {% endif %}
         </div>
-
-        {% if ficha.otras_patologias %}
-        <div style="margin-top: 1rem; padding: 1rem; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
-            <strong style="color: #856404;">Otras Patologías:</strong>
-            <p style="margin: 0.5rem 0 0 0; color: #856404;">{{ ficha.otras_patologias }}</p>
-        </div>
-        {% endif %}
-    </div>
-    {% else %}
-    <div class="info-card">
-        <div class="section-title">
-            <i class="bi bi-check-circle"></i> Patologías
-        </div>
-        <div style="padding: 1rem; background: #d4edda; border-radius: 8px; border-left: 4px solid #28a745;">
-            <p style="margin: 0; color: #155724;">✅ <strong>Sin patologías detectadas</strong></p>
-        </div>
     </div>
     {% endif %}
 
-    <!-- INFORMACIÓN DE LA FICHA -->
+    <!-- INFO ADMINISTRATIVA -->
     <div class="info-card">
         <div class="section-title">
             <i class="bi bi-clock-history"></i> Información Administrativa
         </div>
-
         <div class="info-grid">
             <div class="info-item">
-                <div class="info-label">Número de Ficha</div>
+                <div class="info-label">N° Ficha</div>
                 <div class="info-value">{{ ficha.numero_ficha }}</div>
             </div>
-
             <div class="info-item">
-                <div class="info-label">Fecha de Creación</div>
+                <div class="info-label">Fecha Creación</div>
                 <div class="info-value">{{ ficha.fecha_creacion|date:"d/m/Y H:i" }}</div>
             </div>
-
             <div class="info-item">
                 <div class="info-label">Estado</div>
                 <div class="info-value">
                     {% if ficha.activa %}
                         <span class="badge badge-success">✅ Activa</span>
                     {% else %}
-                        <span class="badge badge-warning">⚠️ Inactiva</span>
+                        <span class="badge badge-danger">❌ Inactiva</span>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- BOTONES DE ACCIÓN -->
+    <!-- BOTONES -->
     <div class="button-group">
         <a href="{% url 'matrona:editar_ficha' ficha.pk %}" class="btn btn-primary">
             <i class="bi bi-pencil"></i> Editar Ficha
         </a>
-
         <a href="{% url 'matrona:lista_fichas' %}" class="btn btn-secondary">
             <i class="bi bi-list"></i> Ver Todas las Fichas
         </a>
-
         <a href="{% url 'matrona:menu_matrona' %}" class="btn btn-secondary">
             <i class="bi bi-house"></i> Volver al Menú
         </a>
     </div>
 </div>
 
+<!-- MODAL INICIAR PARTO -->
+<div class="modal-overlay" id="modalParto">
+    <div class="modal-parto">
+        <div class="modal-icon">
+            <i class="bi bi-heart-pulse-fill"></i>
+        </div>
+        
+        <div class="modal-title">¿Iniciar Proceso de Parto?</div>
+        <div class="modal-subtitle">Esta acción lo llevará a la sala de espera de parto</div>
+        
+        <div class="modal-paciente">
+            <strong>{{ persona.Nombre }} {{ persona.Apellido_Paterno }}</strong><br>
+            <small>RUT: {{ persona.Rut }}</small>
+        </div>
+
+        <!-- Contador -->
+        <div class="countdown-container" id="countdownContainer">
+            <div class="countdown-circle">
+                <span class="countdown-number" id="countdownNumber">5</span>
+            </div>
+            <div class="countdown-text">Preparando ingreso a sala de espera...</div>
+        </div>
+
+        <!-- Info notificaciones -->
+        <div class="notificacion-info" id="notificacionInfo" style="display: none;">
+            <h4><i class="bi bi-bell-fill"></i> Se notificará al personal:</h4>
+            <ul>
+                <li>Matrona de turno</li>
+                <li>Médico obstetra disponible</li>
+                <li>TENS de sala</li>
+            </ul>
+        </div>
+
+        <div class="modal-buttons" id="modalButtons">
+            <button type="button" class="btn-confirmar" id="btnConfirmar" onclick="iniciarContador()">
+                <i class="bi bi-check-lg"></i> Sí, Iniciar
+            </button>
+            <button type="button" class="btn-cancelar" onclick="cerrarModalParto()">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </button>
+        </div>
+
+        <!-- ✅ CORREGIDO: Ahora redirige a SALA DE ESPERA -->
+        <div id="botonFinal" style="display: none;">
+            <form action="{% url 'ingreso_parto:sala_espera' ficha.pk %}" method="get">
+                <button type="submit" class="btn-confirmar" style="width: 100%; font-size: 1.1rem; padding: 1rem;">
+                    <i class="bi bi-door-open-fill"></i> INGRESAR A SALA DE ESPERA
+                </button>
+            </form>
+            <button type="button" class="btn-cancelar" style="width: 100%; margin-top: 0.5rem;" onclick="cerrarModalParto()">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let contadorInterval = null;
+    let segundosRestantes = 5;
+
+    function abrirModalParto() {
+        document.getElementById('modalParto').classList.add('active');
+        resetearModal();
+    }
+
+    function cerrarModalParto() {
+        document.getElementById('modalParto').classList.remove('active');
+        if (contadorInterval) {
+            clearInterval(contadorInterval);
+            contadorInterval = null;
+        }
+        resetearModal();
+    }
+
+    function resetearModal() {
+        segundosRestantes = 5;
+        document.getElementById('countdownNumber').textContent = '5';
+        document.getElementById('countdownContainer').classList.remove('active');
+        document.getElementById('countdownContainer').style.display = '';
+        document.getElementById('modalButtons').style.display = 'flex';
+        document.getElementById('botonFinal').style.display = 'none';
+        document.getElementById('notificacionInfo').style.display = 'none';
+        document.getElementById('btnConfirmar').disabled = false;
+    }
+
+    function iniciarContador() {
+        document.getElementById('btnConfirmar').disabled = true;
+        document.getElementById('countdownContainer').classList.add('active');
+        document.getElementById('notificacionInfo').style.display = 'block';
+
+        contadorInterval = setInterval(function() {
+            segundosRestantes--;
+            document.getElementById('countdownNumber').textContent = segundosRestantes;
+
+            if (segundosRestantes <= 0) {
+                clearInterval(contadorInterval);
+                contadorInterval = null;
+                mostrarBotonFinal();
+            }
+        }, 1000);
+    }
+
+    function mostrarBotonFinal() {
+        document.getElementById('countdownContainer').style.display = 'none';
+        document.getElementById('modalButtons').style.display = 'none';
+        document.getElementById('botonFinal').style.display = 'block';
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') cerrarModalParto();
+    });
+
+    document.getElementById('modalParto').addEventListener('click', function(e) {
+        if (e.target === this) cerrarModalParto();
+    });
+</script>
 {% endblock %}

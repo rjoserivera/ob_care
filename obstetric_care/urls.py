@@ -15,6 +15,7 @@ urlpatterns = [
     path('medico/', include('medicoApp.urls')),
     path('tens/', include('tensApp.urls')),
     path('partos/', include('partosApp.urls')),
+    path('ingreso-parto/', include('ingresoPartoApp.urls')),
     
     # Autenticación
     path('', include('authentication.urls')),
@@ -25,3 +26,4 @@ if settings.DEBUG:
     urlpatterns += [
         path('__debug__/', include('debug_toolbar.urls')),
     ]
+

@@ -1,181 +1,155 @@
 """
-ingresoPartoApp/forms.py
-Formularios para ficha de parto al ingreso a sala
-Usa FK a catálogos, NO choices
+ingresoPartoApp/forms/forms.py
+Formulario para FichaParto - Según modelo real
 """
 
 from django import forms
-from models import FichaParto
+from ..models import FichaParto
 
 
 class FichaPartoForm(forms.ModelForm):
-    """Formulario completo para ficha de parto"""
+    """Formulario para crear/editar ficha de ingreso a parto"""
     
     class Meta:
         model = FichaParto
         fields = [
-            # Sección 1: Datos Generales
-            'tipo_paciente',
-            'origen_ingreso',
+            # Datos de ingreso
             'fecha_ingreso',
             'hora_ingreso',
             
-            # Sección 2: VIH y ARO
-            'numero_aro',
-            'vih_tomado_prepartos',
-            'vih_tomado_sala',
-            
-            # Sección 3: Exámenes de Madre - SGB
-            'sgb_pesquisa',
-            'sgb_resultado',
-            'sgb_antibiotico',
-            
-            # Sección 3: Exámenes de Madre - VDRL
-            'vdrl_resultado',
-            'vdrl_tratamiento_atb',
-            
-            # Sección 3: Exámenes de Madre - Hepatitis B
-            'hepatitis_b_tomado',
-            'hepatitis_b_derivacion',
-            
-            # Sección 4: Control Prenatal
-            'control_prenatal',
-            'consultorio_origen',
-            'numero_controles',
-            
-            # Sección 5: Trabajo de Parto
+            # Evaluación inicial
             'edad_gestacional_semanas',
             'edad_gestacional_dias',
-            'monitor_ttc',
-            'induccion',
-            'aceleracion_correccion',
-            'numero_tactos_vaginales',
-            'rotura_membranas',
-            'tiempo_membranas_rotas_horas',
-            'tiempo_membranas_rotas_minutos',
-            'tiempo_dilatacion_minutos',
-            'tiempo_expulsivo_minutos',
-            'libertad_movimiento',
-            'regimen_trabajo_parto',
+            'dilatacion_cervical_cm',
+            'posicion_fetal',
+            'altura_presentacion',
+            'membranas_rotas',
+            'caracteristicas_liquido',
+            
+            # Evaluación fetal
+            'frecuencia_cardiaca_fetal',
+            'cardiotocografia_realizada',
+            'resultado_ctg',
+            
+            # Evaluación materna
+            'presion_arterial_sistolica',
+            'presion_arterial_diastolica',
+            'frecuencia_cardiaca_materna',
+            'temperatura',
+            
+            # Laboratorio
+            'sgb_pesquisa',
+            'sgb_resultado',
+            'vih_tomado',
+            'vih_resultado',
+            'vdrl_resultado',
+            'hepatitis_b_tomado',
+            
+            # Diagnóstico
+            'diagnostico_ingreso',
+            'observaciones',
         ]
         
         widgets = {
-            # Sección 1: Datos Generales
-            'tipo_paciente': forms.Select(attrs={
-                'class': 'form-control'
-            }),
-            'origen_ingreso': forms.Select(attrs={
-                'class': 'form-control'
-            }),
-            'fecha_ingreso': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date'
-            }),
-            'hora_ingreso': forms.TimeInput(attrs={
-                'class': 'form-control',
-                'type': 'time'
-            }),
+            # Datos de ingreso
+            'fecha_ingreso': forms.DateInput(
+                format='%Y-%m-%d',
+                attrs={'class': 'form-control', 'type': 'date'}
+            ),
+            'hora_ingreso': forms.TimeInput(
+                attrs={'class': 'form-control', 'type': 'time'}
+            ),
             
-            # Sección 2: VIH y ARO
-            'numero_aro': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ej: ARO-12345'
-            }),
-            'vih_tomado_prepartos': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
-            'vih_tomado_sala': forms.Select(attrs={
-                'class': 'form-control'
-            }),
+            # Evaluación inicial
+            'edad_gestacional_semanas': forms.NumberInput(
+                attrs={'class': 'form-control', 'min': '20', 'max': '45'}
+            ),
+            'edad_gestacional_dias': forms.NumberInput(
+                attrs={'class': 'form-control', 'min': '0', 'max': '6'}
+            ),
+            'dilatacion_cervical_cm': forms.NumberInput(
+                attrs={'class': 'form-control', 'min': '0', 'max': '10', 'step': '0.5'}
+            ),
+            'posicion_fetal': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Ej: Cefálica'}
+            ),
+            'altura_presentacion': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Ej: -2'}
+            ),
+            'membranas_rotas': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'caracteristicas_liquido': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Ej: Claro'}
+            ),
             
-            # Sección 3: SGB
-            'sgb_pesquisa': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
-            'sgb_resultado': forms.Select(attrs={
-                'class': 'form-control'
-            }),
-            'sgb_antibiotico': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
+            # Evaluación fetal
+            'frecuencia_cardiaca_fetal': forms.NumberInput(
+                attrs={'class': 'form-control', 'min': '100', 'max': '200', 'placeholder': 'lpm'}
+            ),
+            'cardiotocografia_realizada': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'resultado_ctg': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Resultado CTG'}
+            ),
             
-            # Sección 3: VDRL
-            'vdrl_resultado': forms.Select(attrs={
-                'class': 'form-control'
-            }),
-            'vdrl_tratamiento_atb': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
+            # Evaluación materna
+            'presion_arterial_sistolica': forms.NumberInput(
+                attrs={'class': 'form-control', 'min': '60', 'max': '250', 'placeholder': 'mmHg'}
+            ),
+            'presion_arterial_diastolica': forms.NumberInput(
+                attrs={'class': 'form-control', 'min': '40', 'max': '150', 'placeholder': 'mmHg'}
+            ),
+            'frecuencia_cardiaca_materna': forms.NumberInput(
+                attrs={'class': 'form-control', 'min': '40', 'max': '200', 'placeholder': 'lpm'}
+            ),
+            'temperatura': forms.NumberInput(
+                attrs={'class': 'form-control', 'min': '35', 'max': '42', 'step': '0.1', 'placeholder': '°C'}
+            ),
             
-            # Sección 3: Hepatitis B
-            'hepatitis_b_tomado': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
-            'hepatitis_b_derivacion': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
+            # Laboratorio
+            'sgb_pesquisa': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'sgb_resultado': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Positivo/Negativo'}
+            ),
+            'vih_tomado': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'vih_resultado': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Resultado VIH'}
+            ),
+            'vdrl_resultado': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Resultado VDRL'}
+            ),
+            'hepatitis_b_tomado': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             
-            # Sección 4: Control Prenatal
-            'control_prenatal': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
-            'consultorio_origen': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Nombre del consultorio'
-            }),
-            'numero_controles': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '0'
-            }),
-            
-            # Sección 5: Trabajo de Parto
-            'edad_gestacional_semanas': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '20',
-                'max': '42'
-            }),
-            'edad_gestacional_dias': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '0',
-                'max': '6'
-            }),
-            'monitor_ttc': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
-            'induccion': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
-            'aceleracion_correccion': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
-            'numero_tactos_vaginales': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '0'
-            }),
-            'rotura_membranas': forms.Select(attrs={
-                'class': 'form-control'
-            }),
-            'tiempo_membranas_rotas_horas': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '0'
-            }),
-            'tiempo_membranas_rotas_minutos': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '0',
-                'max': '59'
-            }),
-            'tiempo_dilatacion_minutos': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '0'
-            }),
-            'tiempo_expulsivo_minutos': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '0'
-            }),
-            'libertad_movimiento': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
-            'regimen_trabajo_parto': forms.Select(attrs={
-                'class': 'form-control'
-            }),
+            # Diagnóstico
+            'diagnostico_ingreso': forms.Textarea(
+                attrs={'class': 'form-control', 'rows': '3', 'placeholder': 'Diagnóstico de ingreso...'}
+            ),
+            'observaciones': forms.Textarea(
+                attrs={'class': 'form-control', 'rows': '3', 'placeholder': 'Observaciones...'}
+            ),
+        }
+        
+        labels = {
+            'fecha_ingreso': 'Fecha de Ingreso',
+            'hora_ingreso': 'Hora de Ingreso',
+            'edad_gestacional_semanas': 'Semanas',
+            'edad_gestacional_dias': 'Días',
+            'dilatacion_cervical_cm': 'Dilatación (cm)',
+            'posicion_fetal': 'Posición Fetal',
+            'altura_presentacion': 'Altura Presentación',
+            'membranas_rotas': 'Membranas Rotas',
+            'caracteristicas_liquido': 'Características Líquido',
+            'frecuencia_cardiaca_fetal': 'FCF (lpm)',
+            'cardiotocografia_realizada': 'CTG Realizada',
+            'resultado_ctg': 'Resultado CTG',
+            'presion_arterial_sistolica': 'PA Sistólica',
+            'presion_arterial_diastolica': 'PA Diastólica',
+            'frecuencia_cardiaca_materna': 'FC Materna',
+            'temperatura': 'Temperatura (°C)',
+            'sgb_pesquisa': 'SGB Pesquisa',
+            'sgb_resultado': 'Resultado SGB',
+            'vih_tomado': 'VIH Tomado',
+            'vih_resultado': 'Resultado VIH',
+            'vdrl_resultado': 'Resultado VDRL',
+            'hepatitis_b_tomado': 'Hepatitis B Tomado',
+            'diagnostico_ingreso': 'Diagnóstico de Ingreso',
+            'observaciones': 'Observaciones',
         }

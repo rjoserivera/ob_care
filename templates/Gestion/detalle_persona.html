@@ -314,11 +314,11 @@
                 <div class="detail-value">
                     {% if persona.Fecha_nacimiento %}
                         {{ persona.Fecha_nacimiento|date:"d/m/Y" }}
-                        <span class="edad" title="Edad aproximada">
-                            {% with edad=2025|add:persona.Fecha_nacimiento.year|add:"-1" %}
+                        {% if edad %}
+                            <span class="edad" title="Edad aproximada">
                                 {{ edad }} años
-                            {% endwith %}
-                        </span>
+                            </span>
+                        {% endif %}
                     {% else %}
                         <span class="text-muted">No registrado</span>
                     {% endif %}

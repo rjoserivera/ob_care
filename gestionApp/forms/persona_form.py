@@ -1,55 +1,18 @@
+# gestionApp/forms/persona_form.py
 """
-gestionApp/forms/persona_form.py
-Formulario para registrar/editar Persona
-Con catálogos dinámicos de la base de datos
+Formulario para gestión de Personas
+CORREGIDO: Formato de fecha y eliminación de Trans_Masculino redundante
 """
 
 from django import forms
 from django.core.exceptions import ValidationError
-from gestionApp.models import (
-    Persona,
-    CatalogoSexo,
-    CatalogoNacionalidad,
-    CatalogoPuebloOriginario,
-)
+from ..models import Persona
 
 
 class PersonaForm(forms.ModelForm):
     """
-    Formulario para registrar/editar una Persona
-    Los catálogos se cargan dinámicamente de la BD
+    Formulario para registrar y editar Personas
     """
-    
-    # Campos explícitos para los catálogos
-    Sexo = forms.ModelChoiceField(
-        queryset=CatalogoSexo.objects.filter(activo=True).order_by('orden', 'nombre'),
-        empty_label="-- Seleccione Sexo --",
-        required=True,
-        widget=forms.Select(attrs={
-            'class': 'form-select',
-        }),
-        label="Sexo"
-    )
-    
-    Nacionalidad = forms.ModelChoiceField(
-        queryset=CatalogoNacionalidad.objects.filter(activo=True).order_by('orden', 'nombre'),
-        empty_label="-- Seleccione Nacionalidad --",
-        required=False,
-        widget=forms.Select(attrs={
-            'class': 'form-select',
-        }),
-        label="Nacionalidad"
-    )
-    
-    Pueblos_originarios = forms.ModelChoiceField(
-        queryset=CatalogoPuebloOriginario.objects.filter(activo=True).order_by('orden', 'nombre'),
-        empty_label="-- Seleccione Pueblo Originario --",
-        required=False,
-        widget=forms.Select(attrs={
-            'class': 'form-select',
-        }),
-        label="Pueblos Originarios"
-    )
     
     class Meta:
         model = Persona
@@ -68,7 +31,7 @@ class PersonaForm(forms.ModelForm):
             'Discapacidad',
             'Tipo_de_Discapacidad',
             'Privada_de_Libertad',
-            'Trans_Masculino',
+            # 'Trans_Masculino',  # ❌ ELIMINADO - Ya existe en el select de Sexo
         ]
         
         widgets = {
@@ -94,10 +57,26 @@ class PersonaForm(forms.ModelForm):
                 'placeholder': 'Apellido materno',
             }),
             
-            # Datos básicos
-            'Fecha_nacimiento': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date',
+            # ✅ CORREGIDO: Agregar format para que cargue la fecha correctamente
+            'Fecha_nacimiento': forms.DateInput(
+                format='%Y-%m-%d',  # ✅ Formato ISO para input type="date"
+                attrs={
+                    'class': 'form-control',
+                    'type': 'date',
+                }
+            ),
+            
+            # Selects (usan form-select de Bootstrap)
+            'Sexo': forms.Select(attrs={
+                'class': 'form-select',
+            }),
+            
+            'Nacionalidad': forms.Select(attrs={
+                'class': 'form-select',
+            }),
+            
+            'Pueblos_originarios': forms.Select(attrs={
+                'class': 'form-select',
             }),
             
             # Contacto
@@ -131,9 +110,7 @@ class PersonaForm(forms.ModelForm):
                 'class': 'form-check-input',
             }),
             
-            'Trans_Masculino': forms.CheckboxInput(attrs={
-                'class': 'form-check-input',
-            }),
+            # ❌ ELIMINADO - Trans_Masculino ya no se usa como checkbox
         }
         
         labels = {
@@ -147,22 +124,24 @@ class PersonaForm(forms.ModelForm):
             'Pueblos_originarios': 'Pueblos Originarios',
             'Telefono': 'Teléfono',
             'Direccion': 'Dirección',
-            'Inmigrante': '¿Es Inmigrante?',
-            'Discapacidad': '¿Tiene Discapacidad?',
+            'Inmigrante': 'Es Inmigrante',
+            'Discapacidad': 'Tiene Discapacidad',
             'Tipo_de_Discapacidad': 'Tipo de Discapacidad',
-            'Privada_de_Libertad': '¿Está Privada de Libertad?',
-            'Trans_Masculino': '¿Es Trans Masculino?',
+            'Privada_de_Libertad': 'Privada de Libertad',
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Hacer los campos opcionales si es necesario
+        # Hacer los campos opcionales
         self.fields['Nacionalidad'].required = False
         self.fields['Pueblos_originarios'].required = False
         self.fields['Telefono'].required = False
         self.fields['Direccion'].required = False
         self.fields['Tipo_de_Discapacidad'].required = False
+        
+        # ✅ IMPORTANTE: Esto hace que la fecha se muestre correctamente al editar
+        self.fields['Fecha_nacimiento'].input_formats = ['%Y-%m-%d', '%d/%m/%Y']
     
     def clean_Rut(self):
         """Validar y normalizar RUT"""
@@ -248,7 +227,6 @@ class PersonaForm(forms.ModelForm):
             if fecha > hace_10_anos:
                 raise ValidationError('La persona debe tener al menos 10 años.')
         except ImportError:
-            # Si dateutil no está instalado, usar cálculo simple
             anos = (date.today() - fecha).days // 365
             if anos < 10:
                 raise ValidationError('La persona debe tener al menos 10 años.')
@@ -260,7 +238,6 @@ class PersonaForm(forms.ModelForm):
         telefono = self.cleaned_data.get('Telefono', '').strip()
         
         if telefono:
-            # Remover espacios y guiones
             telefono_limpio = ''.join(c for c in telefono if c.isdigit() or c == '+')
             
             if len(telefono_limpio) < 8:
@@ -272,7 +249,6 @@ class PersonaForm(forms.ModelForm):
 class BuscarPersonaForm(forms.Form):
     """
     Formulario para buscar personas
-    Búsqueda simple por texto
     """
     
     q = forms.CharField(
@@ -290,12 +266,7 @@ class BuscarPersonaForm(forms.Form):
         """Validar búsqueda"""
         q = self.cleaned_data.get('q', '').strip()
         
-        # Si está vacío, está permitido (búsqueda sin filtro)
-        if not q:
-            return q
-        
-        # Si tiene contenido, debe tener mínimo 2 caracteres
-        if len(q) < 2:
+        if q and len(q) < 2:
             raise ValidationError('Ingrese al menos 2 caracteres para buscar.')
         
         return q
