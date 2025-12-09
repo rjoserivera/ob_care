@@ -61,7 +61,7 @@ INSTALLED_APPS = [
     'ingresoPartoApp',
     'recienNacidoApp', 
     'partosApp',
-    'gestionProcesosApp',
+    #'gestionProcesosApp', comentada por ahora
 ]
 
 

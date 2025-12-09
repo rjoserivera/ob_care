@@ -9,7 +9,7 @@ La app `core` contiene componentes reutilizables, mixins, decoradores, context p
 ## 📋 Tabla de Contenidos
 
 1. [Estructura](#1-estructura)
-2. [Modelos Base](#2-modelos-base)
+2. [Modelos Base](#2-modelos-b✅ase)
 3. [Mixins](#3-mixins)
 4. [Decoradores](#4-decoradores)
 5. [Context Processors](#5-context-processors)

@@ -379,7 +379,6 @@ for nombre in grupos:
 | Gestión de usuarios | ✅ | ❌ | ❌ | ❌ |
 | Gestión de personas | ✅ | ✅ | ✅ | ❌ |
 | Fichas obstétricas | ✅ | ✅ | ✅ | ❌ |
-| Patologías | ✅ | ✅ | ❌ | ❌ |
 | Registro de parto | ✅ | ✅ | ✅ | ❌ |
 | Registro RN | ✅ | ✅ | ✅ | ❌ |
 | Signos vitales | ✅ | ❌ | ❌ | ✅ |
