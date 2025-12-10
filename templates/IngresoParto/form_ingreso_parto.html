@@ -1,0 +1,475 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Ingreso a Sala de Parto{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 1.5rem;
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .form-header h1 {
+        margin: 0;
+        font-size: 1.6rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .form-header .subtitle {
+        opacity: 0.9;
+        font-size: 0.95rem;
+        margin-top: 0.5rem;
+    }
+
+    .paciente-info-card {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .paciente-datos h3 {
+        margin: 0;
+        color: #92400e;
+        font-size: 1.3rem;
+    }
+
+    .paciente-datos p {
+        margin: 0.25rem 0 0;
+        color: #78350f;
+    }
+
+    .paciente-sala {
+        background: #10b981;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .paciente-sala .label {
+        font-size: 0.8rem;
+        opacity: 0.9;
+    }
+
+    .paciente-sala .numero {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .form-section {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .section-header {
+        background: #f3f4f6;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-header i {
+        font-size: 1.3rem;
+        color: #6366f1;
+    }
+
+    .section-header.red i { color: #dc2626; }
+    .section-header.green i { color: #10b981; }
+    .section-header.blue i { color: #3b82f6; }
+    .section-header.purple i { color: #8b5cf6; }
+    .section-header.orange i { color: #f59e0b; }
+
+    .section-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #374151;
+    }
+
+    .section-body {
+        padding: 1.5rem;
+    }
+
+    .fields-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .fields-grid-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .field-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .field-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .field-group.col-span-2 {
+        grid-column: span 2;
+    }
+
+    .field-group label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .field-group input,
+    .field-group select,
+    .field-group textarea {
+        padding: 0.75rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .field-group input:focus,
+    .field-group select:focus,
+    .field-group textarea:focus {
+        border-color: #6366f1;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: #f9fafb;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .checkbox-group:hover {
+        background: #f3f4f6;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+
+    .checkbox-group label {
+        margin: 0;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-guardar {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-guardar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-cancelar {
+        background: #f3f4f6;
+        color: #374151;
+        border: 2px solid #d1d5db;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-cancelar:hover {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    @media (max-width: 768px) {
+        .fields-grid, .fields-grid-4 { 
+            grid-template-columns: 1fr; 
+        }
+        .field-group.col-span-2 {
+            grid-column: span 1;
+        }
+        .paciente-info-card { 
+            flex-direction: column; 
+            text-align: center; 
+        }
+        .form-actions { 
+            flex-direction: column; 
+        }
+        .btn-guardar, .btn-cancelar { 
+            width: 100%; 
+            justify-content: center; 
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <!-- Header -->
+    <div class="form-header">
+        <h1>
+            <i class="bi bi-clipboard2-pulse-fill"></i>
+            Ficha de Ingreso a Parto
+        </h1>
+        <p class="subtitle">Complete los datos de evaluación inicial en sala de parto</p>
+    </div>
+
+    <!-- Info paciente -->
+    <div class="paciente-info-card">
+        <div class="paciente-datos">
+            <h3>{{ ficha_obstetrica.paciente.persona.Nombre }} {{ ficha_obstetrica.paciente.persona.Apellido_paterno }}</h3>
+            <p>RUT: {{ ficha_obstetrica.paciente.persona.Rut }} | Ficha Obstétrica: {{ ficha_obstetrica.numero_ficha }}</p>
+        </div>
+        {% if sala %}
+        <div class="paciente-sala">
+            <div class="label">Sala Asignada</div>
+            <div class="numero">Sala {{ sala }}</div>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <i class="bi bi-info-circle-fill"></i> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <!-- SECCIÓN 1: Datos de Ingreso -->
+        <div class="form-section">
+            <div class="section-header red">
+                <i class="bi bi-calendar-event"></i>
+                <h2>Datos de Ingreso</h2>
+            </div>
+            <div class="section-body">
+                <div class="fields-grid fields-grid-4">
+                    <div class="field-group">
+                        <label>Fecha de Ingreso</label>
+                        {{ form.fecha_ingreso }}
+                    </div>
+                    <div class="field-group">
+                        <label>Hora de Ingreso</label>
+                        {{ form.hora_ingreso }}
+                    </div>
+                    <div class="field-group">
+                        <label>Semanas de Gestación</label>
+                        {{ form.edad_gestacional_semanas }}
+                    </div>
+                    <div class="field-group">
+                        <label>Días Adicionales</label>
+                        {{ form.edad_gestacional_dias }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: Evaluación Cervical -->
+        <div class="form-section">
+            <div class="section-header purple">
+                <i class="bi bi-activity"></i>
+                <h2>Evaluación Inicial</h2>
+            </div>
+            <div class="section-body">
+                <div class="fields-grid">
+                    <div class="field-group">
+                        <label>Dilatación Cervical (cm)</label>
+                        {{ form.dilatacion_cervical_cm }}
+                    </div>
+                    <div class="field-group">
+                        <label>Posición Fetal</label>
+                        {{ form.posicion_fetal }}
+                    </div>
+                    <div class="field-group">
+                        <label>Altura de Presentación</label>
+                        {{ form.altura_presentacion }}
+                    </div>
+                    <div class="checkbox-group">
+                        {{ form.membranas_rotas }}
+                        <label>Membranas Rotas</label>
+                    </div>
+                    <div class="field-group col-span-2">
+                        <label>Características del Líquido Amniótico</label>
+                        {{ form.caracteristicas_liquido }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 3: Evaluación Fetal -->
+        <div class="form-section">
+            <div class="section-header green">
+                <i class="bi bi-heart-pulse"></i>
+                <h2>Evaluación Fetal</h2>
+            </div>
+            <div class="section-body">
+                <div class="fields-grid">
+                    <div class="field-group">
+                        <label>Frecuencia Cardíaca Fetal (lpm)</label>
+                        {{ form.frecuencia_cardiaca_fetal }}
+                    </div>
+                    <div class="checkbox-group">
+                        {{ form.cardiotocografia_realizada }}
+                        <label>CTG Realizada</label>
+                    </div>
+                    <div class="field-group col-span-2">
+                        <label>Resultado CTG</label>
+                        {{ form.resultado_ctg }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 4: Signos Vitales Maternos -->
+        <div class="form-section">
+            <div class="section-header blue">
+                <i class="bi bi-thermometer-half"></i>
+                <h2>Signos Vitales Maternos</h2>
+            </div>
+            <div class="section-body">
+                <div class="fields-grid fields-grid-4">
+                    <div class="field-group">
+                        <label>PA Sistólica (mmHg)</label>
+                        {{ form.presion_arterial_sistolica }}
+                    </div>
+                    <div class="field-group">
+                        <label>PA Diastólica (mmHg)</label>
+                        {{ form.presion_arterial_diastolica }}
+                    </div>
+                    <div class="field-group">
+                        <label>FC Materna (lpm)</label>
+                        {{ form.frecuencia_cardiaca_materna }}
+                    </div>
+                    <div class="field-group">
+                        <label>Temperatura (°C)</label>
+                        {{ form.temperatura }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 5: Laboratorio -->
+        <div class="form-section">
+            <div class="section-header orange">
+                <i class="bi bi-droplet-fill"></i>
+                <h2>Exámenes de Laboratorio</h2>
+            </div>
+            <div class="section-body">
+                <div class="fields-grid">
+                    <div class="checkbox-group">
+                        {{ form.sgb_pesquisa }}
+                        <label>SGB Pesquisa Realizada</label>
+                    </div>
+                    <div class="field-group">
+                        <label>Resultado SGB</label>
+                        {{ form.sgb_resultado }}
+                    </div>
+                    <div class="checkbox-group">
+                        {{ form.vih_tomado }}
+                        <label>VIH Tomado</label>
+                    </div>
+                    <div class="field-group">
+                        <label>Resultado VIH</label>
+                        {{ form.vih_resultado }}
+                    </div>
+                    <div class="field-group">
+                        <label>Resultado VDRL</label>
+                        {{ form.vdrl_resultado }}
+                    </div>
+                    <div class="checkbox-group">
+                        {{ form.hepatitis_b_tomado }}
+                        <label>Hepatitis B Tomado</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 6: Diagnóstico y Observaciones -->
+        <div class="form-section">
+            <div class="section-header">
+                <i class="bi bi-journal-medical"></i>
+                <h2>Diagnóstico y Observaciones</h2>
+            </div>
+            <div class="section-body">
+                <div class="fields-grid">
+                    <div class="field-group full-width">
+                        <label>Diagnóstico de Ingreso</label>
+                        {{ form.diagnostico_ingreso }}
+                    </div>
+                    <div class="field-group full-width">
+                        <label>Observaciones</label>
+                        {{ form.observaciones }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="form-actions">
+            <button type="submit" class="btn-guardar">
+                <i class="bi bi-check-lg"></i> Guardar Ficha de Ingreso
+            </button>
+            <a href="{% url 'matrona:detalle_ficha' ficha_obstetrica.pk %}" class="btn-cancelar">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,203 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard TENS - Sistema Obstétrico{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-box {
+        background: white;
+        border-left: 5px solid #4facfe;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #4facfe;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.95rem;
+    }
+
+    .action-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .action-card i {
+        font-size: 3rem;
+        color: #4facfe;
+        margin-bottom: 1rem;
+    }
+
+    .action-card h5 {
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    .btn-action {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border: none;
+        padding: 10px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-action:hover {
+        transform: scale(1.05);
+        color: white;
+    }
+
+    /* Alerta personalizada de TENS */
+    .alert-tens {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border: none;
+        border-left: 4px solid #00f2fe;
+    }
+
+    .alert-tens .alert-heading {
+        color: white;
+        font-weight: bold;
+    }
+
+    .alert-tens .btn-close {
+        filter: brightness(0) invert(1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="padding: 20px;">
+    <!-- Welcome Alert (Auto-close after 5 seconds) -->
+    <div class="alert alert-tens alert-dismissible fade show" role="alert" id="welcomeAlert">
+        <h5 class="alert-heading"><i class="bi bi-bandaid-fill"></i> ¡Bienvenido/a al Menú de TENS!</h5>
+        <p class="mb-0">{{ request.user.get_full_name|default:request.user.username }}</p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Date and Time Section -->
+    <div class="date-time-section mb-4 text-end">
+        <div class="date fw-bold fs-5" id="currentDate"></div>
+        <div class="text-muted" id="currentTime"></div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stat-box">
+                <div class="stat-number">{{ total_tratamientos|default:0 }}</div>
+                <div class="stat-label">Tratamientos Aplicados</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box">
+                <div class="stat-number">{{ total_registros_tens|default:0 }}</div>
+                <div class="stat-label">Signos Vitales Registrados</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box">
+                <div class="stat-number">{{ total_pacientes|default:0 }}</div>
+                <div class="stat-label">Pacientes en Atención</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones disponibles -->
+    <div class="row">
+        <h4 class="mb-3">Acciones Disponibles</h4>
+
+        <div class="col-md-3 mb-4">
+            <div class="action-card">
+                <i class="bi bi-search"></i>
+                <h5>Buscar Paciente</h5>
+                <a href="{% url 'tens:buscar_paciente' %}" class="btn btn-action">
+                    Ir
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="action-card">
+                <i class="bi bi-heart-pulse"></i>
+                <h5>Registrar Signos Vitales</h5>
+                <a href="{% url 'tens:parametros_tens' %}" class="btn btn-action">
+                    Ir
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="action-card">
+                <i class="bi bi-clipboard-data"></i>
+                <h5>Ver Historial de Signos</h5>
+                <a href="{% url 'tens:buscar_paciente' %}" class="btn btn-action">
+                    Ir
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="action-card">
+                <i class="bi bi-prescription2"></i>
+                <h5>Aplicar Tratamiento</h5>
+                <a href="{% url 'tens:buscar_paciente' %}" class="btn btn-action">
+                    Ir
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-close welcome alert after 5 seconds
+    setTimeout(function () {
+        const alertElement = document.getElementById('welcomeAlert');
+        if (alertElement) {
+            const bsAlert = new bootstrap.Alert(alertElement);
+            bsAlert.close();
+        }
+    }, 5000);
+
+    // Update date and time
+    function updateDateTime() {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const dateStr = now.toLocaleDateString('es-CL', options);
+
+        // Format time with AM/PM
+        let hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        const period = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+
+        const timeStr = `${hours}:${minutes}:${seconds} ${period}`;
+
+        document.getElementById('currentDate').textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+        document.getElementById('currentTime').textContent = timeStr;
+    }
+
+    updateDateTime();
+    setInterval(updateDateTime, 1000); // Update every second
+</script>
+{% endblock %}

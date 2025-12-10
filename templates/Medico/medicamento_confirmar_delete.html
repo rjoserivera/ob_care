@@ -1,0 +1,63 @@
+{% extends 'Shared/base.html' %}
+
+{% block title %}Eliminar Medicamento - Médico{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #dc3545 0%, #ff6b6b 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .confirm-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        border-top: 5px solid #dc3545;
+    }
+
+    .breadcrumb-item a {
+        color: #38ef7d;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'medico:menu_medico' %}">Médico</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'medico:detalle_ficha' ficha.pk %}">Ficha</a></li>
+            <li class="breadcrumb-item active">Eliminar Medicamento</li>
+        </ol>
+    </nav>
+
+    <div class="page-header">
+        <h2><i class="bi bi-exclamation-triangle-fill"></i> Eliminar Medicamento</h2>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="confirm-card">
+                <h4 class="mb-3">¿Estás seguro?</h4>
+                <p class="mb-4">Vas a eliminar el medicamento <strong>{{ medicamento.medicamento }}</strong> de esta
+                    ficha. Esta acción no se puede deshacer.</p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'medico:detalle_ficha' ficha.pk %}" class="btn btn-secondary px-4">Cancelar</a>
+                        <button type="submit" class="btn btn-danger px-4">Sí, Eliminar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

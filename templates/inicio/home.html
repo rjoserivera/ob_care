@@ -1,0 +1,188 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Inicio - Sistema Obstétrico{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    
+    <!-- Encabezado Principal -->
+    <div class="text-center mb-5">
+        <h1 class="display-4">
+            <i class="bi bi-hospital text-danger"></i>
+            Sistema de Gestión Obstétrica
+        </h1>
+        <p class="lead text-muted">Bienvenido al sistema de gestión hospitalaria</p>
+    </div>
+
+    <!-- Resumen de Personal Activo -->
+    <h2 class="mb-4">
+        <i class="bi bi-activity"></i> Resumen de Personal Activo
+    </h2>
+    
+    <div class="row mb-5">
+        <div class="col-md-2">
+            <div class="card text-center bg-light shadow-sm">
+                <div class="card-body">
+                    <i class="bi bi-people-fill text-primary" style="font-size: 2.5rem;"></i>
+                    <h5 class="mt-3">{{ pacientes_activos|default:"0" }}</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.9rem;">Pacientes</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-2">
+            <div class="card text-center bg-light shadow-sm">
+                <div class="card-body">
+                    <i class="bi bi-stethoscope text-info" style="font-size: 2.5rem;"></i>
+                    <h5 class="mt-3">{{ medicos_activos|default:"0" }}</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.9rem;">Médicos</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card text-center bg-light shadow-sm">
+                <div class="card-body">
+                    <i class="bi bi-heart-pulse text-danger" style="font-size: 2.5rem;"></i>
+                    <h5 class="mt-3">{{ matronas_activas|default:"0" }}</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.9rem;">Matronas</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card text-center bg-light shadow-sm">
+                <div class="card-body">
+                    <i class="bi bi-clipboard2-pulse text-success" style="font-size: 2.5rem;"></i>
+                    <h5 class="mt-3">{{ medicos_activos|default:"0" }}</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.9rem;">Médicos</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-2">
+            <div class="card text-center bg-light shadow-sm">
+                <div class="card-body">
+                    <i class="bi bi-person-badge text-warning" style="font-size: 2.5rem;"></i>
+                    <h5 class="mt-3">{{ tens_activos|default:"0" }}</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.9rem;">Tens</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accesos Rápidos -->
+    <h2 class="mb-4">
+        <i class="bi bi-grid-3x3-gap-fill"></i> Accesos Rápidos
+    </h2>
+    
+    <div class="row">
+        <!-- Módulo Matrona -->
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 shadow-sm d-flex flex-column">
+                <div class="card-body text-center d-flex flex-column">
+                    <i class="bi bi-heart-pulse-fill text-danger" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Matrona</h5>
+                    <p class="card-text flex-grow-1">Gestión de fichas obstétricas</p>
+                    <div class="d-grid gap-2 mt-auto">
+                        <a href="{% url 'matrona:menu_matrona' %}" class="btn btn-danger">
+                            <i class="bi bi-door-open"></i> Acceder
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Módulo Médico -->
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 shadow-sm d-flex flex-column">
+                <div class="card-body text-center d-flex flex-column">
+                    <i class="bi bi-stethoscope-fill text-info" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Médico</h5>
+                    <p class="card-text flex-grow-1">Gestión de patologías y historial</p>
+                    <div class="d-grid gap-2 mt-auto">
+                        <a href="{% url 'medico:menu_medico' %}" class="btn btn-info">
+                            <i class="bi bi-door-open"></i> Acceder
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Módulo Partos -->
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 shadow-sm d-flex flex-column">
+                <div class="card-body text-center d-flex flex-column">
+                    <i class="bi bi-baby-fill text-success" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Partos</h5>
+                    <p class="card-text flex-grow-1">Registro de partos y recién nacidos</p>
+                    <div class="d-grid gap-2 mt-auto">
+                        <a href="{% url 'partos:menu_partos' %}" class="btn btn-success">
+                            <i class="bi bi-door-open"></i> Acceder
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Módulo Tens -->
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 shadow-sm d-flex flex-column">
+                <div class="card-body text-center d-flex flex-column">
+                    <i class="bi bi-person-badge-fill text-warning" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Tens</h5>
+                    <p class="card-text flex-grow-1">Registro de signos vitales</p>
+                    <div class="d-grid gap-2 mt-auto">
+                        <a href="{% url 'tens:menu_tens' %}" class="btn btn-warning">
+                            <i class="bi bi-door-open"></i> Acceder
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Gestión de Personas -->
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 shadow-sm d-flex flex-column">
+                <div class="card-body text-center d-flex flex-column">
+                    <i class="bi bi-person-plus-fill text-primary" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Gestión</h5>
+                    <p class="card-text flex-grow-1">Registrar y administrar personas</p>
+                    <div class="d-grid gap-2 mt-auto">
+                        <a href="{% url 'gestion:persona_list' %}" class="btn btn-primary">
+                            <i class="bi bi-door-open"></i> Acceder
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Información del Sistema -->
+    <div class="alert alert-info mt-5">
+        <h5 class="alert-heading">
+            <i class="bi bi-info-circle"></i> Información del Sistema
+        </h5>
+        <p class="mb-0">
+            <strong>Sistema de Gestión Obstétrica</strong> - Desarrollado para el Hospital Clínico Herminda Martín.
+            <br>
+            Para soporte técnico, contacte al administrador del sistema.
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+console.log('🏥 Sistema de Gestión Obstétrica cargado correctamente');
+console.log('📊 Estadísticas:', {
+    pacientes: {{ pacientes_activos|default:0 }}, 
+    medicos: {{ medicos_activos|default:0 }},
+    matronas: {{ matronas_activas|default:0 }},
+    tens: {{ tens_activos|default:0 }}
+});
+</script>
+{% endblock %}

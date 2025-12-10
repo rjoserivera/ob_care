@@ -1,0 +1,205 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Seleccionar Paciente - Médico{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .search-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        border-left: 5px solid #38ef7d;
+        margin-bottom: 2rem;
+    }
+
+    .btn-medico {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-medico:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+        color: white;
+    }
+
+    .breadcrumb-item a {
+        color: #38ef7d;
+        text-decoration: none;
+    }
+
+    .breadcrumb-item.active {
+        color: #666;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .btn-select {
+        background: #e0f2f1;
+        color: #00695c;
+        border: 1px solid #11998e;
+        padding: 0.4rem 1rem;
+        border-radius: 6px;
+        transition: all 0.3s;
+        text-decoration: none;
+        font-weight: 500;
+        display: inline-block;
+    }
+
+    .btn-select:hover {
+        background: #11998e;
+        color: white;
+        text-decoration: none;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #11998e;
+        border-color: #11998e;
+    }
+
+    .pagination .page-link {
+        color: #11998e;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'medico:menu_medico' %}">Médico</a></li>
+            <li class="breadcrumb-item active">Seleccionar Paciente</li>
+        </ol>
+    </nav>
+
+    <div class="page-header">
+        <h2><i class="bi bi-person-check-fill"></i> Seleccionar Paciente</h2>
+        <p>Busca un paciente para crear una nueva ficha obstétrica</p>
+    </div>
+
+    <!-- Buscador -->
+    <div class="search-card">
+        <form method="get" class="row g-3 align-items-center">
+            <div class="col-md-10">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="q" class="form-control border-start-0"
+                        placeholder="Buscar por RUT, Nombre o Apellido..." value="{{ query }}">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-medico w-100">Buscar</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Resultados -->
+    <div class="table-container">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-4">Nombre Completo</th>
+                    <th>RUT</th>
+                    <th>Fecha Nacimiento</th>
+                    <th class="text-center">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for paciente in pacientes %}
+                <tr>
+                    <td class="ps-4">
+                        <strong>
+                            {{ paciente.persona.Nombre }}
+                            {{ paciente.persona.Apellido_Paterno }}
+                            {{ paciente.persona.Apellido_Materno }}
+                        </strong>
+                    </td>
+                    <td>{{ paciente.persona.Rut }}</td>
+                    <td>{{ paciente.persona.Fecha_nacimiento|date:"d/m/Y" }}</td>
+                    <td class="text-center">
+                        <a href="{% url 'medico:crear_ficha_persona' paciente.persona.pk %}" class="btn-select">
+                            <i class="bi bi-check-lg"></i> Seleccionar
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-5 text-muted">
+                        {% if query %}
+                        <i class="bi bi-search display-6 d-block mb-3"></i>
+                        No se encontraron pacientes con "{{ query }}"
+                        {% else %}
+                        <i class="bi bi-people display-6 d-block mb-3"></i>
+                        Busca un paciente para comenzar
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link"
+                    href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">
+                    &laquo;
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">
+                    {{ num }}
+                </a>
+            </li>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link"
+                    href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">
+                    &raquo;
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

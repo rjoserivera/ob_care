@@ -1,0 +1,85 @@
+{% extends 'Shared/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Gestionar Roles - {{ persona.nombre_completo }}</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-hospital" style="font-size: 3rem;"></i>
+                    <h5>MÉDICO</h5>
+                    {% if not roles.es_medico %}
+                    <a href="{% url 'gestion:asignar_rol_medico' persona.pk %}" class="btn btn-primary">Asignar</a>
+                    {% else %}
+                    <span class="badge bg-success">✓ Asignado</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-heart-pulse" style="font-size: 3rem;"></i>
+                    <h5>MATRONA</h5>
+                    {% if not roles.es_matrona %}
+                    <a href="{% url 'gestion:asignar_rol_matrona' persona.pk %}" class="btn btn-success">Asignar</a>
+                    {% else %}
+                    <span class="badge bg-success">✓ Asignado</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-bandaid" style="font-size: 3rem;"></i>
+                    <h5>TENS</h5>
+                    {% if not roles.es_tens %}
+                    <a href="{% url 'gestion:asignar_rol_tens' persona.pk %}" class="btn btn-info">Asignar</a>
+                    {% else %}
+                    <span class="badge bg-success">✓ Asignado</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-person-heart" style="font-size: 3rem;"></i>
+                    <h5>PACIENTE</h5>
+                    {% if not roles.es_paciente %}
+                    <a href="{% url 'gestion:asignar_rol_paciente' persona.pk %}" class="btn btn-warning">Asignar</a>
+                    {% else %}
+                    <span class="badge bg-success">✓ Asignado</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-3">
+            <div class="card text-center" style="border: 2px solid #2BFF88;">
+                <div class="card-body">
+                    <i class="bi bi-shield-fill-check" style="font-size: 3rem; color: #2BFF88;"></i>
+                    <h5>ADMIN</h5>
+                    {% if request.user.is_superuser %}
+                        {% if not roles.es_admin %}
+                        <button class="btn btn-dark" onclick="alert('Implementa vista asignar_rol_administrador')">Asignar</button>
+                        {% else %}
+                        <span class="badge bg-success">✓ Asignado</span>
+                        {% endif %}
+                    {% else %}
+                    <button class="btn btn-secondary" disabled>Solo Superusuarios</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

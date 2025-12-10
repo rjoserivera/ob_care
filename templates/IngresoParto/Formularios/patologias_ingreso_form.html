@@ -1,0 +1,110 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Patologías al Ingreso{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> Patologías al Ingreso
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Paso 2:</strong> Registre las patologías presentes al momento del ingreso.
+                    </div>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Patologías Obstétricas</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            {{ form.preeclampsia_severa }}
+                                            <label class="form-check-label" for="{{ form.preeclampsia_severa.id_for_label }}">
+                                                Preeclampsia Severa
+                                            </label>
+                                        </div>
+                                        {% if form.preeclampsia_severa.errors %}
+                                            <div class="text-danger mt-1">{{ form.preeclampsia_severa.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            {{ form.eclampsia }}
+                                            <label class="form-check-label" for="{{ form.eclampsia.id_for_label }}">
+                                                Eclampsia
+                                            </label>
+                                        </div>
+                                        {% if form.eclampsia.errors %}
+                                            <div class="text-danger mt-1">{{ form.eclampsia.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            {{ form.sepsis_infeccion_grave }}
+                                            <label class="form-check-label" for="{{ form.sepsis_infeccion_grave.id_for_label }}">
+                                                Sepsis o Infección Sistémica Grave
+                                            </label>
+                                        </div>
+                                        {% if form.sepsis_infeccion_grave.errors %}
+                                            <div class="text-danger mt-1">{{ form.sepsis_infeccion_grave.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            {{ form.infeccion_ovular }}
+                                            <label class="form-check-label" for="{{ form.infeccion_ovular.id_for_label }}">
+                                                Infección Ovular o Corioamnionitis
+                                            </label>
+                                        </div>
+                                        {% if form.infeccion_ovular.errors %}
+                                            <div class="text-danger mt-1">{{ form.infeccion_ovular.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.otra_patologia.id_for_label }}" class="form-label">
+                                        Otra Patología
+                                    </label>
+                                    {{ form.otra_patologia }}
+                                    {% if form.otra_patologia.errors %}
+                                        <div class="text-danger mt-1">{{ form.otra_patologia.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Especifique otra patología si aplica</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'ingreso_parto:datos_generales' ficha_parto.pk %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left-circle"></i> Anterior
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-arrow-right-circle"></i> Continuar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

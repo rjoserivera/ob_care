@@ -1,0 +1,96 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Tamizaje VIH{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="bi bi-shield-check"></i> Tamizaje VIH
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Paso 3:</strong> Registre la información del tamizaje de VIH.
+                    </div>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Información de Tamizaje VIH</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="{{ form.numero_aro.id_for_label }}" class="form-label">
+                                        Número ARO (Alto Riesgo Obstétrico)
+                                    </label>
+                                    {{ form.numero_aro }}
+                                    {% if form.numero_aro.errors %}
+                                        <div class="text-danger mt-1">{{ form.numero_aro.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Número de identificación ARO si aplica</small>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            {{ form.vih_tomado_prepartos }}
+                                            <label class="form-check-label" for="{{ form.vih_tomado_prepartos.id_for_label }}">
+                                                VIH tomado en Prepartos
+                                            </label>
+                                        </div>
+                                        {% if form.vih_tomado_prepartos.errors %}
+                                            <div class="text-danger mt-1">{{ form.vih_tomado_prepartos.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            {{ form.vih_tomado_sala }}
+                                            <label class="form-check-label" for="{{ form.vih_tomado_sala.id_for_label }}">
+                                                VIH tomado en Sala
+                                            </label>
+                                        </div>
+                                        {% if form.vih_tomado_sala.errors %}
+                                            <div class="text-danger mt-1">{{ form.vih_tomado_sala.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.vih_orden_toma.id_for_label }}" class="form-label">
+                                        Orden de Toma (1°, 2° o 3°)
+                                    </label>
+                                    {{ form.vih_orden_toma }}
+                                    {% if form.vih_orden_toma.errors %}
+                                        <div class="text-danger mt-1">{{ form.vih_orden_toma.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Indique si es la primera, segunda o tercera toma</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'ingreso_parto:patologias' ficha_parto.pk %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left-circle"></i> Anterior
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-arrow-right-circle"></i> Continuar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

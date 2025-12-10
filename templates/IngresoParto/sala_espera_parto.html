@@ -1,0 +1,754 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Sala de Espera - Proceso de Parto{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sala-espera-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 1.5rem;
+    }
+
+    /* Header */
+    .header-sala {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-sala h1 {
+        margin: 0;
+        font-size: 1.6rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .contador-tiempo {
+        background: rgba(255,255,255,0.2);
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .contador-tiempo .tiempo {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .contador-tiempo .label {
+        font-size: 0.8rem;
+        opacity: 0.9;
+    }
+
+    /* Tarjeta paciente en espera */
+    .paciente-espera-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        border-left: 5px solid #f59e0b;
+    }
+
+    .paciente-espera-card.urgente {
+        border-left-color: #dc2626;
+        animation: pulse-border 2s infinite;
+    }
+
+    @keyframes pulse-border {
+        0%, 100% { box-shadow: 0 5px 20px rgba(220, 38, 38, 0.2); }
+        50% { box-shadow: 0 5px 30px rgba(220, 38, 38, 0.4); }
+    }
+
+    .paciente-header {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .paciente-header.urgente {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    }
+
+    .paciente-info h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        color: #1f2937;
+    }
+
+    .paciente-info .rut {
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    .estado-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .estado-badge.esperando {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .estado-badge.listo {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .paciente-body {
+        padding: 1.5rem;
+    }
+
+    /* Grid de información */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-item {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 10px;
+    }
+
+    .info-item .label {
+        font-size: 0.8rem;
+        color: #6b7280;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-item .value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    /* Sección de personal */
+    .personal-section {
+        margin-top: 1.5rem;
+    }
+
+    .personal-section h4 {
+        font-size: 1rem;
+        color: #374151;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .personal-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .personal-card {
+        background: #f3f4f6;
+        padding: 1.25rem;
+        border-radius: 12px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .personal-card.confirmado {
+        background: #d1fae5;
+        border: 2px solid #10b981;
+    }
+
+    .personal-card.pendiente {
+        background: #fef3c7;
+        border: 2px dashed #f59e0b;
+    }
+
+    .personal-card.notificando {
+        background: #dbeafe;
+        border: 2px solid #3b82f6;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+    }
+
+    .personal-card .icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .personal-card .rol {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.25rem;
+        font-size: 1.05rem;
+    }
+
+    .personal-card .nombre {
+        font-size: 0.85rem;
+        color: #6b7280;
+        min-height: 20px;
+    }
+
+    .personal-card .estado {
+        font-size: 0.75rem;
+        margin-top: 0.75rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 15px;
+        display: inline-block;
+        font-weight: 600;
+    }
+
+    .personal-card.confirmado .estado {
+        background: #065f46;
+        color: white;
+    }
+
+    .personal-card.pendiente .estado {
+        background: #92400e;
+        color: white;
+    }
+
+    .personal-card.notificando .estado {
+        background: #1d4ed8;
+        color: white;
+    }
+
+    /* Barra de progreso */
+    .progreso-confirmaciones {
+        margin: 1.5rem 0;
+    }
+
+    .progreso-bar {
+        height: 12px;
+        background: #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progreso-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #10b981, #34d399);
+        border-radius: 10px;
+        transition: width 0.5s ease;
+    }
+
+    .progreso-text {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+    }
+
+    /* Salas disponibles */
+    .salas-section {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+
+    .salas-section h3 {
+        margin-bottom: 1rem;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .salas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+    }
+
+    .sala-card {
+        padding: 1.25rem;
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .sala-card.disponible {
+        background: #d1fae5;
+        border: 2px solid #10b981;
+    }
+
+    .sala-card.disponible:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .sala-card.disponible.seleccionada {
+        background: #a7f3d0;
+        border: 3px solid #059669;
+        transform: scale(1.05);
+    }
+
+    .sala-card.ocupada {
+        background: #fee2e2;
+        border: 2px solid #ef4444;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .sala-card .numero {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .sala-card .estado-sala {
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+        color: #6b7280;
+    }
+
+    /* Botones */
+    .acciones-container {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-asignar-sala {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-asignar-sala:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(16, 185, 129, 0.4);
+        color: white;
+    }
+
+    .btn-asignar-sala:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+    }
+
+    .btn-notificar {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-notificar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
+        color: white;
+    }
+
+    .btn-cancelar {
+        background: #f3f4f6;
+        color: #374151;
+        border: 2px solid #d1d5db;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-cancelar:hover {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    /* Modal */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 450px;
+        width: 90%;
+        text-align: center;
+        animation: modalSlide 0.3s ease;
+    }
+
+    @keyframes modalSlide {
+        from { transform: translateY(-30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-icon {
+        font-size: 3.5rem;
+        color: #10b981;
+        margin-bottom: 1rem;
+    }
+
+    .modal-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: #1f2937;
+    }
+
+    .modal-text {
+        color: #6b7280;
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-sala {
+        background: #d1fae5;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-sala .numero {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #065f46;
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    /* Toast */
+    .notificacion-enviada {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #10b981;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+        z-index: 1001;
+    }
+
+    .notificacion-enviada.show {
+        transform: translateX(0);
+    }
+
+    @media (max-width: 768px) {
+        .header-sala { flex-direction: column; text-align: center; }
+        .paciente-header { flex-direction: column; text-align: center; }
+        .personal-grid { grid-template-columns: 1fr; }
+        .acciones-container { flex-direction: column; }
+        .btn-asignar-sala, .btn-notificar, .btn-cancelar { width: 100%; justify-content: center; }
+        .modal-buttons { flex-direction: column; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sala-espera-container">
+    <!-- Header -->
+    <div class="header-sala">
+        <h1>
+            <i class="bi bi-hourglass-split"></i>
+            Sala de Espera - Proceso de Parto
+        </h1>
+        <div class="contador-tiempo">
+            <div class="tiempo" id="tiempoEspera">00:00</div>
+            <div class="label">Tiempo en espera</div>
+        </div>
+    </div>
+
+    <!-- Paciente en espera -->
+    <div class="paciente-espera-card {% if urgente %}urgente{% endif %}">
+        <div class="paciente-header {% if urgente %}urgente{% endif %}">
+            <div class="paciente-info">
+                <h3>{{ ficha_obstetrica.paciente.persona.Nombre }} {{ ficha_obstetrica.paciente.persona.Apellido_paterno }} {{ ficha_obstetrica.paciente.persona.Apellido_materno }}</h3>
+                <span class="rut">RUT: {{ ficha_obstetrica.paciente.persona.Rut }}</span>
+            </div>
+            <span class="estado-badge esperando" id="estadoBadge">
+                <i class="bi bi-hourglass"></i> Esperando equipo
+            </span>
+        </div>
+
+        <div class="paciente-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="label">Edad Gestacional</div>
+                    <div class="value">{{ ficha_obstetrica.edad_gestacional_semanas }}+{{ ficha_obstetrica.edad_gestacional_dias }} sem</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Número de Ficha</div>
+                    <div class="value">{{ ficha_obstetrica.numero_ficha }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Hora de Inicio</div>
+                    <div class="value" id="horaInicio">--:--</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Prioridad</div>
+                    <div class="value">
+                        {% if urgente %}
+                        <span style="color: #dc2626;"><i class="bi bi-exclamation-triangle-fill"></i> URGENTE</span>
+                        {% else %}
+                        <span style="color: #059669;"><i class="bi bi-check-circle-fill"></i> Normal</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progreso -->
+            <div class="progreso-confirmaciones">
+                <div class="progreso-bar">
+                    <div class="progreso-fill" id="progresoFill" style="width: 0%"></div>
+                </div>
+                <div class="progreso-text">
+                    <span id="confirmadosText">0 de 3 especialistas confirmados</span>
+                    <span id="porcentajeText">0%</span>
+                </div>
+            </div>
+
+            <!-- Personal: MÉDICO, MATRONA, TENS -->
+            <div class="personal-section">
+                <h4><i class="bi bi-people-fill"></i> Equipo Médico Requerido</h4>
+                <div class="personal-grid">
+                    <div class="personal-card pendiente" id="cardMatrona" data-rol="matrona">
+                        <div class="icon">👩‍⚕️</div>
+                        <div class="rol">Matrona</div>
+                        <div class="nombre" id="nombreMatrona">Sin asignar</div>
+                        <div class="estado">Pendiente</div>
+                    </div>
+                    <div class="personal-card pendiente" id="cardMedico" data-rol="medico">
+                        <div class="icon">👨‍⚕️</div>
+                        <div class="rol">Médico</div>
+                        <div class="nombre" id="nombreMedico">Sin asignar</div>
+                        <div class="estado">Pendiente</div>
+                    </div>
+                    <div class="personal-card pendiente" id="cardTens" data-rol="tens">
+                        <div class="icon">🏥</div>
+                        <div class="rol">TENS</div>
+                        <div class="nombre" id="nombreTens">Sin asignar</div>
+                        <div class="estado">Pendiente</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Salas disponibles -->
+    <div class="salas-section">
+        <h3><i class="bi bi-door-open-fill"></i> Salas de Parto Disponibles</h3>
+        <div class="salas-grid">
+            <div class="sala-card disponible" data-sala="1" onclick="seleccionarSala(1)">
+                <div class="numero">Sala 1</div>
+                <div class="estado-sala"><i class="bi bi-check-circle"></i> Disponible</div>
+            </div>
+            <div class="sala-card ocupada" data-sala="2">
+                <div class="numero">Sala 2</div>
+                <div class="estado-sala"><i class="bi bi-x-circle"></i> Ocupada</div>
+            </div>
+            <div class="sala-card disponible" data-sala="3" onclick="seleccionarSala(3)">
+                <div class="numero">Sala 3</div>
+                <div class="estado-sala"><i class="bi bi-check-circle"></i> Disponible</div>
+            </div>
+            <div class="sala-card disponible" data-sala="4" onclick="seleccionarSala(4)">
+                <div class="numero">Sala 4</div>
+                <div class="estado-sala"><i class="bi bi-check-circle"></i> Disponible</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="acciones-container">
+        <button class="btn-notificar" onclick="notificarEquipo()">
+            <i class="bi bi-bell-fill"></i> Notificar a Todo el Equipo
+        </button>
+        <button class="btn-asignar-sala" id="btnAsignarSala" disabled onclick="confirmarAsignacion()">
+            <i class="bi bi-door-open-fill"></i> Asignar Sala e Ingresar
+        </button>
+        <a href="{% url 'matrona:detalle_ficha' ficha_obstetrica.pk %}" class="btn-cancelar">
+            <i class="bi bi-x-lg"></i> Cancelar
+        </a>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalConfirmacion">
+    <div class="modal-content">
+        <div class="modal-icon"><i class="bi bi-check-circle-fill"></i></div>
+        <h2 class="modal-title">¿Confirmar Ingreso?</h2>
+        <p class="modal-text">Se asignará la siguiente sala:</p>
+        <div class="modal-sala">
+            <div class="numero" id="salaSeleccionadaModal">Sala 1</div>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn-cancelar" onclick="cerrarModal()" style="border: none;">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </button>
+            <button class="btn-asignar-sala" onclick="ingresarASala()">
+                <i class="bi bi-check-lg"></i> Confirmar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="notificacion-enviada" id="notificacionToast">
+    <i class="bi bi-check-circle-fill"></i>
+    <span id="notificacionTexto">Notificaciones enviadas</span>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let salaSeleccionada = null;
+    let tiempoInicio = new Date();
+    let confirmados = 0;
+    const totalRequerido = 3;
+
+    document.getElementById('horaInicio').textContent = tiempoInicio.toLocaleTimeString('es-CL', {hour: '2-digit', minute: '2-digit'});
+
+    setInterval(() => {
+        const ahora = new Date();
+        const diff = Math.floor((ahora - tiempoInicio) / 1000);
+        const minutos = Math.floor(diff / 60).toString().padStart(2, '0');
+        const segundos = (diff % 60).toString().padStart(2, '0');
+        document.getElementById('tiempoEspera').textContent = `${minutos}:${segundos}`;
+    }, 1000);
+
+    function seleccionarSala(numero) {
+        document.querySelectorAll('.sala-card.disponible').forEach(card => {
+            card.classList.remove('seleccionada');
+        });
+        const salaCard = document.querySelector(`.sala-card[data-sala="${numero}"]`);
+        if (salaCard && salaCard.classList.contains('disponible')) {
+            salaCard.classList.add('seleccionada');
+            salaSeleccionada = numero;
+            actualizarBotonAsignar();
+        }
+    }
+
+    function notificarEquipo() {
+        const roles = ['Matrona', 'Medico', 'Tens'];
+        roles.forEach((rol, index) => {
+            setTimeout(() => {
+                const card = document.getElementById(`card${rol}`);
+                card.className = 'personal-card notificando';
+                card.querySelector('.estado').textContent = 'Notificando...';
+                const tiempoRespuesta = Math.random() * 4000 + 2000;
+                setTimeout(() => { confirmarPersonal(rol); }, tiempoRespuesta);
+            }, index * 600);
+        });
+        mostrarNotificacion('Notificaciones enviadas al equipo');
+    }
+
+    function confirmarPersonal(rol) {
+        const card = document.getElementById(`card${rol}`);
+        const nombres = { 'Matrona': 'María González', 'Medico': 'Dr. Juan Pérez', 'Tens': 'Carlos Muñoz' };
+        card.className = 'personal-card confirmado';
+        card.querySelector('.estado').textContent = '✓ Confirmado';
+        card.querySelector('.nombre').textContent = nombres[rol];
+        confirmados++;
+        actualizarProgreso();
+        actualizarBotonAsignar();
+        if (confirmados === totalRequerido) {
+            document.getElementById('estadoBadge').className = 'estado-badge listo';
+            document.getElementById('estadoBadge').innerHTML = '<i class="bi bi-check-circle-fill"></i> Equipo listo';
+            mostrarNotificacion('¡Equipo completo!');
+        }
+    }
+
+    function actualizarProgreso() {
+        const porcentaje = (confirmados / totalRequerido) * 100;
+        document.getElementById('progresoFill').style.width = `${porcentaje}%`;
+        document.getElementById('confirmadosText').textContent = `${confirmados} de ${totalRequerido} especialistas confirmados`;
+        document.getElementById('porcentajeText').textContent = `${Math.round(porcentaje)}%`;
+    }
+
+    function actualizarBotonAsignar() {
+        document.getElementById('btnAsignarSala').disabled = !(confirmados >= 2 && salaSeleccionada);
+    }
+
+    function confirmarAsignacion() {
+        document.getElementById('salaSeleccionadaModal').textContent = `Sala ${salaSeleccionada}`;
+        document.getElementById('modalConfirmacion').classList.add('active');
+    }
+
+    function cerrarModal() {
+        document.getElementById('modalConfirmacion').classList.remove('active');
+    }
+
+    function ingresarASala() {
+        window.location.href = "{% url 'ingreso_parto:crear_ficha' ficha_obstetrica.pk %}?sala=" + salaSeleccionada;
+    }
+
+    function mostrarNotificacion(texto) {
+        const toast = document.getElementById('notificacionToast');
+        document.getElementById('notificacionTexto').textContent = texto;
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarModal(); });
+    document.getElementById('modalConfirmacion').addEventListener('click', (e) => {
+        if (e.target.id === 'modalConfirmacion') cerrarModal();
+    });
+</script>
+{% endblock %}

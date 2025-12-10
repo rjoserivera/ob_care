@@ -1,0 +1,197 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Datos Generales del Ingreso{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-clipboard-plus"></i> Datos Generales del Ingreso
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Paso 1:</strong> Registre la información básica del ingreso de la paciente.
+                    </div>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Selección de Ficha Obstétrica -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Identificación de la Paciente</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="{{ form.ficha_obstetrica.id_for_label }}" class="form-label">
+                                        Ficha Obstétrica <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.ficha_obstetrica }}
+                                    {% if form.ficha_obstetrica.errors %}
+                                        <div class="text-danger mt-1">{{ form.ficha_obstetrica.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Seleccione la ficha obstétrica de la paciente</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Datos del Ingreso -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Información del Ingreso</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="{{ form.tipo_paciente.id_for_label }}" class="form-label">
+                                            Tipo de Paciente <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.tipo_paciente }}
+                                        {% if form.tipo_paciente.errors %}
+                                            <div class="text-danger mt-1">{{ form.tipo_paciente.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.origen_ingreso.id_for_label }}" class="form-label">
+                                            Origen del Ingreso <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.origen_ingreso }}
+                                        {% if form.origen_ingreso.errors %}
+                                            <div class="text-danger mt-1">{{ form.origen_ingreso.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="{{ form.fecha_ingreso.id_for_label }}" class="form-label">
+                                            Fecha de Ingreso <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.fecha_ingreso }}
+                                        {% if form.fecha_ingreso.errors %}
+                                            <div class="text-danger mt-1">{{ form.fecha_ingreso.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.hora_ingreso.id_for_label }}" class="form-label">
+                                            Hora de Ingreso <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.hora_ingreso }}
+                                        {% if form.hora_ingreso.errors %}
+                                            <div class="text-danger mt-1">{{ form.hora_ingreso.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información Prenatal -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Información Prenatal</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            {{ form.plan_de_parto }}
+                                            <label class="form-check-label" for="{{ form.plan_de_parto.id_for_label }}">
+                                                ¿Tiene Plan de Parto?
+                                            </label>
+                                        </div>
+                                        {% if form.plan_de_parto.errors %}
+                                            <div class="text-danger mt-1">{{ form.plan_de_parto.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            {{ form.visita_guiada }}
+                                            <label class="form-check-label" for="{{ form.visita_guiada.id_for_label }}">
+                                                ¿Realizó Visita Guiada?
+                                            </label>
+                                        </div>
+                                        {% if form.visita_guiada.errors %}
+                                            <div class="text-danger mt-1">{{ form.visita_guiada.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            {{ form.control_prenatal }}
+                                            <label class="form-check-label" for="{{ form.control_prenatal.id_for_label }}">
+                                                ¿Tuvo Control Prenatal?
+                                            </label>
+                                        </div>
+                                        {% if form.control_prenatal.errors %}
+                                            <div class="text-danger mt-1">{{ form.control_prenatal.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.consultorio_origen.id_for_label }}" class="form-label">
+                                        Consultorio de Origen
+                                    </label>
+                                    {{ form.consultorio_origen }}
+                                    {% if form.consultorio_origen.errors %}
+                                        <div class="text-danger mt-1">{{ form.consultorio_origen.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Nombre del CESFAM o consultorio de origen</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'ingreso_parto:lista_ingresos' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-arrow-right-circle"></i> Continuar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6><i class="bi bi-list-check"></i> Pasos Siguientes</h6>
+                    <ul class="mb-0 small">
+                        <li>Paso 1: Datos Generales del Ingreso (actual)</li>
+                        <li>Paso 2: Patologías al Ingreso</li>
+                        <li>Paso 3: Tamizajes (VIH, SGB, VDRL, Hepatitis B)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fechaIngreso = document.getElementById('id_fecha_ingreso');
+    const horaIngreso = document.getElementById('id_hora_ingreso');
+    
+    if (fechaIngreso && !fechaIngreso.value) {
+        const hoy = new Date();
+        fechaIngreso.value = hoy.toISOString().split('T')[0];
+    }
+    
+    if (horaIngreso && !horaIngreso.value) {
+        const ahora = new Date();
+        const horas = String(ahora.getHours()).padStart(2, '0');
+        const minutos = String(ahora.getMinutes()).padStart(2, '0');
+        horaIngreso.value = `${horas}:${minutos}`;
+    }
+});
+</script>
+{% endblock %}
