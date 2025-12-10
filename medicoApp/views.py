@@ -207,3 +207,275 @@ def ver_historial_clinico(request, paciente_pk):
         'fichas': fichas,
         'total_fichas': fichas.count()
     })
+
+
+# ============================================
+# GESTIÓN DE FICHAS OBSTÉTRICAS
+# ============================================
+
+# ============================================
+# GESTIÓN DE FICHAS OBSTÉTRICAS
+# ============================================
+
+def calcular_edad(fecha_nacimiento):
+    """Calcula la edad basada en la fecha de nacimiento"""
+    from datetime import date
+    hoy = date.today()
+    edad = hoy.year - fecha_nacimiento.year
+    if (hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day):
+        edad -= 1
+    return edad
+
+def crear_ficha_obstetrica(request, paciente_pk):
+    """
+    Crear nueva ficha obstétrica - Versión Médico
+    """
+    from gestionApp.models import Paciente
+    from matronaApp.models import FichaObstetrica
+    from matronaApp.forms.ficha_obstetrica_form import FichaObstetricaForm
+    from datetime import date
+
+    paciente = get_object_or_404(Paciente, pk=paciente_pk, activo=True)
+    persona = paciente.persona
+    
+    edad = calcular_edad(persona.Fecha_nacimiento)
+    
+    if request.method == 'POST':
+        form = FichaObstetricaForm(request.POST)
+        if form.is_valid():
+            ficha = form.save(commit=False)
+            ficha.paciente = paciente
+            ficha.numero_ficha = f"FO-{FichaObstetrica.objects.count() + 1:06d}"
+            ficha.save()
+            messages.success(request, f'✅ Ficha Obstétrica {ficha.numero_ficha} creada exitosamente')
+            return redirect('medico:detalle_ficha', ficha_pk=ficha.pk)
+        else:
+            messages.error(request, '❌ Por favor corrige los errores en el formulario')
+    else:
+        form = FichaObstetricaForm()
+    
+    context = {
+        'form': form,
+        'paciente': paciente,
+        'persona': persona,
+        'edad': edad,
+        'titulo': 'Crear Ficha Obstétrica',
+        'accion': 'crear'
+    }
+    return render(request, 'Medico/crear_ficha_obstetrica.html', context)
+
+
+def crear_ficha_obstetrica_persona(request, persona_pk):
+    """
+    Crear ficha obstétrica desde persona - Versión Médico
+    """
+    from gestionApp.models import Persona, Paciente
+    from matronaApp.models import FichaObstetrica
+    from matronaApp.forms.ficha_obstetrica_form import FichaObstetricaForm
+    
+    persona = get_object_or_404(Persona, pk=persona_pk)
+    
+    paciente, created = Paciente.objects.get_or_create(
+        persona=persona,
+        defaults={'activo': True}
+    )
+    
+    if not paciente.activo:
+        paciente.activo = True
+        paciente.save()
+    
+    edad = calcular_edad(persona.Fecha_nacimiento)
+    
+    if request.method == 'POST':
+        form = FichaObstetricaForm(request.POST)
+        if form.is_valid():
+            ficha = form.save(commit=False)
+            ficha.paciente = paciente
+            ficha.numero_ficha = f"FO-{FichaObstetrica.objects.count() + 1:06d}"
+            try:
+                ficha.save()
+                messages.success(request, f'✅ Ficha Obstétrica {ficha.numero_ficha} creada exitosamente')
+                return redirect('medico:detalle_ficha', ficha_pk=ficha.pk)
+            except Exception as e:
+                messages.error(request, f'❌ Error al crear la ficha: {str(e)}')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'❌ {field}: {error}')
+    else:
+        form = FichaObstetricaForm()
+    
+    context = {
+        'form': form,
+        'paciente': paciente,
+        'persona': persona,
+        'edad': edad,
+        'titulo': 'Crear Ficha Obstétrica',
+        'accion': 'crear'
+    }
+    return render(request, 'Medico/crear_ficha_obstetrica.html', context)
+
+
+def editar_ficha_obstetrica(request, ficha_pk):
+    """Editar ficha obstétrica - Versión Médico"""
+    from matronaApp.models import FichaObstetrica
+    from matronaApp.forms.ficha_obstetrica_form import FichaObstetricaForm
+
+    ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk, activa=True)
+    paciente = ficha.paciente
+    persona = paciente.persona
+    
+    edad = calcular_edad(persona.Fecha_nacimiento)
+    
+    if request.method == 'POST':
+        form = FichaObstetricaForm(request.POST, instance=ficha)
+        if form.is_valid():
+            ficha = form.save()
+            messages.success(request, f'✅ Ficha {ficha.numero_ficha} actualizada')
+            return redirect('medico:detalle_ficha', ficha_pk=ficha.pk)
+    else:
+        form = FichaObstetricaForm(instance=ficha)
+    
+    context = {
+        'form': form,
+        'ficha': ficha,
+        'paciente': paciente,
+        'persona': persona,
+        'edad': edad,
+        'titulo': 'Editar Ficha Obstétrica',
+        'accion': 'editar'
+    }
+    return render(request, 'Medico/crear_ficha_obstetrica.html', context)
+
+
+def detalle_ficha_obstetrica(request, ficha_pk):
+    """Ver detalle de ficha obstétrica - Versión Médico"""
+    from matronaApp.models import FichaObstetrica
+
+    ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk)
+    paciente = ficha.paciente
+    persona = paciente.persona
+    medicamentos = ficha.medicamentos.filter(activo=True)
+    
+    edad = calcular_edad(persona.Fecha_nacimiento)
+    
+    context = {
+        'ficha': ficha,
+        'paciente': paciente,
+        'persona': persona,
+        'edad': edad,
+        'medicamentos': medicamentos,
+        'titulo': f'Ficha {ficha.numero_ficha}',
+        'edad_gestacional': f"{ficha.edad_gestacional_semanas}+{ficha.edad_gestacional_dias}"
+    }
+    return render(request, 'Medico/detalle_ficha_obstetrica.html', context)
+
+
+def lista_fichas_obstetrica(request):
+    """Listar fichas obstétricas - Versión Médico"""
+    from matronaApp.models import FichaObstetrica
+    from django.core.paginator import Paginator
+    from django.db.models import Q
+    
+    fichas = FichaObstetrica.objects.filter(activa=True).select_related(
+        'paciente__persona',
+        'matrona_responsable__persona'
+    ).order_by('-fecha_creacion')
+    
+    busqueda = request.GET.get('q', '').strip()
+    if busqueda:
+        fichas = fichas.filter(
+            Q(paciente__persona__Nombre__icontains=busqueda) |
+            Q(paciente__persona__Apellido_Paterno__icontains=busqueda) |
+            Q(paciente__persona__Apellido_Materno__icontains=busqueda) |
+            Q(paciente__persona__Rut__icontains=busqueda)
+        )
+    
+    paginator = Paginator(fichas, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'Medico/lista_fichas.html', {
+        'page_obj': page_obj,
+        'fichas': page_obj,
+        'busqueda': busqueda,
+        'titulo': 'Fichas Obstétricas'
+    })
+
+
+def agregar_medicamento(request, ficha_pk):
+    """Agregar medicamento - Redirección a Médico"""
+    from matronaApp.models import FichaObstetrica
+    from matronaApp.forms.ficha_obstetrica_form import MedicamentoFichaForm
+    
+    ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk, activa=True)
+    
+    if request.method == 'POST':
+        form = MedicamentoFichaForm(request.POST)
+        if form.is_valid():
+            medicamento = form.save(commit=False)
+            medicamento.ficha = ficha
+            medicamento.save()
+            messages.success(request, f'✅ Medicamento {medicamento.medicamento} agregado')
+            return redirect('medico:detalle_ficha', ficha_pk=ficha.pk)
+    else:
+        form = MedicamentoFichaForm()
+    
+    # Podríamos necesitar un template propio para esto también, pero por ahora podemos usar el de matrona
+    # OJO: Si usamos el de matrona, se verá rosa. Idealmente deberíamos copiarlo.
+    # Por ahora, usaré el de matrona pero cambiaré el redirect arriba.
+    context = {
+        'form': form,
+        'ficha': ficha,
+        'titulo': 'Agregar Medicamento'
+    }
+    return render(request, 'Medico/medicamento_form.html', context)
+
+
+def eliminar_medicamento(request, medicamento_pk):
+    """Eliminar medicamento - Redirección a Médico"""
+    from matronaApp.models import MedicamentoFicha
+    
+    medicamento = get_object_or_404(MedicamentoFicha, pk=medicamento_pk)
+    ficha = medicamento.ficha
+    
+    if request.method == 'POST':
+        medicamento.delete()
+        messages.success(request, f'✅ Medicamento eliminado')
+        return redirect('medico:detalle_ficha', ficha_pk=ficha.pk)
+    
+    context = {
+        'medicamento': medicamento,
+        'ficha': ficha,
+        'titulo': 'Eliminar Medicamento'
+    }
+    return render(request, 'Medico/medicamento_confirmar_delete.html', context)
+
+
+def seleccionar_persona_ficha(request):
+    """Seleccionar persona - Versión Médico"""
+    from gestionApp.models import Persona, Paciente
+    from django.core.paginator import Paginator
+    from django.db.models import Q
+    
+    query = request.GET.get('q', '').strip()
+    pacientes = Paciente.objects.filter(activo=True).select_related('persona').order_by('persona__Nombre')
+    
+    if query:
+        pacientes = pacientes.filter(
+            Q(persona__Nombre__icontains=query) |
+            Q(persona__Rut__icontains=query) |
+            Q(persona__Apellido_Paterno__icontains=query) |
+            Q(persona__Apellido_Materno__icontains=query)
+        )
+            
+    paginator = Paginator(pacientes, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'Medico/seleccionar_persona_ficha.html', {
+        'page_obj': page_obj,
+        'pacientes': page_obj.object_list,
+        'query': query,
+        'titulo': 'Seleccionar Paciente'
+    })

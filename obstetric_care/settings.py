@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'django_filters',
     'rest_framework',
-    'debug_toolbar',
+    # 'debug_toolbar',  # Comentado para desactivar la barra de debug
     'django_extensions',
     'auditlog',
 
@@ -74,7 +74,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    'debug_toolbar.middleware.DebugToolbarMiddleware',  # Barra de debug (solo desarrollo)
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',  # Comentado - Barra de debug desactivada
 ]
 
 ROOT_URLCONF = 'obstetric_care.urls'

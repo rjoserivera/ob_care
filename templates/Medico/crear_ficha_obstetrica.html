@@ -11,7 +11,7 @@
     }
 
     .ficha-header {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
         color: white;
         padding: 2rem;
         border-radius: 15px;
@@ -28,7 +28,7 @@
         padding: 2rem;
         margin-bottom: 2rem;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-        border-left: 5px solid #f5576c;
+        border-left: 5px solid #38ef7d;
     }
 
     .persona-info-grid {
@@ -74,7 +74,7 @@
         font-weight: 600;
         color: #333;
         padding-bottom: 1rem;
-        border-bottom: 2px solid #f5576c;
+        border-bottom: 2px solid #38ef7d;
         margin-bottom: 1.5rem;
         display: flex;
         align-items: center;
@@ -82,7 +82,7 @@
     }
 
     .section-title i {
-        color: #f5576c;
+        color: #38ef7d;
     }
 
     .form-row {
@@ -113,9 +113,9 @@
 
     .form-control:focus,
     .form-select:focus {
-        border-color: #f5576c;
+        border-color: #38ef7d;
         outline: none;
-        box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+        box-shadow: 0 0 0 3px rgba(56, 239, 125, 0.1);
     }
 
     .errorlist {
@@ -161,7 +161,7 @@
 
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.3);
+        box-shadow: 0 5px 15px rgba(56, 239, 125, 0.3);
     }
 
     .btn-secondary {
@@ -184,9 +184,9 @@
     }
 
     .alert-info {
-        background-color: #fde8f0;
-        border-left: 4px solid #f5576c;
-        color: #a83950;
+        background-color: #d1ecf1;
+        border-left: 4px solid #11998e;
+        color: #0c5460;
     }
 
     .alert-danger {
@@ -203,7 +203,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'matrona:menu_matrona' %}">Matrona</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'medico:menu_medico' %}">Médico</a></li>
             <li class="breadcrumb-item active">Crear Ficha Obstétrica</li>
         </ol>
     </nav>
@@ -391,8 +391,8 @@
                 </div>
 
                 <!-- Tabla de referencia IMC -->
-                <div
-                    style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 1rem; border-left: 4px solid #f5576c;">
+                <div <div
+                    style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 1rem; border-left: 4px solid #38ef7d;">
                     <strong style="color: #333;">Interpretación del IMC:</strong>
                     <ul style="margin: 0.5rem 0 0 1.5rem; color: #666; font-size: 0.95rem;">
                         <li>&lt; 18.5: Bajo peso</li>
@@ -630,7 +630,7 @@
                     <i class="bi bi-check-circle"></i> Crear Ficha
                 </button>
 
-                <a href="{% url 'matrona:seleccionar_persona_ficha' %}" class="btn btn-secondary">
+                <a href="{% url 'medico:seleccionar_persona_ficha' %}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left"></i> Cancelar
                 </a>
             </div>

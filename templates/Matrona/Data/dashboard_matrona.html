@@ -6,7 +6,7 @@
 {% block extra_css %}
 <style>
     .navbar-custom {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
         padding: 1rem 0;
     }
 
@@ -17,7 +17,7 @@
     }
 
     .welcome-card {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         color: white;
         border-radius: 20px;
         padding: 2rem;
@@ -26,7 +26,7 @@
 
     .stat-box {
         background: white;
-        border-left: 5px solid #11998e;
+        border-left: 5px solid #f093fb;
         padding: 1.5rem;
         border-radius: 10px;
         margin-bottom: 1rem;
@@ -35,7 +35,7 @@
     .stat-number {
         font-size: 2.5rem;
         font-weight: bold;
-        color: #11998e;
+        color: #f5576c;
     }
 
     .stat-label {
@@ -48,18 +48,18 @@
         border-radius: 15px;
         padding: 2rem;
         text-align: center;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
         transition: all 0.3s ease;
     }
 
     .action-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     }
 
     .action-card i {
         font-size: 3rem;
-        color: #11998e;
+        color: #f5576c;
         margin-bottom: 1rem;
     }
 
@@ -69,7 +69,7 @@
     }
 
     .btn-action {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         color: white;
         border: none;
         padding: 10px 30px;
@@ -92,10 +92,28 @@
         background: #ccc;
         cursor: not-allowed;
     }
+
+    /* Alerta personalizada de Matrona */
+    .alert-matrona {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border: none;
+        border-left: 4px solid #f5576c;
+    }
+
+    .alert-matrona .alert-heading {
+        color: white;
+        font-weight: bold;
+    }
+
+    .alert-matrona .btn-close {
+        filter: brightness(0) invert(1);
+    }
 </style>
 {% endblock %}
 
 {% block content %}
+{% comment %}
 <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
     <div class="container-fluid">
         <a class="navbar-brand" href="{% url 'matrona:menu_matrona' %}">
@@ -116,18 +134,28 @@
                         <i class="bi bi-person-circle"></i> {{ request.user.username }}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item text-danger" href="{% url 'authentication:logout' %}">Cerrar Sesión</a></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'authentication:logout' %}">Cerrar
+                                Sesión</a></li>
                     </ul>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
+{% endcomment %}
 
-<div class="container-fluid" style="margin-top: 100px; padding: 20px;">
-    <div class="welcome-card">
-        <h2><i class="bi bi-heart-pulse-fill"></i> ¡Bienvenida Matrona!</h2>
-        <p>{{ request.user.get_full_name|default:request.user.username }}</p>
+<div class="container-fluid" style="padding: 20px;">
+    <!-- Welcome Alert (Auto-close after 5 seconds) -->
+    <div class="alert alert-matrona alert-dismissible fade show" role="alert" id="welcomeAlert">
+        <h5 class="alert-heading"><i class="bi bi-heart-pulse-fill"></i> ¡Bienvenido/a al Menú de Matrona!</h5>
+        <p class="mb-0">{{ request.user.get_full_name|default:request.user.username }}</p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Date and Time Section -->
+    <div class="date-time-section mb-4 text-end">
+        <div class="date fw-bold fs-5" id="currentDate"></div>
+        <div class="text-muted" id="currentTime"></div>
     </div>
 
     <!-- Estadísticas -->
@@ -173,7 +201,7 @@
             <div class="action-card">
                 <i class="bi bi-capsule"></i>
                 <h5>Asignar Medicamentos</h5>
-                <a href="{% url 'matrona:todas_fichas' %}" class="btn btn-action">
+                <a href="{% url 'matrona:lista_fichas' %}" class="btn btn-action">
                     Ir
                 </a>
             </div>
@@ -196,36 +224,59 @@
             <div class="action-card">
                 <i class="bi bi-file-earmark-medical"></i>
                 <h5>Ver Fichas</h5>
-                <a href="{% url 'matrona:todas_fichas' %}" class="btn btn-action">
+                <a href="{% url 'matrona:lista_fichas' %}" class="btn btn-action">
                     Ir
                 </a>
             </div>
         </div>
 
-        <!-- Acciones restringidas (solo para visualización) -->
-        {% if not puede_editar_ficha %}
-        <div class="col-md-3 mb-4 restricted" title="Solo disponible para Médico">
+        <!-- Editar Ficha - Ahora disponible para Matrona -->
+        {% if puede_editar_ficha %}
+        <div class="col-md-3 mb-4">
             <div class="action-card">
-                <i class="bi bi-lock-fill"></i>
+                <i class="bi bi-pencil-square"></i>
                 <h5>Editar Ficha</h5>
-                <button class="btn btn-action" disabled>
-                    Restringido
-                </button>
-            </div>
-        </div>
-        {% endif %}
-
-        {% if not puede_iniciar_parto %}
-        <div class="col-md-3 mb-4 restricted" title="Solo disponible para Médico">
-            <div class="action-card">
-                <i class="bi bi-lock-fill"></i>
-                <h5>Iniciar Parto</h5>
-                <button class="btn btn-action" disabled>
-                    Restringido
-                </button>
+                <a href="{% url 'matrona:lista_fichas' %}" class="btn btn-action">
+                    Ir
+                </a>
             </div>
         </div>
         {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-close welcome alert after 5 seconds
+    setTimeout(function () {
+        const alertElement = document.getElementById('welcomeAlert');
+        if (alertElement) {
+            const bsAlert = new bootstrap.Alert(alertElement);
+            bsAlert.close();
+        }
+    }, 5000);
+
+    // Update date and time
+    function updateDateTime() {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const dateStr = now.toLocaleDateString('es-CL', options);
+
+        // Format time with AM/PM
+        let hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        const period = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+
+        const timeStr = `${hours}:${minutes}:${seconds} ${period}`;
+
+        document.getElementById('currentDate').textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+        document.getElementById('currentTime').textContent = timeStr;
+    }
+
+    updateDateTime();
+    setInterval(updateDateTime, 1000); // Update every second
+</script>
 {% endblock %}

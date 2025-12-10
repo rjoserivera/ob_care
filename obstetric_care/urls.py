@@ -21,9 +21,9 @@ urlpatterns = [
     path('', include('authentication.urls')),
 ]
 
-# ✅ DEBUG TOOLBAR (Solo en desarrollo)
-if settings.DEBUG:
-    urlpatterns += [
-        path('__debug__/', include('debug_toolbar.urls')),
-    ]
+# ✅ DEBUG TOOLBAR (Solo en desarrollo) - DESACTIVADO
+# if settings.DEBUG:
+#     urlpatterns += [
+#         path('__debug__/', include('debug_toolbar.urls')),
+#     ]
 

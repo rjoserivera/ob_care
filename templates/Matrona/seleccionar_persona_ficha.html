@@ -11,7 +11,7 @@
     }
 
     .header-section {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         color: white;
         padding: 2rem;
         border-radius: 15px;
@@ -28,7 +28,7 @@
         border-radius: 15px;
         padding: 2rem;
         margin-bottom: 2rem;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
     }
 
     .option-title {
@@ -42,7 +42,7 @@
     }
 
     .option-title i {
-        color: #11998e;
+        color: #f5576c;
         font-size: 1.5rem;
     }
 
@@ -61,9 +61,9 @@
     }
 
     .search-input:focus {
-        border-color: #11998e;
+        border-color: #f093fb;
         outline: none;
-        box-shadow: 0 0 0 3px rgba(17, 153, 142, 0.1);
+        box-shadow: 0 0 0 3px rgba(240, 147, 251, 0.1);
     }
 
     .search-box i {
@@ -71,7 +71,7 @@
         left: 1rem;
         top: 50%;
         transform: translateY(-50%);
-        color: #11998e;
+        color: #f5576c;
         pointer-events: none;
     }
 
@@ -96,7 +96,7 @@
     }
 
     .result-item:hover {
-        background: #e8f5f3;
+        background: rgba(240, 147, 251, 0.1);
     }
 
     .result-item:last-child {
@@ -116,7 +116,7 @@
 
     .result-age {
         display: inline-block;
-        background: #11998e;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         color: white;
         padding: 0.2rem 0.6rem;
         border-radius: 15px;
@@ -131,7 +131,7 @@
     }
 
     .btn-crear-persona {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         color: white;
         border: none;
         padding: 0.75rem 1.5rem;
@@ -147,7 +147,7 @@
 
     .btn-crear-persona:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(17, 153, 142, 0.3);
+        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.3);
         color: white;
     }
 
@@ -200,7 +200,7 @@
 
     .spinner {
         border: 3px solid #f3f3f3;
-        border-top: 3px solid #11998e;
+        border-top: 3px solid #f5576c;
         border-radius: 50%;
         width: 30px;
         height: 30px;
@@ -209,8 +209,13 @@
     }
 
     @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
     }
 
     .breadcrumb {
@@ -220,7 +225,7 @@
     }
 
     .breadcrumb-item {
-        color: #11998e;
+        color: #f5576c;
     }
 
     .breadcrumb-item.active {
@@ -268,14 +273,8 @@
 
         <div class="search-box">
             <i class="bi bi-search"></i>
-            <input 
-                type="text" 
-                id="searchInput" 
-                class="search-input" 
-                placeholder="Busca por nombre, apellido o RUT..."
-                autocomplete="off"
-                minlength="2"
-            >
+            <input type="text" id="searchInput" class="search-input" placeholder="Busca por nombre, apellido o RUT..."
+                autocomplete="off" minlength="2">
         </div>
 
         <div class="loading-spinner" id="loadingSpinner">
@@ -288,69 +287,49 @@
             </div>
         </div>
     </div>
-
-    <!-- DIVISOR -->
-    <div class="divider">
-        <span>O</span>
-    </div>
-
-    <!-- OPCIÓN 2: CREAR NUEVA PERSONA -->
-    <div class="card-option">
-        <div class="option-title">
-            <i class="bi bi-person-plus-fill"></i> Crear Nueva Persona
-        </div>
-
-        <p style="color: #666; margin-bottom: 1rem;">
-            Si la persona que buscas no existe en el sistema, puedes registrarla aquí.
-        </p>
-
-        <a href="{% url 'gestion:registrar_persona' %}" class="btn-crear-persona">
-            <i class="bi bi-plus-circle-fill"></i> Registrar Nueva Persona
-        </a>
-    </div>
 </div>
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const searchResults = document.getElementById('searchResults');
-    const loadingSpinner = document.getElementById('loadingSpinner');
-    const noResults = document.getElementById('noResults');
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const noResults = document.getElementById('noResults');
 
-    let searchTimeout;
+        let searchTimeout;
 
-    searchInput.addEventListener('input', function() {
-        const query = this.value.trim();
+        searchInput.addEventListener('input', function () {
+            const query = this.value.trim();
 
-        // Limpiar timeout anterior
-        clearTimeout(searchTimeout);
+            // Limpiar timeout anterior
+            clearTimeout(searchTimeout);
 
-        // Si hay menos de 2 caracteres, no buscar
-        if (query.length < 2) {
-            searchResults.classList.remove('active');
-            return;
-        }
+            // Si hay menos de 2 caracteres, no buscar
+            if (query.length < 2) {
+                searchResults.classList.remove('active');
+                return;
+            }
 
-        // Mostrar spinner
-        loadingSpinner.classList.add('active');
-        searchResults.classList.add('active');
+            // Mostrar spinner
+            loadingSpinner.classList.add('active');
+            searchResults.classList.add('active');
 
-        // Esperar 300ms antes de buscar (debounce)
-        searchTimeout = setTimeout(function() {
-            // Realizar búsqueda AJAX
-            fetch(`{% url 'gestion:api_buscar_persona' %}?q=${encodeURIComponent(query)}`)
-                .then(response => response.json())
-                .then(data => {
-                    loadingSpinner.classList.remove('active');
+            // Esperar 300ms antes de buscar (debounce)
+            searchTimeout = setTimeout(function () {
+                // Realizar búsqueda AJAX
+                fetch(`{% url 'gestion:api_buscar_persona' %}?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        loadingSpinner.classList.remove('active');
 
-                    if (data.resultados && data.resultados.length > 0) {
-                        let html = '';
-                        
-                        data.resultados.forEach(persona => {
-                            html += `
+                        if (data.resultados && data.resultados.length > 0) {
+                            let html = '';
+
+                            data.resultados.forEach(persona => {
+                                html += `
                                 <div class="result-item" onclick="selectPersona(${persona.id}, '${persona.nombre}')">
                                     <div class="result-name">
                                         ${persona.nombre}
@@ -361,34 +340,34 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </div>
                                 </div>
                             `;
-                        });
+                            });
 
-                        searchResults.innerHTML = html;
-                    } else {
-                        noResults.textContent = 'No se encontraron resultados para "' + query + '"';
+                            searchResults.innerHTML = html;
+                        } else {
+                            noResults.textContent = 'No se encontraron resultados para "' + query + '"';
+                            searchResults.innerHTML = noResults.outerHTML;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        loadingSpinner.classList.remove('active');
+                        noResults.textContent = 'Error en la búsqueda. Intenta de nuevo.';
                         searchResults.innerHTML = noResults.outerHTML;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    loadingSpinner.classList.remove('active');
-                    noResults.textContent = 'Error en la búsqueda. Intenta de nuevo.';
-                    searchResults.innerHTML = noResults.outerHTML;
-                });
-        }, 300);
+                    });
+            }, 300);
+        });
+
+        // Cerrar resultados al hacer clic fuera
+        document.addEventListener('click', function (e) {
+            if (e.target !== searchInput && !searchResults.contains(e.target)) {
+                searchResults.classList.remove('active');
+            }
+        });
     });
 
-    // Cerrar resultados al hacer clic fuera
-    document.addEventListener('click', function(e) {
-        if (e.target !== searchInput && !searchResults.contains(e.target)) {
-            searchResults.classList.remove('active');
-        }
-    });
-});
-
-function selectPersona(personaId, personaNombre) {
-    // Redirigir a crear ficha con persona pre-seleccionada
-    window.location.href = `/matrona/ficha/crear-persona/${personaId}/`;
-}
+    function selectPersona(personaId, personaNombre) {
+        // Redirigir a crear ficha con persona pre-seleccionada
+        window.location.href = `/matrona/ficha/crear-persona/${personaId}/`;
+    }
 </script>
 {% endblock %}

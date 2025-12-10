@@ -177,7 +177,7 @@ def lista_fichas_obstetrica(request):
         'total_fichas': paginator.count,
         'search_query': search_query
     }
-    return render(request, 'Matrona/lista_fichas_obstetrica.html', context)
+    return render(request, 'Matrona/lista_fichas.html', context)
 
 
 # ============================================
@@ -247,18 +247,37 @@ def eliminar_medicamento(request, medicamento_pk):
 @login_required
 def menu_matrona(request):
     """
-    Menu principal de matrona
+    Menu principal de matrona (Dashboard)
     URL: /matrona/
     """
+    # Estadísticas
     total_fichas = FichaObstetrica.objects.filter(activa=True).count()
     fichas_recientes = FichaObstetrica.objects.filter(activa=True).order_by('-fecha_creacion')[:5]
     
+    # Datos para el dashboard
+    total_ingresos = 0  # Se obtendría de ingresos de paciente si existe
+    total_medicamentos_asignados = MedicamentoFicha.objects.filter(activo=True).count()
+    
+    # Permisos específicos de matrona
+    puede_ingresar_paciente = True
+    puede_asignar_medicamentos = True
+    puede_buscar_paciente = True
+    puede_editar_ficha = True  # Matrona puede editar fichas
+    puede_iniciar_parto = False  # Solo médico
+    
     context = {
-        'titulo': 'Matrona - Control Prenatal',
+        'titulo': 'Dashboard Matrona',
         'total_fichas': total_fichas,
-        'fichas_recientes': fichas_recientes
+        'fichas_recientes': fichas_recientes,
+        'total_ingresos': total_ingresos,
+        'total_medicamentos_asignados': total_medicamentos_asignados,
+        'puede_ingresar_paciente': puede_ingresar_paciente,
+        'puede_asignar_medicamentos': puede_asignar_medicamentos,
+        'puede_buscar_paciente': puede_buscar_paciente,
+        'puede_editar_ficha': puede_editar_ficha,
+        'puede_iniciar_parto': puede_iniciar_parto,
     }
-    return render(request, 'Matrona/menu_matrona.html', context)
+    return render(request, 'Matrona/Data/dashboard_matrona.html', context)
 
 
 # ============================================

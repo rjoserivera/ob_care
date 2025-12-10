@@ -46,7 +46,7 @@
     .brand-icon {
         width: 50px;
         height: 50px;
-        background: rgba(255,255,255,0.2);
+        background: rgba(255, 255, 255, 0.2);
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -64,8 +64,8 @@
 
     .brand-text .version {
         font-size: 0.75rem;
-        color: rgba(255,255,255,0.9);
-        background: rgba(255,255,255,0.2);
+        color: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.2);
         padding: 2px 10px;
         border-radius: 20px;
         font-weight: 600;
@@ -88,7 +88,7 @@
     .user-avatar {
         width: 40px;
         height: 40px;
-        background: rgba(255,255,255,0.25);
+        background: rgba(255, 255, 255, 0.25);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -96,12 +96,19 @@
         font-weight: 600;
     }
 
-    .user-name { font-weight: 600; font-size: 0.9rem; }
-    .user-role { font-size: 0.75rem; opacity: 0.85; }
+    .user-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .user-role {
+        font-size: 0.75rem;
+        opacity: 0.85;
+    }
 
     .btn-logout {
-        background: rgba(255,255,255,0.15);
-        border: 1px solid rgba(255,255,255,0.3);
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
         color: white !important;
         padding: 0.5rem 1rem;
         border-radius: 8px;
@@ -112,7 +119,7 @@
     }
 
     .btn-logout:hover {
-        background: rgba(255,255,255,0.25);
+        background: rgba(255, 255, 255, 0.25);
         color: white !important;
     }
 
@@ -127,7 +134,7 @@
         border-radius: 20px;
         padding: 2rem;
         margin-bottom: 2rem;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -140,10 +147,21 @@
         margin-bottom: 0.5rem;
     }
 
-    .welcome-text p { color: var(--text-secondary); margin: 0; }
+    .welcome-text p {
+        color: var(--text-secondary);
+        margin: 0;
+    }
 
-    .date-time { text-align: right; color: var(--text-secondary); }
-    .date-time .date { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
+    .date-time {
+        text-align: right;
+        color: var(--text-secondary);
+    }
+
+    .date-time .date {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
 
     .stats-grid {
         display: grid;
@@ -156,7 +174,7 @@
         background: var(--card-bg);
         border-radius: 16px;
         padding: 1.25rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         display: flex;
         align-items: center;
         gap: 1rem;
@@ -165,7 +183,7 @@
 
     .stat-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     }
 
     .stat-icon {
@@ -180,15 +198,44 @@
         flex-shrink: 0;
     }
 
-    .stat-icon.admin { background: var(--admin-gradient); }
-    .stat-icon.medico { background: var(--medico-gradient); }
-    .stat-icon.matrona { background: var(--matrona-gradient); }
-    .stat-icon.tens { background: var(--tens-gradient); }
-    .stat-icon.paciente { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-    .stat-icon.total { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; }
+    .stat-icon.admin {
+        background: var(--admin-gradient);
+    }
 
-    .stat-info h3 { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); margin: 0; }
-    .stat-info p { font-size: 0.8rem; color: var(--text-secondary); margin: 0; }
+    .stat-icon.medico {
+        background: var(--medico-gradient);
+    }
+
+    .stat-icon.matrona {
+        background: var(--matrona-gradient);
+    }
+
+    .stat-icon.tens {
+        background: var(--tens-gradient);
+    }
+
+    .stat-icon.paciente {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+
+    .stat-icon.total {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        color: #333;
+    }
+
+    .stat-info h3 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .stat-info p {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin: 0;
+    }
+
     .stat-info .active-badge {
         font-size: 0.65rem;
         background: #d4edda;
@@ -208,7 +255,9 @@
         gap: 0.75rem;
     }
 
-    .section-title i { font-size: 1.4rem; }
+    .section-title i {
+        font-size: 1.4rem;
+    }
 
     .roles-grid {
         display: grid;
@@ -218,20 +267,22 @@
     }
 
     @media (max-width: 992px) {
-        .roles-grid { grid-template-columns: 1fr; }
+        .roles-grid {
+            grid-template-columns: 1fr;
+        }
     }
 
     .role-card {
         background: var(--card-bg);
         border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .role-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
     }
 
     .role-header {
@@ -242,27 +293,59 @@
         gap: 1rem;
     }
 
-    .role-header.admin { background: var(--admin-gradient); }
-    .role-header.medico { background: var(--medico-gradient); }
-    .role-header.matrona { background: var(--matrona-gradient); }
-    .role-header.tens { background: var(--tens-gradient); }
-    .role-header.export { background: var(--export-gradient); }
+    .role-header.admin {
+        background: var(--admin-gradient);
+    }
 
-    .role-header i { font-size: 1.75rem; }
-    .role-header h3 { font-size: 1.15rem; font-weight: 700; margin: 0; }
+    .role-header.medico {
+        background: var(--medico-gradient);
+    }
+
+    .role-header.matrona {
+        background: var(--matrona-gradient);
+    }
+
+    .role-header.tens {
+        background: var(--tens-gradient);
+    }
+
+    .role-header.export {
+        background: var(--export-gradient);
+    }
+
+    .role-header i {
+        font-size: 1.75rem;
+    }
+
+    .role-header h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
     .role-header .count {
         margin-left: auto;
-        background: rgba(255,255,255,0.25);
+        background: rgba(255, 255, 255, 0.25);
         padding: 0.25rem 0.75rem;
         border-radius: 20px;
         font-size: 0.8rem;
         font-weight: 600;
     }
 
-    .role-body { padding: 1rem 1.5rem; }
+    .role-body {
+        padding: 1rem 1.5rem;
+    }
 
-    .function-list { list-style: none; padding: 0; margin: 0; }
-    .function-list li { margin-bottom: 0.35rem; }
+    .function-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .function-list li {
+        margin-bottom: 0.35rem;
+    }
+
     .function-list a {
         display: flex;
         align-items: center;
@@ -281,23 +364,60 @@
         transform: translateX(5px);
     }
 
-    .function-list a i { font-size: 1rem; width: 22px; text-align: center; }
-    .function-list a.admin-link:hover { background: rgba(102, 126, 234, 0.1); color: #667eea; }
-    .function-list a.medico-link:hover { background: rgba(17, 153, 142, 0.1); color: #11998e; }
-    .function-list a.matrona-link:hover { background: rgba(240, 147, 251, 0.1); color: #f5576c; }
-    .function-list a.tens-link:hover { background: rgba(79, 172, 254, 0.1); color: #4facfe; }
+    .function-list a i {
+        font-size: 1rem;
+        width: 22px;
+        text-align: center;
+    }
+
+    .function-list a.admin-link:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+    }
+
+    .function-list a.medico-link:hover {
+        background: rgba(17, 153, 142, 0.1);
+        color: #11998e;
+    }
+
+    .function-list a.matrona-link:hover {
+        background: rgba(240, 147, 251, 0.1);
+        color: #f5576c;
+    }
+
+    .function-list a.tens-link:hover {
+        background: rgba(79, 172, 254, 0.1);
+        color: #4facfe;
+    }
 
     .export-panel {
         background: var(--card-bg);
         border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
 
-    .export-content { padding: 2.5rem; text-align: center; }
-    .export-content i { font-size: 3.5rem; color: #adb5bd; margin-bottom: 1rem; }
-    .export-content h4 { font-size: 1.4rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; }
-    .export-content p { color: var(--text-secondary); }
+    .export-content {
+        padding: 2.5rem;
+        text-align: center;
+    }
+
+    .export-content i {
+        font-size: 3.5rem;
+        color: #adb5bd;
+        margin-bottom: 1rem;
+    }
+
+    .export-content h4 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .export-content p {
+        color: var(--text-secondary);
+    }
 
     .coming-soon-badge {
         display: inline-block;
@@ -317,23 +437,63 @@
         font-size: 0.8rem;
     }
 
-    .dashboard-footer strong { color: var(--text-primary); }
+    .dashboard-footer strong {
+        color: var(--text-primary);
+    }
 
     @media (max-width: 768px) {
-        .main-header { flex-direction: column; gap: 1rem; padding: 1rem; }
-        .welcome-section { flex-direction: column; text-align: center; gap: 1rem; }
-        .date-time { text-align: center; }
-        .stats-grid { grid-template-columns: repeat(2, 1fr); }
-        .dashboard-container { padding: 1rem; }
+        .main-header {
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .welcome-section {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .date-time {
+            text-align: center;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .dashboard-container {
+            padding: 1rem;
+        }
     }
 
     @media (max-width: 576px) {
-        .stats-grid { grid-template-columns: 1fr; }
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Alerta personalizada de Administración */
+    .alert-admin {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-left: 4px solid #764ba2;
+    }
+
+    .alert-admin .alert-heading {
+        color: white;
+        font-weight: bold;
+    }
+
+    .alert-admin .btn-close {
+        filter: brightness(0) invert(1);
     }
 </style>
 {% endblock %}
 
 {% block content %}
+{% comment %}
 <!-- Header Principal -->
 <header class="main-header">
     <div class="brand">
@@ -359,20 +519,21 @@
         </a>
     </div>
 </header>
-
+{% endcomment %}
 <!-- Dashboard Container -->
 <div class="dashboard-container">
-    <!-- Welcome Section -->
-    <section class="welcome-section">
-        <div class="welcome-text">
-            <h2><i class="bi bi-emoji-smile-fill"></i> ¡Bienvenido al Panel de Administración!</h2>
-            <p><i class="bi bi-building"></i> Hospital Clínico Herminda Martín - Chillán</p>
-        </div>
-        <div class="date-time">
-            <div class="date" id="currentDate"></div>
-            <div id="currentTime"></div>
-        </div>
-    </section>
+    <!-- Welcome Alert (Auto-close after 5 seconds) -->
+    <div class="alert alert-admin alert-dismissible fade show" role="alert" id="welcomeAlert">
+        <h5 class="alert-heading"><i class="bi bi-emoji-smile-fill"></i> ¡Bienvenido/a al Menú de Administración!</h5>
+        <p class="mb-0"><i class="bi bi-building"></i> Hospital Clínico Herminda Martín - Chillán</p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Date and Time Section -->
+    <div class="date-time-section mb-4 text-end">
+        <div class="date fw-bold fs-5" id="currentDate"></div>
+        <div class="text-muted" id="currentTime"></div>
+    </div>
 
     <!-- Stats Section -->
     <h4 class="section-title">
@@ -442,11 +603,16 @@
             </div>
             <div class="role-body">
                 <ul class="function-list">
-                    <li><a href="/admin/" class="admin-link"><i class="bi bi-speedometer2"></i> Panel de Django Admin</a></li>
-                    <li><a href="{% url 'gestion:registrar_persona' %}" class="admin-link"><i class="bi bi-person-plus-fill"></i> Registrar Nueva Persona</a></li>
-                    <li><a href="{% url 'gestion:persona_list' %}" class="admin-link"><i class="bi bi-people-fill"></i> Ver Todas las Personas</a></li>
-                    <li><a href="{% url 'gestion:buscar_persona' %}" class="admin-link"><i class="bi bi-search"></i> Buscar Persona por RUT</a></li>
-                    <li><a href="#" class="admin-link"><i class="bi bi-gear-fill"></i> Configuración del Sistema</a></li>
+                    <li><a href="/admin/" class="admin-link"><i class="bi bi-speedometer2"></i> Panel de Django
+                            Admin</a></li>
+                    <li><a href="{% url 'gestion:registrar_persona' %}" class="admin-link"><i
+                                class="bi bi-person-plus-fill"></i> Registrar Nueva Persona</a></li>
+                    <li><a href="{% url 'gestion:persona_list' %}" class="admin-link"><i class="bi bi-people-fill"></i>
+                            Ver Todas las Personas</a></li>
+                    <li><a href="{% url 'gestion:buscar_persona' %}" class="admin-link"><i class="bi bi-search"></i>
+                            Buscar Persona por RUT</a></li>
+                    <li><a href="#" class="admin-link"><i class="bi bi-gear-fill"></i> Configuración del Sistema</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -460,10 +626,14 @@
             </div>
             <div class="role-body">
                 <ul class="function-list">
-                    <li><a href="{% url 'medico:menu_medico' %}" class="medico-link"><i class="bi bi-house-door-fill"></i> Menú Principal Médico</a></li>
-                    <li><a href="{% url 'medico:listar_patologias' %}" class="medico-link"><i class="bi bi-clipboard2-pulse-fill"></i> Ver Patologías</a></li>
-                    <li><a href="{% url 'medico:registrar_patologia' %}" class="medico-link"><i class="bi bi-plus-circle-fill"></i> Registrar Patología</a></li>
-                    <li><a href="{% url 'medico:buscar_paciente' %}" class="medico-link"><i class="bi bi-search"></i> Buscar Paciente</a></li>
+                    <li><a href="{% url 'medico:menu_medico' %}" class="medico-link"><i
+                                class="bi bi-house-door-fill"></i> Menú Principal Médico</a></li>
+                    <li><a href="{% url 'medico:listar_patologias' %}" class="medico-link"><i
+                                class="bi bi-clipboard2-pulse-fill"></i> Ver Patologías</a></li>
+                    <li><a href="{% url 'medico:registrar_patologia' %}" class="medico-link"><i
+                                class="bi bi-plus-circle-fill"></i> Registrar Patología</a></li>
+                    <li><a href="{% url 'medico:buscar_paciente' %}" class="medico-link"><i class="bi bi-search"></i>
+                            Buscar Paciente</a></li>
                 </ul>
             </div>
         </div>
@@ -477,10 +647,14 @@
             </div>
             <div class="role-body">
                 <ul class="function-list">
-                    <li><a href="{% url 'matrona:menu_matrona' %}" class="matrona-link"><i class="bi bi-house-door-fill"></i> Menú Principal Matrona</a></li>
-                    <li><a href="{% url 'matrona:seleccionar_persona_ficha' %}" class="matrona-link"><i class="bi bi-file-earmark-plus-fill"></i> Crear Ficha Obstétrica</a></li>
-                    <li><a href="{% url 'matrona:menu_matrona' %}" class="matrona-link"><i class="bi bi-folder-fill"></i> Ver Mis Fichas</a></li>
-                    <li><a href="{% url 'partos:menu_partos' %}" class="matrona-link"><i class="bi bi-journal-medical"></i> Registro de Partos</a></li>
+                    <li><a href="{% url 'matrona:menu_matrona' %}" class="matrona-link"><i
+                                class="bi bi-house-door-fill"></i> Menú Principal Matrona</a></li>
+                    <li><a href="{% url 'matrona:seleccionar_persona_ficha' %}" class="matrona-link"><i
+                                class="bi bi-file-earmark-plus-fill"></i> Crear Ficha Obstétrica</a></li>
+                    <li><a href="{% url 'matrona:menu_matrona' %}" class="matrona-link"><i
+                                class="bi bi-folder-fill"></i> Ver Mis Fichas</a></li>
+                    <li><a href="{% url 'partos:menu_partos' %}" class="matrona-link"><i
+                                class="bi bi-journal-medical"></i> Registro de Partos</a></li>
                 </ul>
             </div>
         </div>
@@ -494,10 +668,14 @@
             </div>
             <div class="role-body">
                 <ul class="function-list">
-                    <li><a href="{% url 'tens:menu_tens' %}" class="tens-link"><i class="bi bi-house-door-fill"></i> Menú Principal TENS</a></li>
-                    <li><a href="{% url 'tens:buscar_paciente' %}" class="tens-link"><i class="bi bi-search"></i> Buscar Paciente</a></li>
-                    <li><a href="{% url 'tens:parametros_tens' %}" class="tens-link"><i class="bi bi-activity"></i> Registrar Signos Vitales</a></li>
-                    <li><a href="{% url 'tens:menu_tens' %}" class="tens-link"><i class="bi bi-capsule"></i> Ver Tratamientos</a></li>
+                    <li><a href="{% url 'tens:menu_tens' %}" class="tens-link"><i class="bi bi-house-door-fill"></i>
+                            Menú Principal TENS</a></li>
+                    <li><a href="{% url 'tens:buscar_paciente' %}" class="tens-link"><i class="bi bi-search"></i> Buscar
+                            Paciente</a></li>
+                    <li><a href="{% url 'tens:parametros_tens' %}" class="tens-link"><i class="bi bi-activity"></i>
+                            Registrar Signos Vitales</a></li>
+                    <li><a href="{% url 'tens:menu_tens' %}" class="tens-link"><i class="bi bi-capsule"></i> Ver
+                            Tratamientos</a></li>
                 </ul>
             </div>
         </div>
@@ -532,16 +710,26 @@
 
 {% block extra_js %}
 <script>
+    // Auto-close welcome alert after 5 seconds
+    setTimeout(function () {
+        const alertElement = document.getElementById('welcomeAlert');
+        if (alertElement) {
+            const bsAlert = new bootstrap.Alert(alertElement);
+            bsAlert.close();
+        }
+    }, 5000);
+
+    // Update date and time
     function updateDateTime() {
         const now = new Date();
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         const dateStr = now.toLocaleDateString('es-CL', options);
         const timeStr = now.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
-        
+
         document.getElementById('currentDate').textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
         document.getElementById('currentTime').textContent = timeStr + ' hrs';
     }
-    
+
     updateDateTime();
     setInterval(updateDateTime, 60000);
 </script>
