@@ -1,49 +1,32 @@
 """
 matronaApp/forms/ficha_obstetrica_form.py
-FORMULARIO ACTUALIZADO - Con campos de acompañante, VIH y cantidad de bebés
+Formularios para Ficha Obstétrica y Medicamentos
 """
 
 from django import forms
-from django.utils import timezone
-from ..models import FichaObstetrica, CatalogoConsultorioOrigen
+from ..models import FichaObstetrica, MedicamentoFicha, CatalogoConsultorioOrigen, CatalogoViaAdministracion
 
 
 class FichaObstetricaForm(forms.ModelForm):
-    """
-    Formulario para crear/editar Ficha Obstétrica
-    ACTUALIZADO con nuevos campos
-    """
+    """Formulario para crear/editar Ficha Obstétrica"""
     
     class Meta:
         model = FichaObstetrica
         fields = [
+            # Identificación
+            'numero_ficha',
+            'paciente',
+            'matrona_responsable',
+            
+            # Datos generales
+            'plan_de_parto',
+            'visita_guiada',
+            'imc',
+            
             # Acompañante
             'tiene_acompanante',
             'nombre_acompanante',
             'rut_acompanante',
-            
-            # Datos Generales
-            'plan_de_parto',
-            'visita_guiada',
-            'imc',
-            'consultorio_origen',
-            
-            # Historia Obstétrica
-            'numero_gestas',
-            'numero_partos',
-            'partos_vaginales',
-            'partos_cesareas',
-            'numero_abortos',
-            'nacidos_vivos',
-            
-            # Embarazo Actual
-            'cantidad_bebes',
-            'fecha_ultima_regla',
-            'fecha_probable_parto',
-            'edad_gestacional_semanas',
-            'edad_gestacional_dias',
-            'peso_actual',
-            'talla_actual',
             
             # Exámenes VIH
             'vih_1_realizado',
@@ -53,6 +36,28 @@ class FichaObstetricaForm(forms.ModelForm):
             'vih_2_fecha',
             'vih_2_resultado',
             
+            # Cantidad de bebés
+            'cantidad_bebes',
+            
+            # Consultorio
+            'consultorio_origen',
+            
+            # Historia obstétrica
+            'numero_gestas',
+            'numero_partos',
+            'partos_vaginales',
+            'partos_cesareas',
+            'numero_abortos',
+            'nacidos_vivos',
+            
+            # Embarazo actual
+            'fecha_ultima_regla',
+            'fecha_probable_parto',
+            'edad_gestacional_semanas',
+            'edad_gestacional_dias',
+            'peso_actual',
+            'talla_actual',
+            
             # Patologías
             'preeclampsia_severa',
             'eclampsia',
@@ -60,17 +65,43 @@ class FichaObstetricaForm(forms.ModelForm):
             'infeccion_ovular',
             'otras_patologias',
             
-            # Control Prenatal
+            # Control prenatal
             'control_prenatal',
             'numero_controles',
+            
+            # Estado
+            'activa',
         ]
         
         widgets = {
+            'numero_ficha': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: FO-2025-001'
+            }),
+            'paciente': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'matrona_responsable': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            
+            # Datos generales
+            'plan_de_parto': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'visita_guiada': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'imc': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'placeholder': 'Ej: 25.50'
+            }),
+            
             # Acompañante
             'tiene_acompanante': forms.CheckboxInput(attrs={
                 'class': 'form-check-input',
-                'id': 'id_tiene_acompanante',
-                'onchange': 'toggleAcompanante()'
+                'id': 'tiene_acompanante'
             }),
             'nombre_acompanante': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -81,23 +112,43 @@ class FichaObstetricaForm(forms.ModelForm):
                 'placeholder': 'Ej: 12345678-9'
             }),
             
-            # Datos Generales
-            'plan_de_parto': forms.CheckboxInput(attrs={
+            # VIH 1
+            'vih_1_realizado': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
-            'visita_guiada': forms.CheckboxInput(attrs={
+            'vih_1_fecha': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'vih_1_resultado': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            
+            # VIH 2
+            'vih_2_realizado': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
-            'imc': forms.NumberInput(attrs={
-                'class': 'form-control readonly-field',
-                'readonly': 'readonly',
-                'step': '0.01'
+            'vih_2_fecha': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
             }),
+            'vih_2_resultado': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            
+            # Cantidad de bebés
+            'cantidad_bebes': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1',
+                'max': '10'
+            }),
+            
+            # Consultorio
             'consultorio_origen': forms.Select(attrs={
                 'class': 'form-select'
             }),
             
-            # Historia Obstétrica
+            # Historia obstétrica
             'numero_gestas': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '1'
@@ -123,62 +174,36 @@ class FichaObstetricaForm(forms.ModelForm):
                 'min': '0'
             }),
             
-            # Embarazo Actual
-            'cantidad_bebes': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '1',
-                'max': '5'
-            }),
+            # Embarazo actual
             'fecha_ultima_regla': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date'
             }),
             'fecha_probable_parto': forms.DateInput(attrs={
-                'class': 'form-control readonly-field',
-                'type': 'date',
-                'readonly': 'readonly'
+                'class': 'form-control',
+                'type': 'date'
             }),
             'edad_gestacional_semanas': forms.NumberInput(attrs={
-                'class': 'form-control readonly-field',
-                'readonly': 'readonly'
+                'class': 'form-control',
+                'min': '0',
+                'max': '45',
+                'placeholder': 'Semanas'
             }),
             'edad_gestacional_dias': forms.NumberInput(attrs={
-                'class': 'form-control readonly-field',
-                'readonly': 'readonly'
+                'class': 'form-control',
+                'min': '0',
+                'max': '6',
+                'placeholder': 'Días'
             }),
             'peso_actual': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'step': '0.1',
+                'step': '0.01',
                 'placeholder': 'Kg'
             }),
             'talla_actual': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'step': '0.01',
-                'placeholder': 'metros (ej: 1.65)'
-            }),
-            
-            # Exámenes VIH
-            'vih_1_realizado': forms.CheckboxInput(attrs={
-                'class': 'form-check-input',
-                'onchange': 'toggleVIH1()'
-            }),
-            'vih_1_fecha': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date'
-            }),
-            'vih_1_resultado': forms.Select(attrs={
-                'class': 'form-select'
-            }),
-            'vih_2_realizado': forms.CheckboxInput(attrs={
-                'class': 'form-check-input',
-                'onchange': 'toggleVIH2()'
-            }),
-            'vih_2_fecha': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date'
-            }),
-            'vih_2_resultado': forms.Select(attrs={
-                'class': 'form-select'
+                'placeholder': 'cm'
             }),
             
             # Patologías
@@ -200,7 +225,7 @@ class FichaObstetricaForm(forms.ModelForm):
                 'placeholder': 'Describa otras patologías si las hay...'
             }),
             
-            # Control Prenatal
+            # Control prenatal
             'control_prenatal': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
@@ -208,43 +233,86 @@ class FichaObstetricaForm(forms.ModelForm):
                 'class': 'form-control',
                 'min': '0'
             }),
+            
+            # Estado
+            'activa': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Cargar consultorios desde la BD
+        # Campos opcionales
+        self.fields['matrona_responsable'].required = False
+        self.fields['consultorio_origen'].required = False
+        self.fields['nombre_acompanante'].required = False
+        self.fields['rut_acompanante'].required = False
+        
+        # Queryset para consultorio
         self.fields['consultorio_origen'].queryset = CatalogoConsultorioOrigen.objects.filter(activo=True)
-        self.fields['consultorio_origen'].empty_label = "Seleccione consultorio..."
+
+
+class MedicamentoFichaForm(forms.ModelForm):
+    """Formulario para crear/editar Medicamentos en Ficha"""
     
-    def clean(self):
-        cleaned_data = super().clean()
+    class Meta:
+        model = MedicamentoFicha
+        fields = [
+            'ficha',
+            'medicamento',
+            'dosis',
+            'via_administracion',
+            'frecuencia',
+            'fecha_inicio',
+            'fecha_termino',
+            'indicaciones',
+            'activo',
+        ]
         
-        # Validar acompañante
-        tiene_acompanante = cleaned_data.get('tiene_acompanante')
-        nombre_acompanante = cleaned_data.get('nombre_acompanante')
-        rut_acompanante = cleaned_data.get('rut_acompanante')
+        widgets = {
+            'ficha': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'medicamento': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nombre del medicamento'
+            }),
+            'dosis': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: 500mg, 10ml, etc.'
+            }),
+            'via_administracion': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'frecuencia': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: Cada 8 horas'
+            }),
+            'fecha_inicio': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'type': 'datetime-local'
+            }),
+            'fecha_termino': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'type': 'datetime-local'
+            }),
+            'indicaciones': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Indicaciones especiales...'
+            }),
+            'activo': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
-        if tiene_acompanante:
-            if not nombre_acompanante:
-                self.add_error('nombre_acompanante', 'Debe ingresar el nombre del acompañante')
-            if not rut_acompanante:
-                self.add_error('rut_acompanante', 'Debe ingresar el RUT del acompañante')
+        # Campos opcionales
+        self.fields['fecha_termino'].required = False
+        self.fields['indicaciones'].required = False
         
-        # Validar VIH 1
-        vih_1_realizado = cleaned_data.get('vih_1_realizado')
-        if vih_1_realizado:
-            if not cleaned_data.get('vih_1_fecha'):
-                self.add_error('vih_1_fecha', 'Debe ingresar la fecha del examen VIH 1')
-            if not cleaned_data.get('vih_1_resultado'):
-                self.add_error('vih_1_resultado', 'Debe seleccionar el resultado del VIH 1')
-        
-        # Validar VIH 2
-        vih_2_realizado = cleaned_data.get('vih_2_realizado')
-        if vih_2_realizado:
-            if not cleaned_data.get('vih_2_fecha'):
-                self.add_error('vih_2_fecha', 'Debe ingresar la fecha del examen VIH 2')
-            if not cleaned_data.get('vih_2_resultado'):
-                self.add_error('vih_2_resultado', 'Debe seleccionar el resultado del VIH 2')
-        
-        return cleaned_data
+        # Queryset para vía de administración
+        self.fields['via_administracion'].queryset = CatalogoViaAdministracion.objects.filter(activo=True)
