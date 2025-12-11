@@ -1,7 +1,7 @@
 # gestionApp/forms/persona_form.py
 """
 Formulario para gestión de Personas
-CORREGIDO: Formato de fecha y eliminación de Trans_Masculino redundante
+CORREGIDO: Agregado campo Email
 """
 
 from django import forms
@@ -26,12 +26,12 @@ class PersonaForm(forms.ModelForm):
             'Nacionalidad',
             'Pueblos_originarios',
             'Telefono',
+            'Email',  # ✅ AGREGADO
             'Direccion',
             'Inmigrante',
             'Discapacidad',
             'Tipo_de_Discapacidad',
             'Privada_de_Libertad',
-            # 'Trans_Masculino',  # ❌ ELIMINADO - Ya existe en el select de Sexo
         ]
         
         widgets = {
@@ -57,16 +57,16 @@ class PersonaForm(forms.ModelForm):
                 'placeholder': 'Apellido materno',
             }),
             
-            # ✅ CORREGIDO: Agregar format para que cargue la fecha correctamente
+            # Fecha de nacimiento
             'Fecha_nacimiento': forms.DateInput(
-                format='%Y-%m-%d',  # ✅ Formato ISO para input type="date"
+                format='%Y-%m-%d',
                 attrs={
                     'class': 'form-control',
                     'type': 'date',
                 }
             ),
             
-            # Selects (usan form-select de Bootstrap)
+            # Selects
             'Sexo': forms.Select(attrs={
                 'class': 'form-select',
             }),
@@ -84,6 +84,12 @@ class PersonaForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': '+56 9 1234 5678',
                 'type': 'tel',
+            }),
+            
+            # ✅ EMAIL AGREGADO
+            'Email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'ejemplo@correo.com',
             }),
             
             'Direccion': forms.TextInput(attrs={
@@ -109,164 +115,26 @@ class PersonaForm(forms.ModelForm):
             'Privada_de_Libertad': forms.CheckboxInput(attrs={
                 'class': 'form-check-input',
             }),
-            
-            # ❌ ELIMINADO - Trans_Masculino ya no se usa como checkbox
-        }
-        
-        labels = {
-            'Rut': 'RUT',
-            'Nombre': 'Nombre',
-            'Apellido_Paterno': 'Apellido Paterno',
-            'Apellido_Materno': 'Apellido Materno',
-            'Fecha_nacimiento': 'Fecha de Nacimiento',
-            'Sexo': 'Sexo',
-            'Nacionalidad': 'Nacionalidad',
-            'Pueblos_originarios': 'Pueblos Originarios',
-            'Telefono': 'Teléfono',
-            'Direccion': 'Dirección',
-            'Inmigrante': 'Es Inmigrante',
-            'Discapacidad': 'Tiene Discapacidad',
-            'Tipo_de_Discapacidad': 'Tipo de Discapacidad',
-            'Privada_de_Libertad': 'Privada de Libertad',
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        # Hacer los campos opcionales
-        self.fields['Nacionalidad'].required = False
-        self.fields['Pueblos_originarios'].required = False
-        self.fields['Telefono'].required = False
-        self.fields['Direccion'].required = False
-        self.fields['Tipo_de_Discapacidad'].required = False
-        
-        # ✅ IMPORTANTE: Esto hace que la fecha se muestre correctamente al editar
-        self.fields['Fecha_nacimiento'].input_formats = ['%Y-%m-%d', '%d/%m/%Y']
-    
-    def clean_Rut(self):
-        """Validar y normalizar RUT"""
-        rut = self.cleaned_data.get('Rut', '').strip().upper()
-        
-        if not rut:
-            raise ValidationError('El RUT es obligatorio.')
-        
-        # Validar formato básico
-        if '-' not in rut:
-            raise ValidationError('El RUT debe tener el formato: 12345678-9')
-        
-        partes = rut.split('-')
-        if len(partes) != 2:
-            raise ValidationError('El RUT debe tener un solo guión.')
-        
-        cuerpo, dv = partes
-        
-        if not cuerpo.isdigit():
-            raise ValidationError('La parte numérica del RUT debe contener solo números.')
-        
-        if len(cuerpo) < 7 or len(cuerpo) > 8:
-            raise ValidationError('El RUT debe tener 7 u 8 dígitos.')
-        
-        if not (dv.isdigit() or dv == 'K'):
-            raise ValidationError('El dígito verificador debe ser un número o K.')
-        
-        return rut.upper()
-    
-    def clean_Nombre(self):
-        """Validar nombre"""
-        nombre = self.cleaned_data.get('Nombre', '').strip()
-        
-        if not nombre:
-            raise ValidationError('El nombre es obligatorio.')
-        
-        if len(nombre) < 2:
-            raise ValidationError('El nombre debe tener al menos 2 caracteres.')
-        
-        return nombre.title()
-    
-    def clean_Apellido_Paterno(self):
-        """Validar apellido paterno"""
-        apellido = self.cleaned_data.get('Apellido_Paterno', '').strip()
-        
-        if not apellido:
-            raise ValidationError('El apellido paterno es obligatorio.')
-        
-        if len(apellido) < 2:
-            raise ValidationError('El apellido debe tener al menos 2 caracteres.')
-        
-        return apellido.title()
-    
-    def clean_Apellido_Materno(self):
-        """Validar apellido materno"""
-        apellido = self.cleaned_data.get('Apellido_Materno', '').strip()
-        
-        if not apellido:
-            raise ValidationError('El apellido materno es obligatorio.')
-        
-        if len(apellido) < 2:
-            raise ValidationError('El apellido debe tener al menos 2 caracteres.')
-        
-        return apellido.title()
-    
-    def clean_Fecha_nacimiento(self):
-        """Validar fecha de nacimiento"""
-        from datetime import date
-        fecha = self.cleaned_data.get('Fecha_nacimiento')
-        
-        if not fecha:
-            raise ValidationError('La fecha de nacimiento es obligatoria.')
-        
-        # Validar que no sea futura
-        if fecha > date.today():
-            raise ValidationError('La fecha de nacimiento no puede ser en el futuro.')
-        
-        # Validar edad razonable (mayor que 10 años)
-        try:
-            from dateutil.relativedelta import relativedelta
-            hace_10_anos = date.today() - relativedelta(years=10)
-            
-            if fecha > hace_10_anos:
-                raise ValidationError('La persona debe tener al menos 10 años.')
-        except ImportError:
-            anos = (date.today() - fecha).days // 365
-            if anos < 10:
-                raise ValidationError('La persona debe tener al menos 10 años.')
-        
-        return fecha
-    
-    def clean_Telefono(self):
-        """Validar teléfono"""
-        telefono = self.cleaned_data.get('Telefono', '').strip()
-        
-        if telefono:
-            telefono_limpio = ''.join(c for c in telefono if c.isdigit() or c == '+')
-            
-            if len(telefono_limpio) < 8:
-                raise ValidationError('El teléfono debe tener al menos 8 dígitos.')
-        
-        return telefono
+        # Configurar formato de fecha para edición
+        if self.instance and self.instance.pk:
+            if self.instance.Fecha_nacimiento:
+                self.initial['Fecha_nacimiento'] = self.instance.Fecha_nacimiento.strftime('%Y-%m-%d')
 
 
 class BuscarPersonaForm(forms.Form):
     """
-    Formulario para buscar personas
+    Formulario para buscar persona por RUT
     """
-    
-    q = forms.CharField(
-        max_length=100,
-        required=False,
-        label='Buscar',
+    rut = forms.CharField(
+        max_length=12,
+        label='RUT',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Nombre, apellido o RUT...',
-            'autocomplete': 'off',
+            'placeholder': 'Ej: 12345678-9',
+            'autofocus': True,
         })
     )
-    
-    def clean_q(self):
-        """Validar búsqueda"""
-        q = self.cleaned_data.get('q', '').strip()
-        
-        if q and len(q) < 2:
-            raise ValidationError('Ingrese al menos 2 caracteres para buscar.')
-        
-        return q

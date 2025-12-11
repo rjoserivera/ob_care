@@ -1,12 +1,12 @@
 """
-VALIDADOR DE RUT CHILENO - VERSIÓN MEJORADA
+VALIDADOR DE RUT CHILENO - VERSIÓN CORREGIDA
 Sistema completo de validación, formateo y separación de RUT
 Compatible con Django y uso independiente
 """
 
 import re
 from django.core.exceptions import ValidationError
-from typing import Tuple, Dict
+from typing import Dict
 
 
 class RutValidator:
@@ -17,36 +17,15 @@ class RutValidator:
         """
         Limpia el RUT eliminando puntos, guiones y espacios.
         Convierte a mayúsculas.
-        
-        Args:
-            rut: RUT a limpiar
-            
-        Returns:
-            RUT limpio en mayúsculas
-            
-        Ejemplo:
-            >>> RutValidator.limpiar('12.345.678-9')
-            '123456789'
         """
         if not rut:
             return ''
-        
         return str(rut).replace('.', '').replace('-', '').replace(' ', '').upper()
     
     @staticmethod
     def separar(rut: str) -> Dict[str, str]:
         """
         Separa el RUT en cuerpo y dígito verificador.
-        
-        Args:
-            rut: RUT completo
-            
-        Returns:
-            Diccionario con 'cuerpo' y 'dv'
-            
-        Ejemplo:
-            >>> RutValidator.separar('12345678-9')
-            {'cuerpo': '12345678', 'dv': '9'}
         """
         rut_limpio = RutValidator.limpiar(rut)
         
@@ -63,15 +42,11 @@ class RutValidator:
         """
         Calcula el dígito verificador de un RUT.
         
-        Args:
-            cuerpo: Cuerpo del RUT (sin DV)
-            
-        Returns:
-            Dígito verificador calculado ('0'-'9' o 'K')
-            
-        Ejemplo:
-            >>> RutValidator.calcular_dv('12345678')
-            '5'
+        ALGORITMO MÓDULO 11:
+        - Multiplicar cada dígito (de derecha a izquierda) por 2,3,4,5,6,7,2,3,4...
+        - Sumar todos los productos
+        - Calcular 11 - (suma % 11)
+        - Si resultado es 11 → '0', si es 10 → 'K', sino el número
         """
         # Limpiar el cuerpo (solo números)
         cuerpo_limpio = re.sub(r'\D', '', str(cuerpo))
@@ -85,7 +60,7 @@ class RutValidator:
         # Recorrer de derecha a izquierda
         for digito in reversed(cuerpo_limpio):
             suma += int(digito) * multiplicador
-            multiplicador = 7 if multiplicador == 7 else multiplicador + 1
+            multiplicador += 1
             if multiplicador > 7:
                 multiplicador = 2
         
@@ -104,16 +79,6 @@ class RutValidator:
     def validar(rut: str) -> bool:
         """
         Valida si un RUT es correcto.
-        
-        Args:
-            rut: RUT completo a validar
-            
-        Returns:
-            True si es válido, False en caso contrario
-            
-        Ejemplo:
-            >>> RutValidator.validar('12.345.678-5')
-            True
         """
         rut_limpio = RutValidator.limpiar(rut)
         
@@ -134,16 +99,6 @@ class RutValidator:
     def formatear(rut: str) -> str:
         """
         Formatea un RUT con puntos y guión (12.345.678-9).
-        
-        Args:
-            rut: RUT a formatear
-            
-        Returns:
-            RUT formateado
-            
-        Ejemplo:
-            >>> RutValidator.formatear('123456789')
-            '12.345.678-9'
         """
         datos = RutValidator.separar(rut)
         
@@ -169,16 +124,6 @@ class RutValidator:
         """
         Normaliza el RUT al formato sin puntos pero con guión (12345678-9).
         Este es el formato que se guarda en la base de datos.
-        
-        Args:
-            rut: RUT a normalizar
-            
-        Returns:
-            RUT normalizado
-            
-        Ejemplo:
-            >>> RutValidator.normalizar('12.345.678-9')
-            '12345678-9'
         """
         datos = RutValidator.separar(rut)
         
@@ -196,15 +141,6 @@ def validar_rut_chileno(value: str) -> str:
     """
     Validador de Django para campo RUT.
     Lanza ValidationError si el RUT no es válido.
-    
-    Args:
-        value: RUT a validar
-        
-    Returns:
-        RUT normalizado
-        
-    Raises:
-        ValidationError: Si el RUT no es válido
     """
     if not value:
         raise ValidationError('El RUT es obligatorio.')
@@ -230,12 +166,6 @@ def validar_rut_chileno(value: str) -> str:
 def normalizar_rut(rut: str) -> str:
     """
     Alias de RutValidator.normalizar para compatibilidad.
-    
-    Args:
-        rut: RUT a normalizar
-        
-    Returns:
-        RUT normalizado (formato: 12345678-9)
     """
     return RutValidator.normalizar(rut)
 
@@ -255,14 +185,6 @@ def generar_rut_aleatorio() -> str:
     """
     Genera un RUT chileno válido aleatorio.
     Útil para pruebas y testing.
-    
-    Returns:
-        RUT válido formateado
-        
-    Ejemplo:
-        >>> rut = generar_rut_aleatorio()
-        >>> RutValidator.validar(rut)
-        True
     """
     import random
     
@@ -274,41 +196,18 @@ def generar_rut_aleatorio() -> str:
 
 
 # ============================================
-# EJEMPLOS DE USO
+# TEST RÁPIDO
 # ============================================
 
 if __name__ == '__main__':
-    print("=== EJEMPLOS DE USO DEL VALIDADOR DE RUT ===\n")
+    print("=== TEST DEL VALIDADOR DE RUT ===\n")
     
-    # Ejemplo 1: Validar RUT
-    rut_test = '12.345.678-5'
-    print(f"1. Validar RUT: {rut_test}")
-    print(f"   ¿Es válido? {RutValidator.validar(rut_test)}\n")
+    # Test con el RUT que falló
+    rut_test = '13131793-K'
+    print(f"RUT: {rut_test}")
+    print(f"¿Es válido? {RutValidator.validar(rut_test)}")
     
-    # Ejemplo 2: Separar RUT
-    print(f"2. Separar RUT: {rut_test}")
-    datos = RutValidator.separar(rut_test)
-    print(f"   Cuerpo: {datos['cuerpo']}")
-    print(f"   DV: {datos['dv']}\n")
-    
-    # Ejemplo 3: Calcular DV
-    cuerpo = '12345678'
-    print(f"3. Calcular DV para: {cuerpo}")
+    # Verificar cálculo
+    cuerpo = '13131793'
     dv = RutValidator.calcular_dv(cuerpo)
-    print(f"   DV calculado: {dv}\n")
-    
-    # Ejemplo 4: Formatear RUT
-    rut_sin_formato = '123456785'
-    print(f"4. Formatear RUT: {rut_sin_formato}")
-    print(f"   Formateado: {RutValidator.formatear(rut_sin_formato)}\n")
-    
-    # Ejemplo 5: Normalizar RUT
-    rut_con_puntos = '12.345.678-5'
-    print(f"5. Normalizar RUT: {rut_con_puntos}")
-    print(f"   Normalizado: {RutValidator.normalizar(rut_con_puntos)}\n")
-    
-    # Ejemplo 6: Generar RUT aleatorio
-    print("6. Generar RUT aleatorio:")
-    rut_aleatorio = generar_rut_aleatorio()
-    print(f"   RUT generado: {rut_aleatorio}")
-    print(f"   ¿Es válido? {RutValidator.validar(rut_aleatorio)}\n")
+    print(f"DV calculado para {cuerpo}: {dv}")

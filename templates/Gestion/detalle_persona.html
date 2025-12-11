@@ -112,11 +112,6 @@
         color: #721c24;
     }
 
-    .badge-si {
-        background: #fff3cd;
-        color: #856404;
-    }
-
     .checkbox-display {
         display: flex;
         gap: 1rem;
@@ -128,21 +123,15 @@
         align-items: center;
         gap: 0.5rem;
         padding: 0.5rem 1rem;
-        background: white;
-        border: 1px solid #e0e0e0;
+        background: #d4edda;
+        border: 1px solid #28a745;
         border-radius: 6px;
+        color: #155724;
     }
 
     .checkbox-item i {
         font-size: 1.2rem;
-    }
-
-    .checkbox-item.checked i {
         color: #28a745;
-    }
-
-    .checkbox-item.unchecked i {
-        color: #6c757d;
     }
 
     .action-buttons {
@@ -200,20 +189,6 @@
         text-decoration: none;
     }
 
-    .breadcrumb {
-        background: transparent;
-        padding: 0;
-        margin-bottom: 2rem;
-    }
-
-    .breadcrumb-item {
-        color: #667eea;
-    }
-
-    .breadcrumb-item.active {
-        color: #666;
-    }
-
     .edad {
         background: #667eea;
         color: white;
@@ -222,6 +197,43 @@
         font-size: 0.85rem;
         font-weight: 600;
         margin-left: 0.5rem;
+    }
+
+    /* Alerta de éxito con animación */
+    .alert-success-auto {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 1050;
+        min-width: 300px;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    .no-condiciones {
+        color: #6c757d;
+        font-style: italic;
     }
 
     @media (max-width: 768px) {
@@ -252,21 +264,30 @@
             width: 100%;
             justify-content: center;
         }
+
+        .alert-success-auto {
+            left: 20px;
+            right: 20px;
+            min-width: auto;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="detail-container">
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'gestion:persona_list' %}">Personas</a></li>
-            <li class="breadcrumb-item active">{{ persona.Nombre }}</li>
-        </ol>
-    </nav>
+<!-- Alerta de éxito temporal -->
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <div class="alert alert-success alert-success-auto" role="alert" id="alertSuccess">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
 
+<div class="detail-container">
     <!-- Header -->
     <div class="detail-header">
         <div class="detail-avatar">
@@ -366,6 +387,18 @@
                     {% endif %}
                 </div>
             </div>
+
+            <!-- EMAIL AGREGADO -->
+            <div class="detail-item">
+                <div class="detail-label">Correo Electrónico</div>
+                <div class="detail-value">
+                    {% if persona.Email %}
+                        <a href="mailto:{{ persona.Email }}" style="color: #667eea;">{{ persona.Email }}</a>
+                    {% else %}
+                        <span class="text-muted">No registrado</span>
+                    {% endif %}
+                </div>
+            </div>
             
             <div class="detail-item">
                 <div class="detail-label">Dirección</div>
@@ -399,34 +432,41 @@
             </div>
         </div>
 
-        <div class="detail-label" style="margin-top: 1rem;">Condiciones Especiales</div>
-        <div class="checkbox-display">
-            <div class="checkbox-item {% if persona.Inmigrante %}checked{% else %}unchecked{% endif %}">
-                <i class="bi {% if persona.Inmigrante %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
-                <span>Inmigrante</span>
+        <!-- CONDICIONES ESPECIALES - SOLO LAS MARCADAS -->
+        {% if persona.Inmigrante or persona.Discapacidad or persona.Privada_de_Libertad %}
+            <div class="detail-label" style="margin-top: 1rem;">Condiciones Especiales</div>
+            <div class="checkbox-display">
+                {% if persona.Inmigrante %}
+                    <div class="checkbox-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Inmigrante</span>
+                    </div>
+                {% endif %}
+                
+                {% if persona.Discapacidad %}
+                    <div class="checkbox-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Discapacidad</span>
+                    </div>
+                {% endif %}
+                
+                {% if persona.Privada_de_Libertad %}
+                    <div class="checkbox-item">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Privada de Libertad</span>
+                    </div>
+                {% endif %}
             </div>
-            
-            <div class="checkbox-item {% if persona.Discapacidad %}checked{% else %}unchecked{% endif %}">
-                <i class="bi {% if persona.Discapacidad %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
-                <span>Discapacidad</span>
-            </div>
-            
-            <div class="checkbox-item {% if persona.Privada_de_Libertad %}checked{% else %}unchecked{% endif %}">
-                <i class="bi {% if persona.Privada_de_Libertad %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
-                <span>Privada de Libertad</span>
-            </div>
-            
-            <div class="checkbox-item {% if persona.Trans_Masculino %}checked{% else %}unchecked{% endif %}">
-                <i class="bi {% if persona.Trans_Masculino %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
-                <span>Trans Masculino</span>
-            </div>
-        </div>
+        {% endif %}
 
+        <!-- Tipo de Discapacidad si aplica -->
         {% if persona.Discapacidad and persona.Tipo_de_Discapacidad %}
-        <div class="detail-item" style="margin-top: 1rem;">
-            <div class="detail-label">Tipo de Discapacidad</div>
-            <div class="detail-value">{{ persona.Tipo_de_Discapacidad }}</div>
-        </div>
+            <div class="detail-row" style="margin-top: 1rem;">
+                <div class="detail-item">
+                    <div class="detail-label">Tipo de Discapacidad</div>
+                    <div class="detail-value">{{ persona.Tipo_de_Discapacidad }}</div>
+                </div>
+            </div>
         {% endif %}
     </div>
 
@@ -448,8 +488,32 @@
                     <i class="bi bi-x-circle"></i> Desactivar
                 </button>
             </form>
+            {% else %}
+            <form action="{% url 'gestion:activar_persona' persona.pk %}" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success" onclick="return confirm('¿Activar esta persona?')">
+                    <i class="bi bi-check-circle"></i> Activar
+                </button>
+            </form>
             {% endif %}
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Ocultar alerta automáticamente después de 5 segundos
+    document.addEventListener('DOMContentLoaded', function() {
+        const alertSuccess = document.getElementById('alertSuccess');
+        if (alertSuccess) {
+            setTimeout(function() {
+                alertSuccess.style.animation = 'slideOut 0.3s ease-out forwards';
+                setTimeout(function() {
+                    alertSuccess.remove();
+                }, 300);
+            }, 5000); // 5 segundos
+        }
+    });
+</script>
 {% endblock %}

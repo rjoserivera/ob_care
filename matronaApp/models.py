@@ -119,6 +119,88 @@ class FichaObstetrica(models.Model):
         verbose_name='IMC',
         help_text='Índice de Masa Corporal'
     )
+    # ============================================
+# SECCIÓN: ACOMPAÑANTE (ACTUALIZADO)
+# ============================================
+
+tiene_acompanante = models.BooleanField(
+    default=False,
+    verbose_name='¿Tiene Acompañante?'
+)
+
+nombre_acompanante = models.CharField(
+    max_length=200,
+    blank=True,
+    verbose_name='Nombre del Acompañante'
+)
+
+rut_acompanante = models.CharField(
+    max_length=12,
+    blank=True,
+    verbose_name='RUT del Acompañante'
+)
+
+# ============================================
+# SECCIÓN: EXÁMENES VIH
+# ============================================
+
+# VIH 1
+vih_1_realizado = models.BooleanField(
+    default=False,
+    verbose_name='VIH 1 Realizado'
+)
+
+vih_1_fecha = models.DateField(
+    null=True,
+    blank=True,
+    verbose_name='Fecha VIH 1'
+)
+
+vih_1_resultado = models.CharField(
+    max_length=20,
+    blank=True,
+    choices=[
+        ('', '---------'),
+        ('NEGATIVO', 'Negativo'),
+        ('POSITIVO', 'Positivo'),
+        ('PENDIENTE', 'Pendiente'),
+    ],
+    verbose_name='Resultado VIH 1'
+)
+
+# VIH 2
+vih_2_realizado = models.BooleanField(
+    default=False,
+    verbose_name='VIH 2 Realizado'
+)
+
+vih_2_fecha = models.DateField(
+    null=True,
+    blank=True,
+    verbose_name='Fecha VIH 2'
+)
+
+vih_2_resultado = models.CharField(
+    max_length=20,
+    blank=True,
+    choices=[
+        ('', '---------'),
+        ('NEGATIVO', 'Negativo'),
+        ('POSITIVO', 'Positivo'),
+        ('PENDIENTE', 'Pendiente'),
+    ],
+    verbose_name='Resultado VIH 2'
+)
+
+# ============================================
+# SECCIÓN: CANTIDAD DE BEBÉS
+# ============================================
+
+cantidad_bebes = models.PositiveIntegerField(
+    default=1,
+    verbose_name='Cantidad de Bebés',
+    help_text='Número de bebés en el vientre (1 = único, 2 = gemelos, etc.)'
+)
     
     # ============================================
     # SECCIÓN 3: CONSULTORIO DE ORIGEN
