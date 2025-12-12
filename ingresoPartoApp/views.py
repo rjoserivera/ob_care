@@ -37,10 +37,36 @@ def sala_espera_parto(request, ficha_obstetrica_pk):
     # Determinar si es urgente (ejemplo: por patologías)
     urgente = ficha_obstetrica.eclampsia or ficha_obstetrica.preeclampsia_severa if hasattr(ficha_obstetrica, 'eclampsia') else False
     
+    # Intentar obtener personal activo en turno (si la tabla existe)
+    matronas = []
+    medicos = []
+    tens = []
+    
+    try:
+        from gestionProcesosApp.models import PersonalTurno
+        from django.db.models import Q
+        
+        ahora = timezone.now()
+        personal_disponible = PersonalTurno.objects.filter(
+            Q(fecha_inicio_turno__lte=ahora) & Q(fecha_fin_turno__gte=ahora),
+            estado__in=['DISPONIBLE', 'EN_TURNO']
+        ).select_related('usuario').order_by('rol', 'usuario__first_name')
+        
+        # Agrupar por rol
+        matronas = personal_disponible.filter(rol='MATRONA')[:3]
+        medicos = personal_disponible.filter(rol='MEDICO')[:3]
+        tens = personal_disponible.filter(rol='TENS')[:3]
+    except Exception:
+        # Si la tabla no existe o hay error, continuar sin personal
+        pass
+    
     context = {
         'ficha_obstetrica': ficha_obstetrica,
         'titulo': 'Sala de Espera - Proceso de Parto',
         'urgente': urgente,
+        'matronas_disponibles': matronas,
+        'medicos_disponibles': medicos,
+        'tens_disponibles': tens,
     }
     
     return render(request, 'IngresoParto/sala_espera_parto.html', context)
@@ -85,11 +111,19 @@ def crear_ficha_parto(request, ficha_obstetrica_pk):
             messages.success(request, f'Ficha de parto {ficha_parto.numero_ficha_parto} creada exitosamente.')
             return redirect('ingreso_parto:detalle_ficha', ficha_parto_pk=ficha_parto.pk)
     else:
-        # Pre-llenar fecha y hora actuales
+        # Pre-llenar fecha, hora y edad gestacional desde ficha obstétrica
         form = FichaPartoForm(initial={
             'fecha_ingreso': timezone.now().date(),
             'hora_ingreso': timezone.now().time(),
+            'edad_gestacional_semanas': ficha_obstetrica.edad_gestacional_semanas,
+            'edad_gestacional_dias': ficha_obstetrica.edad_gestacional_dias or 0,
         })
+        
+        # Hacer campos de fecha/hora readonly
+        form.fields['fecha_ingreso'].widget.attrs['readonly'] = True
+        form.fields['hora_ingreso'].widget.attrs['readonly'] = True
+        form.fields['edad_gestacional_semanas'].widget.attrs['readonly'] = True
+        form.fields['edad_gestacional_dias'].widget.attrs['readonly'] = True
     
     context = {
         'form': form,

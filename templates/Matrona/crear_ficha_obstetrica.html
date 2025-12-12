@@ -631,6 +631,7 @@
             </div>
 
             <!-- Información Paciente -->
+            {% if persona %}
             <div class="persona-info-card">
                 <h3 style="margin-bottom: 1.5rem; color: #333;">
                     <i class="bi bi-person-check-fill"></i> Información de la Persona
@@ -639,32 +640,39 @@
                 <div class="persona-info-grid">
                     <div class="info-item">
                         <div class="info-label">Nombre Completo</div>
-                        <div class="info-value">{{ persona.nombre }} {{ persona.apellido_paterno }} {{ persona.apellido_materno }}</div>
+                        <div class="info-value">{{ persona.Nombre }} {{ persona.Apellido_Paterno }} {{ persona.Apellido_Materno }}</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">RUT</div>
-                        <div class="info-value">{{ persona.rut }}</div>
+                        <div class="info-value">{{ persona.Rut }}</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Edad</div>
-                        <div class="info-value">{{ persona.edad }} años</div>
+                        <div class="info-value">{{ edad }} años</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Fecha de Nacimiento</div>
-                        <div class="info-value">{{ persona.fecha_nacimiento|date:"d/m/Y" }}</div>
+                        <div class="info-value">{{ persona.Fecha_nacimiento|date:"d/m/Y" }}</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Teléfono</div>
-                        <div class="info-value">{{ persona.telefono }}</div>
+                        <div class="info-value">{{ persona.Telefono|default:"No registrado" }}</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Dirección</div>
-                        <div class="info-value">{{ persona.direccion }}</div>
+                        <div class="info-value">{{ persona.Direccion|default:"No registrada" }}</div>
                     </div>
                 </div>
             </div>
 
             <!-- Formulario -->
+            {% else %}
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>Error:</strong> No se encontró la información de la persona.
+                <a href="{% url 'matrona:seleccionar_persona_ficha' %}">Volver a seleccionar</a>
+            </div>
+            {% endif %}
             <div class="ficha-form">
                 <form method="post" id="fichaForm" novalidate>
                     {% csrf_token %}

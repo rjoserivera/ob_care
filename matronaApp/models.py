@@ -7,7 +7,8 @@ ACTUALIZADO CON TODOS LOS CAMPOS NUEVOS (dilatación, VIH, acompañante, etc.)
 from django.db import models
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
-from gestionApp.models import Paciente, Matrona, Tens
+from django.contrib.auth.models import User
+from gestionApp.models import Paciente
 
 
 # ============================================
@@ -108,12 +109,13 @@ class FichaObstetrica(models.Model):
     )
     
     matrona_responsable = models.ForeignKey(
-        Matrona,
+        User,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='fichas_obstetrica',
-        verbose_name='Matrona Responsable'
+        related_name='fichas_obstetrica_responsable',
+        verbose_name='Matrona Responsable',
+        limit_choices_to={'groups__name': 'Matronas'}
     )
     
     patologias = models.ManyToManyField(
@@ -488,7 +490,7 @@ class FichaObstetrica(models.Model):
     )
     
     fecha_creacion = models.DateTimeField(
-        auto_now_add=True,
+        default=timezone.now,
         verbose_name='Fecha de Creación'
     )
     
@@ -676,7 +678,7 @@ class IngresoPaciente(models.Model):
     )
     
     fecha_creacion = models.DateTimeField(
-        auto_now_add=True
+        default=timezone.now
     )
 
     def __str__(self):
@@ -754,7 +756,7 @@ class MedicamentoFicha(models.Model):
     )
     
     fecha_creacion = models.DateTimeField(
-        auto_now_add=True
+        default=timezone.now
     )
     
     @property
@@ -792,12 +794,13 @@ class AdministracionMedicamento(models.Model):
     )
     
     tens = models.ForeignKey(
-        Tens,
+        User,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='administraciones_medicamentos',
-        verbose_name='TENS Responsable'
+        verbose_name='TENS Responsable',
+        limit_choices_to={'groups__name': 'TENS'}
     )
     
     fecha_hora_administracion = models.DateTimeField(
@@ -816,7 +819,7 @@ class AdministracionMedicamento(models.Model):
     )
     
     fecha_registro = models.DateTimeField(
-        auto_now_add=True
+        default=timezone.now
     )
 
     def __str__(self):
@@ -870,7 +873,7 @@ class PersonalAsignadoParto(models.Model):
     )
     
     fecha_asignacion = models.DateTimeField(
-        auto_now_add=True
+        default=timezone.now
     )
     
     activo = models.BooleanField(

@@ -1,27 +1,23 @@
-# ============================================
-# tensApp/models.py
-# VERSIÓN SIN CHOICES - FK A TABLAS CATÁLOGO
-# ============================================
-# NOTA: Usa CatalogoViaAdministracion de matronaApp (compartido)
-# ============================================
+"""
+tensApp/models.py
+Modelos para TENS - CORREGIDO para usar User + Groups
+"""
 
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 # Importar catálogo compartido
 from matronaApp.models import CatalogoViaAdministracion
 
 
 # ============================================
-# MODELO: REGISTRO TENS (Sin CHOICES)
+# MODELO: REGISTRO TENS
 # ============================================
 
 class RegistroTens(models.Model):
-    """
-    Registro de signos vitales por TENS
-    Este modelo NO tiene CHOICES, solo campos normales
-    """
+    """Registro de signos vitales por TENS"""
     
     ficha = models.ForeignKey(
         'matronaApp.FichaObstetrica',
@@ -31,12 +27,13 @@ class RegistroTens(models.Model):
     )
     
     tens_responsable = models.ForeignKey(
-        'gestionApp.Tens',
+        User,
         on_delete=models.PROTECT,
         null=True,
         blank=True,
         related_name='registros_signos_vitales',
-        verbose_name='TENS Responsable'
+        verbose_name='TENS Responsable',
+        limit_choices_to={'groups__name': 'TENS'}
     )
     
     fecha = models.DateField(
@@ -44,7 +41,6 @@ class RegistroTens(models.Model):
         verbose_name='Fecha del Registro'
     )
     
-    # Usamos FK al catálogo de turno de gestionApp
     turno = models.ForeignKey(
         'gestionApp.CatalogoTurno',
         on_delete=models.PROTECT,
@@ -54,7 +50,7 @@ class RegistroTens(models.Model):
         verbose_name='Turno'
     )
     
-    # Signos vitales (sin CHOICES)
+    # Signos vitales
     temperatura = models.DecimalField(
         max_digits=4,
         decimal_places=1,
@@ -105,21 +101,20 @@ class RegistroTens(models.Model):
     )
     
     fecha_registro = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Fecha y Hora del Registro'
+        default=timezone.now
     )
     
     class Meta:
-        ordering = ['-fecha', '-fecha_registro']
         verbose_name = 'Registro TENS'
         verbose_name_plural = 'Registros TENS'
+        ordering = ['-fecha', '-fecha_registro']
         indexes = [
             models.Index(fields=['ficha', '-fecha']),
             models.Index(fields=['tens_responsable', '-fecha']),
         ]
     
     def __str__(self):
-        return f"{self.ficha.paciente.persona.Nombre} - {self.fecha}"
+        return f"{self.ficha.numero_ficha} - {self.fecha}"
     
     @property
     def presion_arterial(self):
@@ -134,14 +129,7 @@ class RegistroTens(models.Model):
 # ============================================
 
 class Tratamiento_aplicado(models.Model):
-    """
-    Registro de tratamientos/medicamentos aplicados por TENS
-    SIN CHOICES - Usa FK a tablas catálogo
-    """
-    
-    # ============================================
-    # RELACIONES
-    # ============================================
+    """Registro de tratamientos/medicamentos aplicados por TENS"""
     
     ficha = models.ForeignKey(
         'matronaApp.FichaObstetrica',
@@ -158,10 +146,11 @@ class Tratamiento_aplicado(models.Model):
     )
     
     tens = models.ForeignKey(
-        'gestionApp.Tens',
+        User,
         on_delete=models.PROTECT,
         related_name='tratamientos_aplicados',
-        verbose_name='TENS que Aplicó'
+        verbose_name='TENS que Aplicó',
+        limit_choices_to={'groups__name': 'TENS'}
     )
     
     medicamento_ficha = models.ForeignKey(
@@ -170,14 +159,10 @@ class Tratamiento_aplicado(models.Model):
         null=True,
         blank=True,
         related_name='aplicaciones_tens',
-        verbose_name='Medicamento de Ficha',
-        help_text='Si aplica un medicamento prescrito en la ficha'
+        verbose_name='Medicamento de Ficha'
     )
     
-    # ============================================
-    # DATOS DEL TRATAMIENTO
-    # ============================================
-    
+    # Datos del tratamiento
     nombre_medicamento = models.CharField(
         max_length=200,
         verbose_name='Nombre del Medicamento/Tratamiento'
@@ -186,12 +171,10 @@ class Tratamiento_aplicado(models.Model):
     dosis = models.CharField(
         max_length=100,
         blank=True,
-        verbose_name='Dosis Aplicada',
-        help_text='Ej: 500mg, 10ml, 2 comprimidos'
+        verbose_name='Dosis Aplicada'
     )
     
-    # FK a catálogo compartido (antes era CHOICES)
-    via_administracion_catalogo = models.ForeignKey(
+    via_administracion = models.ForeignKey(
         CatalogoViaAdministracion,
         on_delete=models.PROTECT,
         null=True,
@@ -199,11 +182,6 @@ class Tratamiento_aplicado(models.Model):
         related_name='tratamientos_aplicados',
         verbose_name='Vía de Administración'
     )
-    
-    @property
-    def via_administracion(self):
-        """Alias para compatibilidad"""
-        return self.via_administracion_catalogo.codigo if self.via_administracion_catalogo else None
     
     fecha_aplicacion = models.DateField(
         default=timezone.now,
@@ -215,10 +193,7 @@ class Tratamiento_aplicado(models.Model):
         verbose_name='Hora de Aplicación'
     )
     
-    # ============================================
-    # PROCEDIMIENTO
-    # ============================================
-    
+    # Procedimiento
     se_realizo_lavado_manos = models.BooleanField(
         default=False,
         verbose_name='¿Se realizó lavado de manos?'
@@ -231,8 +206,7 @@ class Tratamiento_aplicado(models.Model):
     
     motivo_no_aplicacion = models.TextField(
         blank=True,
-        verbose_name='Motivo de No Aplicación',
-        help_text='Si no se aplicó, indicar el motivo'
+        verbose_name='Motivo de No Aplicación'
     )
     
     observaciones = models.TextField(
@@ -240,43 +214,19 @@ class Tratamiento_aplicado(models.Model):
         verbose_name='Observaciones'
     )
     
-    reacciones_adversas = models.TextField(
-        blank=True,
-        verbose_name='Reacciones Adversas',
-        help_text='Cualquier reacción adversa observada'
-    )
-    
-    # ============================================
-    # METADATOS
-    # ============================================
-    
-    activo = models.BooleanField(
-        default=True,
-        verbose_name='Registro Activo'
-    )
-    
     fecha_registro = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Fecha de Registro'
-    )
-    
-    fecha_modificacion = models.DateTimeField(
-        auto_now=True,
-        verbose_name='Fecha de Modificación'
+        default=timezone.now
     )
     
     class Meta:
-        ordering = ['-fecha_aplicacion', '-hora_aplicacion']
         verbose_name = 'Tratamiento Aplicado'
         verbose_name_plural = 'Tratamientos Aplicados'
+        ordering = ['-fecha_aplicacion', '-hora_aplicacion']
         indexes = [
             models.Index(fields=['ficha', '-fecha_aplicacion']),
             models.Index(fields=['paciente', '-fecha_aplicacion']),
             models.Index(fields=['tens', '-fecha_aplicacion']),
-            models.Index(fields=['medicamento_ficha', '-fecha_aplicacion']),
         ]
     
     def __str__(self):
-        return f"{self.nombre_medicamento} - {self.paciente.persona.Nombre} - {self.fecha_aplicacion}"
-
-
+        return f"{self.nombre_medicamento} - {self.paciente} - {self.fecha_aplicacion}"

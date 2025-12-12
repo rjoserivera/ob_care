@@ -1,7 +1,13 @@
+"""
+inicioApp/views.py
+Vista principal de inicio - CORREGIDO para usar User + Groups
+"""
+
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.contrib.auth.models import User, Group
 
-from gestionApp.models import Paciente, Medico, Matrona, Tens
+from gestionApp.models import Paciente
 from authentication.utils import get_dashboard_url_for_user
 
 
@@ -20,11 +26,27 @@ def home(request):
     # Si NO está autenticado, mostrar pantalla de descanso
     ahora = timezone.now()
 
+    # Contar usuarios activos por grupo
+    medicos_activos = User.objects.filter(
+        groups__name='Medicos',
+        is_active=True
+    ).count()
+    
+    matronas_activas = User.objects.filter(
+        groups__name='Matronas',
+        is_active=True
+    ).count()
+    
+    tens_activos = User.objects.filter(
+        groups__name='TENS',
+        is_active=True
+    ).count()
+
     context = {
         "pacientes_activos": Paciente.objects.filter(activo=True).count(),
-        "medicos_activos": Medico.objects.filter(Activo=True).count(),
-        "matronas_activas": Matrona.objects.filter(Activo=True).count(),
-        "tens_activos": Tens.objects.filter(Activo=True).count(),
+        "medicos_activos": medicos_activos,
+        "matronas_activas": matronas_activas,
+        "tens_activos": tens_activos,
         "fecha_actual": ahora.strftime("%d de %B de %Y"),
         "hora_actual": ahora.strftime("%H:%M"),
     }

@@ -34,7 +34,7 @@
     }
 
     .contador-tiempo {
-        background: rgba(255,255,255,0.2);
+        background: rgba(255, 255, 255, 0.2);
         padding: 0.75rem 1.5rem;
         border-radius: 10px;
         text-align: center;
@@ -54,7 +54,7 @@
     .paciente-espera-card {
         background: white;
         border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         overflow: hidden;
         margin-bottom: 1.5rem;
         border-left: 5px solid #f59e0b;
@@ -66,8 +66,15 @@
     }
 
     @keyframes pulse-border {
-        0%, 100% { box-shadow: 0 5px 20px rgba(220, 38, 38, 0.2); }
-        50% { box-shadow: 0 5px 30px rgba(220, 38, 38, 0.4); }
+
+        0%,
+        100% {
+            box-shadow: 0 5px 20px rgba(220, 38, 38, 0.2);
+        }
+
+        50% {
+            box-shadow: 0 5px 30px rgba(220, 38, 38, 0.4);
+        }
     }
 
     .paciente-header {
@@ -187,8 +194,15 @@
     }
 
     @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.02); }
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.02);
+        }
     }
 
     .personal-card .icon {
@@ -265,7 +279,7 @@
         background: white;
         border-radius: 15px;
         padding: 1.5rem;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         margin-bottom: 1.5rem;
     }
 
@@ -406,7 +420,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0,0,0,0.6);
+        background: rgba(0, 0, 0, 0.6);
         display: none;
         align-items: center;
         justify-content: center;
@@ -428,8 +442,15 @@
     }
 
     @keyframes modalSlide {
-        from { transform: translateY(-30px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
+        from {
+            transform: translateY(-30px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
     }
 
     .modal-icon {
@@ -481,7 +502,7 @@
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
         transform: translateX(400px);
         transition: transform 0.3s ease;
         z-index: 1001;
@@ -492,12 +513,34 @@
     }
 
     @media (max-width: 768px) {
-        .header-sala { flex-direction: column; text-align: center; }
-        .paciente-header { flex-direction: column; text-align: center; }
-        .personal-grid { grid-template-columns: 1fr; }
-        .acciones-container { flex-direction: column; }
-        .btn-asignar-sala, .btn-notificar, .btn-cancelar { width: 100%; justify-content: center; }
-        .modal-buttons { flex-direction: column; }
+        .header-sala {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .paciente-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .personal-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .acciones-container {
+            flex-direction: column;
+        }
+
+        .btn-asignar-sala,
+        .btn-notificar,
+        .btn-cancelar {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .modal-buttons {
+            flex-direction: column;
+        }
     }
 </style>
 {% endblock %}
@@ -520,7 +563,8 @@
     <div class="paciente-espera-card {% if urgente %}urgente{% endif %}">
         <div class="paciente-header {% if urgente %}urgente{% endif %}">
             <div class="paciente-info">
-                <h3>{{ ficha_obstetrica.paciente.persona.Nombre }} {{ ficha_obstetrica.paciente.persona.Apellido_paterno }} {{ ficha_obstetrica.paciente.persona.Apellido_materno }}</h3>
+                <h3>{{ ficha_obstetrica.paciente.persona.Nombre }} {{ ficha_obstetrica.paciente.persona.Apellido_Paterno
+                    }} {{ ficha_obstetrica.paciente.persona.Apellido_Materno }}</h3>
                 <span class="rut">RUT: {{ ficha_obstetrica.paciente.persona.Rut }}</span>
             </div>
             <span class="estado-badge esperando" id="estadoBadge">
@@ -532,7 +576,14 @@
             <div class="info-grid">
                 <div class="info-item">
                     <div class="label">Edad Gestacional</div>
-                    <div class="value">{{ ficha_obstetrica.edad_gestacional_semanas }}+{{ ficha_obstetrica.edad_gestacional_dias }} sem</div>
+                    <div class="value">
+                        {% if ficha_obstetrica.edad_gestacional_semanas %}
+                        {{ ficha_obstetrica.edad_gestacional_semanas }}+{{
+                        ficha_obstetrica.edad_gestacional_dias|default:0 }} sem
+                        {% else %}
+                        <span style="color: #999;">No registrado</span>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="info-item">
                     <div class="label">Número de Ficha</div>
@@ -663,7 +714,7 @@
     let confirmados = 0;
     const totalRequerido = 3;
 
-    document.getElementById('horaInicio').textContent = tiempoInicio.toLocaleTimeString('es-CL', {hour: '2-digit', minute: '2-digit'});
+    document.getElementById('horaInicio').textContent = tiempoInicio.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
 
     setInterval(() => {
         const ahora = new Date();
@@ -701,7 +752,14 @@
 
     function confirmarPersonal(rol) {
         const card = document.getElementById(`card${rol}`);
-        const nombres = { 'Matrona': 'María González', 'Medico': 'Dr. Juan Pérez', 'Tens': 'Carlos Muñoz' };
+
+        // Nombres del personal (por ahora hardcoded hasta que se configure PersonalTurno)
+        const nombres = {
+            'Matrona': 'Matrona Disponible',
+            'Medico': 'Dr. Disponible',
+            'Tens': 'TENS Disponible'
+        };
+
         card.className = 'personal-card confirmado';
         card.querySelector('.estado').textContent = '✓ Confirmado';
         card.querySelector('.nombre').textContent = nombres[rol];

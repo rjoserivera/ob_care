@@ -213,10 +213,6 @@ def ver_historial_clinico(request, paciente_pk):
 # GESTIÓN DE FICHAS OBSTÉTRICAS
 # ============================================
 
-# ============================================
-# GESTIÓN DE FICHAS OBSTÉTRICAS
-# ============================================
-
 def calcular_edad(fecha_nacimiento):
     """Calcula la edad basada en la fecha de nacimiento"""
     from datetime import date

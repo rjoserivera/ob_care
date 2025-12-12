@@ -20,7 +20,7 @@ import json
 # ============================================
 
 # Modelos de gestionApp (Persona, Paciente, etc.)
-from gestionApp.models import Persona, Paciente, Matrona
+from gestionApp.models import Persona, Paciente
 
 # Modelos de matronaApp
 from .models import (
@@ -192,7 +192,7 @@ def crear_ficha_obstetrica(request, paciente_pk):
         'vias_administracion': vias_administracion,
         'consultorios': consultorios,
     }
-    return render(request, 'Matrona/form_obstetrica_materna.html', context)
+    return render(request, 'Matrona/crear_ficha_obstetrica.html', context)
 
 
 # ============================================
@@ -265,7 +265,7 @@ def crear_ficha_obstetrica_persona(request, persona_pk):
         'vias_administracion': vias_administracion,
         'consultorios': consultorios,
     }
-    return render(request, 'Matrona/form_obstetrica_materna.html', context)
+    return render(request, 'Matrona/crear_ficha_obstetrica.html', context)
 
 
 # ============================================
@@ -322,7 +322,7 @@ def editar_ficha_obstetrica(request, ficha_pk):
         'vias_administracion': vias_administracion,
         'consultorios': consultorios,
     }
-    return render(request, 'Matrona/form_obstetrica_materna.html', context)
+    return render(request, 'Matrona/crear_ficha_obstetrica.html', context)
 
 
 # ============================================

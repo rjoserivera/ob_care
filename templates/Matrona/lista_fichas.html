@@ -220,10 +220,12 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>N° Ficha</th>
                     <th>Paciente</th>
                     <th>RUT</th>
                     <th>Fecha Ingreso</th>
-                    <th>Semanas</th>
+                    <th>Edad Gestacional</th>
+                    <th>Equipo Médico</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
@@ -231,14 +233,35 @@
             <tbody>
                 {% for ficha in fichas %}
                 <tr>
+                    <td><strong>{{ ficha.numero_ficha }}</strong></td>
                     <td>
                         <strong>
                             {{ ficha.paciente.persona.Nombre }} {{ ficha.paciente.persona.Apellido_Paterno }}
                         </strong>
                     </td>
                     <td>{{ ficha.paciente.persona.Rut }}</td>
-                    <td>{{ ficha.fecha_creacion|date:"d/m/Y" }}</td>
-                    <td>{{ ficha.edad_gestacional_semanas|default:"-" }} semanas</td>
+                    <td>{{ ficha.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        {% if ficha.edad_gestacional_semanas %}
+                        <strong>{{ ficha.edad_gestacional_semanas }}+{{ ficha.edad_gestacional_dias|default:0
+                            }}</strong> semanas
+                        {% else %}
+                        <span style="color: #999;">No registrado</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% with personal_count=ficha.personal_asignado.count %}
+                        {% if personal_count > 0 %}
+                        <span class="badge"
+                            style="background: #e7f3ff; color: #0066cc; padding: 0.4rem 0.8rem; border-radius: 12px; font-weight: 600;">
+                            <i class="bi bi-people-fill"></i> {{ personal_count }} asignado{{ personal_count|pluralize
+                            }}
+                        </span>
+                        {% else %}
+                        <span style="color: #999;">Sin asignar</span>
+                        {% endif %}
+                        {% endwith %}
+                    </td>
                     <td>
                         {% if ficha.activa %}
                         <span class="badge-estado badge-activo">Activa</span>

@@ -1,18 +1,14 @@
 """
+gestionApp/forms/__init__.py
 Importaciones centralizadas de formularios de gestionApp
+SIMPLIFICADO: Solo Persona y Paciente (sin Medico, Matrona, Tens)
 """
 
-from .persona_form import PersonaForm, BuscarPersonaForm  # ✅ AGREGADO BuscarPersonaForm
+from .persona_form import PersonaForm, BuscarPersonaForm
 from .paciente_form import PacienteForm
-from .medico_form import MedicoForm
-from .matrona_form import MatronaForm
-from .tens_form import TensForm
 
 __all__ = [
     'PersonaForm',
-    'BuscarPersonaForm',  # ✅ AGREGADO
+    'BuscarPersonaForm',
     'PacienteForm',
-    'MedicoForm',
-    'MatronaForm',
-    'TensForm',
 ]
