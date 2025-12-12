@@ -463,19 +463,34 @@ def agregar_registro_dilatacion(request, ficha_pk):
     """
     API para agregar un nuevo registro de dilatación
     URL: /matrona/api/ficha/<ficha_pk>/dilatacion/agregar/
+    Acepta tanto JSON (AJAX) como datos de formulario POST
     """
     ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk, activa=True)
     
     try:
-        data = json.loads(request.body)
-        valor = int(data.get('valor'))
-        observacion = data.get('observacion', '')
+        # Detectar si es JSON o formulario POST
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or \
+                  request.content_type == 'application/json'
         
-        if valor < 1 or valor > 10:
-            return JsonResponse({
-                'success': False,
-                'error': 'La dilatación debe estar entre 1 y 10 cm'
-            })
+        if is_ajax:
+            # Procesar como JSON
+            data = json.loads(request.body)
+            valor = int(data.get('valor'))
+            observacion = data.get('observacion', '')
+        else:
+            # Procesar como formulario POST
+            valor = int(request.POST.get('valor_dilatacion'))
+            observacion = request.POST.get('observacion', '')
+        
+        if valor < 0 or valor > 10:
+            if is_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'La dilatación debe estar entre 0 y 10 cm'
+                })
+            else:
+                messages.error(request, 'La dilatación debe estar entre 0 y 10 cm')
+                return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
         
         # Crear registro
         registro = RegistroDilatacion.objects.create(
@@ -496,23 +511,31 @@ def agregar_registro_dilatacion(request, ficha_pk):
             ficha.estado_dilatacion = 'PROGRESANDO'
         ficha.save()
         
-        return JsonResponse({
-            'success': True,
-            'registro': {
-                'id': registro.id,
-                'hora': registro.fecha_hora.strftime('%H:%M'),
-                'valor': registro.valor_dilatacion,
-                'observacion': registro.observacion
-            },
-            'estado': {
-                'codigo': ficha.estado_dilatacion,
-                'estancamiento': estancamiento,
-                'puede_vaginal': puede_vaginal
-            }
-        })
+        if is_ajax:
+            return JsonResponse({
+                'success': True,
+                'registro': {
+                    'id': registro.id,
+                    'hora': registro.fecha_hora.strftime('%H:%M'),
+                    'valor': registro.valor_dilatacion,
+                    'observacion': registro.observacion
+                },
+                'estado': {
+                    'codigo': ficha.estado_dilatacion,
+                    'estancamiento': estancamiento,
+                    'puede_vaginal': puede_vaginal
+                }
+            })
+        else:
+            messages.success(request, f'✅ Registro de dilatación agregado: {valor} cm')
+            return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
         
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
+        if is_ajax:
+            return JsonResponse({'success': False, 'error': str(e)})
+        else:
+            messages.error(request, f'Error al registrar dilatación: {str(e)}')
+            return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
 
 
 # ============================================
@@ -580,7 +603,8 @@ def iniciar_proceso_parto(request, ficha_pk):
         tipo_texto = 'parto vaginal' if tipo_parto == 'VAGINAL' else 'cesárea'
         messages.success(request, f'✅ Proceso de {tipo_texto} iniciado exitosamente.')
     
-    return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
+    # Redirigir a página dedicada de proceso de parto
+    return redirect('matrona:proceso_parto_iniciado', ficha_pk=ficha.pk)
 
 
 # ============================================
@@ -740,3 +764,23 @@ def eliminar_medicamento_ajax(request, medicamento_pk):
     medicamento.save()
     
     return JsonResponse({'success': True})
+
+
+# ============================================
+# PROCESO DE PARTO - PÁGINA DEDICADA
+# ============================================
+
+@login_required
+def proceso_parto_iniciado(request, ficha_pk):
+    """
+    Página dedicada que se muestra cuando el proceso de parto ha sido iniciado
+    URL: /matrona/ficha/<ficha_pk>/proceso-parto-iniciado/
+    """
+    ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk)
+    
+    context = {
+        'ficha': ficha,
+        'titulo': f'Proceso de Parto - {ficha.numero_ficha}'
+    }
+    
+    return render(request, 'Matrona/proceso_parto_iniciado.html', context)

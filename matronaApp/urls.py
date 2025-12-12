@@ -38,6 +38,7 @@ urlpatterns = [
     
     # ==================== PARTO ====================
     path('ficha/<int:ficha_pk>/iniciar-parto/', views.iniciar_proceso_parto, name='iniciar_parto'),
+    path('ficha/<int:ficha_pk>/proceso-parto-iniciado/', views.proceso_parto_iniciado, name='proceso_parto_iniciado'),
     
     # ==================== APIs AJAX ====================
     # Dilatación

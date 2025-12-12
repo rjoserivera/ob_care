@@ -1,0 +1,332 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Agregar Medicamento - Sistema Obstétrico{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --matrona-primary: #f5576c;
+        --matrona-secondary: #f093fb;
+    }
+
+    body {
+        background: linear-gradient(135deg, #fff5f7 0%, #fce4ec 100%);
+        min-height: 100vh;
+    }
+
+    .form-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .form-header h2 {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-header p {
+        margin: 0.5rem 0 0;
+        opacity: 0.9;
+    }
+
+    .ficha-info {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        border-left: 5px solid #667eea;
+    }
+
+    .ficha-info h4 {
+        margin: 0 0 1rem;
+        color: #333;
+    }
+
+    .ficha-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .ficha-info-item {
+        padding: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .ficha-info-label {
+        font-size: 0.8rem;
+        color: #666;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .ficha-info-value {
+        font-size: 1rem;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .text-danger {
+        color: #dc3545;
+    }
+
+    .form-text {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 0.25rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        color: white;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0 0;
+    }
+
+    .errorlist li {
+        color: #dc3545;
+        font-size: 0.85rem;
+        background: #f8d7da;
+        padding: 0.5rem;
+        border-radius: 4px;
+        margin-top: 0.3rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        .button-group {
+            flex-direction: column;
+        }
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <!-- Header -->
+    <div class="form-header">
+        <h2><i class="bi bi-capsule"></i> Agregar Medicamento</h2>
+        <p>Asignar un nuevo medicamento a la ficha obstétrica</p>
+    </div>
+
+    <!-- Info de la Ficha -->
+    <div class="ficha-info">
+        <h4><i class="bi bi-file-earmark-medical"></i> Ficha: {{ ficha.numero_ficha }}</h4>
+        <div class="ficha-info-grid">
+            <div class="ficha-info-item">
+                <div class="ficha-info-label">Paciente</div>
+                <div class="ficha-info-value">
+                    {{ ficha.paciente.persona.Nombre }} {{ ficha.paciente.persona.Apellido_Paterno }}
+                </div>
+            </div>
+            <div class="ficha-info-item">
+                <div class="ficha-info-label">RUT</div>
+                <div class="ficha-info-value">{{ ficha.paciente.persona.Rut }}</div>
+            </div>
+            <div class="ficha-info-item">
+                <div class="ficha-info-label">Edad Gestacional</div>
+                <div class="ficha-info-value">
+                    {{ ficha.edad_gestacional_semanas|default:"--" }}+{{ ficha.edad_gestacional_dias|default:"0" }} semanas
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario -->
+    <div class="form-card">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Medicamento <span class="text-danger">*</span></label>
+                    {{ form.medicamento }}
+                    {% if form.medicamento.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.medicamento.errors %}<li>{{ error }}</li>{% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Dosis <span class="text-danger">*</span></label>
+                    {{ form.dosis }}
+                    {% if form.dosis.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.dosis.errors %}<li>{{ error }}</li>{% endfor %}
+                        </ul>
+                    {% endif %}
+                    <small class="form-text">Ej: 500mg, 10ml, 1 comprimido</small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Vía de Administración <span class="text-danger">*</span></label>
+                    {{ form.via_administracion }}
+                    {% if form.via_administracion.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.via_administracion.errors %}<li>{{ error }}</li>{% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Frecuencia <span class="text-danger">*</span></label>
+                    {{ form.frecuencia }}
+                    {% if form.frecuencia.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.frecuencia.errors %}<li>{{ error }}</li>{% endfor %}
+                        </ul>
+                    {% endif %}
+                    <small class="form-text">Ej: Cada 8 horas, 1 vez al día</small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Fecha de Inicio <span class="text-danger">*</span></label>
+                    {{ form.fecha_inicio }}
+                    {% if form.fecha_inicio.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.fecha_inicio.errors %}<li>{{ error }}</li>{% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Fecha de Término</label>
+                    {{ form.fecha_termino }}
+                    {% if form.fecha_termino.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.fecha_termino.errors %}<li>{{ error }}</li>{% endfor %}
+                        </ul>
+                    {% endif %}
+                    <small class="form-text">Dejar vacío si es indefinido</small>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Indicaciones</label>
+                {{ form.indicaciones }}
+                {% if form.indicaciones.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.indicaciones.errors %}<li>{{ error }}</li>{% endfor %}
+                    </ul>
+                {% endif %}
+                <small class="form-text">Instrucciones especiales para la administración</small>
+            </div>
+
+            <!-- Botones -->
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Guardar Medicamento
+                </button>
+                <a href="{% url 'matrona:detalle_ficha' ficha.pk %}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

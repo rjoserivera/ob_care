@@ -1,0 +1,277 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Proceso de Parto - {{ ficha.numero_ficha }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .parto-container {
+        max-width: 900px;
+        margin: 3rem auto;
+        padding: 0 1rem;
+    }
+
+    .parto-header {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 20px;
+        text-align: center;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(17, 153, 142, 0.3);
+    }
+
+    .parto-header i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.1);
+        }
+    }
+
+    .parto-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .parto-header p {
+        margin: 0.5rem 0 0;
+        font-size: 1.1rem;
+        opacity: 0.95;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .info-item {
+        padding: 1.25rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border-left: 4px solid #11998e;
+    }
+
+    .info-label {
+        font-size: 0.8rem;
+        color: #666;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-value {
+        font-size: 1.3rem;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .tipo-parto-badge {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 1rem 0;
+    }
+
+    .tipo-vaginal {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        color: #2e7d32;
+        border: 2px solid #4caf50;
+    }
+
+    .tipo-cesarea {
+        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        color: #e65100;
+        border: 2px solid #ff9800;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #11998e;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        color: #11998e;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        color: white;
+    }
+
+    .alert-info-custom {
+        background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+        border-left: 4px solid #17a2b8;
+        padding: 1.25rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-info-custom i {
+        color: #17a2b8;
+        font-size: 1.5rem;
+        margin-right: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+        .parto-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="parto-container">
+    <!-- Header -->
+    <div class="parto-header">
+        <i class="bi bi-heart-pulse-fill"></i>
+        <h1>✅ Proceso de Parto Iniciado</h1>
+        <p>{{ ficha.numero_ficha }}</p>
+    </div>
+
+    <!-- Tipo de Parto -->
+    <div class="info-card" style="text-align: center;">
+        <h2 style="margin: 0 0 1rem; color: #333;">Tipo de Parto</h2>
+        {% if ficha.tipo_parto == 'VAGINAL' %}
+        <span class="tipo-parto-badge tipo-vaginal">
+            <i class="bi bi-heart"></i> Parto Vaginal
+        </span>
+        {% elif ficha.tipo_parto == 'CESAREA' %}
+        <span class="tipo-parto-badge tipo-cesarea">
+            <i class="bi bi-scissors"></i> Cesárea
+        </span>
+        {% else %}
+        <span class="tipo-parto-badge">
+            {{ ficha.get_tipo_parto_display|default:ficha.tipo_parto }}
+        </span>
+        {% endif %}
+    </div>
+
+    <!-- Información del Proceso -->
+    <div class="info-card">
+        <div class="section-title">
+            <i class="bi bi-info-circle-fill"></i> Información del Proceso
+        </div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Fecha/Hora de Inicio</div>
+                <div class="info-value">{{ ficha.fecha_inicio_parto|date:"d/m/Y H:i" }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Paciente</div>
+                <div class="info-value">{{ ficha.paciente.persona.Nombre }} {{ ficha.paciente.persona.Apellido_Paterno
+                    }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Edad Gestacional</div>
+                <div class="info-value">
+                    {% if ficha.edad_gestacional_semanas %}
+                    {{ ficha.edad_gestacional_semanas }}+{{ ficha.edad_gestacional_dias|default:0 }} sem
+                    {% else %}
+                    No registrada
+                    {% endif %}
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Cantidad de Bebés</div>
+                <div class="info-value">{{ ficha.cantidad_bebes|default:1 }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información Adicional -->
+    <div class="alert-info-custom">
+        <i class="bi bi-lightbulb-fill"></i>
+        <strong>Próximos Pasos:</strong> El proceso de parto ha sido iniciado exitosamente.
+        Puede continuar con el registro del parto en el módulo correspondiente o volver a la ficha para ver más
+        detalles.
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="btn-group">
+        <a href="{% url 'matrona:detalle_ficha' ficha.pk %}" class="btn btn-primary">
+            <i class="bi bi-file-earmark-medical"></i> Ver Ficha Completa
+        </a>
+        <a href="{% url 'matrona:lista_fichas' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a Lista de Fichas
+        </a>
+    </div>
+</div>
+{% endblock %}
