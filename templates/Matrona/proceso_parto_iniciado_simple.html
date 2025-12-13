@@ -214,8 +214,8 @@
             <i class="bi bi-clipboard-pulse"></i> Invitar TENS ({{ personal_counts.TENS }})
         </button>
         
-        <button class="invite-btn" style="background: #dc3545;" onclick="alert('JavaScript funciona! Ficha ID: {{ ficha_parto.id }}')">
-            <i class="bi bi-bug"></i> TEST
+        <button class="invite-btn" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);" onclick="reenviarNotificaciones()">
+            <i class="bi bi-arrow-clockwise"></i> Reenviar Notificaciones
         </button>
     </div>
 
@@ -411,6 +411,35 @@ function invitarPersonal(rol) {
             .catch(error => {
                 mostrarResultado(false, 'Error de conexión', error.toString());
                 if (btn) btn.disabled = false;
+            });
+        }
+    );
+}
+
+function reenviarNotificaciones() {
+    mostrarConfirmacion(
+        '¿Desea limpiar todas las invitaciones y reenviar notificaciones?',
+        function() {
+            mostrarProgressModal('Limpiando...', 'Eliminando invitaciones anteriores');
+            
+            fetch("{% url 'matrona:limpiar_invitaciones_ajax' ficha_parto.id %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    mostrarResultado(true, 'Invitaciones limpiadas', `Se eliminaron ${data.eliminados} invitaciones. La página se recargará.`);
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    mostrarResultado(false, 'Error al limpiar', data.error);
+                }
+            })
+            .catch(error => {
+                mostrarResultado(false, 'Error de conexión', error.toString());
             });
         }
     );
