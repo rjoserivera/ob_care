@@ -348,6 +348,12 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-dilatacion" data-bs-toggle="tab" data-bs-target="#panel-dilatacion" type="button" role="tab">
+                        <i class="bi bi-bullseye"></i>
+                        <span>Dilatación</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
                     <button class="nav-link" id="tab-examenes" data-bs-toggle="tab" data-bs-target="#panel-examenes" type="button" role="tab">
                         <i class="bi bi-shield-check"></i>
                         <span>Exámenes</span>
@@ -649,7 +655,86 @@
                 </div>
                 <!-- End Tab 3: Embarazo -->
 
-                <!-- ==================== TAB 4: EXÁMENES VIH ==================== -->
+                <!-- ==================== TAB 4: DILATACIÓN ==================== -->
+                <div class="tab-pane fade" id="panel-dilatacion" role="tabpanel">
+
+            <!-- ==================== SECCIÓN: DILATACIÓN ==================== -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-bullseye"></i> Registro de Dilatación
+                </div>
+
+                <!-- Opción: Registrar Dilatación -->
+                <div class="form-group">
+                    <label class="form-check-label">
+                        <input type="checkbox" name="registrar_dilatacion" class="form-check-input" 
+                               id="id_registrar_dilatacion" onchange="toggleDilatacion()">
+                        ¿Registrar Dilatación?
+                    </label>
+                </div>
+
+                <div class="sub-section" id="dilatacionSection" style="display:none;">
+                    <div class="sub-section-title">
+                        <i class="bi bi-clipboard-data"></i> Datos de Dilatación
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Dilatación (cm)</label>
+                            <input type="number" name="dilatacion_cm" class="form-control" 
+                                   min="0" max="10" step="0.5"
+                                   placeholder="Ej: 5" id="id_dilatacion_cm">
+                            <small class="form-text">Rango: 0-10 cm</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Fecha de Toma</label>
+                            <input type="date" name="dilatacion_fecha" class="form-control" 
+                                   id="id_dilatacion_fecha">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Hora de Toma</label>
+                            <input type="time" name="dilatacion_hora" class="form-control" 
+                                   id="id_dilatacion_hora">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== SECCIÓN: EMERGENCIA ==================== -->
+            <div class="form-section">
+                <div class="section-title danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Emergencia
+                </div>
+
+                <!-- Opción: Es Emergencia -->
+                <div class="form-group">
+                    <label class="form-check-label">
+                        <input type="checkbox" name="es_emergencia" class="form-check-input" 
+                               id="id_es_emergencia" onchange="toggleEmergencia()">
+                        ¿Es una Emergencia?
+                    </label>
+                </div>
+
+                <div class="sub-section" id="emergenciaSection" style="display:none; background: #fff5f5;">
+                    <div class="sub-section-title" style="color: #dc3545;">
+                        <i class="bi bi-exclamation-circle"></i> Detalles de la Emergencia
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Razón de la Emergencia <span class="text-danger">*</span></label>
+                        <textarea name="razon_emergencia" class="form-control" rows="4" 
+                                  placeholder="Describa la razón de la emergencia..."
+                                  id="id_razon_emergencia"></textarea>
+                        <small class="form-text" style="color: #dc3545;">
+                            <i class="bi bi-info-circle"></i> Este campo es obligatorio si marca como emergencia
+                        </small>
+                    </div>
+                </div>
+            </div>
+                </div>
+                <!-- End Tab 4: Dilatación -->
+
+                <!-- ==================== TAB 5: EXÁMENES VIH ==================== -->
                 <div class="tab-pane fade" id="panel-examenes" role="tabpanel">
 
             <!-- ==================== SECCIÓN: VIH ==================== -->
@@ -723,9 +808,9 @@
                 </div>
             </div>
                 </div>
-                <!-- End Tab 4: Exámenes -->
+                <!-- End Tab 5: Exámenes -->
 
-                <!-- ==================== TAB 5: PATOLOGÍAS ==================== -->
+                <!-- ==================== TAB 6: PATOLOGÍAS ==================== -->
                 <div class="tab-pane fade" id="panel-patologias" role="tabpanel">
 
             <!-- ==================== SECCIÓN: PATOLOGÍAS ==================== -->
@@ -780,7 +865,7 @@
                 </div>
             </div>
                 </div>
-                <!-- End Tab 5: Patologías -->
+                <!-- End Tab 6: Patologías -->
 
             </div>
             <!-- End tab-content -->
@@ -806,6 +891,20 @@
     function toggleAcompanante() {
         const checkbox = document.getElementById('id_tiene_acompanante');
         const section = document.getElementById('acompananteSection');
+        section.style.display = checkbox.checked ? 'block' : 'none';
+    }
+
+    // Toggle Dilatación Section
+    function toggleDilatacion() {
+        const checkbox = document.getElementById('id_registrar_dilatacion');
+        const section = document.getElementById('dilatacionSection');
+        section.style.display = checkbox.checked ? 'block' : 'none';
+    }
+
+    // Toggle Emergencia Section
+    function toggleEmergencia() {
+        const checkbox = document.getElementById('id_es_emergencia');
+        const section = document.getElementById('emergenciaSection');
         section.style.display = checkbox.checked ? 'block' : 'none';
     }
 
