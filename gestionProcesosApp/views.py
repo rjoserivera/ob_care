@@ -10,23 +10,28 @@ def mis_notificaciones(request):
     """Vista para que el personal vea sus notificaciones"""
     try:
         personal_turno = PersonalTurno.objects.filter(
-            usuario=request.user, 
-            estado='DISPONIBLE',
-            fecha_fin_turno__gte=timezone.now()
+            usuario=request.user
         ).first()
         
-        notificaciones = Notificacion.objects.filter(
-            destinatario__usuario=request.user
-        ).select_related('proceso', 'proceso__ficha_obstetrica', 'proceso__ficha_obstetrica__paciente__persona').order_by('-timestamp_envio')
+        # Obtener asignaciones pendientes
+        asignaciones = []
+        if personal_turno:
+            asignaciones = AsignacionPersonal.objects.filter(
+                personal=personal_turno,
+                estado_respuesta='ENVIADA'
+            ).select_related(
+                'proceso__ficha_obstetrica__paciente__persona',
+                'proceso__sala_asignada'
+            ).order_by('-timestamp_notificacion')
         
         return render(request, 'gestionProcesosApp/mis_notificaciones.html', {
-            'notificaciones': notificaciones,
+            'asignaciones': asignaciones,
             'personal_turno': personal_turno
         })
     except Exception as e:
         return render(request, 'gestionProcesosApp/mis_notificaciones.html', {
             'error': str(e),
-            'notificaciones': []
+            'asignaciones': []
         })
 
 @login_required

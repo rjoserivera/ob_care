@@ -62,13 +62,17 @@ def invitar_personal_rol(request, ficha_parto_id):
                         observaciones='Invitación automática desde Centro de Control'
                     )
                     
-                    # Crear notificación
+                    # Crear notificación con información de sala
+                    sala_info = ""
+                    if hasattr(ficha_parto, 'sala_asignada') and ficha_parto.sala_asignada:
+                        sala_info = f" Sala: {ficha_parto.sala_asignada.nombre}."
+                    
                     Notificacion.objects.create(
                         proceso=ficha_parto,
                         destinatario=personal,
                         tipo='PARTO',
                         titulo='URGENTE: Asistencia a Parto',
-                        mensaje=f"Se requiere su presencia inmediata. Ficha {ficha_parto.numero_ficha_parto}. Paciente: {ficha_parto.ficha_obstetrica.paciente.persona.nombre_completo}.",
+                        mensaje=f"Se requiere su presencia inmediata. Ficha {ficha_parto.numero_ficha_parto}. Paciente: {ficha_parto.ficha_obstetrica.paciente.persona.nombre_completo}.{sala_info}",
                         estado='ENVIADA',
                         timestamp_expiracion=timezone.now() + timezone.timedelta(hours=4)
                     )
