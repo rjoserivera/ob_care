@@ -1,6 +1,6 @@
 """
 matronaApp/views.py
-Vistas para matronaApp - Fichas obstétricas, medicamentos, dilatación y parto
+Vistas para matronaApp - Fichas obstÃ©tricas, medicamentos, dilataciÃ³n y parto
 COMPLETO: Con TODAS las vistas existentes + nuevas funcionalidades
 """
 
@@ -60,10 +60,10 @@ def calcular_edad(fecha_nacimiento):
 @login_required
 def menu_matrona(request):
     """
-    Menú principal de matrona (Dashboard)
+    MenÃº principal de matrona (Dashboard)
     URL: /matrona/
     """
-    # Estadísticas
+    # EstadÃ­sticas
     total_fichas = FichaObstetrica.objects.filter(activa=True).count()
     fichas_recientes = FichaObstetrica.objects.filter(
         activa=True
@@ -91,12 +91,12 @@ def menu_matrona(request):
     total_ingresos = IngresoPaciente.objects.filter(activo=True).count()
     total_medicamentos_asignados = MedicamentoFicha.objects.filter(activo=True).count()
     
-    # Permisos específicos de matrona
+    # Permisos especÃ­ficos de matrona
     puede_ingresar_paciente = True
     puede_asignar_medicamentos = True
     puede_buscar_paciente = True
     puede_editar_ficha = True
-    puede_iniciar_parto = False  # Solo médico
+    puede_iniciar_parto = False  # Solo mÃ©dico
     
     context = {
         'titulo': 'Dashboard Matrona',
@@ -123,7 +123,7 @@ def menu_matrona(request):
 @login_required
 def seleccionar_persona_ficha(request):
     """
-    Buscar y seleccionar persona para crear ficha obstétrica
+    Buscar y seleccionar persona para crear ficha obstÃ©trica
     URL: /matrona/seleccionar-persona/
     """
     personas = []
@@ -138,7 +138,7 @@ def seleccionar_persona_ficha(request):
         )[:20]
     
     context = {
-        'titulo': 'Seleccionar Persona para Ficha Obstétrica',
+        'titulo': 'Seleccionar Persona para Ficha ObstÃ©trica',
         'personas': personas,
         'busqueda': busqueda,
     }
@@ -146,13 +146,13 @@ def seleccionar_persona_ficha(request):
 
 
 # ============================================
-# CREAR FICHA OBSTÉTRICA - DESDE PACIENTE
+# CREAR FICHA OBSTÃ‰TRICA - DESDE PACIENTE
 # ============================================
 
 @login_required
 def crear_ficha_obstetrica(request, paciente_pk):
     """
-    Crear nueva ficha obstétrica a partir de un Paciente existente
+    Crear nueva ficha obstÃ©trica a partir de un Paciente existente
     URL: /matrona/ficha/crear/<paciente_pk>/
     """
     paciente = get_object_or_404(Paciente, pk=paciente_pk)
@@ -161,7 +161,7 @@ def crear_ficha_obstetrica(request, paciente_pk):
     # Verificar si ya tiene ficha activa
     ficha_existente = FichaObstetrica.objects.filter(paciente=paciente, activa=True).first()
     if ficha_existente:
-        messages.warning(request, 'Esta paciente ya tiene una ficha obstétrica activa.')
+        messages.warning(request, 'Esta paciente ya tiene una ficha obstÃ©trica activa.')
         return redirect('matrona:detalle_ficha', ficha_pk=ficha_existente.pk)
     
     edad = calcular_edad(persona.Fecha_nacimiento)
@@ -179,17 +179,17 @@ def crear_ficha_obstetrica(request, paciente_pk):
                 # Procesar medicamentos del POST
                 procesar_medicamentos_post(request, ficha)
                 
-                # Procesar registros de dilatación del POST
+                # Procesar registros de dilataciÃ³n del POST
                 procesar_dilatacion_post(request, ficha)
                 
-                messages.success(request, f'✅ Ficha Obstétrica {ficha.numero_ficha} creada exitosamente')
+                messages.success(request, f'âœ… Ficha ObstÃ©trica {ficha.numero_ficha} creada exitosamente')
                 return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
         else:
             messages.error(request, 'Por favor corrige los errores en el formulario')
     else:
         form = FichaObstetricaForm()
     
-    # Catálogos para el template
+    # CatÃ¡logos para el template
     vias_administracion = CatalogoViaAdministracion.objects.filter(activo=True)
     consultorios = CatalogoConsultorioOrigen.objects.filter(activo=True)
     
@@ -198,7 +198,7 @@ def crear_ficha_obstetrica(request, paciente_pk):
         'paciente': paciente,
         'persona': persona,
         'edad': edad,
-        'titulo': 'Crear Ficha Obstétrica',
+        'titulo': 'Crear Ficha ObstÃ©trica',
         'accion': 'crear',
         'vias_administracion': vias_administracion,
         'consultorios': consultorios,
@@ -207,16 +207,16 @@ def crear_ficha_obstetrica(request, paciente_pk):
 
 
 # ============================================
-# CREAR FICHA OBSTÉTRICA - DESDE PERSONA
+# CREAR FICHA OBSTÃ‰TRICA - DESDE PERSONA
 # ============================================
 
 @login_required
 def crear_ficha_obstetrica_persona(request, persona_pk):
     """
-    Crear nueva ficha obstétrica a partir de una Persona
+    Crear nueva ficha obstÃ©trica a partir de una Persona
     URL: /matrona/ficha/crear-persona/<persona_pk>/
     
-    Si la persona no tiene un paciente creado, lo crea automáticamente
+    Si la persona no tiene un paciente creado, lo crea automÃ¡ticamente
     """
     persona = get_object_or_404(Persona, pk=persona_pk)
     
@@ -234,7 +234,7 @@ def crear_ficha_obstetrica_persona(request, persona_pk):
     # Verificar si ya tiene ficha activa
     ficha_existente = FichaObstetrica.objects.filter(paciente=paciente, activa=True).first()
     if ficha_existente:
-        messages.warning(request, 'Esta paciente ya tiene una ficha obstétrica activa.')
+        messages.warning(request, 'Esta paciente ya tiene una ficha obstÃ©trica activa.')
         return redirect('matrona:detalle_ficha', ficha_pk=ficha_existente.pk)
     
     edad = calcular_edad(persona.Fecha_nacimiento)
@@ -252,17 +252,17 @@ def crear_ficha_obstetrica_persona(request, persona_pk):
                 # Procesar medicamentos del POST
                 procesar_medicamentos_post(request, ficha)
                 
-                # Procesar registros de dilatación del POST
+                # Procesar registros de dilataciÃ³n del POST
                 procesar_dilatacion_post(request, ficha)
                 
-                messages.success(request, f'✅ Ficha Obstétrica {ficha.numero_ficha} creada exitosamente')
+                messages.success(request, f'âœ… Ficha ObstÃ©trica {ficha.numero_ficha} creada exitosamente')
                 return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
         else:
             messages.error(request, 'Por favor corrige los errores en el formulario')
     else:
         form = FichaObstetricaForm()
     
-    # Catálogos para el template
+    # CatÃ¡logos para el template
     vias_administracion = CatalogoViaAdministracion.objects.filter(activo=True)
     consultorios = CatalogoConsultorioOrigen.objects.filter(activo=True)
     
@@ -271,7 +271,7 @@ def crear_ficha_obstetrica_persona(request, persona_pk):
         'paciente': paciente,
         'persona': persona,
         'edad': edad,
-        'titulo': 'Crear Ficha Obstétrica',
+        'titulo': 'Crear Ficha ObstÃ©trica',
         'accion': 'crear',
         'vias_administracion': vias_administracion,
         'consultorios': consultorios,
@@ -280,13 +280,13 @@ def crear_ficha_obstetrica_persona(request, persona_pk):
 
 
 # ============================================
-# EDITAR FICHA OBSTÉTRICA
+# EDITAR FICHA OBSTÃ‰TRICA
 # ============================================
 
 @login_required
 def editar_ficha_obstetrica(request, ficha_pk):
     """
-    Editar ficha obstétrica existente
+    Editar ficha obstÃ©trica existente
     URL: /matrona/ficha/<ficha_pk>/editar/
     """
     ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk, activa=True)
@@ -304,10 +304,10 @@ def editar_ficha_obstetrica(request, ficha_pk):
                 # Procesar medicamentos del POST
                 procesar_medicamentos_post(request, ficha)
                 
-                # Procesar registros de dilatación del POST
+                # Procesar registros de dilataciÃ³n del POST
                 procesar_dilatacion_post(request, ficha)
                 
-                messages.success(request, f'✅ Ficha {ficha.numero_ficha} actualizada')
+                messages.success(request, f'âœ… Ficha {ficha.numero_ficha} actualizada')
                 return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
     else:
         form = FichaObstetricaForm(instance=ficha)
@@ -316,7 +316,7 @@ def editar_ficha_obstetrica(request, ficha_pk):
     medicamentos = ficha.medicamentos.filter(activo=True)
     registros_dilatacion = ficha.registros_dilatacion.all().order_by('fecha_hora')
     
-    # Catálogos para el template
+    # CatÃ¡logos para el template
     vias_administracion = CatalogoViaAdministracion.objects.filter(activo=True)
     consultorios = CatalogoConsultorioOrigen.objects.filter(activo=True)
     
@@ -326,7 +326,7 @@ def editar_ficha_obstetrica(request, ficha_pk):
         'paciente': paciente,
         'persona': persona,
         'edad': edad,
-        'titulo': 'Editar Ficha Obstétrica',
+        'titulo': 'Editar Ficha ObstÃ©trica',
         'accion': 'editar',
         'medicamentos': medicamentos,
         'registros_dilatacion': registros_dilatacion,
@@ -337,13 +337,13 @@ def editar_ficha_obstetrica(request, ficha_pk):
 
 
 # ============================================
-# DETALLE FICHA OBSTÉTRICA
+# DETALLE FICHA OBSTÃ‰TRICA
 # ============================================
 
 @login_required
 def detalle_ficha_obstetrica(request, ficha_pk):
     """
-    Ver detalle de ficha obstétrica
+    Ver detalle de ficha obstÃ©trica
     URL: /matrona/ficha/<ficha_pk>/
     """
     ficha = get_object_or_404(
@@ -366,11 +366,11 @@ def detalle_ficha_obstetrica(request, ficha_pk):
     
     edad = calcular_edad(persona.Fecha_nacimiento)
     
-    # Verificar estado de dilatación
+    # Verificar estado de dilataciÃ³n
     ficha.verificar_estancamiento()
     puede_parto_vaginal = ficha.puede_parto_vaginal()
     
-    # Obtener información de parto
+    # Obtener informaciÃ³n de parto
     puede_parto, razon_parto, tipo_sugerido = ficha.puede_iniciar_parto()
     
     context = {
@@ -393,13 +393,13 @@ def detalle_ficha_obstetrica(request, ficha_pk):
 
 
 # ============================================
-# LISTA DE FICHAS OBSTÉTRICAS
+# LISTA DE FICHAS OBSTÃ‰TRICAS
 # ============================================
 
 @login_required
 def lista_fichas_obstetrica(request):
     """
-    Listar todas las fichas obstétricas
+    Listar todas las fichas obstÃ©tricas
     URL: /matrona/fichas/
     """
     fichas = FichaObstetrica.objects.filter(activa=True).select_related(
@@ -415,7 +415,7 @@ def lista_fichas_obstetrica(request):
     elif estado == 'lista':
         fichas = fichas.filter(estado_dilatacion='LISTA')
     
-    # Búsqueda
+    # BÃºsqueda
     busqueda = request.GET.get('q', '')
     if busqueda:
         fichas = fichas.filter(
@@ -427,7 +427,7 @@ def lista_fichas_obstetrica(request):
     
     context = {
         'fichas': fichas,
-        'titulo': 'Fichas Obstétricas',
+        'titulo': 'Fichas ObstÃ©tricas',
         'estado_filtro': estado,
         'busqueda': busqueda,
     }
@@ -457,7 +457,7 @@ def agregar_medicamento(request, ficha_pk):
                 medicamento.fecha_inicio = timezone.now()
             
             medicamento.save()
-            messages.success(request, f'✅ Medicamento "{medicamento.nombre_display}" agregado')
+            messages.success(request, f'âœ… Medicamento "{medicamento.nombre_display}" agregado')
             return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
     else:
         form = MedicamentoFichaForm()
@@ -488,7 +488,7 @@ def eliminar_medicamento(request, medicamento_pk):
     if request.method == 'POST':
         medicamento.activo = False
         medicamento.save()
-        messages.success(request, '✅ Medicamento eliminado')
+        messages.success(request, 'âœ… Medicamento eliminado')
         return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
     
     context = {
@@ -507,7 +507,7 @@ def eliminar_medicamento(request, medicamento_pk):
 @require_POST
 def agregar_medicamento_ajax(request, ficha_pk):
     """
-    API para agregar medicamento vía AJAX
+    API para agregar medicamento vÃ­a AJAX
     URL: /matrona/api/ficha/<ficha_pk>/medicamento/agregar/
     """
     ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk, activa=True)
@@ -549,7 +549,7 @@ def agregar_medicamento_ajax(request, ficha_pk):
 @require_POST
 def eliminar_medicamento_ajax(request, medicamento_pk):
     """
-    API para eliminar medicamento vía AJAX
+    API para eliminar medicamento vÃ­a AJAX
     URL: /matrona/api/medicamento/<medicamento_pk>/eliminar/
     """
     try:
@@ -562,13 +562,13 @@ def eliminar_medicamento_ajax(request, medicamento_pk):
 
 
 # ============================================
-# MEDICAMENTOS - BUSCAR EN CATÁLOGO
+# MEDICAMENTOS - BUSCAR EN CATÃ�LOGO
 # ============================================
 
 @login_required
 def buscar_medicamentos(request):
     """
-    API para buscar medicamentos en el catálogo
+    API para buscar medicamentos en el catÃ¡logo
     URL: /matrona/api/medicamentos/buscar/
     """
     query = request.GET.get('q', '').strip()
@@ -598,14 +598,14 @@ def buscar_medicamentos(request):
 
 
 # ============================================
-# DILATACIÓN - AGREGAR REGISTRO (AJAX)
+# DILATACIÃ“N - AGREGAR REGISTRO (AJAX)
 # ============================================
 
 @login_required
 @require_POST
 def agregar_registro_dilatacion(request, ficha_pk):
     """
-    API para agregar un nuevo registro de dilatación
+    API para agregar un nuevo registro de dilataciÃ³n
     URL: /matrona/api/ficha/<ficha_pk>/dilatacion/agregar/
     Acepta tanto JSON (AJAX) como datos de formulario POST
     """
@@ -627,7 +627,7 @@ def agregar_registro_dilatacion(request, ficha_pk):
             observacion = request.POST.get('observacion', '')
         
         if valor < 0 or valor > 10:
-            error_msg = 'La dilatación debe estar entre 0 y 10 cm'
+            error_msg = 'La dilataciÃ³n debe estar entre 0 y 10 cm'
             if is_ajax:
                 return JsonResponse({'success': False, 'error': error_msg})
             else:
@@ -675,7 +675,7 @@ def agregar_registro_dilatacion(request, ficha_pk):
                 }
             })
         
-        messages.success(request, f'✅ Dilatación registrada: {valor} cm')
+        messages.success(request, f'âœ… DilataciÃ³n registrada: {valor} cm')
         return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
         
     except (ValueError, KeyError) as e:
@@ -694,13 +694,13 @@ def agregar_registro_dilatacion(request, ficha_pk):
 
 
 # ============================================
-# DILATACIÓN - VERIFICAR ESTADO
+# DILATACIÃ“N - VERIFICAR ESTADO
 # ============================================
 
 @login_required
 def verificar_estado_dilatacion(request, ficha_pk):
     """
-    API para verificar el estado actual de dilatación
+    API para verificar el estado actual de dilataciÃ³n
     URL: /matrona/api/ficha/<ficha_pk>/dilatacion/estado/
     """
     ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk)
@@ -759,13 +759,13 @@ def iniciar_proceso_parto(request, ficha_pk):
         ficha.fecha_inicio_parto = timezone.now()
         ficha.save()
         
-        # Asignar personal automáticamente
+        # Asignar personal automÃ¡ticamente
         asignar_personal_parto(ficha)
         
-        tipo_texto = 'parto vaginal' if tipo_parto == 'VAGINAL' else 'cesárea'
-        messages.success(request, f'✅ Proceso de {tipo_texto} iniciado exitosamente.')
+        tipo_texto = 'parto vaginal' if tipo_parto == 'VAGINAL' else 'cesÃ¡rea'
+        messages.success(request, f'âœ… Proceso de {tipo_texto} iniciado exitosamente.')
     
-    # Redirigir a página dedicada de proceso de parto
+    # Redirigir a pÃ¡gina dedicada de proceso de parto
     return redirect('matrona:proceso_parto_iniciado', ficha_pk=ficha.pk)
 
 
@@ -776,7 +776,7 @@ def iniciar_proceso_parto(request, ficha_pk):
 @login_required
 def proceso_parto_iniciado(request, ficha_pk):
     """
-    Página de proceso de parto iniciado
+    PÃ¡gina de proceso de parto iniciado
     URL: /matrona/ficha/<ficha_pk>/proceso-parto-iniciado/
     """
     ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk)
@@ -845,7 +845,7 @@ def procesar_medicamentos_post(request, ficha):
 
 
 def procesar_dilatacion_post(request, ficha):
-    """Procesa los registros de dilatación enviados en el POST"""
+    """Procesa los registros de dilataciÃ³n enviados en el POST"""
     index = 0
     while f'dilatacion[{index}][valor]' in request.POST:
         valor = request.POST.get(f'dilatacion[{index}][valor]')
@@ -862,7 +862,7 @@ def procesar_dilatacion_post(request, ficha):
             )
         index += 1
     
-    # Verificar estado después de agregar registros
+    # Verificar estado despuÃ©s de agregar registros
     ficha.verificar_estancamiento()
     if ficha.puede_parto_vaginal():
         ficha.estado_dilatacion = 'LISTA'
@@ -871,42 +871,117 @@ def procesar_dilatacion_post(request, ficha):
 
 def asignar_personal_parto(ficha):
     """
-    Asigna automáticamente el personal requerido para el parto.
-    Basado en la cantidad de bebés.
+    Asigna automáticamente placeholders para el personal requerido
+    según la cantidad de bebés (1 Médico, 2 Matronas, 2 TENS por bebé)
     """
-    from django.contrib.auth.models import User, Group
-    
-    personal_requerido = ficha.personal_requerido
-    
-    # Intentar asignar personal por rol
-    for rol, cantidad in [('MEDICO', personal_requerido['medicos']),
-                          ('MATRONA', personal_requerido['matronas']),
-                          ('TENS', personal_requerido['tens'])]:
+    try:
+        # Si ya existe personal asignado, no hacemos nada
+        if PersonalAsignadoParto.objects.filter(ficha=ficha).exists():
+            return
+
+        # Iterar por cada bebé
+        for i in range(ficha.cantidad_bebes):
+            bebe_num = i + 1
+            
+            # 1 Médico
+            PersonalAsignadoParto.objects.create(
+                ficha=ficha, rol='MEDICO', bebe_numero=bebe_num
+            )
+            
+            # 2 Matronas
+            PersonalAsignadoParto.objects.create(
+                ficha=ficha, rol='MATRONA', bebe_numero=bebe_num
+            )
+            PersonalAsignadoParto.objects.create(
+                ficha=ficha, rol='MATRONA', bebe_numero=bebe_num
+            )
+            
+            # 2 TENS
+            PersonalAsignadoParto.objects.create(
+                ficha=ficha, rol='TENS', bebe_numero=bebe_num
+            )
+            PersonalAsignadoParto.objects.create(
+                ficha=ficha, rol='TENS', bebe_numero=bebe_num
+            )
+            
+    except Exception as e:
+        print(f"Error asignando personal de parto: {e}")
+
+
+# ============================================
+# REGISTRO DILATACIÓN (AJAX)
+# ============================================
+
+@require_POST
+@login_required
+def registrar_dilatacion(request, ficha_id):
+    """
+    Registra una nueva dilatación para la ficha obstétrica
+    """
+    try:
+        ficha = get_object_or_404(FichaObstetrica, id=ficha_id)
+        
+        # Obtener datos del request
+        valor = request.POST.get('valor_dilatacion')
+        fecha = request.POST.get('fecha')
+        hora = request.POST.get('hora')
+        observacion = request.POST.get('observacion', '')
+
+        print(f"DEBUG REGISTRO DILATACION: valor={valor}, fecha={fecha}, hora={hora} | User: {request.user}")
+        
+        if not all([valor, fecha, hora]):
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Faltan campos obligatorios'
+            }, status=400)
+            
+        # Crear fecha_hora combinada
+        from datetime import datetime
+        from decimal import Decimal
+        
+        # Handle decimal separator
+        valor = valor.replace(',', '.')
+        
+        fecha_hora_str = f"{fecha} {hora}"
         try:
-            # Buscar usuarios con el grupo correspondiente
-            grupo = Group.objects.filter(name__iexact=rol).first()
-            if grupo:
-                usuarios_disponibles = User.objects.filter(
-                    groups=grupo, 
-                    is_active=True
-                ).exclude(
-                    asignaciones_parto__ficha=ficha,
-                    asignaciones_parto__activo=True
-                )[:cantidad]
+            fecha_hora_naive = datetime.strptime(fecha_hora_str, '%Y-%m-%d %H:%M')
+            fecha_hora = timezone.make_aware(fecha_hora_naive)
+        except ValueError:
+             return JsonResponse({'status': 'error', 'message': 'Formato de fecha/hora inválido'}, status=400)
+
+        
+        with transaction.atomic():
+            # Crear registro
+            registro = RegistroDilatacion.objects.create(
+                ficha=ficha,
+                valor_dilatacion=Decimal(valor),
+                fecha_hora=fecha_hora,
+                observacion=observacion,
+                registrado_por=request.user
+            )
+            
+            # Actualizar estado de ficha
+            ficha.verificar_estancamiento()
+            
+            # Verificar si está lista para parto
+            val = Decimal(valor)
+            if val >= 10:
+                ficha.estado_dilatacion = 'LISTA'
+                ficha.save(update_fields=['estado_dilatacion'])
+            elif val > ficha.valor_dilatacion_actual and ficha.estado_dilatacion != 'LISTA' and ficha.estado_dilatacion != 'ESTANCADA':
+                ficha.estado_dilatacion = 'PROGRESANDO'
+                ficha.save(update_fields=['estado_dilatacion'])
                 
-                for i, usuario in enumerate(usuarios_disponibles):
-                    PersonalAsignadoParto.objects.create(
-                        ficha=ficha,
-                        usuario=usuario,
-                        rol=rol,
-                        bebe_numero=(i % ficha.cantidad_bebes) + 1
-                    )
-        except Exception:
-            # Si hay error, crear asignaciones vacías
-            for i in range(cantidad):
-                PersonalAsignadoParto.objects.create(
-                    ficha=ficha,
-                    usuario=None,
-                    rol=rol,
-                    bebe_numero=(i % ficha.cantidad_bebes) + 1
-                )
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Dilatación registrada correctamente',
+            'valor_actual': ficha.valor_dilatacion_actual,
+            'estado': ficha.estado_dilatacion
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+

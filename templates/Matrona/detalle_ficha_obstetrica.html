@@ -643,6 +643,101 @@
             flex-direction: column;
         }
     }
+    /* Profesional Modal Style for Dilatation */
+    #modalDilatacion.modal-overlay {
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        z-index: 1050; /* Above everything */
+        display: none;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    #modalDilatacion[style*="display: flex"] {
+        display: flex !important;
+    }
+
+    #modalDilatacion .modal-content {
+        background: #ffffff;
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        width: 90%;
+        max-width: 500px;
+        padding: 0;
+        overflow: hidden;
+        animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+        position: relative; /* Ensure stacking context */
+    }
+
+    #modalDilatacion .modal-header {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        padding: 1.5rem;
+        border: none;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    #modalDilatacion .modal-title {
+        color: white;
+        margin: 0;
+        font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    #modalDilatacion .close-btn {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s;
+        font-size: 1.2rem;
+    }
+
+    #modalDilatacion .close-btn:hover {
+        background: rgba(255,255,255,0.4);
+    }
+
+    #modalDilatacion .modal-body {
+        padding: 2rem;
+    }
+
+    #modalDilatacion .modal-footer {
+        padding: 1rem 2rem 2rem;
+        border: none;
+        background: white;
+        gap: 1rem;
+        justify-content: center;
+        display: flex;
+    }
+
+    @keyframes slideUpFade {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -698,17 +793,24 @@
     </div>
 
     <!-- Card de Acción: Iniciar Parto (solo si cumple condiciones) -->
-    {% if puede_iniciar_parto %}
-    <div class="action-card">
+    <!-- Card de Acción: Iniciar Parto (Status Monitor) -->
+    <div class="action-card {% if puede_parto %}status-active{% else %}status-waiting{% endif %}">
         <div class="action-card-content">
-            <h3><i class="bi bi-exclamation-triangle-fill me-2"></i>{{ razon_parto }}</h3>
-            <p>Se recomienda iniciar el proceso de parto. Tipo sugerido: <strong>{{ tipo_parto_sugerido }}</strong></p>
+            {% if puede_parto %}
+                <h3><i class="bi bi-exclamation-circle-fill me-2"></i>PARTO HABILITADO</h3>
+                <p>{{ razon_parto }}</p>
+                <p>Tipo sugerido: <strong>{{ tipo_parto_sugerido }}</strong></p>
+            {% else %}
+                <h3 style="color: #6c757d;"><i class="bi bi-hourglass-split me-2"></i>Monitoreo de Parto</h3>
+                <p>{{ razon_parto }}</p>
+                <small class="text-muted">El botón se habilitará automáticamente al cumplir criterios.</small>
+            {% endif %}
         </div>
-        <button type="button" class="btn-parto" onclick="abrirModalParto()">
+        
+        <button type="button" class="btn-parto" onclick="abrirModalParto()" {% if not puede_parto %}disabled style="opacity: 0.5; cursor: not-allowed; background: #ccc;"{% endif %}>
             <i class="bi bi-heart-pulse-fill"></i> INICIAR PROCESO DE PARTO
         </button>
     </div>
-    {% endif %}
 
     <!-- Navegación de Tabs -->
     <ul class="nav nav-tabs-custom" id="fichaTabs" role="tablist">
@@ -1055,7 +1157,7 @@
                 <div class="info-grid mb-4">
                     <div class="info-item {% if ficha.valor_dilatacion_actual >= 8 %}success{% elif ficha.valor_dilatacion_actual >= 4 %}warning{% endif %}">
                         <div class="info-label">Dilatación Actual</div>
-                        <div class="info-value" style="font-size: 1.5rem;">{{ ficha.valor_dilatacion_actual|default:"0" }} cm</div>
+                        <div class="info-value" style="font-size: 1.5rem;">{{ ficha.valor_dilatacion_actual|default:"0"|floatformat:"-1" }} cm</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Estado</div>
@@ -1100,7 +1202,7 @@
                     <div class="dilatacion-item">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="valor">{{ registro.valor_dilatacion }} cm</div>
+                                <div class="valor">{{ registro.valor_dilatacion|floatformat:"-1" }} cm</div>
                                 <div class="fecha">{{ registro.fecha_hora|date:"d/m/Y H:i" }}</div>
                             </div>
                             {% if registro.observacion %}
@@ -1292,6 +1394,7 @@
     }
 
     function mostrarBotonFinal() {
+    function mostrarBotonFinal() {
         document.getElementById('countdownContainer').style.display = 'none';
         document.getElementById('modalButtons').style.display = 'none';
         document.getElementById('botonFinal').style.display = 'block';
@@ -1305,4 +1408,176 @@
         if (e.target === this) cerrarModalParto();
     });
 </script>
+
+<script>
+    // ==========================================
+    // LOGICA DE REGISTRO DE DILATACION
+    // ==========================================
+    
+    function mostrarModalDilatacion() {
+        const modal = document.getElementById('modalDilatacion');
+        if (modal) {
+            modal.style.display = 'flex';
+            
+            // Set current date and time
+            const now = new Date();
+            const dateInput = document.getElementById('id_dilatacion_fecha');
+            if (dateInput) {
+                dateInput.valueAsDate = now;
+            }
+            
+            // Format time for input type="time"
+            const timeInput = document.getElementById('id_dilatacion_hora');
+            if (timeInput) {
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                timeInput.value = hours + ':' + minutes;
+            }
+            
+            // Focus on first input
+            setTimeout(() => {
+                const firstInput = document.getElementById('id_dilatacion_cm');
+                if (firstInput) firstInput.focus();
+            }, 100);
+        }
+    }
+
+    function cerrarModalDilatacion() {
+        const modal = document.getElementById('modalDilatacion');
+        if (modal) modal.style.display = 'none';
+        const form = document.getElementById('formDilatacion');
+        if (form) form.reset();
+    }
+
+    // Close modal on Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') cerrarModalDilatacion();
+    });
+
+    // Handle Form Submission
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Validacion y Envio AJAX
+    document.addEventListener('DOMContentLoaded', function() {
+        const formDilatacion = document.getElementById('formDilatacion');
+        
+        if (formDilatacion) {
+            formDilatacion.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('Interceptando envío de formulario...');
+
+                const formData = new FormData(this);
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Guardando...';
+
+                const csrftoken = getCookie('csrftoken');
+                // Ensure URL is rendered correctly
+                const url = "{% url 'matrona:registrar_dilatacion' ficha.id %}";
+                console.log('Enviando a URL:', url);
+
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    }
+                })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text || response.statusText) });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    submitBtn.classList.remove('btn-primary');
+                    submitBtn.classList.add('btn-success');
+                    submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> ¡Guardado!';
+                    setTimeout(() => location.reload(), 500);
+                } else {
+                    throw new Error(data.message || 'Error desconocido del servidor');
+                }
+            })
+            .catch(error => {
+                console.error('Error AJAX:', error);
+                alert('Hubo un problema al guardar: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
+        });
+    }
+    }); // End DOMContentLoaded
+
+</script>
+
+<!-- Modal Registro Dilatacion -->
+<div id="modalDilatacion" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="bi bi-bullseye"></i> Registrar Dilatacion
+            </h3>
+            <button class="close-btn" type="button" onclick="cerrarModalDilatacion()">&times;</button>
+        </div>
+        
+        <form id="formDilatacion">
+            {% csrf_token %}
+            <div class="modal-body">
+                <div class="form-group mb-3">
+                    <label class="form-label">Dilatacion (cm) <span class="text-danger">*</span></label>
+                    <input type="number" name="valor_dilatacion" id="id_dilatacion_cm" 
+                           class="form-control" step="0.5" min="0" max="10" required
+                           placeholder="Ej: 5.5">
+                    <small class="text-muted">Ingrese valor entre 0 y 10 cm</small>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Fecha <span class="text-danger">*</span></label>
+                            <input type="date" name="fecha" id="id_dilatacion_fecha" 
+                                   class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Hora <span class="text-danger">*</span></label>
+                            <input type="time" name="hora" id="id_dilatacion_hora" 
+                                   class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label class="form-label">Observaciones</label>
+                    <textarea name="observacion" class="form-control" rows="3" 
+                              placeholder="Opcional: detalles adicionales..."></textarea>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalDilatacion()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Guardar Registro
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

@@ -44,6 +44,7 @@ urlpatterns = [
     # Dilatación
     path('api/ficha/<int:ficha_pk>/dilatacion/agregar/', views.agregar_registro_dilatacion, name='api_agregar_dilatacion'),
     path('api/ficha/<int:ficha_pk>/dilatacion/estado/', views.verificar_estado_dilatacion, name='api_estado_dilatacion'),
+    path('api/ficha/<int:ficha_id>/dilatacion/registrar/', views.registrar_dilatacion, name='registrar_dilatacion'),
     
     # Medicamentos AJAX
     path('api/ficha/<int:ficha_pk>/medicamento/agregar/', views.agregar_medicamento_ajax, name='api_agregar_medicamento'),

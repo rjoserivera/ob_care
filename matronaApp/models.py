@@ -559,8 +559,11 @@ class FichaObstetrica(models.Model):
             return True, '🏥 Ingreso por DERIVACIÓN - Proceso de parto habilitado inmediatamente', 'URGENTE'
         
         # Condición 2: Dilatación >= 8 cm
+        val = self.valor_dilatacion_actual
+        val_display = str(int(val)) if val % 1 == 0 else str(val)
+
         if self.puede_parto_vaginal():
-            return True, f'✅ Dilatación >= 8 cm ({self.valor_dilatacion_actual} cm) - Listo para parto vaginal', 'VAGINAL'
+            return True, f'✅ Dilatación >= 8 cm ({val_display} cm) - Listo para parto vaginal', 'VAGINAL'
         
         # Condición 3: Estancamiento
         if self.estado_dilatacion == 'ESTANCADA':
@@ -568,7 +571,8 @@ class FichaObstetrica(models.Model):
         
         # No cumple ninguna condición
         dilatacion_actual = self.valor_dilatacion_actual
-        return False, f'⏳ Dilatación actual: {dilatacion_actual} cm. Se requiere 8 cm o condición especial para habilitar.', None
+        val_display = str(int(dilatacion_actual)) if dilatacion_actual % 1 == 0 else str(dilatacion_actual)
+        return False, f'⏳ Dilatación actual: {val_display} cm. Se requiere 8 cm o condición especial para habilitar.', None
     
     def save(self, *args, **kwargs):
         # Calcular IMC automáticamente
@@ -613,7 +617,9 @@ class RegistroDilatacion(models.Model):
         verbose_name='Fecha y Hora del Registro'
     )
     
-    valor_dilatacion = models.PositiveIntegerField(
+    valor_dilatacion = models.DecimalField(
+        max_digits=3, 
+        decimal_places=1,
         validators=[MinValueValidator(0), MaxValueValidator(10)],
         verbose_name='Dilatación (cm)'
     )

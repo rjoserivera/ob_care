@@ -14,6 +14,7 @@ class FichaObstetricaForm(forms.ModelForm):
         model = FichaObstetrica
         fields = [
             # Sección 1: Contacto de Emergencia
+            'tipo_ingreso',  # Added to capture Emergency/Urgency status
             'nombre_contacto_emergencia',
             'telefono_emergencia',
             'parentesco_contacto_emergencia',
