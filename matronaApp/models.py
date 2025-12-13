@@ -1,7 +1,7 @@
 """
 matronaApp/models.py
 Modelos para matrona - Fichas obstétricas, ingresos y medicamentos
-ACTUALIZADO CON TODOS LOS CAMPOS NUEVOS (dilatación, VIH, acompañante, etc.)
+COMPLETO: Con TODOS los campos existentes + nuevos (tipo_ingreso, catálogo medicamentos)
 """
 
 from django.db import models
@@ -52,13 +52,39 @@ class CatalogoConsultorioOrigen(models.Model):
 
 
 # ============================================
-# MODELO: FICHA OBSTÉTRICA (AMPLIADO)
+# CATÁLOGO DE MEDICAMENTOS (NUEVO)
+# ============================================
+
+class CatalogoMedicamento(models.Model):
+    """Catálogo de medicamentos disponibles para búsqueda"""
+    codigo = models.CharField(max_length=50, unique=True)
+    nombre = models.CharField(max_length=200)
+    nombre_generico = models.CharField(max_length=200, blank=True)
+    presentacion = models.CharField(max_length=100, blank=True)
+    concentracion = models.CharField(max_length=100, blank=True)
+    unidad = models.CharField(max_length=50, blank=True)  # mg, ml, etc.
+    activo = models.BooleanField(default=True)
+    
+    class Meta:
+        app_label = 'matronaApp'
+        ordering = ['nombre']
+        verbose_name = "Medicamento"
+        verbose_name_plural = "Medicamentos"
+    
+    def __str__(self):
+        if self.concentracion:
+            return f"{self.nombre} ({self.concentracion})"
+        return self.nombre
+
+
+# ============================================
+# MODELO: FICHA OBSTÉTRICA (COMPLETO)
 # ============================================
 
 class FichaObstetrica(models.Model):
     """
     Ficha obstétrica - Información de la gestante desde el ingreso
-    ACTUALIZADO: Con campos de dilatación, VIH, acompañante, tipo parto, etc.
+    COMPLETO: Con TODOS los campos existentes + tipo_ingreso
     """
     
     # ============================================
@@ -66,90 +92,90 @@ class FichaObstetrica(models.Model):
     # ============================================
     
     PARENTESCO_CHOICES = [
-        ('PAREJA', 'Pareja'),
-        ('ESPOSO', 'Esposo/a'),
+        ('ESPOSO', 'Esposo/Pareja'),
         ('MADRE', 'Madre'),
         ('PADRE', 'Padre'),
-        ('HERMANO', 'Hermano/a'),
-        ('SUEGRA', 'Suegra/o'),
-        ('HIJO', 'Hijo/a'),
-        ('AMIGO', 'Amigo/a'),
+        ('HERMANA', 'Hermana'),
+        ('HERMANO', 'Hermano'),
+        ('AMIGA', 'Amiga'),
         ('OTRO', 'Otro'),
     ]
     
-    RESULTADO_VIH_CHOICES = [
-        ('', 'Sin realizar'),
+    # ===== NUEVO: TIPOS DE INGRESO =====
+    TIPO_INGRESO_CHOICES = [
+        ('PROGRAMADO', 'Ingreso Programado (Electivo)'),
+        ('SALA', 'Ingreso a Sala (Hospitalización)'),
+        ('URGENCIA', 'Ingreso por Urgencia (UEGO)'),
+        ('DERIVACION', 'Ingreso por Derivación'),
+    ]
+    
+    ESTADO_DILATACION_CHOICES = [
+        ('SIN_REGISTRO', 'Sin registro'),
+        ('PROGRESANDO', 'Progresando'),
+        ('ESTANCADA', 'Estancada'),
+        ('LISTA', 'Lista para parto'),
+    ]
+    
+    VIH_RESULTADO_CHOICES = [
         ('NEGATIVO', 'Negativo'),
         ('POSITIVO', 'Positivo'),
         ('INDETERMINADO', 'Indeterminado'),
     ]
     
-    TIPO_PARTO_CHOICES = [
-        ('', 'No definido'),
-        ('VAGINAL', 'Parto Vaginal'),
-        ('CESAREA', 'Cesárea'),
-    ]
-    
-    ESTADO_DILATACION_CHOICES = [
-        ('ESPERANDO', 'Esperando registro'),
-        ('PROGRESANDO', 'Progresando'),
-        ('ESTANCADA', 'Estancamiento'),
-        ('LISTA', 'Lista para parto'),
-    ]
-    
     # ============================================
-    # RELACIONES
+    # SECCIÓN 1: RELACIÓN CON PACIENTE
     # ============================================
     
-    paciente = models.OneToOneField(
+    paciente = models.ForeignKey(
         Paciente,
         on_delete=models.CASCADE,
-        related_name='ficha_obstetrica',
+        related_name='fichas_obstetricas',
         verbose_name='Paciente'
     )
     
-    matrona_responsable = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='fichas_obstetrica_responsable',
-        verbose_name='Matrona Responsable',
-        limit_choices_to={'groups__name': 'Matronas'}
-    )
-    
-    patologias = models.ManyToManyField(
-        'medicoApp.Patologias',
-        blank=True,
-        related_name='fichas_obstetricas',
-        verbose_name='Patologías'
-    )
-    
-    consultorio_origen = models.ForeignKey(
-        CatalogoConsultorioOrigen,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name='Consultorio de Origen'
-    )
-    
-    # ============================================
-    # SECCIÓN 1: IDENTIFICACIÓN
-    # ============================================
-    
     numero_ficha = models.CharField(
-        max_length=30,
+        max_length=20,
         unique=True,
         verbose_name='Número de Ficha'
     )
     
+    # Relación opcional con matrona responsable
+    matrona_responsable = models.ForeignKey(
+        'auth.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='fichas_asignadas',
+        verbose_name='Matrona Responsable'
+    )
+    
+    # Relación con patologías (ManyToMany)
+    patologias = models.ManyToManyField(
+        'medicoApp.Patologias',
+        blank=True,
+        related_name='fichas_obstetricas',
+        verbose_name='Patologías CIE-10'
+    )
+    
     # ============================================
-    # SECCIÓN 2: ACOMPAÑANTE (ACTUALIZADO)
+    # SECCIÓN 2: TIPO DE INGRESO (NUEVO)
+    # ============================================
+    
+    tipo_ingreso = models.CharField(
+        max_length=20,
+        choices=TIPO_INGRESO_CHOICES,
+        default='PROGRAMADO',
+        verbose_name='Tipo de Ingreso',
+        help_text='Urgencia/Derivación activa parto inmediato'
+    )
+    
+    # ============================================
+    # SECCIÓN 3: ACOMPAÑANTE
     # ============================================
     
     tiene_acompanante = models.BooleanField(
         default=False,
-        verbose_name='¿Viene con acompañante?'
+        verbose_name='¿Tiene Acompañante?'
     )
     
     nombre_acompanante = models.CharField(
@@ -178,7 +204,7 @@ class FichaObstetrica(models.Model):
     )
     
     # ============================================
-    # SECCIÓN 3: CONTACTO DE EMERGENCIA (NUEVO)
+    # SECCIÓN 4: CONTACTO DE EMERGENCIA
     # ============================================
     
     nombre_contacto_emergencia = models.CharField(
@@ -201,7 +227,7 @@ class FichaObstetrica(models.Model):
     )
     
     # ============================================
-    # SECCIÓN 4: DATOS GENERALES DEL EMBARAZO
+    # SECCIÓN 5: DATOS GENERALES DEL EMBARAZO
     # ============================================
     
     plan_de_parto = models.BooleanField(
@@ -214,8 +240,16 @@ class FichaObstetrica(models.Model):
         verbose_name='¿Realizó Visita Guiada?'
     )
     
+    consultorio_origen = models.ForeignKey(
+        CatalogoConsultorioOrigen,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name='Consultorio de Origen'
+    )
+    
     # ============================================
-    # SECCIÓN 5: MEDIDAS ANTROPOMÉTRICAS
+    # SECCIÓN 6: MEDIDAS ANTROPOMÉTRICAS
     # ============================================
     
     peso_actual = models.DecimalField(
@@ -239,190 +273,148 @@ class FichaObstetrica(models.Model):
         decimal_places=2,
         null=True,
         blank=True,
-        verbose_name='IMC',
-        help_text='Índice de Masa Corporal (calculado automáticamente)'
+        verbose_name='IMC'
     )
     
     # ============================================
-    # SECCIÓN 6: ANTECEDENTES OBSTÉTRICOS
+    # SECCIÓN 7: HISTORIA OBSTÉTRICA
     # ============================================
     
-    numero_gestas = models.IntegerField(
+    numero_gestas = models.PositiveIntegerField(
         default=1,
-        verbose_name='Número de Gestaciones',
-        help_text='Incluye embarazos anteriores + actual'
+        verbose_name='Número de Gestaciones'
     )
     
-    numero_partos = models.IntegerField(
+    numero_partos = models.PositiveIntegerField(
         default=0,
-        verbose_name='Número de Partos',
-        help_text='Partos anteriores (vaginales + cesáreas)'
+        verbose_name='Número de Partos'
     )
     
-    partos_vaginales = models.IntegerField(
+    partos_vaginales = models.PositiveIntegerField(
         default=0,
         verbose_name='Partos Vaginales'
     )
     
-    partos_cesareas = models.IntegerField(
+    partos_cesareas = models.PositiveIntegerField(
         default=0,
-        verbose_name='Partos por Cesárea'
+        verbose_name='Cesáreas'
     )
     
-    numero_abortos = models.IntegerField(
+    numero_abortos = models.PositiveIntegerField(
         default=0,
         verbose_name='Número de Abortos'
     )
     
-    nacidos_vivos = models.IntegerField(
+    nacidos_vivos = models.PositiveIntegerField(
         default=0,
         verbose_name='Nacidos Vivos'
     )
     
     # ============================================
-    # SECCIÓN 7: EMBARAZO ACTUAL
+    # SECCIÓN 8: EMBARAZO ACTUAL
     # ============================================
     
     fecha_ultima_regla = models.DateField(
         null=True,
         blank=True,
-        verbose_name='Fecha Última Menstruación (FUM)'
+        verbose_name='FUM (Fecha Última Regla)'
     )
     
     fecha_probable_parto = models.DateField(
         null=True,
         blank=True,
-        verbose_name='Fecha Probable de Parto (FPP)'
+        verbose_name='FPP (Fecha Probable de Parto)'
     )
     
-    edad_gestacional_semanas = models.IntegerField(
+    edad_gestacional_semanas = models.PositiveIntegerField(
         null=True,
         blank=True,
-        validators=[MaxValueValidator(45)],
-        verbose_name='Semanas de Gestación'
+        verbose_name='Edad Gestacional (semanas)'
     )
     
-    edad_gestacional_dias = models.IntegerField(
+    edad_gestacional_dias = models.PositiveIntegerField(
         default=0,
-        validators=[MaxValueValidator(6)],
-        verbose_name='Días Adicionales'
+        verbose_name='Días adicionales'
     )
     
     cantidad_bebes = models.PositiveIntegerField(
         default=1,
         validators=[MinValueValidator(1), MaxValueValidator(5)],
-        verbose_name='Cantidad de Bebés Esperados'
+        verbose_name='Cantidad de Bebés'
     )
     
-    # ============================================
-    # SECCIÓN 8: EXÁMENES VIH (ACTUALIZADO)
-    # ============================================
-    
-    # VIH Test 1
-    vih_tomado = models.BooleanField(
+    control_prenatal = models.BooleanField(
         default=False,
-        verbose_name='¿VIH 1 Tomado?'
+        verbose_name='¿Tiene Control Prenatal?'
     )
     
-    vih_resultado = models.CharField(
-        max_length=20,
-        choices=RESULTADO_VIH_CHOICES,
-        blank=True,
-        verbose_name='Resultado VIH 1'
+    numero_controles = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Número de Controles'
     )
     
-    # Campos VIH con nombres que coinciden con el formulario existente
+    # ============================================
+    # SECCIÓN 9: EXÁMENES VIH
+    # ============================================
+    
     vih_1_realizado = models.BooleanField(
         default=False,
-        verbose_name='¿VIH 1 Realizado?'
+        verbose_name='VIH 1 Realizado'
     )
     
     vih_1_fecha = models.DateField(
         null=True,
         blank=True,
-        verbose_name='Fecha Examen VIH 1'
+        verbose_name='Fecha VIH 1'
     )
     
     vih_1_resultado = models.CharField(
         max_length=20,
-        choices=RESULTADO_VIH_CHOICES,
         blank=True,
+        choices=VIH_RESULTADO_CHOICES,
         verbose_name='Resultado VIH 1'
     )
     
-    # VIH Test 2
     vih_2_realizado = models.BooleanField(
         default=False,
-        verbose_name='¿VIH 2 Realizado?'
+        verbose_name='VIH 2 Realizado'
     )
     
     vih_2_fecha = models.DateField(
         null=True,
         blank=True,
-        verbose_name='Fecha Examen VIH 2'
+        verbose_name='Fecha VIH 2'
     )
     
     vih_2_resultado = models.CharField(
         max_length=20,
-        choices=RESULTADO_VIH_CHOICES,
         blank=True,
+        choices=VIH_RESULTADO_CHOICES,
         verbose_name='Resultado VIH 2'
     )
     
     # ============================================
-    # SECCIÓN 9: OTROS EXÁMENES
-    # ============================================
-    
-    sgb_pesquisa = models.BooleanField(
-        default=False,
-        verbose_name='¿SGB Pesquisado?'
-    )
-    
-    sgb_resultado = models.CharField(
-        max_length=20,
-        blank=True,
-        verbose_name='Resultado SGB'
-    )
-    
-    vdrl_resultado = models.CharField(
-        max_length=20,
-        blank=True,
-        verbose_name='Resultado VDRL'
-    )
-    
-    hepatitis_b_tomado = models.BooleanField(
-        default=False,
-        verbose_name='¿Hepatitis B Tomada?'
-    )
-    
-    hepatitis_b_resultado = models.CharField(
-        max_length=20,
-        blank=True,
-        verbose_name='Resultado Hepatitis B'
-    )
-    
-    # ============================================
-    # SECCIÓN 10: PATOLOGÍAS (Campos específicos)
+    # SECCIÓN 10: PATOLOGÍAS (Booleanos)
     # ============================================
     
     preeclampsia_severa = models.BooleanField(
         default=False,
-        verbose_name='¿Preeclampsia Severa?'
+        verbose_name='Preeclampsia Severa'
     )
     
     eclampsia = models.BooleanField(
         default=False,
-        verbose_name='¿Eclampsia?'
+        verbose_name='Eclampsia'
     )
     
     sepsis_infeccion_sistemia = models.BooleanField(
         default=False,
-        verbose_name='¿Sepsis o Infección Sistémica?'
+        verbose_name='Sepsis / Infección Sistémica'
     )
     
     infeccion_ovular = models.BooleanField(
         default=False,
-        verbose_name='¿Infección Ovular?'
+        verbose_name='Infección Ovular / Corioamnionitis'
     )
     
     otras_patologias = models.TextField(
@@ -431,47 +423,33 @@ class FichaObstetrica(models.Model):
     )
     
     # ============================================
-    # SECCIÓN 11: CONTROL PRENATAL
+    # SECCIÓN 11: ESTADO DE DILATACIÓN
     # ============================================
-    
-    control_prenatal = models.BooleanField(
-        default=True,
-        verbose_name='¿Tuvo Control Prenatal?'
-    )
-    
-    numero_controles = models.IntegerField(
-        default=0,
-        verbose_name='Número de Controles'
-    )
-    
-    # ============================================
-    # SECCIÓN 12: DILATACIÓN Y PARTO (NUEVO)
-    # ============================================
-    
-    dilatacion_inicial = models.PositiveIntegerField(
-        null=True,
-        blank=True,
-        validators=[MinValueValidator(0), MaxValueValidator(10)],
-        verbose_name='Dilatación Inicial (cm)'
-    )
     
     estado_dilatacion = models.CharField(
         max_length=20,
         choices=ESTADO_DILATACION_CHOICES,
-        default='ESPERANDO',
+        default='SIN_REGISTRO',
         verbose_name='Estado de Dilatación'
+    )
+    
+    # ============================================
+    # SECCIÓN 12: PROCESO DE PARTO
+    # ============================================
+    
+    proceso_parto_iniciado = models.BooleanField(
+        default=False,
+        verbose_name='Proceso de Parto Iniciado'
     )
     
     tipo_parto = models.CharField(
         max_length=20,
-        choices=TIPO_PARTO_CHOICES,
         blank=True,
+        choices=[
+            ('VAGINAL', 'Parto Vaginal'),
+            ('CESAREA', 'Cesárea'),
+        ],
         verbose_name='Tipo de Parto'
-    )
-    
-    proceso_parto_iniciado = models.BooleanField(
-        default=False,
-        verbose_name='¿Proceso de Parto Iniciado?'
     )
     
     fecha_inicio_parto = models.DateTimeField(
@@ -500,7 +478,7 @@ class FichaObstetrica(models.Model):
     )
     
     # ============================================
-    # PROPIEDADES CALCULADAS
+    # PROPIEDADES Y MÉTODOS
     # ============================================
     
     @property
@@ -512,6 +490,17 @@ class FichaObstetrica(models.Model):
             'tens': self.cantidad_bebes * 2,
             'total': self.cantidad_bebes * 5
         }
+    
+    @property
+    def ultima_dilatacion(self):
+        """Retorna el último registro de dilatación"""
+        return self.registros_dilatacion.order_by('-fecha_hora').first()
+    
+    @property
+    def valor_dilatacion_actual(self):
+        """Retorna el valor de la última dilatación"""
+        ultimo = self.ultima_dilatacion
+        return ultimo.valor_dilatacion if ultimo else 0
     
     def calcular_imc(self):
         """Calcula el IMC basado en peso y talla"""
@@ -531,11 +520,15 @@ class FichaObstetrica(models.Model):
             self.fecha_probable_parto = self.fecha_ultima_regla + timedelta(days=280)
     
     def verificar_estancamiento(self):
-        """Verifica si hay estancamiento en la dilatación (3 valores iguales)"""
-        registros = self.registros_dilatacion.order_by('-fecha_hora')[:3]
-        if registros.count() >= 3:
+        """
+        Verifica si hay estancamiento en la dilatación.
+        Estancamiento = 3 registros consecutivos con el mismo valor.
+        Retorna True si hay estancamiento.
+        """
+        registros = list(self.registros_dilatacion.order_by('-fecha_hora')[:3])
+        if len(registros) >= 3:
             valores = [r.valor_dilatacion for r in registros]
-            if len(set(valores)) == 1:
+            if len(set(valores)) == 1:  # Todos iguales
                 self.estado_dilatacion = 'ESTANCADA'
                 self.save(update_fields=['estado_dilatacion'])
                 return True
@@ -547,6 +540,35 @@ class FichaObstetrica(models.Model):
         if ultimo_registro and ultimo_registro.valor_dilatacion >= 8:
             return True
         return False
+    
+    def puede_iniciar_parto(self):
+        """
+        Determina si se puede iniciar el proceso de parto.
+        Retorna: tuple (puede_iniciar: bool, razon: str, tipo_sugerido: str)
+        
+        CONDICIONES PARA ACTIVAR:
+        1. Tipo de ingreso es URGENCIA o DERIVACION → Inmediato
+        2. Dilatación >= 8 cm → Parto vaginal
+        3. Dilatación estancada (3 registros iguales) → Posible cesárea
+        """
+        # Condición 1: Tipo de ingreso urgente
+        if self.tipo_ingreso == 'URGENCIA':
+            return True, '🚨 Ingreso por URGENCIA - Proceso de parto habilitado inmediatamente', 'URGENTE'
+        
+        if self.tipo_ingreso == 'DERIVACION':
+            return True, '🏥 Ingreso por DERIVACIÓN - Proceso de parto habilitado inmediatamente', 'URGENTE'
+        
+        # Condición 2: Dilatación >= 8 cm
+        if self.puede_parto_vaginal():
+            return True, f'✅ Dilatación >= 8 cm ({self.valor_dilatacion_actual} cm) - Listo para parto vaginal', 'VAGINAL'
+        
+        # Condición 3: Estancamiento
+        if self.estado_dilatacion == 'ESTANCADA':
+            return True, '⚠️ Dilatación estancada - Evaluar cesárea', 'CESAREA'
+        
+        # No cumple ninguna condición
+        dilatacion_actual = self.valor_dilatacion_actual
+        return False, f'⏳ Dilatación actual: {dilatacion_actual} cm. Se requiere 8 cm o condición especial para habilitar.', None
     
     def save(self, *args, **kwargs):
         # Calcular IMC automáticamente
@@ -568,11 +590,12 @@ class FichaObstetrica(models.Model):
         indexes = [
             models.Index(fields=['numero_ficha']),
             models.Index(fields=['paciente', '-fecha_creacion']),
+            models.Index(fields=['tipo_ingreso']),
         ]
 
 
 # ============================================
-# MODELO: REGISTRO DE DILATACIÓN (NUEVO)
+# MODELO: REGISTRO DE DILATACIÓN
 # ============================================
 
 class RegistroDilatacion(models.Model):
@@ -591,7 +614,7 @@ class RegistroDilatacion(models.Model):
     )
     
     valor_dilatacion = models.PositiveIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        validators=[MinValueValidator(0), MaxValueValidator(10)],
         verbose_name='Dilatación (cm)'
     )
     
@@ -611,13 +634,13 @@ class RegistroDilatacion(models.Model):
     )
     
     def __str__(self):
-        return f"Dilatación {self.valor_dilatacion}cm - {self.fecha_hora.strftime('%H:%M')}"
+        return f"Dilatación {self.valor_dilatacion}cm - {self.fecha_hora.strftime('%d/%m %H:%M')}"
     
     class Meta:
         app_label = 'matronaApp'
         verbose_name = 'Registro de Dilatación'
         verbose_name_plural = 'Registros de Dilatación'
-        ordering = ['fecha_hora']
+        ordering = ['-fecha_hora']
         indexes = [
             models.Index(fields=['ficha', '-fecha_hora']),
         ]
@@ -692,7 +715,7 @@ class IngresoPaciente(models.Model):
 
 
 # ============================================
-# MODELO: MEDICAMENTO FICHA
+# MODELO: MEDICAMENTO FICHA (ACTUALIZADO)
 # ============================================
 
 class MedicamentoFicha(models.Model):
@@ -705,9 +728,20 @@ class MedicamentoFicha(models.Model):
         verbose_name='Ficha Obstétrica'
     )
     
+    # Puede ser texto libre O FK a catálogo
     medicamento = models.CharField(
         max_length=200,
         verbose_name='Medicamento'
+    )
+    
+    # FK opcional al catálogo de medicamentos (NUEVO)
+    medicamento_catalogo = models.ForeignKey(
+        CatalogoMedicamento,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='asignaciones',
+        verbose_name='Medicamento (Catálogo)'
     )
     
     dosis = models.CharField(
@@ -762,12 +796,21 @@ class MedicamentoFicha(models.Model):
     @property
     def esta_vigente(self):
         """Verifica si el medicamento está vigente"""
+        if not self.activo:
+            return False
         if self.fecha_termino:
             return timezone.now() <= self.fecha_termino
-        return self.activo
+        return True
+    
+    @property
+    def nombre_display(self):
+        """Retorna el nombre del medicamento (catálogo o texto)"""
+        if self.medicamento_catalogo:
+            return str(self.medicamento_catalogo)
+        return self.medicamento
 
     def __str__(self):
-        return f"{self.medicamento} - {self.dosis}"
+        return f"{self.nombre_display} - {self.dosis}"
 
     class Meta:
         app_label = 'matronaApp'
@@ -813,9 +856,29 @@ class AdministracionMedicamento(models.Model):
         verbose_name='Dosis Administrada'
     )
     
+    se_realizo_lavado = models.BooleanField(
+        default=False,
+        verbose_name='¿Se realizó lavado de manos?'
+    )
+    
     observaciones = models.TextField(
         blank=True,
         verbose_name='Observaciones'
+    )
+    
+    reacciones_adversas = models.TextField(
+        blank=True,
+        verbose_name='Reacciones Adversas'
+    )
+    
+    administrado_exitosamente = models.BooleanField(
+        default=True,
+        verbose_name='¿Administrado Exitosamente?'
+    )
+    
+    motivo_no_administracion = models.TextField(
+        blank=True,
+        verbose_name='Motivo de No Administración'
     )
     
     fecha_registro = models.DateTimeField(
@@ -833,7 +896,7 @@ class AdministracionMedicamento(models.Model):
 
 
 # ============================================
-# MODELO: PERSONAL ASIGNADO AL PARTO (NUEVO)
+# MODELO: PERSONAL ASIGNADO AL PARTO
 # ============================================
 
 class PersonalAsignadoParto(models.Model):

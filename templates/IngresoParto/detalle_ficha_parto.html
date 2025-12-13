@@ -1,0 +1,526 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}{{ ficha.numero_ficha_parto }} - Detalle{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .patient-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 16px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .patient-header h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.75rem;
+        font-weight: 700;
+    }
+
+    .patient-info-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        margin-top: 1rem;
+    }
+
+    .patient-info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .detail-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .detail-card-header {
+        background: #f8f9fa;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .detail-card-header i {
+        font-size: 1.25rem;
+        color: #667eea;
+    }
+
+    .detail-card-header.danger i { color: #dc3545; }
+    .detail-card-header.success i { color: #28a745; }
+    .detail-card-header.warning i { color: #ffc107; }
+    .detail-card-header.info i { color: #17a2b8; }
+
+    .detail-card-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .detail-card-body {
+        padding: 1.5rem;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .detail-item label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-item span {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .badge-patologia {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+        border: 1px solid #dc3545;
+        border-radius: 8px;
+        color: #dc3545;
+        font-weight: 500;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .badge-normal {
+        background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+        border-color: #28a745;
+        color: #28a745;
+    }
+
+    .badge-pending {
+        background: linear-gradient(135deg, #fffaf0 0%, #feebc8 100%);
+        border-color: #ffc107;
+        color: #856404;
+    }
+
+    .bebe-card {
+        background: linear-gradient(135deg, #fff5f5 0%, #fff0f5 100%);
+        border: 2px solid #f8d7da;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .bebe-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .bebe-number {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .btn-outline-secondary {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    .lab-result {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .lab-negativo {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .lab-positivo {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .lab-pendiente {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    @media (max-width: 768px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+        .patient-info-grid {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <!-- Header con datos del paciente -->
+    <div class="patient-header">
+        <h1><i class="bi bi-clipboard2-pulse me-2"></i>{{ ficha.numero_ficha_parto }}</h1>
+        <p>Ficha de Ingreso a Parto</p>
+        
+        <div class="patient-info-grid">
+            <div class="patient-info-item">
+                <i class="bi bi-person-fill"></i>
+                <span><strong>{{ ficha_obstetrica.paciente.persona.Nombre }} {{ ficha_obstetrica.paciente.persona.Apellido_Paterno }}</strong></span>
+            </div>
+            <div class="patient-info-item">
+                <i class="bi bi-card-text"></i>
+                <span>RUT: {{ ficha_obstetrica.paciente.persona.Rut }}</span>
+            </div>
+            <div class="patient-info-item">
+                <i class="bi bi-file-medical"></i>
+                <span>Ficha Obstétrica: {{ ficha_obstetrica.numero_ficha }}</span>
+            </div>
+            <div class="patient-info-item">
+                <i class="bi bi-door-open"></i>
+                <span>Sala: {{ ficha.sala_asignada|default:"Sin asignar" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Datos de Ingreso -->
+    <div class="detail-card">
+        <div class="detail-card-header">
+            <i class="bi bi-calendar-event"></i>
+            <h3>Datos de Ingreso</h3>
+        </div>
+        <div class="detail-card-body">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Fecha de Ingreso</label>
+                    <span>{{ ficha.fecha_ingreso|date:"d/m/Y" }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Hora de Ingreso</label>
+                    <span>{{ ficha.hora_ingreso|time:"H:i" }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Edad Gestacional</label>
+                    <span>{{ ficha.edad_gestacional_semanas|default:"--" }}+{{ ficha.edad_gestacional_dias|default:"0" }} semanas</span>
+                </div>
+                <div class="detail-item">
+                    <label>Sala Asignada</label>
+                    <span>{{ ficha.sala_asignada|default:"Sin asignar" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Evaluación Cervical -->
+    <div class="detail-card">
+        <div class="detail-card-header info">
+            <i class="bi bi-bullseye"></i>
+            <h3>Evaluación Cervical</h3>
+        </div>
+        <div class="detail-card-body">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Dilatación</label>
+                    <span>{{ ficha.dilatacion_cervical_cm|default:"--" }} cm</span>
+                </div>
+                <div class="detail-item">
+                    <label>Borramiento</label>
+                    <span>{{ ficha.borramiento|default:"--" }}%</span>
+                </div>
+                <div class="detail-item">
+                    <label>Estado Cervical</label>
+                    <span>{{ ficha.estado_cervical|default:"No registrado" }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Altura Presentación</label>
+                    <span>{{ ficha.altura_presentacion|default:"No registrado" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Evaluación Fetal -->
+    <div class="detail-card">
+        <div class="detail-card-header success">
+            <i class="bi bi-emoji-smile"></i>
+            <h3>Evaluación Fetal</h3>
+        </div>
+        <div class="detail-card-body">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Posición Fetal</label>
+                    <span>{{ ficha.posicion_fetal|default:"No registrado" }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Estado Fetal</label>
+                    <span>{{ ficha.estado_fetal|default:"No registrado" }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>FCF</label>
+                    <span>{{ ficha.frecuencia_cardiaca_fetal|default:"--" }} lpm</span>
+                </div>
+                <div class="detail-item">
+                    <label>Membranas</label>
+                    <span>{% if ficha.membranas_rotas %}Rotas ({{ ficha.tiempo_ruptura_horas|default:"?" }} hrs){% else %}Íntegras{% endif %}</span>
+                </div>
+                <div class="detail-item">
+                    <label>Líquido Amniótico</label>
+                    <span>{{ ficha.caracteristicas_liquido|default:"No evaluado" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTG -->
+    {% if ficha.cardiotocografia_realizada %}
+    <div class="detail-card">
+        <div class="detail-card-header">
+            <i class="bi bi-graph-up"></i>
+            <h3>Cardiotocografía (CTG)</h3>
+        </div>
+        <div class="detail-card-body">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Resultado CTG</label>
+                    <span>{{ ficha.resultado_ctg|default:"No registrado" }}</span>
+                </div>
+                {% if ficha.observacion_ctg %}
+                <div class="detail-item" style="grid-column: span 2;">
+                    <label>Observaciones CTG</label>
+                    <span>{{ ficha.observacion_ctg }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Signos Vitales -->
+    <div class="detail-card">
+        <div class="detail-card-header danger">
+            <i class="bi bi-heart-pulse"></i>
+            <h3>Signos Vitales Maternos</h3>
+        </div>
+        <div class="detail-card-body">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>Presión Arterial</label>
+                    <span>{{ ficha.presion_arterial }}</span>
+                </div>
+                <div class="detail-item">
+                    <label>FC Materna</label>
+                    <span>{{ ficha.frecuencia_cardiaca_materna|default:"--" }} lpm</span>
+                </div>
+                <div class="detail-item">
+                    <label>Temperatura</label>
+                    <span>{{ ficha.temperatura|default:"--" }} °C</span>
+                </div>
+                <div class="detail-item">
+                    <label>Saturación O2</label>
+                    <span>{{ ficha.saturacion_oxigeno|default:"--" }}%</span>
+                </div>
+            </div>
+
+            {% if ficha.tiene_patologia_activa %}
+            <hr class="my-3">
+            <h6 class="text-danger mb-3"><i class="bi bi-exclamation-triangle me-2"></i>Patologías Activas</h6>
+            <div>
+                {% if ficha.preeclampsia_severa %}<span class="badge-patologia"><i class="bi bi-exclamation-circle"></i> Preeclampsia Severa</span>{% endif %}
+                {% if ficha.eclampsia %}<span class="badge-patologia"><i class="bi bi-exclamation-circle"></i> Eclampsia</span>{% endif %}
+                {% if ficha.sepsis_infeccion_grave %}<span class="badge-patologia"><i class="bi bi-exclamation-circle"></i> Sepsis/Infección Grave</span>{% endif %}
+                {% if ficha.infeccion_ovular %}<span class="badge-patologia"><i class="bi bi-exclamation-circle"></i> Infección Ovular</span>{% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Laboratorio -->
+    <div class="detail-card">
+        <div class="detail-card-header warning">
+            <i class="bi bi-droplet"></i>
+            <h3>Exámenes de Laboratorio</h3>
+        </div>
+        <div class="detail-card-body">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <label>VIH</label>
+                    <span class="lab-result lab-{% if ficha.vih_resultado == 'NEGATIVO' %}negativo{% elif ficha.vih_resultado == 'POSITIVO' %}positivo{% else %}pendiente{% endif %}">
+                        {{ ficha.get_vih_resultado_display }}
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <label>SGB</label>
+                    <span class="lab-result lab-{% if ficha.sgb_resultado == 'NEGATIVO' %}negativo{% elif ficha.sgb_resultado == 'POSITIVO' %}positivo{% else %}pendiente{% endif %}">
+                        {{ ficha.get_sgb_resultado_display }}
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <label>VDRL</label>
+                    <span class="lab-result lab-{% if ficha.vdrl_resultado == 'NEGATIVO' %}negativo{% elif ficha.vdrl_resultado == 'POSITIVO' %}positivo{% else %}pendiente{% endif %}">
+                        {{ ficha.get_vdrl_resultado_display }}
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <label>Hepatitis B</label>
+                    <span class="lab-result lab-{% if ficha.hepatitis_b_resultado == 'NEGATIVO' %}negativo{% elif ficha.hepatitis_b_resultado == 'POSITIVO' %}positivo{% else %}pendiente{% endif %}">
+                        {{ ficha.get_hepatitis_b_resultado_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bebés Esperados -->
+    {% if bebes %}
+    <div class="detail-card">
+        <div class="detail-card-header" style="background: linear-gradient(135deg, #fff5f5 0%, #fff0f5 100%);">
+            <i class="bi bi-emoji-smile-fill" style="color: #f5576c;"></i>
+            <h3>Bebé(s) Esperado(s)</h3>
+        </div>
+        <div class="detail-card-body">
+            {% for bebe in bebes %}
+            <div class="bebe-card">
+                <div class="bebe-card-header">
+                    <div class="bebe-number">{{ bebe.numero_bebe }}</div>
+                    <h5 style="margin: 0; font-weight: 600;">Bebé #{{ bebe.numero_bebe }}</h5>
+                </div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Sexo Esperado</label>
+                        <span>{{ bebe.get_sexo_esperado_display|default:"Sin determinar" }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Peso Estimado</label>
+                        <span>{{ bebe.peso_estimado|default:"--" }} gr</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Posición Fetal</label>
+                        <span>{{ bebe.posicion_fetal|default:"No registrado" }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>FCF</label>
+                        <span>{{ bebe.frecuencia_cardiaca|default:"--" }} lpm</span>
+                    </div>
+                    {% if bebe.observaciones %}
+                    <div class="detail-item" style="grid-column: span 2;">
+                        <label>Observaciones</label>
+                        <span>{{ bebe.observaciones }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Diagnóstico -->
+    {% if ficha.diagnostico_ingreso or ficha.plan_de_manejo or ficha.observaciones %}
+    <div class="detail-card">
+        <div class="detail-card-header">
+            <i class="bi bi-journal-medical"></i>
+            <h3>Diagnóstico y Plan</h3>
+        </div>
+        <div class="detail-card-body">
+            {% if ficha.diagnostico_ingreso %}
+            <div class="mb-3">
+                <label class="text-muted d-block mb-1">Diagnóstico de Ingreso</label>
+                <p class="mb-0">{{ ficha.diagnostico_ingreso }}</p>
+            </div>
+            {% endif %}
+            {% if ficha.plan_de_manejo %}
+            <div class="mb-3">
+                <label class="text-muted d-block mb-1">Plan de Manejo</label>
+                <p class="mb-0">{{ ficha.plan_de_manejo }}</p>
+            </div>
+            {% endif %}
+            {% if ficha.observaciones %}
+            <div>
+                <label class="text-muted d-block mb-1">Observaciones</label>
+                <p class="mb-0">{{ ficha.observaciones }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Botones de Acción -->
+    <div class="action-buttons">
+        <a href="{% url 'ingreso_parto:lista_fichas' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Volver a Lista
+        </a>
+        <a href="{% url 'ingreso_parto:editar_ficha' ficha.pk %}" class="btn-gradient">
+            <i class="bi bi-pencil"></i>Editar Ficha
+        </a>
+        {% comment %}
+        <a href="{% url 'partos:crear_registro' ficha.pk %}" class="btn-gradient" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+            <i class="bi bi-play-circle"></i>Iniciar Registro de Parto
+        </a>
+        {% endcomment %}
+    </div>
+</div>
+{% endblock %}

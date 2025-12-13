@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 
 from ingresoPartoApp.models import FichaParto
+from matronaApp.models import FichaObstetrica
 from .models import RegistroParto
 from .forms.registro_parto import (
     RegistroPartoBaseForm,
@@ -414,17 +415,68 @@ def lista_registros_parto(request):
 @login_required
 def menu_partos(request):
     """
-    Menu principal de partos
+    Menú principal de partos - Lista fichas de parto activas
     URL: /partos/
     """
-    total_registros = RegistroParto.objects.count()
-    registros_recientes = RegistroParto.objects.order_by('-fecha_creacion')[:5]
+    fichas_parto = FichaParto.objects.select_related(
+        'ficha_obstetrica__paciente__persona'
+    ).filter(activo=True).order_by('-fecha_creacion')
     
     context = {
-        'titulo': 'Registro de Partos',
-        'total_registros': total_registros,
-        'registros_recientes': registros_recientes
+        'fichas_parto': fichas_parto,
+        'titulo': 'Menú de Partos'
     }
-    return render(request, 'Parto/menu_partos.html', context)
+    return render(request, 'Partos/menu_partos.html', context)
+
+
+# ============================================
+# DETALLE FICHA OBSTETRICA
+# ============================================
+
+@login_required
+def detalle_ficha_obstetrica(request, ficha_pk):
+    ficha = get_object_or_404(
+        FichaObstetrica.objects.select_related(
+            'paciente__persona',
+            'consultorio_origen'
+        ).prefetch_related('patologias', 'medicamentos', 'registros_dilatacion'),
+        pk=ficha_pk
+    )
+    
+    # Calcular edad del paciente
+    from datetime import date
+    fecha_nac = ficha.paciente.persona.Fecha_Nacimiento
+    if fecha_nac:
+        today = date.today()
+        edad_paciente = today.year - fecha_nac.year - ((today.month, today.day) < (fecha_nac.month, fecha_nac.day))
+    else:
+        edad_paciente = None
+    
+    # Verificar si puede iniciar parto
+    puede_iniciar, razon, tipo_sugerido = ficha.puede_iniciar_parto()
+    
+    # Registros de dilatación
+    registros_dilatacion = ficha.registros_dilatacion.all().order_by('-fecha_hora')[:10]
+    
+    # Medicamentos
+    medicamentos = ficha.medicamentos.filter(activo=True)
+    
+    # Rango de bebés
+    cantidad_bebes = ficha.cantidad_bebes or 1
+    bebes_range = range(1, cantidad_bebes + 1)
+    
+    context = {
+        'ficha': ficha,
+        'edad_paciente': edad_paciente,
+        'puede_iniciar_parto': puede_iniciar,
+        'razon_parto': razon,
+        'tipo_parto_sugerido': tipo_sugerido,
+        'registros_dilatacion': registros_dilatacion,
+        'medicamentos': medicamentos,
+        'bebes_range': bebes_range,
+        'titulo': f'Ficha {ficha.numero_ficha}',
+    }
+    
+    return render(request, 'Matrona/detalle_ficha_obstetrica.html', context)
 
 

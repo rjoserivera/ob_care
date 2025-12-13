@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'rest_framework',
     # 'debug_toolbar',  # Comentado para desactivar la barra de debug
     'django_extensions',
-    'auditlog',
+    #'auditlog',
 
 
     # Apps de Obstetric Care (ORDEN IMPORTANTE)

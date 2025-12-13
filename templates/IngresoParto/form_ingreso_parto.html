@@ -1,506 +1,964 @@
 {% extends 'Shared/base.html' %}
 {% load static %}
 
-{% block title %}Ingreso a Sala de Parto{% endblock %}
+{% block title %}Ficha de Ingreso a Parto{% endblock %}
 
 {% block extra_css %}
 <style>
-    .form-container {
-        max-width: 1000px;
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --danger-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .page-container {
+        max-width: 1200px;
         margin: 0 auto;
-        padding: 1.5rem;
+        padding: 2rem;
     }
 
-    .form-header {
-        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-        color: white;
+    /* Header con datos del paciente */
+    .patient-header {
+        background: var(--primary-gradient);
+        border-radius: 16px;
         padding: 1.5rem 2rem;
-        border-radius: 15px;
         margin-bottom: 2rem;
-    }
-
-    .form-header h1 {
-        margin: 0;
-        font-size: 1.6rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .form-header .subtitle {
-        opacity: 0.9;
-        font-size: 0.95rem;
-        margin-top: 0.5rem;
-    }
-
-    .paciente-info-card {
-        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .paciente-datos h3 {
-        margin: 0;
-        color: #92400e;
-        font-size: 1.3rem;
-    }
-
-    .paciente-datos p {
-        margin: 0.25rem 0 0;
-        color: #78350f;
-    }
-
-    .paciente-sala {
-        background: #10b981;
         color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 10px;
-        text-align: center;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
     }
 
-    .paciente-sala .label {
-        font-size: 0.8rem;
-        opacity: 0.9;
-    }
-
-    .paciente-sala .numero {
-        font-size: 1.5rem;
+    .patient-header h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.75rem;
         font-weight: 700;
     }
 
-    .form-section {
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-        margin-bottom: 1.5rem;
-        overflow: hidden;
+    .patient-header p {
+        margin: 0;
+        opacity: 0.9;
     }
 
-    .section-header {
-        background: #f3f4f6;
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid #e5e7eb;
+    .patient-info-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        margin-top: 1rem;
+    }
+
+    .patient-info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .patient-info-item i {
+        font-size: 1.25rem;
+    }
+
+    /* Tabs Navigation */
+    .nav-tabs-custom {
+        border: none;
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 0.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .nav-tabs-custom .nav-link {
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.25rem;
+        font-weight: 500;
+        color: #6c757d;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .nav-tabs-custom .nav-link:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+    }
+
+    .nav-tabs-custom .nav-link.active {
+        background: var(--primary-gradient);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .nav-tabs-custom .nav-link i {
+        font-size: 1.1rem;
+    }
+
+    /* Tab Content */
+    .tab-content {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .tab-pane {
+        padding: 2rem;
+    }
+
+    /* Section dentro de tabs */
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .section-title {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-    }
-
-    .section-header i {
-        font-size: 1.3rem;
-        color: #6366f1;
-    }
-
-    .section-header.red i {
-        color: #dc2626;
-    }
-
-    .section-header.green i {
-        color: #10b981;
-    }
-
-    .section-header.blue i {
-        color: #3b82f6;
-    }
-
-    .section-header.purple i {
-        color: #8b5cf6;
-    }
-
-    .section-header.orange i {
-        color: #f59e0b;
-    }
-
-    .section-header h2 {
-        margin: 0;
         font-size: 1.1rem;
-        color: #374151;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #e9ecef;
     }
 
-    .section-body {
-        padding: 1.5rem;
+    .section-title i {
+        font-size: 1.25rem;
+        color: #667eea;
     }
 
-    .fields-grid {
+    .section-title.danger i { color: #dc3545; }
+    .section-title.success i { color: #28a745; }
+    .section-title.warning i { color: #ffc107; }
+    .section-title.info i { color: #17a2b8; }
+
+    /* Form Grid */
+    .form-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1.25rem;
     }
 
-    .fields-grid-4 {
+    .form-grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .form-grid-4 {
         grid-template-columns: repeat(4, 1fr);
     }
 
-    .field-group {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .field-group.full-width {
-        grid-column: 1 / -1;
-    }
-
-    .field-group.col-span-2 {
+    .col-span-2 {
         grid-column: span 2;
     }
 
-    .field-group label {
-        font-weight: 600;
-        color: #374151;
+    .col-span-full {
+        grid-column: 1 / -1;
+    }
+
+    /* Form Group */
+    .form-group {
+        margin-bottom: 0;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 500;
+        color: #495057;
         margin-bottom: 0.5rem;
         font-size: 0.9rem;
     }
 
-    .field-group input,
-    .field-group select,
-    .field-group textarea {
-        padding: 0.75rem;
-        border: 2px solid #e5e7eb;
-        border-radius: 10px;
-        font-size: 1rem;
+    .form-group label .required {
+        color: #dc3545;
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1.5px solid #dee2e6;
+        padding: 0.65rem 1rem;
         transition: all 0.3s ease;
     }
 
-    .field-group input:focus,
-    .field-group select:focus,
-    .field-group textarea:focus {
-        border-color: #6366f1;
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
     }
 
-    .field-group input[readonly],
-    .field-group input[readonly]:focus {
-        background-color: #f3f4f6;
-        border-color: #d1d5db;
-        cursor: not-allowed;
-        color: #6b7280;
-    }
-
+    /* Checkbox Group */
     .checkbox-group {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.5rem;
         padding: 0.75rem;
-        background: #f9fafb;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        height: 100%;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
     }
 
-    .checkbox-group:hover {
-        background: #f3f4f6;
-    }
-
-    .checkbox-group input[type="checkbox"] {
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
+    .checkbox-group .form-check-input {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin: 0;
     }
 
     .checkbox-group label {
         margin: 0;
-        cursor: pointer;
         font-weight: 500;
+        color: #495057;
     }
 
-    .form-actions {
-        display: flex;
-        gap: 1rem;
-        margin-top: 2rem;
-        flex-wrap: wrap;
+    /* Cards de Bebé */
+    .bebe-card {
+        background: linear-gradient(135deg, #fff5f5 0%, #fff0f5 100%);
+        border: 2px solid #f8d7da;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
     }
 
-    .btn-guardar {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-        border: none;
-        padding: 1rem 2.5rem;
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 1rem;
-        cursor: pointer;
+    .bebe-card-header {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .bebe-number {
+        width: 40px;
+        height: 40px;
+        background: var(--danger-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .bebe-card-title {
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+    }
+
+    /* Patologías */
+    .patologia-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .patologia-item:hover {
+        border-color: #dc3545;
+        background: #fff5f5;
+    }
+
+    .patologia-item.checked {
+        border-color: #dc3545;
+        background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+    }
+
+    .patologia-item .form-check-input:checked {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    /* Botones */
+    .btn-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding: 1.5rem 2rem;
+        background: #f8f9fa;
+        border-radius: 0 0 16px 16px;
+        margin-top: 0;
+    }
+
+    .btn-primary-gradient {
+        background: var(--primary-gradient);
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        color: white;
         transition: all 0.3s ease;
     }
 
-    .btn-guardar:hover {
+    .btn-primary-gradient:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(16, 185, 129, 0.4);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        color: white;
     }
 
-    .btn-cancelar {
-        background: #f3f4f6;
-        color: #374151;
-        border: 2px solid #d1d5db;
-        padding: 1rem 2rem;
-        border-radius: 10px;
+    .btn-secondary-outline {
+        background: white;
+        border: 2px solid #dee2e6;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
         font-weight: 600;
-        cursor: pointer;
-        text-decoration: none;
+        color: #6c757d;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary-outline:hover {
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    /* Indicador de lab */
+    .lab-result-group {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        border-left: 4px solid #17a2b8;
+    }
+
+    .lab-result-group.positivo {
+        border-left-color: #dc3545;
+        background: #fff5f5;
+    }
+
+    .lab-result-group.negativo {
+        border-left-color: #28a745;
+        background: #f0fff4;
+    }
+
+    /* Agregar bebé button */
+    .btn-add-bebe {
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 0.5rem;
+        width: 100%;
+        padding: 1rem;
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        background: white;
+        color: #6c757d;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
     }
 
-    .btn-cancelar:hover {
-        background: #e5e7eb;
-        color: #374151;
+    .btn-add-bebe:hover {
+        border-color: #667eea;
+        color: #667eea;
+        background: rgba(102, 126, 234, 0.05);
     }
 
+    /* Responsive */
     @media (max-width: 768px) {
-
-        .fields-grid,
-        .fields-grid-4 {
+        .form-grid-2, .form-grid-3, .form-grid-4 {
             grid-template-columns: 1fr;
         }
-
-        .field-group.col-span-2 {
+        
+        .col-span-2 {
             grid-column: span 1;
         }
-
-        .paciente-info-card {
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .form-actions {
+        
+        .nav-tabs-custom {
             flex-direction: column;
         }
-
-        .btn-guardar,
-        .btn-cancelar {
-            width: 100%;
-            justify-content: center;
+        
+        .patient-info-grid {
+            flex-direction: column;
+            gap: 0.75rem;
         }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="form-container">
-    <!-- Header -->
-    <div class="form-header">
-        <h1>
-            <i class="bi bi-clipboard2-pulse-fill"></i>
-            Ficha de Ingreso a Parto
-        </h1>
-        <p class="subtitle">Complete los datos de evaluación inicial en sala de parto</p>
-    </div>
-
-    <!-- Info paciente -->
-    <div class="paciente-info-card">
-        <div class="paciente-datos">
-            <h3>{{ ficha_obstetrica.paciente.persona.Nombre }} {{ ficha_obstetrica.paciente.persona.Apellido_Paterno }}
-            </h3>
-            <p>RUT: {{ ficha_obstetrica.paciente.persona.Rut }} | Ficha Obstétrica: {{ ficha_obstetrica.numero_ficha }}
-            </p>
+<div class="page-container">
+    <!-- Header con datos del paciente -->
+    <div class="patient-header">
+        <h1><i class="bi bi-clipboard2-pulse me-2"></i>Ficha de Ingreso a Parto</h1>
+        <p>Complete los datos de evaluación inicial en sala de parto</p>
+        
+        <div class="patient-info-grid">
+            <div class="patient-info-item">
+                <i class="bi bi-person-fill"></i>
+                <span><strong>{{ ficha_obstetrica.paciente.persona.Nombre }} {{ ficha_obstetrica.paciente.persona.Apellido_Paterno }}</strong></span>
+            </div>
+            <div class="patient-info-item">
+                <i class="bi bi-card-text"></i>
+                <span>RUT: {{ ficha_obstetrica.paciente.persona.Rut }}</span>
+            </div>
+            <div class="patient-info-item">
+                <i class="bi bi-file-medical"></i>
+                <span>Ficha Obstétrica: {{ ficha_obstetrica.numero_ficha }}</span>
+            </div>
+            <div class="patient-info-item">
+                <i class="bi bi-calendar-week"></i>
+                <span>EG: {{ ficha_obstetrica.edad_gestacional_semanas|default:"--" }}+{{ ficha_obstetrica.edad_gestacional_dias|default:"0" }} sem</span>
+            </div>
+            {% if ficha_parto.sala_asignada %}
+            <div class="patient-info-item">
+                <i class="bi bi-door-open"></i>
+                <span>Sala: {{ ficha_parto.sala_asignada }}</span>
+            </div>
+            {% endif %}
         </div>
-        {% if sala %}
-        <div class="paciente-sala">
-            <div class="label">Sala Asignada</div>
-            <div class="numero">Sala {{ sala }}</div>
-        </div>
-        {% endif %}
     </div>
 
-    {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        <i class="bi bi-info-circle-fill"></i> {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    {% endfor %}
-    {% endif %}
-
-    <form method="post" novalidate>
+    <form method="post" id="form-ingreso-parto">
         {% csrf_token %}
+        
+        <!-- Navegación de Tabs -->
+        <ul class="nav nav-tabs-custom" id="ingresoPartoTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-ingreso" data-bs-toggle="tab" data-bs-target="#panel-ingreso" type="button" role="tab">
+                    <i class="bi bi-calendar-event"></i>
+                    <span>Ingreso</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-evaluacion" data-bs-toggle="tab" data-bs-target="#panel-evaluacion" type="button" role="tab">
+                    <i class="bi bi-activity"></i>
+                    <span>Evaluación Obstétrica</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-materna" data-bs-toggle="tab" data-bs-target="#panel-materna" type="button" role="tab">
+                    <i class="bi bi-heart-pulse"></i>
+                    <span>Signos Vitales</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-laboratorio" data-bs-toggle="tab" data-bs-target="#panel-laboratorio" type="button" role="tab">
+                    <i class="bi bi-droplet"></i>
+                    <span>Laboratorio</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-bebes" data-bs-toggle="tab" data-bs-target="#panel-bebes" type="button" role="tab">
+                    <i class="bi bi-emoji-smile"></i>
+                    <span>Bebé(s)</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-diagnostico" data-bs-toggle="tab" data-bs-target="#panel-diagnostico" type="button" role="tab">
+                    <i class="bi bi-journal-medical"></i>
+                    <span>Diagnóstico</span>
+                </button>
+            </li>
+        </ul>
 
-        <!-- SECCIÓN 1: Datos de Ingreso -->
-        <div class="form-section">
-            <div class="section-header red">
-                <i class="bi bi-calendar-event"></i>
-                <h2>Datos de Ingreso</h2>
-            </div>
-            <div class="section-body">
-                <div class="fields-grid fields-grid-4">
-                    <div class="field-group">
-                        <label>Fecha de Ingreso</label>
-                        {{ form.fecha_ingreso }}
+        <!-- Contenido de Tabs -->
+        <div class="tab-content" id="ingresoPartoTabContent">
+            
+            <!-- ==================== TAB 1: DATOS DE INGRESO ==================== -->
+            <div class="tab-pane fade show active" id="panel-ingreso" role="tabpanel">
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-calendar-check"></i>
+                        Datos de Ingreso
                     </div>
-                    <div class="field-group">
-                        <label>Hora de Ingreso</label>
-                        {{ form.hora_ingreso }}
-                    </div>
-                    <div class="field-group">
-                        <label>Semanas de Gestación</label>
-                        {{ form.edad_gestacional_semanas }}
-                    </div>
-                    <div class="field-group">
-                        <label>Días Adicionales</label>
-                        {{ form.edad_gestacional_dias }}
+                    <div class="form-grid form-grid-4">
+                        <div class="form-group">
+                            <label>Fecha de Ingreso <span class="required">*</span></label>
+                            {{ form.fecha_ingreso }}
+                        </div>
+                        <div class="form-group">
+                            <label>Hora de Ingreso <span class="required">*</span></label>
+                            {{ form.hora_ingreso }}
+                        </div>
+                        <div class="form-group">
+                            <label>Sala Asignada</label>
+                            {{ form.sala_asignada }}
+                        </div>
+                        <div class="form-group">
+                            <label>Semanas + Días</label>
+                            <div class="d-flex gap-2">
+                                {{ form.edad_gestacional_semanas }}
+                                <span class="align-self-center">+</span>
+                                {{ form.edad_gestacional_dias }}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- SECCIÓN 2: Evaluación Cervical -->
-        <div class="form-section">
-            <div class="section-header purple">
-                <i class="bi bi-activity"></i>
-                <h2>Evaluación Inicial</h2>
-            </div>
-            <div class="section-body">
-                <div class="fields-grid">
-                    <div class="field-group">
-                        <label>Dilatación Cervical (cm)</label>
-                        {{ form.dilatacion_cervical_cm }}
+            <!-- ==================== TAB 2: EVALUACIÓN OBSTÉTRICA ==================== -->
+            <div class="tab-pane fade" id="panel-evaluacion" role="tabpanel">
+                <!-- Evaluación Cervical -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-bullseye"></i>
+                        Evaluación Cervical
                     </div>
-                    <div class="field-group">
-                        <label>Posición Fetal</label>
-                        {{ form.posicion_fetal }}
+                    <div class="form-grid form-grid-4">
+                        <div class="form-group">
+                            <label>Dilatación (cm)</label>
+                            {{ form.dilatacion_cervical_cm }}
+                        </div>
+                        <div class="form-group">
+                            <label>Borramiento (%)</label>
+                            {{ form.borramiento }}
+                        </div>
+                        <div class="form-group">
+                            <label>Estado Cervical</label>
+                            {{ form.estado_cervical }}
+                        </div>
+                        <div class="form-group">
+                            <label>Altura Presentación</label>
+                            {{ form.altura_presentacion }}
+                        </div>
                     </div>
-                    <div class="field-group">
-                        <label>Altura de Presentación</label>
-                        {{ form.altura_presentacion }}
+                </div>
+
+                <!-- Evaluación Fetal -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-emoji-smile"></i>
+                        Evaluación Fetal
                     </div>
-                    <div class="checkbox-group">
-                        {{ form.membranas_rotas }}
-                        <label>Membranas Rotas</label>
+                    <div class="form-grid form-grid-3">
+                        <div class="form-group">
+                            <label>Posición Fetal</label>
+                            {{ form.posicion_fetal }}
+                        </div>
+                        <div class="form-group">
+                            <label>Estado Fetal</label>
+                            {{ form.estado_fetal }}
+                        </div>
+                        <div class="form-group">
+                            <label>FCF (lpm)</label>
+                            {{ form.frecuencia_cardiaca_fetal }}
+                        </div>
                     </div>
-                    <div class="field-group col-span-2">
-                        <label>Características del Líquido Amniótico</label>
-                        {{ form.caracteristicas_liquido }}
+                </div>
+
+                <!-- Membranas -->
+                <div class="form-section">
+                    <div class="section-title info">
+                        <i class="bi bi-droplet-half"></i>
+                        Membranas y Líquido Amniótico
+                    </div>
+                    <div class="form-grid form-grid-4">
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                {{ form.membranas_rotas }}
+                                <label>Membranas Rotas</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Tiempo de Ruptura (hrs)</label>
+                            {{ form.tiempo_ruptura_horas }}
+                        </div>
+                        <div class="form-group col-span-2">
+                            <label>Características del Líquido</label>
+                            {{ form.caracteristicas_liquido }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTG -->
+                <div class="form-section">
+                    <div class="section-title success">
+                        <i class="bi bi-graph-up"></i>
+                        Cardiotocografía (CTG)
+                    </div>
+                    <div class="form-grid form-grid-3">
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                {{ form.cardiotocografia_realizada }}
+                                <label>CTG Realizada</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Resultado CTG</label>
+                            {{ form.resultado_ctg }}
+                        </div>
+                        <div class="form-group">
+                            <label>Observaciones CTG</label>
+                            {{ form.observacion_ctg }}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- SECCIÓN 3: Evaluación Fetal -->
-        <div class="form-section">
-            <div class="section-header green">
-                <i class="bi bi-heart-pulse"></i>
-                <h2>Evaluación Fetal</h2>
-            </div>
-            <div class="section-body">
-                <div class="fields-grid">
-                    <div class="field-group">
-                        <label>Frecuencia Cardíaca Fetal (lpm)</label>
-                        {{ form.frecuencia_cardiaca_fetal }}
+            <!-- ==================== TAB 3: SIGNOS VITALES MATERNOS ==================== -->
+            <div class="tab-pane fade" id="panel-materna" role="tabpanel">
+                <div class="form-section">
+                    <div class="section-title danger">
+                        <i class="bi bi-heart-pulse-fill"></i>
+                        Signos Vitales Maternos
                     </div>
-                    <div class="checkbox-group">
-                        {{ form.cardiotocografia_realizada }}
-                        <label>CTG Realizada</label>
+                    <div class="form-grid form-grid-3">
+                        <div class="form-group">
+                            <label>PA Sistólica (mmHg)</label>
+                            {{ form.presion_arterial_sistolica }}
+                        </div>
+                        <div class="form-group">
+                            <label>PA Diastólica (mmHg)</label>
+                            {{ form.presion_arterial_diastolica }}
+                        </div>
+                        <div class="form-group">
+                            <label>FC Materna (lpm)</label>
+                            {{ form.frecuencia_cardiaca_materna }}
+                        </div>
+                        <div class="form-group">
+                            <label>Temperatura (°C)</label>
+                            {{ form.temperatura }}
+                        </div>
+                        <div class="form-group">
+                            <label>Saturación O2 (%)</label>
+                            {{ form.saturacion_oxigeno }}
+                        </div>
                     </div>
-                    <div class="field-group col-span-2">
-                        <label>Resultado CTG</label>
-                        {{ form.resultado_ctg }}
+                </div>
+
+                <!-- Patologías Activas -->
+                <div class="form-section">
+                    <div class="section-title danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        Patologías Activas
+                    </div>
+                    <div class="form-grid form-grid-2">
+                        <div class="patologia-item">
+                            {{ form.preeclampsia_severa }}
+                            <label>Preeclampsia Severa</label>
+                        </div>
+                        <div class="patologia-item">
+                            {{ form.eclampsia }}
+                            <label>Eclampsia</label>
+                        </div>
+                        <div class="patologia-item">
+                            {{ form.sepsis_infeccion_grave }}
+                            <label>Sepsis / Infección Grave</label>
+                        </div>
+                        <div class="patologia-item">
+                            {{ form.infeccion_ovular }}
+                            <label>Infección Ovular / Corioamnionitis</label>
+                        </div>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label>Otras Patologías</label>
+                        {{ form.otras_patologias }}
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- SECCIÓN 4: Signos Vitales Maternos -->
-        <div class="form-section">
-            <div class="section-header blue">
-                <i class="bi bi-thermometer-half"></i>
-                <h2>Signos Vitales Maternos</h2>
-            </div>
-            <div class="section-body">
-                <div class="fields-grid fields-grid-4">
-                    <div class="field-group">
-                        <label>PA Sistólica (mmHg)</label>
-                        {{ form.presion_arterial_sistolica }}
+            <!-- ==================== TAB 4: LABORATORIO ==================== -->
+            <div class="tab-pane fade" id="panel-laboratorio" role="tabpanel">
+                <div class="row">
+                    <!-- VIH -->
+                    <div class="col-md-6">
+                        <div class="form-section">
+                            <div class="section-title danger">
+                                <i class="bi bi-shield-exclamation"></i>
+                                VIH
+                            </div>
+                            <div class="lab-result-group">
+                                <div class="form-grid form-grid-2 mb-3">
+                                    <div class="checkbox-group">
+                                        {{ form.vih_tomado_prepartos }}
+                                        <label>Tomado en Prepartos</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        {{ form.vih_tomado_sala }}
+                                        <label>Tomado en Sala</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Resultado VIH</label>
+                                    {{ form.vih_resultado }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="field-group">
-                        <label>PA Diastólica (mmHg)</label>
-                        {{ form.presion_arterial_diastolica }}
+
+                    <!-- SGB -->
+                    <div class="col-md-6">
+                        <div class="form-section">
+                            <div class="section-title warning">
+                                <i class="bi bi-bug"></i>
+                                Streptococcus Grupo B (SGB)
+                            </div>
+                            <div class="lab-result-group">
+                                <div class="checkbox-group mb-3">
+                                    {{ form.sgb_pesquisa }}
+                                    <label>Pesquisa SGB Realizada</label>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label>Resultado SGB</label>
+                                    {{ form.sgb_resultado }}
+                                </div>
+                                <div class="checkbox-group">
+                                    {{ form.antibiotico_sgb }}
+                                    <label>Antibiótico SGB Administrado</label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="field-group">
-                        <label>FC Materna (lpm)</label>
-                        {{ form.frecuencia_cardiaca_materna }}
+
+                    <!-- VDRL -->
+                    <div class="col-md-6">
+                        <div class="form-section">
+                            <div class="section-title info">
+                                <i class="bi bi-droplet-fill"></i>
+                                VDRL (Sífilis)
+                            </div>
+                            <div class="lab-result-group">
+                                <div class="form-group mb-3">
+                                    <label>Resultado VDRL</label>
+                                    {{ form.vdrl_resultado }}
+                                </div>
+                                <div class="checkbox-group">
+                                    {{ form.tratamiento_sifilis }}
+                                    <label>Tratamiento Sífilis Completo</label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="field-group">
-                        <label>Temperatura (°C)</label>
-                        {{ form.temperatura }}
+
+                    <!-- Hepatitis B -->
+                    <div class="col-md-6">
+                        <div class="form-section">
+                            <div class="section-title success">
+                                <i class="bi bi-shield-check"></i>
+                                Hepatitis B
+                            </div>
+                            <div class="lab-result-group">
+                                <div class="checkbox-group mb-3">
+                                    {{ form.hepatitis_b_tomado }}
+                                    <label>Hepatitis B Tomado</label>
+                                </div>
+                                <div class="form-group">
+                                    <label>Resultado Hepatitis B</label>
+                                    {{ form.hepatitis_b_resultado }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- SECCIÓN 5: Laboratorio -->
-        <div class="form-section">
-            <div class="section-header orange">
-                <i class="bi bi-droplet-fill"></i>
-                <h2>Exámenes de Laboratorio</h2>
-            </div>
-            <div class="section-body">
-                <div class="fields-grid">
-                    <div class="checkbox-group">
-                        {{ form.sgb_pesquisa }}
-                        <label>SGB Pesquisa Realizada</label>
+            <!-- ==================== TAB 5: BEBÉS ==================== -->
+            <div class="tab-pane fade" id="panel-bebes" role="tabpanel">
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-emoji-smile-fill"></i>
+                        Información de Bebé(s) Esperado(s)
                     </div>
-                    <div class="field-group">
-                        <label>Resultado SGB</label>
-                        {{ form.sgb_resultado }}
-                    </div>
-                    <div class="checkbox-group">
-                        {{ form.vih_tomado }}
-                        <label>VIH Tomado</label>
-                    </div>
-                    <div class="field-group">
-                        <label>Resultado VIH</label>
-                        {{ form.vih_resultado }}
-                    </div>
-                    <div class="field-group">
-                        <label>Resultado VDRL</label>
-                        {{ form.vdrl_resultado }}
-                    </div>
-                    <div class="checkbox-group">
-                        {{ form.hepatitis_b_tomado }}
-                        <label>Hepatitis B Tomado</label>
+                    
+                    <p class="text-muted mb-4">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Cantidad de bebés según ficha obstétrica: <strong>{{ ficha_obstetrica.cantidad_bebes }}</strong>
+                    </p>
+
+                    <!-- Container de bebés -->
+                    <div id="bebes-container">
+                        {% for i in bebes_range %}
+                        <div class="bebe-card" data-bebe="{{ i }}">
+                            <div class="bebe-card-header">
+                                <div class="bebe-number">{{ i }}</div>
+                                <h5 class="bebe-card-title">Bebé #{{ i }}</h5>
+                            </div>
+                            <div class="form-grid form-grid-4">
+                                <div class="form-group">
+                                    <label>Sexo Esperado</label>
+                                    <select name="bebe_{{ i }}_sexo" class="form-select">
+                                        <option value="">Sin determinar</option>
+                                        <option value="M">Masculino</option>
+                                        <option value="F">Femenino</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Peso Estimado (gr)</label>
+                                    <input type="number" name="bebe_{{ i }}_peso" class="form-control" min="500" max="6000" placeholder="Ej: 3200">
+                                </div>
+                                <div class="form-group">
+                                    <label>Posición Fetal</label>
+                                    <select name="bebe_{{ i }}_posicion" class="form-select">
+                                        <option value="">Seleccionar...</option>
+                                        {% for pos in posiciones_fetales %}
+                                        <option value="{{ pos.id }}">{{ pos.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>FCF (lpm)</label>
+                                    <input type="number" name="bebe_{{ i }}_fcf" class="form-control" min="60" max="220" placeholder="120-160">
+                                </div>
+                                <div class="form-group col-span-full">
+                                    <label>Observaciones</label>
+                                    <input type="text" name="bebe_{{ i }}_obs" class="form-control" placeholder="Observaciones del bebé...">
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <!-- Bebé por defecto si no hay rango -->
+                        <div class="bebe-card" data-bebe="1">
+                            <div class="bebe-card-header">
+                                <div class="bebe-number">1</div>
+                                <h5 class="bebe-card-title">Bebé #1</h5>
+                            </div>
+                            <div class="form-grid form-grid-4">
+                                <div class="form-group">
+                                    <label>Sexo Esperado</label>
+                                    <select name="bebe_1_sexo" class="form-select">
+                                        <option value="">Sin determinar</option>
+                                        <option value="M">Masculino</option>
+                                        <option value="F">Femenino</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Peso Estimado (gr)</label>
+                                    <input type="number" name="bebe_1_peso" class="form-control" min="500" max="6000" placeholder="Ej: 3200">
+                                </div>
+                                <div class="form-group">
+                                    <label>Posición Fetal</label>
+                                    <select name="bebe_1_posicion" class="form-select">
+                                        <option value="">Seleccionar...</option>
+                                        {% for pos in posiciones_fetales %}
+                                        <option value="{{ pos.id }}">{{ pos.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>FCF (lpm)</label>
+                                    <input type="number" name="bebe_1_fcf" class="form-control" min="60" max="220" placeholder="120-160">
+                                </div>
+                                <div class="form-group col-span-full">
+                                    <label>Observaciones</label>
+                                    <input type="text" name="bebe_1_obs" class="form-control" placeholder="Observaciones del bebé...">
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- SECCIÓN 6: Diagnóstico y Observaciones -->
-        <div class="form-section">
-            <div class="section-header">
-                <i class="bi bi-journal-medical"></i>
-                <h2>Diagnóstico y Observaciones</h2>
-            </div>
-            <div class="section-body">
-                <div class="fields-grid">
-                    <div class="field-group full-width">
-                        <label>Diagnóstico de Ingreso</label>
-                        {{ form.diagnostico_ingreso }}
+            <!-- ==================== TAB 6: DIAGNÓSTICO ==================== -->
+            <div class="tab-pane fade" id="panel-diagnostico" role="tabpanel">
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-journal-medical"></i>
+                        Diagnóstico y Plan de Manejo
                     </div>
-                    <div class="field-group full-width">
-                        <label>Observaciones</label>
-                        {{ form.observaciones }}
+                    <div class="form-grid">
+                        <div class="form-group col-span-full">
+                            <label>Diagnóstico de Ingreso <span class="required">*</span></label>
+                            {{ form.diagnostico_ingreso }}
+                        </div>
+                        <div class="form-group col-span-full">
+                            <label>Plan de Manejo</label>
+                            {{ form.plan_de_manejo }}
+                        </div>
+                        <div class="form-group col-span-full">
+                            <label>Observaciones</label>
+                            {{ form.observaciones }}
+                        </div>
                     </div>
                 </div>
             </div>
+
         </div>
 
-        <!-- Botones -->
-        <div class="form-actions">
-            <button type="submit" class="btn-guardar">
-                <i class="bi bi-check-lg"></i> Guardar Ficha de Ingreso
-            </button>
-            <a href="{% url 'matrona:detalle_ficha' ficha_obstetrica.pk %}" class="btn-cancelar">
-                <i class="bi bi-x-lg"></i> Cancelar
+        <!-- Botones de Acción -->
+        <div class="btn-actions">
+            <a href="{% url 'ingreso_parto:lista_fichas' %}" class="btn btn-secondary-outline">
+                <i class="bi bi-x-lg me-2"></i>Cancelar
             </a>
+            <button type="submit" class="btn btn-primary-gradient">
+                <i class="bi bi-check2-circle me-2"></i>Guardar Ficha de Ingreso
+            </button>
         </div>
     </form>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Marcar patologías como checked visualmente
+    document.querySelectorAll('.patologia-item input[type="checkbox"]').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                this.closest('.patologia-item').classList.add('checked');
+            } else {
+                this.closest('.patologia-item').classList.remove('checked');
+            }
+        });
+        // Estado inicial
+        if (checkbox.checked) {
+            checkbox.closest('.patologia-item').classList.add('checked');
+        }
+    });
+
+    // Mostrar/ocultar tiempo de ruptura según membranas rotas
+    const membranasRotas = document.querySelector('[name="membranas_rotas"]');
+    const tiempoRuptura = document.querySelector('[name="tiempo_ruptura_horas"]');
+    
+    if (membranasRotas && tiempoRuptura) {
+        function toggleTiempoRuptura() {
+            const grupo = tiempoRuptura.closest('.form-group');
+            if (membranasRotas.checked) {
+                grupo.style.display = 'block';
+            } else {
+                grupo.style.display = 'none';
+                tiempoRuptura.value = '';
+            }
+        }
+        
+        membranasRotas.addEventListener('change', toggleTiempoRuptura);
+        toggleTiempoRuptura();
+    }
+
+    // Mostrar/ocultar resultado CTG según CTG realizada
+    const ctgRealizada = document.querySelector('[name="cardiotocografia_realizada"]');
+    const resultadoCTG = document.querySelector('[name="resultado_ctg"]');
+    
+    if (ctgRealizada && resultadoCTG) {
+        function toggleResultadoCTG() {
+            const grupo = resultadoCTG.closest('.form-group');
+            const obsGrupo = document.querySelector('[name="observacion_ctg"]').closest('.form-group');
+            if (ctgRealizada.checked) {
+                grupo.style.display = 'block';
+                obsGrupo.style.display = 'block';
+            } else {
+                grupo.style.display = 'none';
+                obsGrupo.style.display = 'none';
+            }
+        }
+        
+        ctgRealizada.addEventListener('change', toggleResultadoCTG);
+        toggleResultadoCTG();
+    }
+
+    // Validación antes de enviar
+    document.getElementById('form-ingreso-parto').addEventListener('submit', function(e) {
+        const fechaIngreso = document.querySelector('[name="fecha_ingreso"]').value;
+        const horaIngreso = document.querySelector('[name="hora_ingreso"]').value;
+        
+        if (!fechaIngreso || !horaIngreso) {
+            e.preventDefault();
+            alert('Por favor complete la fecha y hora de ingreso.');
+            document.getElementById('tab-ingreso').click();
+            return false;
+        }
+    });
+});
+</script>
 {% endblock %}

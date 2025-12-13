@@ -1,11 +1,16 @@
 """
 matronaApp/forms/ficha_obstetrica_form.py
-Formularios para Ficha Obstétrica y Medicamentos
-ACTUALIZADO: Incluye TODOS los campos del modelo
+ACTUALIZADO: Con campo tipo_ingreso
 """
 
 from django import forms
-from ..models import FichaObstetrica, MedicamentoFicha, CatalogoConsultorioOrigen, CatalogoViaAdministracion
+from ..models import (
+    FichaObstetrica, 
+    MedicamentoFicha, 
+    CatalogoConsultorioOrigen, 
+    CatalogoViaAdministracion,
+    CatalogoMedicamento
+)
 
 
 class FichaObstetricaForm(forms.ModelForm):
@@ -15,7 +20,12 @@ class FichaObstetricaForm(forms.ModelForm):
         model = FichaObstetrica
         fields = [
             # ============================================
-            # SECCIÓN 1: ACOMPAÑANTE
+            # SECCIÓN 1: TIPO DE INGRESO (NUEVO)
+            # ============================================
+            'tipo_ingreso',
+            
+            # ============================================
+            # SECCIÓN 2: ACOMPAÑANTE
             # ============================================
             'tiene_acompanante',
             'nombre_acompanante',
@@ -24,28 +34,28 @@ class FichaObstetricaForm(forms.ModelForm):
             'telefono_acompanante',
             
             # ============================================
-            # SECCIÓN 2: CONTACTO DE EMERGENCIA
+            # SECCIÓN 3: CONTACTO DE EMERGENCIA
             # ============================================
             'nombre_contacto_emergencia',
             'telefono_emergencia',
             'parentesco_contacto_emergencia',
             
             # ============================================
-            # SECCIÓN 3: DATOS GENERALES
+            # SECCIÓN 4: DATOS GENERALES
             # ============================================
             'plan_de_parto',
             'visita_guiada',
             'consultorio_origen',
             
             # ============================================
-            # SECCIÓN 4: MEDIDAS ANTROPOMÉTRICAS
+            # SECCIÓN 5: MEDIDAS ANTROPOMÉTRICAS
             # ============================================
             'peso_actual',
             'talla_actual',
             'imc',
             
             # ============================================
-            # SECCIÓN 5: HISTORIA OBSTÉTRICA
+            # SECCIÓN 6: HISTORIA OBSTÉTRICA
             # ============================================
             'numero_gestas',
             'numero_partos',
@@ -55,7 +65,7 @@ class FichaObstetricaForm(forms.ModelForm):
             'nacidos_vivos',
             
             # ============================================
-            # SECCIÓN 6: EMBARAZO ACTUAL
+            # SECCIÓN 7: EMBARAZO ACTUAL
             # ============================================
             'fecha_ultima_regla',
             'fecha_probable_parto',
@@ -66,7 +76,7 @@ class FichaObstetricaForm(forms.ModelForm):
             'numero_controles',
             
             # ============================================
-            # SECCIÓN 7: EXÁMENES VIH
+            # SECCIÓN 8: EXÁMENES VIH
             # ============================================
             'vih_1_realizado',
             'vih_1_fecha',
@@ -76,7 +86,7 @@ class FichaObstetricaForm(forms.ModelForm):
             'vih_2_resultado',
             
             # ============================================
-            # SECCIÓN 8: PATOLOGÍAS
+            # SECCIÓN 9: PATOLOGÍAS
             # ============================================
             'preeclampsia_severa',
             'eclampsia',
@@ -87,11 +97,19 @@ class FichaObstetricaForm(forms.ModelForm):
         
         widgets = {
             # ============================================
+            # TIPO DE INGRESO (NUEVO - RadioSelect para mejor UX)
+            # ============================================
+            'tipo_ingreso': forms.RadioSelect(attrs={
+                'class': 'form-check-input'
+            }),
+            
+            # ============================================
             # ACOMPAÑANTE
             # ============================================
             'tiene_acompanante': forms.CheckboxInput(attrs={
                 'class': 'form-check-input',
-                'id': 'id_tiene_acompanante'
+                'id': 'id_tiene_acompanante',
+                'onchange': 'toggleAcompanante()'
             }),
             'nombre_acompanante': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -150,14 +168,16 @@ class FichaObstetricaForm(forms.ModelForm):
                 'step': '0.01',
                 'min': '30',
                 'max': '200',
-                'placeholder': 'Ej: 65.5'
+                'placeholder': 'Ej: 65.5',
+                'onchange': 'calcularIMC()'
             }),
             'talla_actual': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'step': '0.01',
                 'min': '100',
                 'max': '220',
-                'placeholder': 'Ej: 165'
+                'placeholder': 'Ej: 165',
+                'onchange': 'calcularIMC()'
             }),
             'imc': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -242,7 +262,7 @@ class FichaObstetricaForm(forms.ModelForm):
             }),
             
             # ============================================
-            # EXÁMENES VIH
+            # VIH
             # ============================================
             'vih_1_realizado': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
@@ -282,7 +302,7 @@ class FichaObstetricaForm(forms.ModelForm):
             }),
             'otras_patologias': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': '3',
+                'rows': 3,
                 'placeholder': 'Describa otras patologías si las hay...'
             }),
         }
@@ -290,40 +310,23 @@ class FichaObstetricaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # ============================================
-        # CAMPOS OPCIONALES
-        # ============================================
+        # Campos opcionales
         campos_opcionales = [
-            'nombre_acompanante',
-            'rut_acompanante',
-            'parentesco_acompanante',
-            'telefono_acompanante',
-            'nombre_contacto_emergencia',
-            'telefono_emergencia',
-            'parentesco_contacto_emergencia',
-            'consultorio_origen',
-            'peso_actual',
-            'talla_actual',
-            'imc',
-            'fecha_ultima_regla',
-            'fecha_probable_parto',
-            'edad_gestacional_semanas',
-            'edad_gestacional_dias',
-            'vih_1_fecha',
-            'vih_1_resultado',
-            'vih_2_fecha',
-            'vih_2_resultado',
+            'nombre_acompanante', 'rut_acompanante', 'parentesco_acompanante',
+            'telefono_acompanante', 'nombre_contacto_emergencia', 
+            'telefono_emergencia', 'parentesco_contacto_emergencia',
+            'consultorio_origen', 'peso_actual', 'talla_actual', 'imc',
+            'fecha_ultima_regla', 'fecha_probable_parto',
+            'edad_gestacional_semanas', 'edad_gestacional_dias',
+            'vih_1_fecha', 'vih_1_resultado', 'vih_2_fecha', 'vih_2_resultado',
             'otras_patologias',
-            'numero_controles',
         ]
         
         for campo in campos_opcionales:
             if campo in self.fields:
                 self.fields[campo].required = False
         
-        # ============================================
-        # QUERYSET PARA CONSULTORIO
-        # ============================================
+        # Queryset para consultorio
         if 'consultorio_origen' in self.fields:
             try:
                 self.fields['consultorio_origen'].queryset = CatalogoConsultorioOrigen.objects.filter(activo=True)
@@ -344,14 +347,11 @@ class FichaObstetricaForm(forms.ModelForm):
             imc = float(peso) / (talla_metros ** 2)
             cleaned_data['imc'] = round(imc, 2)
         
-        # Validar que partos = partos_vaginales + partos_cesareas
-        numero_partos = cleaned_data.get('numero_partos', 0) or 0
-        partos_vaginales = cleaned_data.get('partos_vaginales', 0) or 0
-        partos_cesareas = cleaned_data.get('partos_cesareas', 0) or 0
-        
-        if partos_vaginales + partos_cesareas != numero_partos:
-            # Auto-corregir en lugar de error
-            cleaned_data['numero_partos'] = partos_vaginales + partos_cesareas
+        # Validar datos del acompañante si viene con uno
+        tiene_acompanante = cleaned_data.get('tiene_acompanante')
+        if tiene_acompanante:
+            if not cleaned_data.get('nombre_acompanante'):
+                self.add_error('nombre_acompanante', 'Debe ingresar el nombre del acompañante')
         
         return cleaned_data
 
@@ -359,13 +359,27 @@ class FichaObstetricaForm(forms.ModelForm):
 class MedicamentoFichaForm(forms.ModelForm):
     """Formulario para crear/editar Medicamentos en Ficha"""
     
+    # Campo de búsqueda para autocompletar
+    buscar_medicamento = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Buscar medicamento...',
+            'id': 'buscar_medicamento',
+            'autocomplete': 'off'
+        }),
+        label='Buscar en catálogo'
+    )
+    
     class Meta:
         model = MedicamentoFicha
         fields = [
+            'medicamento_catalogo',
             'medicamento',
             'dosis',
             'via_administracion',
             'frecuencia',
+            'cantidad',
             'fecha_inicio',
             'fecha_termino',
             'indicaciones',
@@ -373,9 +387,13 @@ class MedicamentoFichaForm(forms.ModelForm):
         ]
         
         widgets = {
+            'medicamento_catalogo': forms.Select(attrs={
+                'class': 'form-select',
+                'id': 'id_medicamento_catalogo'
+            }),
             'medicamento': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Nombre del medicamento'
+                'placeholder': 'Nombre del medicamento (si no está en catálogo)'
             }),
             'dosis': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -388,17 +406,22 @@ class MedicamentoFichaForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Ej: Cada 8 horas'
             }),
-            'fecha_inicio': forms.DateInput(attrs={
+            'cantidad': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'type': 'date'
+                'min': '1',
+                'value': '1'
             }),
-            'fecha_termino': forms.DateInput(attrs={
+            'fecha_inicio': forms.DateTimeInput(attrs={
                 'class': 'form-control',
-                'type': 'date'
+                'type': 'datetime-local'
+            }),
+            'fecha_termino': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'type': 'datetime-local'
             }),
             'indicaciones': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': '2',
+                'rows': 2,
                 'placeholder': 'Indicaciones especiales...'
             }),
             'activo': forms.CheckboxInput(attrs={
@@ -409,14 +432,42 @@ class MedicamentoFichaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Campos opcionales
-        self.fields['fecha_termino'].required = False
-        self.fields['indicaciones'].required = False
-        
-        # Queryset para vía de administración
+        # Vías de administración
         if 'via_administracion' in self.fields:
             try:
                 self.fields['via_administracion'].queryset = CatalogoViaAdministracion.objects.filter(activo=True)
                 self.fields['via_administracion'].empty_label = "Seleccione vía..."
             except:
                 pass
+        
+        # Medicamentos del catálogo
+        if 'medicamento_catalogo' in self.fields:
+            try:
+                self.fields['medicamento_catalogo'].queryset = CatalogoMedicamento.objects.filter(activo=True)
+                self.fields['medicamento_catalogo'].empty_label = "Seleccione del catálogo (opcional)..."
+                self.fields['medicamento_catalogo'].required = False
+            except:
+                pass
+        
+        # Campos opcionales
+        self.fields['fecha_termino'].required = False
+        self.fields['indicaciones'].required = False
+        self.fields['medicamento'].required = False  # Porque puede usar catálogo
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        medicamento_catalogo = cleaned_data.get('medicamento_catalogo')
+        medicamento_texto = cleaned_data.get('medicamento')
+        
+        # Debe tener al menos uno
+        if not medicamento_catalogo and not medicamento_texto:
+            raise forms.ValidationError(
+                'Debe seleccionar un medicamento del catálogo o ingresar el nombre manualmente.'
+            )
+        
+        # Si hay catálogo, copiar nombre al campo texto
+        if medicamento_catalogo and not medicamento_texto:
+            cleaned_data['medicamento'] = str(medicamento_catalogo)
+        
+        return cleaned_data

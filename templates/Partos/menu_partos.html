@@ -1,0 +1,142 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Registro de Partos{% endblock %}
+
+{% block extra_css %}
+<style>
+    .menu-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .menu-header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 3rem 2rem;
+        border-radius: 15px;
+        margin-bottom: 3rem;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .menu-header h1 {
+        font-size: 2.5rem;
+        margin: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .menu-header p {
+        font-size: 1.1rem;
+        margin: 0;
+        opacity: 0.95;
+    }
+
+    .fichas-list {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .fichas-list h2 {
+        color: #333;
+        margin-top: 0;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f5576c;
+    }
+
+    .ficha-item {
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-left: 4px solid #f5576c;
+    }
+
+    .ficha-info h4 {
+        margin: 0;
+        color: #333;
+    }
+
+    .ficha-info p {
+        margin: 0.3rem 0 0 0;
+        color: #999;
+        font-size: 0.9rem;
+    }
+
+    .ficha-link {
+        background: #f5576c;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .ficha-link:hover {
+        background: #f093fb;
+        transform: translateY(-2px);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #999;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+        color: #ddd;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="menu-container">
+    <!-- Header -->
+    <div class="menu-header">
+        <h1><i class="bi bi-clipboard2-pulse"></i> Registro de Partos</h1>
+        <p>Gestión de Fichas de Parto Activas</p>
+    </div>
+
+    <!-- Fichas de Parto Activas -->
+    {% if fichas_parto %}
+    <div class="fichas-list">
+        <h2><i class="bi bi-list-check"></i> Fichas de Parto Activas</h2>
+        
+        {% for ficha in fichas_parto %}
+        <div class="ficha-item">
+            <div class="ficha-info">
+                <h4>Ficha #{{ ficha.ficha_obstetrica.numero_ficha }}</h4>
+                <p>
+                    <i class="bi bi-person"></i>
+                    {{ ficha.ficha_obstetrica.paciente.persona.Nombre }} {{ ficha.ficha_obstetrica.paciente.persona.Apellido_Paterno }}
+                </p>
+                <p>
+                    <i class="bi bi-calendar"></i>
+                    {{ ficha.fecha_creacion|date:"d/m/Y H:i" }}
+                </p>
+            </div>
+            <a href="{% url 'partos:crear_registro_parto_paso1' ficha.pk %}" class="ficha-link">
+                Iniciar Registro
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <h3>Sin fichas de parto activas</h3>
+        <p>No hay fichas de parto disponibles en este momento</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
