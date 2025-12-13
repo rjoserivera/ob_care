@@ -216,10 +216,73 @@
         margin-bottom: 1rem;
     }
 
+    /* Tabs Navigation */
+    .nav-tabs-custom {
+        border: none;
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 0.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .nav-tabs-custom .nav-link {
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.25rem;
+        font-weight: 700;
+        font-size: 1rem;
+        color: #000000;
+        background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: 2px solid #7dd3fc;
+    }
+
+    .nav-tabs-custom .nav-link:hover {
+        background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%);
+        color: #000000;
+        border-color: #0284c7;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+    }
+
+    .nav-tabs-custom .nav-link.active {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+        border-color: transparent;
+    }
+
+    .nav-tabs-custom .nav-link span,
+    .nav-tabs-custom .nav-link i {
+        color: #000000 !important;
+    }
+
+    .nav-tabs-custom .nav-link.active span,
+    .nav-tabs-custom .nav-link.active i {
+        color: white !important;
+    }
+
+    .tab-content {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .tab-pane {
+        padding: 2rem;
+    }
+
     @media (max-width: 768px) {
         .form-row { grid-template-columns: 1fr; }
         .button-group { flex-direction: column; }
         .btn { width: 100%; justify-content: center; }
+        .nav-tabs-custom { flex-direction: column; }
     }
 </style>
 {% endblock %}
@@ -264,6 +327,45 @@
         <form method="post" id="fichaForm">
             {% csrf_token %}
 
+            <!-- Navegación de Tabs -->
+            <ul class="nav nav-tabs-custom" id="fichaFormTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tab-contacto" data-bs-toggle="tab" data-bs-target="#panel-contacto" type="button" role="tab">
+                        <i class="bi bi-telephone-fill"></i>
+                        <span>Contacto</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-medidas" data-bs-toggle="tab" data-bs-target="#panel-medidas" type="button" role="tab">
+                        <i class="bi bi-rulers"></i>
+                        <span>Medidas</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-embarazo" data-bs-toggle="tab" data-bs-target="#panel-embarazo" type="button" role="tab">
+                        <i class="bi bi-calendar-heart"></i>
+                        <span>Embarazo</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-examenes" data-bs-toggle="tab" data-bs-target="#panel-examenes" type="button" role="tab">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Exámenes</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-patologias" data-bs-toggle="tab" data-bs-target="#panel-patologias" type="button" role="tab">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <span>Patologías</span>
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Contenido de Tabs -->
+            <div class="tab-content" id="fichaFormTabContent">
+
+                <!-- ==================== TAB 1: CONTACTO Y ACOMPAÑANTE ==================== -->
+                <div class="tab-pane fade show active" id="panel-contacto" role="tabpanel">
             <!-- ==================== SECCIÓN: CONTACTO DE EMERGENCIA ==================== -->
             <div class="form-section">
                 <div class="section-title">
@@ -359,6 +461,11 @@
                     </div>
                 </div>
             </div>
+                </div>
+                <!-- End Tab 1: Contacto -->
+
+                <!-- ==================== TAB 2: MEDIDAS E HISTORIA ==================== -->
+                <div class="tab-pane fade" id="panel-medidas" role="tabpanel">
 
             <!-- ==================== SECCIÓN: DATOS GENERALES ==================== -->
             <div class="form-section">
@@ -473,6 +580,11 @@
                     </div>
                 </div>
             </div>
+                </div>
+                <!-- End Tab 2: Medidas -->
+
+                <!-- ==================== TAB 3: EMBARAZO ACTUAL ==================== -->
+                <div class="tab-pane fade" id="panel-embarazo" role="tabpanel">
 
             <!-- ==================== SECCIÓN: EMBARAZO ACTUAL ==================== -->
             <div class="form-section">
@@ -534,6 +646,11 @@
                     </div>
                 </div>
             </div>
+                </div>
+                <!-- End Tab 3: Embarazo -->
+
+                <!-- ==================== TAB 4: EXÁMENES VIH ==================== -->
+                <div class="tab-pane fade" id="panel-examenes" role="tabpanel">
 
             <!-- ==================== SECCIÓN: VIH ==================== -->
             <div class="form-section">
@@ -605,6 +722,11 @@
                     </div>
                 </div>
             </div>
+                </div>
+                <!-- End Tab 4: Exámenes -->
+
+                <!-- ==================== TAB 5: PATOLOGÍAS ==================== -->
+                <div class="tab-pane fade" id="panel-patologias" role="tabpanel">
 
             <!-- ==================== SECCIÓN: PATOLOGÍAS ==================== -->
             <div class="form-section">
@@ -657,6 +779,11 @@
                               id="id_otras_patologias">{{ form.otras_patologias.value|default:'' }}</textarea>
                 </div>
             </div>
+                </div>
+                <!-- End Tab 5: Patologías -->
+
+            </div>
+            <!-- End tab-content -->
 
             <!-- ==================== BOTONES ==================== -->
             <div class="button-group">
