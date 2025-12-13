@@ -1010,7 +1010,7 @@
                             {% endif %}
                         </div>
                     </div>
-                    {% if ficha.vih_1_realizado %}
+                    {% if ficha.vih_1_fecha or ficha.vih_1_resultado %}
                     <div class="info-item">
                         <div class="info-label">Fecha VIH 1</div>
                         <div class="info-value">{{ ficha.vih_1_fecha|date:"d/m/Y"|default:"--" }}</div>
@@ -1030,7 +1030,7 @@
                             {% endif %}
                         </div>
                     </div>
-                    {% if ficha.vih_2_realizado %}
+                    {% if ficha.vih_2_fecha or ficha.vih_2_resultado %}
                     <div class="info-item">
                         <div class="info-label">Fecha VIH 2</div>
                         <div class="info-value">{{ ficha.vih_2_fecha|date:"d/m/Y"|default:"--" }}</div>
@@ -1053,9 +1053,25 @@
                 </div>
                 
                 <div class="info-grid mb-4">
-                    <div class="info-item {% if ficha.estado_dilatacion >= 8 %}success{% elif ficha.estado_dilatacion >= 4 %}warning{% endif %}">
+                    <div class="info-item {% if ficha.valor_dilatacion_actual >= 8 %}success{% elif ficha.valor_dilatacion_actual >= 4 %}warning{% endif %}">
                         <div class="info-label">Dilatación Actual</div>
-                        <div class="info-value" style="font-size: 1.5rem;">{{ ficha.estado_dilatacion|default:"0" }} cm</div>
+                        <div class="info-value" style="font-size: 1.5rem;">{{ ficha.valor_dilatacion_actual|default:"0" }} cm</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Estado</div>
+                        <div class="info-value">
+                            {% if ficha.estado_dilatacion == 'SIN_REGISTRO' %}
+                                <span class="badge-custom badge-warning">⏳ Sin registro</span>
+                            {% elif ficha.estado_dilatacion == 'PROGRESANDO' %}
+                                <span class="badge-custom badge-info">📈 Progresando</span>
+                            {% elif ficha.estado_dilatacion == 'ESTANCADA' %}
+                                <span class="badge-custom badge-danger">⚠️ Estancada</span>
+                            {% elif ficha.estado_dilatacion == 'LISTA' %}
+                                <span class="badge-custom badge-success">✅ Lista</span>
+                            {% else %}
+                                <span class="badge-custom badge-warning">{{ ficha.estado_dilatacion }}</span>
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Proceso de Parto</div>
@@ -1069,6 +1085,13 @@
                     </div>
                 </div>
 
+                <!-- Botón para registrar nueva dilatación -->
+                <div class="mb-4">
+                    <button type="button" class="btn-gradient" onclick="mostrarModalDilatacion()">
+                        <i class="bi bi-plus-circle"></i> Registrar Nueva Dilatación
+                    </button>
+                </div>
+
                 <!-- Timeline de registros -->
                 {% if registros_dilatacion %}
                 <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Historial de Registros</h5>
@@ -1077,11 +1100,11 @@
                     <div class="dilatacion-item">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <div class="valor">{{ registro.dilatacion_cm }} cm</div>
+                                <div class="valor">{{ registro.valor_dilatacion }} cm</div>
                                 <div class="fecha">{{ registro.fecha_hora|date:"d/m/Y H:i" }}</div>
                             </div>
-                            {% if registro.observaciones %}
-                            <small class="text-muted">{{ registro.observaciones }}</small>
+                            {% if registro.observacion %}
+                            <small class="text-muted">{{ registro.observacion }}</small>
                             {% endif %}
                         </div>
                     </div>
@@ -1128,60 +1151,24 @@
             <div class="section-block">
                 <div class="section-title">
                     <i class="bi bi-emoji-smile-fill"></i>
-                    Información de Bebé(s) - Cantidad: {{ ficha.cantidad_bebes|default:"1" }}
+                    Bebés Esperados
                 </div>
                 
-                {% for i in bebes_range %}
-                <div class="bebe-card">
-                    <div class="bebe-header">
-                        <div class="bebe-number">{{ i }}</div>
-                        <h5 style="margin: 0; font-weight: 600;">Bebé #{{ i }}</h5>
-                    </div>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <div class="info-label">Sexo Esperado</div>
-                            <div class="info-value">Por determinar</div>
+                <div class="info-grid">
+                    <div class="info-item" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+                        <div style="font-size: 4rem; color: #11998e; margin-bottom: 1rem;">
+                            <i class="bi bi-people-fill"></i>
                         </div>
-                        <div class="info-item">
-                            <div class="info-label">Peso Estimado</div>
-                            <div class="info-value">-- gr</div>
+                        <div class="info-label" style="font-size: 1.2rem; margin-bottom: 0.5rem;">Cantidad de Bebés Esperados</div>
+                        <div class="info-value" style="font-size: 3rem; font-weight: 700; color: #11998e;">
+                            {{ ficha.cantidad_bebes|default:"1" }}
                         </div>
-                        <div class="info-item">
-                            <div class="info-label">Posición</div>
-                            <div class="info-value">Por evaluar</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">FCF</div>
-                            <div class="info-value">-- lpm</div>
-                        </div>
+                        <p class="text-muted mt-3">
+                            <i class="bi bi-info-circle"></i> 
+                            Los datos detallados de cada bebé se registrarán después del parto
+                        </p>
                     </div>
                 </div>
-                {% empty %}
-                <div class="bebe-card">
-                    <div class="bebe-header">
-                        <div class="bebe-number">1</div>
-                        <h5 style="margin: 0; font-weight: 600;">Bebé #1</h5>
-                    </div>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <div class="info-label">Sexo Esperado</div>
-                            <div class="info-value">Por determinar</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Peso Estimado</div>
-                            <div class="info-value">-- gr</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Posición</div>
-                            <div class="info-value">Por evaluar</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">FCF</div>
-                            <div class="info-value">-- lpm</div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
             </div>
         </div>
 

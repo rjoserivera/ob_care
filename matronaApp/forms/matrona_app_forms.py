@@ -13,16 +13,29 @@ class FichaObstetricaForm(forms.ModelForm):
     class Meta:
         model = FichaObstetrica
         fields = [
-            # Sección 1: Identificación
-            'nombre_acompanante',
+            # Sección 1: Contacto de Emergencia
+            'nombre_contacto_emergencia',
+            'telefono_emergencia',
+            'parentesco_contacto_emergencia',
             
-            # Sección 2: Datos Generales
+            # Sección 2: Acompañante
+            'tiene_acompanante',
+            'nombre_acompanante',
+            'rut_acompanante',
+            'parentesco_acompanante',
+            'telefono_acompanante',
+            
+            # Sección 3: Datos Generales
             'plan_de_parto',
             'visita_guiada',
-            'imc',
             'consultorio_origen',
             
-            # Sección 3: Historia Obstétrica
+            # Sección 4: Medidas Antropométricas
+            'peso_actual',
+            'talla_actual',
+            'imc',
+            
+            # Sección 5: Historia Obstétrica
             'numero_gestas',
             'numero_partos',
             'partos_vaginales',
@@ -30,24 +43,30 @@ class FichaObstetricaForm(forms.ModelForm):
             'numero_abortos',
             'nacidos_vivos',
             
-            # Sección 4: Embarazo Actual
+            # Sección 6: Embarazo Actual
             'fecha_ultima_regla',
             'fecha_probable_parto',
             'edad_gestacional_semanas',
             'edad_gestacional_dias',
-            'peso_actual',
-            'talla_actual',
+            'cantidad_bebes',
+            'control_prenatal',
+            'numero_controles',
             
-            # Sección 5: Patologías
+            # Sección 7: Exámenes VIH
+            'vih_1_realizado',
+            'vih_1_fecha',
+            'vih_1_resultado',
+            'vih_2_realizado',
+            'vih_2_fecha',
+            'vih_2_resultado',
+            
+            # Sección 8: Patologías
             'preeclampsia_severa',
             'eclampsia',
             'sepsis_infeccion_sistemia',
             'infeccion_ovular',
             'otras_patologias',
-            
-            # Sección 6: Control Prenatal
-            'control_prenatal',
-            'numero_controles',
+            'patologias',  # ManyToMany field
         ]
         
         widgets = {
