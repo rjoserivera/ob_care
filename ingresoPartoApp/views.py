@@ -108,8 +108,8 @@ def crear_ficha_parto(request, ficha_obstetrica_pk):
     
     # Verificar si ya tiene ficha de parto
     if hasattr(ficha_obstetrica, 'ficha_parto'):
-        messages.warning(request, 'Esta paciente ya tiene una ficha de parto.')
-        return redirect('ingreso_parto:detalle_ficha', ficha_parto_pk=ficha_obstetrica.ficha_parto.pk)
+        messages.info(request, 'Esta paciente ya tiene una ficha de parto. Redirigiendo a Sala de Preparación.')
+        return redirect('matrona:proceso_parto_iniciado', ficha_pk=ficha_obstetrica.pk)
     
     # Obtener sala del GET si viene
     sala_id = request.GET.get('sala')
@@ -133,7 +133,8 @@ def crear_ficha_parto(request, ficha_obstetrica_pk):
                 procesar_bebes_esperados(request, ficha_parto, ficha_obstetrica.cantidad_bebes)
                 
                 messages.success(request, f'✅ Ficha de parto {ficha_parto.numero_ficha_parto} creada exitosamente.')
-                return redirect('ingreso_parto:detalle_ficha', ficha_parto_pk=ficha_parto.pk)
+                # Redirigir al Centro de Control - Sala de Preparación
+                return redirect('matrona:proceso_parto_iniciado', ficha_pk=ficha_obstetrica.pk)
         else:
             messages.error(request, 'Por favor corrige los errores en el formulario.')
     else:

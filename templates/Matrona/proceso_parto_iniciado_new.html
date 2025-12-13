@@ -1,0 +1,467 @@
+{% extends 'Shared/base.html' %}
+
+{% block title %}Centro de Control - Sala de Preparación{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .stat-card h3 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 0;
+    }
+    
+    .stat-card p {
+        margin: 0.5rem 0 0 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .stat-enviados { border-left: 4px solid #0d6efd; }
+    .stat-enviados h3 { color: #0d6efd; }
+    
+    .stat-aceptados { border-left: 4px solid #198754; }
+    .stat-aceptados h3 { color: #198754; }
+    
+    .stat-pendientes { border-left: 4px solid #ffc107; }
+    .stat-pendientes h3 { color: #ffc107; }
+    
+    .stat-rechazados { border-left: 4px solid #dc3545; }
+    .stat-rechazados h3 { color: #dc3545; }
+    
+    .team-roster {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .team-member {
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .team-member.confirmed {
+        background: #d1e7dd;
+        border-left: 4px solid #198754;
+    }
+    
+    .team-member.pending {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+    }
+    
+    .rooms-monitor {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .room {
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .room.free {
+        background: #d1e7dd;
+        border-left: 4px solid #198754;
+    }
+    
+    .room.occupied {
+        background: #f8d7da;
+        border-left: 4px solid #dc3545;
+    }
+    
+    .btn-iniciar-parto {
+        font-size: 1.25rem;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: bold;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .modal-pin {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .modal-pin-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+    }
+    
+    .pin-input {
+        font-size: 2rem;
+        text-align: center;
+        letter-spacing: 0.5rem;
+        padding: 1rem;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        width: 100%;
+        margin: 1rem 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">🏥 Centro de Control - Sala de Preparación</h1>
+            <p class="text-muted mb-0">
+                Paciente: <strong>{{ ficha.paciente.persona.nombre_completo }}</strong> | 
+                Ficha: <strong>{{ ficha.numero_ficha }}</strong> | 
+                Bebés: <strong>{{ cantidad_bebes }}</strong>
+            </p>
+        </div>
+        <a href="{% url 'matrona:detalle_ficha' ficha.id %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats-grid">
+        <div class="stat-card stat-enviados">
+            <h3 id="stat-enviados">{{ stats.enviados }}</h3>
+            <p>Enviados</p>
+        </div>
+        <div class="stat-card stat-aceptados">
+            <h3 id="stat-aceptados">{{ stats.aceptados }}</h3>
+            <p>Aceptados</p>
+        </div>
+        <div class="stat-card stat-pendientes">
+            <h3 id="stat-pendientes">{{ stats.pendientes }}</h3>
+            <p>Pendientes</p>
+        </div>
+        <div class="stat-card stat-rechazados">
+            <h3 id="stat-rechazados">{{ stats.rechazados }}</h3>
+            <p>Rechazados</p>
+        </div>
+    </div>
+
+    <!-- Botones de Invitación -->
+    <div class="team-roster">
+        <h5 class="mb-3"><i class="bi bi-person-plus-fill"></i> Invitar Personal</h5>
+        <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-primary" onclick="invitarTodos('MEDICO')">
+                <i class="bi bi-people-fill"></i> Invitar Todos los Médicos
+            </button>
+            <button class="btn btn-info" onclick="invitarTodos('MATRONA')">
+                <i class="bi bi-people-fill"></i> Invitar Todas las Matronas
+            </button>
+            <button class="btn btn-warning" onclick="invitarTodos('TENS')">
+                <i class="bi bi-people-fill"></i> Invitar Todos los TENS
+            </button>
+        </div>
+    </div>
+
+    <!-- Equipo Confirmado -->
+    <div class="team-roster">
+        <h5 class="mb-3"><i class="bi bi-people-fill"></i> Equipo Confirmado</h5>
+        <div id="team-list">
+            {% for asignacion in asignados_aceptados %}
+                <div class="team-member confirmed">
+                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                    <div class="flex-grow-1">
+                        <strong>{{ asignacion.personal.usuario.get_full_name }}</strong>
+                        <span class="badge bg-secondary ms-2">{{ asignacion.personal.get_rol_display }}</span>
+                    </div>
+                    <small class="text-muted">{{ asignacion.timestamp_confirmacion|date:"H:i" }}</small>
+                </div>
+            {% endfor %}
+            
+            {% if slots_pendientes %}
+                {% for slot in slots_pendientes %}
+                    <div class="team-member pending">
+                        <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
+                        <div class="flex-grow-1">
+                            <strong>Esperando {{ slot.rol }}...</strong>
+                            <span class="badge bg-warning text-dark ms-2">{{ slot.cantidad }} pendiente(s)</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Monitor de Salas -->
+    <div class="rooms-monitor">
+        <h5 class="mb-3"><i class="bi bi-hospital"></i> Salas Disponibles</h5>
+        {% for sala_info in salas %}
+            <div class="room {% if sala_info.ocupada %}occupied{% else %}free{% endif %}">
+                <div>
+                    {% if sala_info.ocupada %}
+                        🔴 <strong>{{ sala_info.sala.nombre }}</strong>: OCUPADA
+                    {% else %}
+                        🟢 <strong>{{ sala_info.sala.nombre }}</strong>: LIBRE
+                    {% endif %}
+                </div>
+                {% if sala_info.ocupada %}
+                    <span class="badge bg-danger">{{ sala_info.tiempo_str }}</span>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p class="text-muted">No hay información de salas disponible</p>
+        {% endfor %}
+    </div>
+
+    <!-- Botón Iniciar Parto -->
+    <div class="text-center">
+        {% if equipo_completo %}
+            <button class="btn btn-success btn-iniciar-parto" onclick="mostrarModalPIN()">
+                <i class="bi bi-play-circle-fill"></i> INICIAR PARTO
+            </button>
+        {% else %}
+            <button class="btn btn-secondary btn-iniciar-parto" disabled>
+                <i class="bi bi-hourglass-split"></i> Esperando Equipo Completo
+            </button>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal Invitar Personal -->
+<div id="modalInvitar" class="modal-pin">
+    <div class="modal-pin-content" style="max-width: 600px;">
+        <h4 id="modalInvitarTitulo">Seleccionar Personal</h4>
+        <div id="listaPersonal" class="list-group my-3" style="max-height: 400px; overflow-y: auto;">
+            <!-- Se llenará dinámicamente -->
+        </div>
+        <button class="btn btn-outline-secondary w-100" onclick="cerrarModalInvitar()">Cancelar</button>
+    </div>
+</div>
+
+<!-- Modal PIN -->
+<div id="modalPIN" class="modal-pin">
+    <div class="modal-pin-content">
+        <h4>🔐 Ingrese el PIN de Inicio</h4>
+        <p class="text-muted">El PIN fue enviado a los médicos por Telegram</p>
+        <input type="text" id="pinInput" class="pin-input" maxlength="6" placeholder="000000" autofocus>
+        <div class="d-grid gap-2">
+            <button class="btn btn-primary btn-lg" onclick="verificarPIN()">Verificar PIN</button>
+            <button class="btn btn-outline-secondary" onclick="cerrarModalPIN()">Cancelar</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ personal_disponible|json_script:"personal-data" }}
+<script>
+    function mostrarModalPIN() {
+        document.getElementById('modalPIN').style.display = 'flex';
+        document.getElementById('pinInput').focus();
+    }
+    
+    function cerrarModalPIN() {
+        document.getElementById('modalPIN').style.display = 'none';
+        document.getElementById('pinInput').value = '';
+    }
+    
+    function verificarPIN() {
+        const pin = document.getElementById('pinInput').value.trim();
+        
+        if (pin.length !== 6) {
+            alert('❌ El PIN debe tener 6 dígitos');
+            return;
+        }
+        
+        fetch("{% url 'matrona:verificar_pin' ficha.id %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ pin: pin })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ PIN correcto. Redirigiendo a sala de parto...');
+                // window.location.href = data.redirect_url;
+                alert('⚠️ Redirección a sala de parto pendiente de implementar');
+            } else {
+                alert('❌ ' + data.error);
+                document.getElementById('pinInput').value = '';
+                document.getElementById('pinInput').focus();
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            alert('Error de conexión');
+        });
+    }
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Función para invitar a TODO el personal de un rol
+    // Usar json_script para serialización segura
+    const personalDisponibleElement = document.getElementById('personal-data');
+    const personalDisponible = personalDisponibleElement ? JSON.parse(personalDisponibleElement.textContent) : [];
+    
+    // DEBUG: Mostrar en consola
+    console.log('✅ Personal disponible cargado:', personalDisponible.length, 'personas');
+    if (personalDisponible.length > 0) {
+        console.log('Primer elemento:', personalDisponible[0]);
+    }
+    
+    function invitarTodos(rol) {
+        const roles = {
+            'MEDICO': 'Médicos',
+            'MATRONA': 'Matronas',
+            'TENS': 'TENS'
+        };
+        
+        console.log('🔍 invitarTodos llamado con rol:', rol);
+        console.log('📋 Personal disponible:', personalDisponible);
+        
+        // Filtrar personal por rol
+        const personal = personalDisponible.filter(p => p.rol === rol);
+        
+        console.log(`👥 Personal filtrado (${rol}):`, personal);
+        
+        if (personal.length === 0) {
+            alert(`No hay ${roles[rol]} disponibles en este momento`);
+            return;
+        }
+        
+        if (!confirm(`¿Enviar invitación a TODOS los ${roles[rol]} disponibles?\n\nTotal: ${personal.length} personas`)) {
+            return;
+        }
+        
+        // Mostrar progreso
+        console.log(`📤 Enviando ${personal.length} invitaciones...`);
+        
+        // Enviar invitaciones en secuencia (para evitar problemas de concurrencia)
+        let enviados = 0;
+        let yaInvitados = 0;
+        let errores = 0;
+        
+        const enviarSiguiente = (index) => {
+            if (index >= personal.length) {
+                // Terminado
+                let mensaje = `✅ Proceso completado:\n\n`;
+                mensaje += `• ${enviados} invitaciones nuevas enviadas\n`;
+                if (yaInvitados > 0) mensaje += `• ${yaInvitados} ya estaban invitados\n`;
+                if (errores > 0) mensaje += `• ${errores} errores\n`;
+                
+                alert(mensaje);
+                location.reload();
+                return;
+            }
+            
+            const p = personal[index];
+            console.log(`Enviando ${index + 1}/${personal.length}: ${p.nombre}`);
+            
+            const url = "{% url 'matrona:asignar_personal_parto' ficha_parto.id %}";
+            console.log('🌐 URL:', url);
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    personal_id: p.id,
+                    ficha_parto_id: {{ ficha_parto.id }}
+                })
+            })
+            .then(r => {
+                console.log('📡 Respuesta recibida:', r.status);
+                return r.json();
+            })
+            .then(data => {
+                console.log('📦 Data:', data);
+                if (data.success) {
+                    enviados++;
+                    console.log(`✅ ${p.nombre}`);
+                } else {
+                    if (data.error && data.error.includes('ya fue invitado')) {
+                        yaInvitados++;
+                        console.log(`⚠️ ${p.nombre} - Ya invitado`);
+                    } else {
+                        errores++;
+                        console.error(`❌ ${p.nombre} - ${data.error}`);
+                    }
+                }
+                // Continuar con el siguiente
+                enviarSiguiente(index + 1);
+            })
+            .catch(error => {
+                errores++;
+                console.error(`❌ ${p.nombre} - Error:`, error);
+                alert(`Error en ${p.nombre}: ${error.message}`);
+                // Continuar con el siguiente
+                enviarSiguiente(index + 1);
+            });
+        };
+        
+        // Iniciar el proceso
+        enviarSiguiente(0);
+    }
+    
+    // Auto-refresh cada 5 segundos
+    setInterval(() => {
+        location.reload();
+    }, 5000);
+</script>
+{% endblock %}

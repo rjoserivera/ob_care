@@ -517,6 +517,15 @@ class PerfilUsuario(models.Model):
         verbose_name="Teléfono Institucional"
     )
     
+    # ========== TELEGRAM ==========
+    telegram_chat_id = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name="Telegram Chat ID",
+        help_text="ID de chat de Telegram para notificaciones"
+    )
+    
     # ========== AUDITORÍA ==========
     fecha_creacion = models.DateTimeField(default=timezone.now)
     fecha_actualizacion = models.DateTimeField(auto_now=True)

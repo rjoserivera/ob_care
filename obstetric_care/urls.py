@@ -16,6 +16,7 @@ urlpatterns = [
     path('tens/', include('tensApp.urls')),
     path('partos/', include('partosApp.urls')),
     path('ingreso-parto/', include('ingresoPartoApp.urls')),
+    path('procesos/', include('gestionProcesosApp.urls')),
     
     # Autenticación
     path('', include('authentication.urls')),

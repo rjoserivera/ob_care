@@ -550,6 +550,24 @@ class FichaParto(models.Model):
         return (self.preeclampsia_severa or self.eclampsia or 
                 self.sepsis_infeccion_grave or self.infeccion_ovular)
     
+    # ============================================
+    # PIN DE INICIO DE PARTO (NUEVO)
+    # ============================================
+    
+    pin_inicio_parto = models.CharField(
+        max_length=6,
+        blank=True,
+        null=True,
+        verbose_name="PIN de Inicio de Parto",
+        help_text="PIN generado automáticamente para iniciar el proceso de parto"
+    )
+    
+    pin_generado_en = models.DateTimeField(
+        blank=True,
+        null=True,
+        verbose_name="Fecha de Generación del PIN"
+    )
+    
     def __str__(self):
         return f"Ficha Parto {self.numero_ficha_parto}"
     

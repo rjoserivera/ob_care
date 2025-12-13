@@ -25,8 +25,8 @@ SECRET_KEY = 'django-insecure-$z!&nw@++2f(-u)v7l$jcr%h768&bsnz+k@cd609fe-m7ybpyf
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
+CSRF_TRUSTED_ORIGINS = ['http://*', 'https://*'] 
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -61,7 +61,7 @@ INSTALLED_APPS = [
     'ingresoPartoApp',
     'recienNacidoApp', 
     'partosApp',
-    #'gestionProcesosApp', comentada por ahora
+    'gestionProcesosApp',
 ]
 
 
@@ -298,6 +298,23 @@ LOGS_DIR = BASE_DIR / 'logs'
 if not LOGS_DIR.exists():
     LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
+
+# ──────────────────────────────────────────────────────────────
+# EMAIL SETTINGS (SMTP - REAL)
+# ──────────────────────────────────────────────────────────────
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'sistemaobtetricia@gmail.com' 
+# Usando contraseña normal (Google bloqueará esto, pero intentaremos)
+EMAIL_HOST_PASSWORD = 'Tomas.uwu' 
+DEFAULT_FROM_EMAIL = 'Sistema Obstétrico <sistemaobtetricia@gmail.com>'
+
+# ──────────────────────────────────────────────────────────────
+# TELEGRAM SETTINGS
+# ──────────────────────────────────────────────────────────────
+TELEGRAM_BOT_TOKEN = '8413116956:AAH7Qrf0gAm8N_-JXsnHk3eGDcvjZVC3qEI'
 
 # ═══════════════════════════════════════════════════════════════
 # FIN DE CONFIGURACIONES

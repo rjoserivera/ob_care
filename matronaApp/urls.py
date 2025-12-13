@@ -6,6 +6,7 @@ ACTUALIZADO: Incluye rutas para dilatación, parto, APIs AJAX
 
 from django.urls import path
 from . import views
+from . import views_simple_invitations as views_simple
 
 app_name = 'matrona'
 
@@ -52,4 +53,9 @@ urlpatterns = [
     
     # Personal
     path('api/ficha/<int:ficha_pk>/personal/', views.obtener_personal_requerido, name='api_personal_requerido'),
+    path('api/asignar-personal/<int:ficha_parto_id>/', views.asignar_personal_parto, name='asignar_personal_parto'),
+    path('api/invitar-rol/<int:ficha_parto_id>/', views_simple.invitar_personal_rol, name='invitar_personal_rol'),
+    path('api/finalizar-asignacion/<int:ficha_parto_id>/', views.finalizar_asignacion_parto, name='finalizar_asignacion_parto'),
+    path('api/responder-asignacion/<int:asignacion_id>/', views.responder_asignacion, name='responder_asignacion'),
+    path('api/verificar-pin/<int:ficha_parto_id>/', views.verificar_pin, name='verificar_pin'),
 ]

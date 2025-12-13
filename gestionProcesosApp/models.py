@@ -144,6 +144,19 @@ class AsignacionPersonal(models.Model):
     timestamp_confirmacion = models.DateTimeField(null=True, blank=True)
     confirmo_asistencia = models.BooleanField(default=False)
     
+    # Estado de respuesta (nuevo)
+    ESTADO_CHOICES = [
+        ('ENVIADA', 'Enviada'),
+        ('ACEPTADA', 'Aceptada'),
+        ('RECHAZADA', 'Rechazada'),
+    ]
+    estado_respuesta = models.CharField(
+        max_length=20,
+        choices=ESTADO_CHOICES,
+        default='ENVIADA',
+        verbose_name="Estado de Respuesta"
+    )
+    
     # Ingreso a sala
     timestamp_ingreso_sala = models.DateTimeField(null=True, blank=True)
     ingreso_a_sala = models.BooleanField(default=False)

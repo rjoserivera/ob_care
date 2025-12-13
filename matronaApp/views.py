@@ -759,10 +759,10 @@ def iniciar_proceso_parto(request, ficha_pk):
         ficha.fecha_inicio_parto = timezone.now()
         ficha.save()
         
-        # Asignar personal automÃ¡ticamente
-        asignar_personal_parto(ficha)
+        # Asignar personal automáticamente
+        generar_placeholders_personal(ficha)
         
-        tipo_texto = 'parto vaginal' if tipo_parto == 'VAGINAL' else 'cesÃ¡rea'
+        tipo_texto = 'parto vaginal' if tipo_parto == 'VAGINAL' else 'cesárea'
         messages.success(request, f'âœ… Proceso de {tipo_texto} iniciado exitosamente.')
     
     # Redirigir a pÃ¡gina dedicada de proceso de parto
@@ -776,25 +776,402 @@ def iniciar_proceso_parto(request, ficha_pk):
 @login_required
 def proceso_parto_iniciado(request, ficha_pk):
     """
-    PÃ¡gina de proceso de parto iniciado
-    URL: /matrona/ficha/<ficha_pk>/proceso-parto-iniciado/
+    Centro de Control - Sala de Preparación (REDISEÑADO)
+    Muestra estadísticas, equipo confirmado, salas disponibles y PIN
     """
+    from ingresoPartoApp.models import FichaParto
+    from gestionProcesosApp.models import PersonalTurno, AsignacionPersonal, Sala
+    from gestionProcesosApp.pin_utils import equipo_completo
+
     ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk)
     
+    # 1. Obtener o Crear Ficha de Parto
+    ficha_parto, created = FichaParto.objects.get_or_create(
+        ficha_obstetrica=ficha,
+        defaults={
+            'numero_ficha_parto': f"P-{ficha.numero_ficha}",
+            'fecha_ingreso': timezone.now().date(),
+            'hora_ingreso': timezone.now().time(),
+            'creado_por': request.user
+        }
+    )
+
+    # 2. Calcular Requerimientos
+    cantidad_bebes = ficha_parto.bebes_esperados.count() or 1
+    medicos_req = 1 if cantidad_bebes == 1 else cantidad_bebes
+    matronas_req = 2
+    tens_req = 2
+
+    # 3. Obtener Asignaciones
+    asignaciones = AsignacionPersonal.objects.filter(proceso=ficha_parto)
+    
+    # 4. Calcular Estadísticas
+    stats = {
+        'enviados': asignaciones.count(),
+        'aceptados': asignaciones.filter(estado_respuesta='ACEPTADA').count(),
+        'pendientes': asignaciones.filter(estado_respuesta='ENVIADA').count(),
+        'rechazados': asignaciones.filter(estado_respuesta='RECHAZADA').count(),
+    }
+    
+    # 5. Equipo Aceptado
+    asignados_aceptados = asignaciones.filter(estado_respuesta='ACEPTADA').order_by('-timestamp_confirmacion')
+    
+    # 6. Calcular Slots Pendientes
+    medicos_aceptados = asignados_aceptados.filter(personal__rol='MEDICO').count()
+    matronas_aceptadas = asignados_aceptados.filter(personal__rol='MATRONA').count()
+    tens_aceptados = asignados_aceptados.filter(personal__rol='TENS').count()
+    
+    slots_pendientes = []
+    if medicos_aceptados < medicos_req:
+        slots_pendientes.append({'rol': 'Médico(s)', 'cantidad': medicos_req - medicos_aceptados})
+    if matronas_aceptadas < matronas_req:
+        slots_pendientes.append({'rol': 'Matrona(s)', 'cantidad': matronas_req - matronas_aceptadas})
+    if tens_aceptados < tens_req:
+        slots_pendientes.append({'rol': 'TENS', 'cantidad': tens_req - tens_aceptados})
+    
+    # 7. Verificar si equipo está completo
+    equipo_esta_completo = equipo_completo(ficha_parto)
+    
+    # 8. Monitor de Salas
+    salas = Sala.objects.all()
+    salas_info = []
+    
+    for sala in salas:
+        # Buscar parto activo en esta sala
+        parto_activo = FichaParto.objects.filter(
+            sala_asignada__nombre=sala.nombre
+        ).exclude(pk=ficha_parto.pk).first()
+        
+        if parto_activo:
+            tiempo_transcurrido = timezone.now() - timezone.datetime.combine(
+                parto_activo.fecha_ingreso,
+                parto_activo.hora_ingreso
+            ).replace(tzinfo=timezone.get_current_timezone())
+            
+            horas = int(tiempo_transcurrido.total_seconds() // 3600)
+            minutos = int((tiempo_transcurrido.total_seconds() % 3600) // 60)
+            
+            salas_info.append({
+                'sala': sala,
+                'ocupada': True,
+                'tiempo_str': f"{horas}h {minutos}min"
+            })
+        else:
+            salas_info.append({
+                'sala': sala,
+                'ocupada': False
+            })
+    
+    # 9. Personal Disponible (para modal de invitación)
+    import json
+    now = timezone.now()
+    personal_turno = PersonalTurno.objects.filter(
+        estado='DISPONIBLE',
+        fecha_fin_turno__gte=now
+    ).select_related('usuario', 'usuario__perfil')
+    
+    personal_disponible = []
+    for pt in personal_turno:
+        personal_disponible.append({
+            'id': pt.id,
+            'nombre': pt.usuario.get_full_name() or pt.usuario.username,
+            'rol': pt.rol,
+            'cargo': pt.usuario.perfil.cargo if hasattr(pt.usuario, 'perfil') else ''
+        })
+    
+    # Contar personal disponible por rol
+    personal_counts = {
+        'MEDICO': PersonalTurno.objects.filter(rol='MEDICO', estado='DISPONIBLE', fecha_fin_turno__gte=now).count(),
+        'MATRONA': PersonalTurno.objects.filter(rol='MATRONA', estado='DISPONIBLE', fecha_fin_turno__gte=now).count(),
+        'TENS': PersonalTurno.objects.filter(rol='TENS', estado='DISPONIBLE', fecha_fin_turno__gte=now).count(),
+    }
+
     context = {
         'ficha': ficha,
-        'paciente': ficha.paciente,
-        'persona': ficha.paciente.persona,
-        'personal_asignado': ficha.personal_asignado.all(),
-        'personal_requerido': ficha.personal_requerido,
-        'titulo': 'Proceso de Parto Iniciado'
+        'ficha_parto': ficha_parto,
+        'cantidad_bebes': cantidad_bebes,
+        'stats': stats,
+        'asignados_aceptados': asignados_aceptados,
+        'slots_pendientes': slots_pendientes,
+        'equipo_completo': equipo_esta_completo,
+        'salas': salas_info,
+        'personal_counts': personal_counts,
     }
-    return render(request, 'Matrona/proceso_parto_iniciado.html', context)
+    
+    return render(request, 'Matrona/proceso_parto_iniciado_simple.html', context)
 
 
 # ============================================
 # PERSONAL - OBTENER REQUERIDO
 # ============================================
+
+@login_required
+@require_POST
+def asignar_personal_parto(request, ficha_parto_id):
+    """
+    API AJAX para asignar personal y enviar notificación
+    URL: /matrona/api/parto/<ficha_pk>/asignar-personal/
+    """
+    from ingresoPartoApp.models import FichaParto
+    from gestionProcesosApp.models import PersonalTurno, Notificacion, AsignacionPersonal
+    
+    try:
+        data = json.loads(request.body)
+        personal_id = data.get('personal_id')
+        ficha_parto_id = data.get('ficha_parto_id')
+        
+        # Validar personal
+        personal = get_object_or_404(PersonalTurno, pk=personal_id)
+        ficha_parto = get_object_or_404(FichaParto, pk=ficha_parto_id)
+        
+        # Verificar si ya existe asignación
+        asignacion_existente = AsignacionPersonal.objects.filter(
+            proceso=ficha_parto,
+            personal=personal
+        ).first()
+        
+        if asignacion_existente:
+            return JsonResponse({
+                'success': False,
+                'error': f'{personal.usuario.get_full_name()} ya fue invitado'
+            })
+        
+        with transaction.atomic():
+            # 1. Crear Asignación
+            asignacion = AsignacionPersonal.objects.create(
+                proceso=ficha_parto,
+                personal=personal,
+                rol_en_proceso=personal.rol,  # Usar el rol del PersonalTurno
+                observaciones='Asignación desde Sala de Preparación (Matronas)'
+            )
+            
+            # 2. Crear Notificación (Sistema)
+            notificacion = Notificacion.objects.create(
+                proceso=ficha_parto,
+                destinatario=personal,
+                tipo='PARTO',
+                titulo='URGENTE: Asistencia a Parto',
+                mensaje=f"SOLICITUD: Se requiere su presencia de inmediato en la Sala de Parto (Prep). Ficha {ficha_parto.numero_ficha_parto}. Paciente: {ficha_parto.ficha_obstetrica.paciente.persona.nombre_completo}.",
+                estado='ENVIADA',
+                timestamp_expiracion=timezone.now() + timezone.timedelta(hours=4)
+            )
+
+            
+            # 3. ENVIAR TELEGRAM (Prioritario)
+            print(f"\n{'='*50}")
+            print(f"🔔 INTENTANDO ENVIAR NOTIFICACIÓN")
+            print(f"Personal: {personal.usuario.get_full_name()}")
+            print(f"Ficha: {ficha_parto.numero_ficha_parto}")
+            print(f"{'='*50}\n")
+            
+            try:
+                from gestionProcesosApp.telegram_utils import enviar_notificacion_parto
+                telegram_enviado = enviar_notificacion_parto(personal, ficha_parto)
+                if telegram_enviado:
+                    print(f"✅ Telegram enviado a {personal.usuario.get_full_name()}")
+                else:
+                    print(f"❌ Telegram NO enviado a {personal.usuario.get_full_name()}")
+            except Exception as e:
+                print(f"⚠️ Error enviando Telegram: {e}")
+                import traceback
+                traceback.print_exc()
+            
+            # 4. ENVIAR CORREO (Fallback Automático)
+            try:
+                from django.core.mail import send_mail
+                from django.conf import settings
+                
+                # Obtener correo del usuario asociado al personal
+                email_destino = personal.usuario.email
+                if email_destino:
+                    asunto = f"🚨 URGENTE: Solicitud de Asistencia - {ficha_parto.numero_ficha_parto}"
+                    mensaje_email = f"""
+                    Estimado/a {personal.usuario.get_full_name()}:
+
+                    Se requiere su presencia INMEDIATA en la Sala de Parto (Preparación).
+                    
+                    PACIENTE: {ficha_parto.ficha_obstetrica.paciente.persona.nombre_completo}
+                    FICHA: {ficha_parto.numero_ficha_parto}
+                    
+                    Por favor, confirme su asistencia en el sistema o acuda directamente.
+                    
+                    Este es un mensaje automático del Sistema de Gestión Obstétrica.
+                    """
+                    
+                    send_mail(
+                        asunto,
+                        mensaje_email,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [email_destino],
+                        fail_silently=True # No bloquear el proceso si falla el correo
+                    )
+                    print(f"📧 Correo enviado a {email_destino}")
+            except Exception as e:
+                print(f"⚠️ Error enviando correo: {e}")
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Solicitud enviada a {personal.usuario.get_full_name()}',
+                'asignacion_id': asignacion.id,
+                'nuevo_estado': 'Pendiente'
+            })
+            
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required
+@require_POST
+def finalizar_asignacion_parto(request, ficha_parto_id):
+    """
+    Finaliza la asignación y notifica a TODO el equipo confirmado.
+    "oseas todos" -> Enviar resumen a todos los involucrados.
+    """
+    try:
+        ficha = get_object_or_404(FichaParto, pk=ficha_parto_id)
+        
+        # Obtener todos los asignados
+        asignados = AsignacionPersonal.objects.filter(proceso=ficha)
+        
+        if not asignados.exists():
+            return JsonResponse({'success': False, 'error': 'No hay personal asignado para notificar.'})
+
+        # Recopilar correos y nombres
+        emails_destino = []
+        nombres_equipo = []
+        
+        for a in asignados:
+            if a.personal.usuario.email:
+                emails_destino.append(a.personal.usuario.email)
+            nombres_equipo.append(f"- {a.personal.usuario.get_full_name()} ({a.personal.get_rol_display()})")
+            
+        if not emails_destino:
+            return JsonResponse({'success': True, 'message': 'Asignación finalizada (Sin correos para notificar).'})
+
+        # Enviar Correo Masivo (Resumen)
+        from django.core.mail import send_mail
+        from django.conf import settings
+        
+        asunto = f"✅ EQUIPO CONFIRMADO: Parto Ficha {ficha.numero_ficha_parto}"
+        lista_equipo = "\n".join(nombres_equipo)
+        
+        mensaje = f"""
+        Estimado equipo:
+        
+        Se ha confirmado el equipo completo para la atención de parto.
+        
+        PACIENTE: {ficha.ficha_obstetrica.paciente.persona.nombre_completo}
+        FICHA: {ficha.numero_ficha_parto}
+        
+        EQUIPO ASIGNADO:
+        {lista_equipo}
+        
+        Por favor, coordinar ingreso a pabellón/sala.
+        """
+        
+        send_mail(
+            asunto,
+            mensaje,
+            settings.DEFAULT_FROM_EMAIL,
+            emails_destino, # Lista de todos los destinatarios
+            fail_silently=True
+        )
+        
+        return JsonResponse({'success': True, 'message': f'Notificación enviada a {len(emails_destino)} profesionales.'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required
+@require_POST
+def responder_asignacion(request, asignacion_id):
+    """
+    Endpoint para que el personal acepte o rechace una asignación
+    """
+    try:
+        asignacion = get_object_or_404(AsignacionPersonal, pk=asignacion_id)
+        data = json.loads(request.body)
+        accion = data.get('accion')  # 'aceptar' o 'rechazar'
+        
+        if accion == 'aceptar':
+            asignacion.estado_respuesta = 'ACEPTADA'
+            asignacion.confirmo_asistencia = True
+            asignacion.timestamp_confirmacion = timezone.now()
+            asignacion.save()
+            
+            # Verificar si el equipo está completo
+            from gestionProcesosApp.pin_utils import equipo_completo, generar_pin, enviar_pin_a_medicos
+            
+            if equipo_completo(asignacion.proceso):
+                # Generar PIN
+                pin = generar_pin()
+                asignacion.proceso.pin_inicio_parto = pin
+                asignacion.proceso.pin_generado_en = timezone.now()
+                asignacion.proceso.save()
+                
+                # Enviar PIN solo a médicos que aceptaron
+                enviar_pin_a_medicos(asignacion.proceso, pin)
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Asignación aceptada. Equipo completo - PIN generado.',
+                    'equipo_completo': True
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Asignación aceptada',
+                'equipo_completo': False
+            })
+        
+        elif accion == 'rechazar':
+            asignacion.estado_respuesta = 'RECHAZADA'
+            asignacion.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Asignación rechazada'
+            })
+        
+        else:
+            return JsonResponse({'success': False, 'error': 'Acción inválida'}, status=400)
+            
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required
+@require_POST
+def verificar_pin(request, ficha_parto_id):
+    """
+    Verifica el PIN ingresado para iniciar el proceso de parto
+    """
+    try:
+        ficha = get_object_or_404(FichaParto, pk=ficha_parto_id)
+        data = json.loads(request.body)
+        pin_ingresado = data.get('pin', '').strip()
+        
+        if not ficha.pin_inicio_parto:
+            return JsonResponse({
+                'success': False,
+                'error': 'No se ha generado un PIN para este proceso'
+            }, status=400)
+        
+        if pin_ingresado == ficha.pin_inicio_parto:
+            return JsonResponse({
+                'success': True,
+                'message': 'PIN correcto',
+                'redirect_url': f'/parto/sala/{ficha.id}/'  # Ajustar según tu URL
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': 'PIN incorrecto'
+            }, status=403)
+            
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @login_required
 def obtener_personal_requerido(request, ficha_pk):
@@ -869,10 +1246,11 @@ def procesar_dilatacion_post(request, ficha):
         ficha.save(update_fields=['estado_dilatacion'])
 
 
-def asignar_personal_parto(ficha):
+def generar_placeholders_personal(ficha):
     """
     Asigna automáticamente placeholders para el personal requerido
     según la cantidad de bebés (1 Médico, 2 Matronas, 2 TENS por bebé)
+    (Renamed from asignar_personal_parto to avoid collision with view)
     """
     try:
         # Si ya existe personal asignado, no hacemos nada

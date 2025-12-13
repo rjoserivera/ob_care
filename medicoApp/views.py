@@ -6,6 +6,7 @@ Gestión del catálogo de patologías obstétricas
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Q, Count
+from django.contrib.auth.decorators import login_required
 from medicoApp.models import Patologias
 
 
@@ -13,6 +14,7 @@ from medicoApp.models import Patologias
 # VISTA PRINCIPAL DEL MÓDULO MÉDICO
 # ============================================
 
+@login_required
 def menu_medico(request):
     """Vista principal del módulo Médico"""
     context = {
