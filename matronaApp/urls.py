@@ -41,6 +41,9 @@ urlpatterns = [
     # ==================== PARTO ====================
     path('ficha/<int:ficha_pk>/iniciar-parto/', views.iniciar_proceso_parto, name='iniciar_parto'),
     path('ficha/<int:ficha_pk>/proceso-parto-iniciado/', views.proceso_parto_iniciado, name='proceso_parto_iniciado'),
+    path('sala/<int:ficha_parto_id>/', views.sala_parto_view, name='sala_parto'),
+    path('sala/<int:ficha_parto_id>/guardar/', views.guardar_registro_parto, name='guardar_parto'),
+    path('sala/<int:ficha_parto_id>/guardar-rn/', views.guardar_registro_rn, name='guardar_rn'),
     
     # ==================== APIs AJAX ====================
     # Dilatación
@@ -60,4 +63,7 @@ urlpatterns = [
     path('api/finalizar-asignacion/<int:ficha_parto_id>/', views.finalizar_asignacion_parto, name='finalizar_asignacion_parto'),
     path('api/responder-asignacion/<int:asignacion_id>/', views.responder_asignacion, name='responder_asignacion'),
     path('api/verificar-pin/<int:ficha_parto_id>/', views.verificar_pin, name='verificar_pin'),
+    
+    # DEBUG
+    path('api/debug/rellenar-equipo/<int:ficha_parto_id>/', views.debug_rellenar_equipo, name='debug_rellenar_equipo'),
 ]

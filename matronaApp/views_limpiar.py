@@ -19,15 +19,19 @@ def limpiar_invitaciones_ajax(request, ficha_parto_id):
     try:
         ficha_parto = get_object_or_404(FichaParto, pk=ficha_parto_id)
         
-        # Eliminar asignaciones
-        asignaciones = AsignacionPersonal.objects.filter(proceso=ficha_parto)
+        # Eliminar SOLO asignaciones pendientes (ENVIADA)
+        # Respetamos las ACEPTADA y RECHAZADA
+        asignaciones = AsignacionPersonal.objects.filter(
+            proceso=ficha_parto,
+            estado_respuesta='ENVIADA'
+        )
         count = asignaciones.count()
         asignaciones.delete()
         
         return JsonResponse({
             'success': True,
             'eliminados': count,
-            'message': f'Se eliminaron {count} invitaciones'
+            'message': f'Se limpiaron {count} invitaciones pendientes. Puede volver a invitar.'
         })
         
     except Exception as e:

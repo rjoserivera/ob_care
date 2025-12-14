@@ -33,9 +33,12 @@ def equipo_completo(ficha_parto):
     
     # Calcular requerimientos
     cantidad_bebes = ficha_parto.bebes_esperados.count()
-    medicos_requeridos = 1 if cantidad_bebes == 1 else cantidad_bebes
-    matronas_requeridas = 2
-    tens_requeridos = 2
+    if cantidad_bebes < 1: 
+        cantidad_bebes = 1 # Fallback
+        
+    medicos_requeridos = cantidad_bebes * 1
+    matronas_requeridas = cantidad_bebes * 2
+    tens_requeridos = cantidad_bebes * 3
     
     # Contar aceptados
     asignaciones_aceptadas = AsignacionPersonal.objects.filter(

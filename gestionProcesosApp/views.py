@@ -73,30 +73,72 @@ from django.http import JsonResponse
 @login_required
 def check_nuevas_notificaciones(request):
     """
-    API para verificar si hay nuevas notificaciones sin leer.
+    API para verificar si hay nuevas notificaciones (Asignaciones) sin responder.
     Retorna JSON con count y timestamp de la última.
     """
     try:
-        # Filtramos notificaciones del usuario actual que NO han sido vistas (o confirmadas)
-        # Check if user is authenticated (decorator handles it but good practice)
         if not request.user.is_authenticated:
             return JsonResponse({'error': 'Unauthorized'}, status=401)
             
+        # 1. Buscar Notificaciones tradicionales (Sistema antiguo/Genérico)
         notificaciones = Notificacion.objects.filter(
             destinatario__usuario=request.user,
             estado__in=['ENVIADA', 'PENDIENTE']
         ).order_by('-timestamp_envio')
         
-        count = notificaciones.count()
+        count_notif = notificaciones.count()
         last_notif = notificaciones.first()
         
+        # 2. Buscar Asignaciones de Parto (Sistema nuevo)
+        # Obtener PersonalTurno
+        personal = PersonalTurno.objects.filter(usuario=request.user).first()
+        
+        count_asig = 0
+        last_asig = None
+        
+        if personal:
+            asignaciones = AsignacionPersonal.objects.filter(
+                personal=personal,
+                estado_respuesta='ENVIADA'
+            ).order_by('-timestamp_notificacion')
+            count_asig = asignaciones.count()
+            last_asig = asignaciones.first()
+            
+        # 3. Combinar resultados
+        total_count = count_notif + count_asig
+        
+        last_notif_data = {
+            'latest_id': None,
+            'latest_timestamp': 0,
+            'latest_title': "",
+            'latest_msg': ""
+        }
+        
+        # Determinar cuál es más reciente
+        ts_notif = last_notif.timestamp_envio.timestamp() if last_notif else 0
+        ts_asig = last_asig.timestamp_notificacion.timestamp() if (last_asig and last_asig.timestamp_notificacion) else 0
+        
+        if ts_asig > ts_notif:
+             # Ganó Asignación
+             last_notif_data = {
+                'latest_id': f"asig_{last_asig.id}", # Prefijo para evitar colisión IDs
+                'latest_timestamp': ts_asig,
+                'latest_title': "URGENTE: Asistencia a Parto",
+                'latest_msg': f"Paciente: {last_asig.proceso.ficha_obstetrica.paciente.persona.nombre_completo}. Sala: {last_asig.proceso.sala_asignada.nombre if last_asig.proceso.sala_asignada else 'Por asignar'}"
+            }
+        elif last_notif:
+             # Ganó Notificación
+             last_notif_data = {
+                'latest_id': f"notif_{last_notif.id}",
+                'latest_timestamp': ts_notif,
+                'latest_title': last_notif.titulo,
+                'latest_msg': last_notif.mensaje
+            }
+        
         data = {
-            'count': count,
-            'has_new': count > 0,
-            'latest_id': last_notif.id if last_notif else None,
-            'latest_timestamp': last_notif.timestamp_envio.timestamp() if last_notif else 0,
-            'latest_title': last_notif.titulo if last_notif else "",
-            'latest_msg': last_notif.mensaje if last_notif else ""
+            'count': total_count,
+            'has_new': total_count > 0,
+            **last_notif_data
         }
         return JsonResponse(data)
     except Exception as e:

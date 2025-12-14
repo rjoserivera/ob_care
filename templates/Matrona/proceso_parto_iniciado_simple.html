@@ -157,14 +157,53 @@
         margin-bottom: 1rem;
     }
     
-    .btn-close-modal {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 8px;
         font-weight: bold;
         cursor: pointer;
+    }
+    
+    .sala-card {
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        width: 100%;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: white;
+    }
+    .sala-card:hover:not(:disabled) {
+        border-color: #667eea;
+        transform: translateY(-2px);
+    }
+    .sala-card.selected {
+        border-color: #667eea;
+        background: #eef2ff;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+    }
+    .sala-card.ocupada {
+        background: #f8d7da;
+        border-color: #dc3545;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    
+    .btn-start {
+        background: #28a745;
+        color: white;
+        font-size: 1.5rem;
+        padding: 1.5rem;
+        width: 100%;
+        border: none;
+        border-radius: 12px;
+        margin-top: 2rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .btn-start:disabled {
+        background: #ccc;
+        cursor: not-allowed;
     }
 </style>
 {% endblock %}
@@ -217,29 +256,96 @@
         <button class="invite-btn" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);" onclick="reenviarNotificaciones()">
             <i class="bi bi-arrow-clockwise"></i> Reenviar Notificaciones
         </button>
+        
+        <div class="mt-3 border-top pt-3">
+            <button class="invite-btn" style="background: #343a40;" onclick="autoFillEquipo()">
+                <i class="bi bi-lightning-fill"></i> ⚡ AUTO-RELLENAR EQUIPO (TEST)
+            </button>
+        </div>
     </div>
 
+
+
     <!-- Equipo Confirmado -->
-    <div class="team-list">
-        <h3><i class="bi bi-people"></i> Equipo Confirmado</h3>
+    <div class="team-list mt-4 mb-4">
+        <h3><i class="bi bi-people-fill"></i> Equipo Confirmado</h3>
         
-        {% if asignados_aceptados %}
-            {% for asignacion in asignados_aceptados %}
-            <div class="team-member">
-                <strong>{{ asignacion.personal.usuario.get_full_name }}</strong>
-                <span class="badge bg-success ms-2">{{ asignacion.rol_en_proceso }}</span>
+        <!-- Lista de Aceptados -->
+        {% for asignacion in asignados_aceptados %}
+        <div class="team-member">
+            <div class="badge rounded-pill me-3" style="min-width: 100px; padding: 0.6rem; font-size: 0.85rem; background: 
+                {% if asignacion.personal.rol == 'MEDICO' %}#4facfe
+                {% elif asignacion.personal.rol == 'MATRONA' %}#ff5858
+                {% else %}#43e97b{% endif %};">
+                {{ asignacion.personal.get_rol_display|upper }}
             </div>
-            {% endfor %}
-        {% else %}
-            <p class="text-muted">No hay personal confirmado aún</p>
-        {% endif %}
-        
-        <h4 class="mt-4">Pendientes de Confirmación</h4>
-        {% for slot in slots_pendientes %}
-        <div class="pending-slot">
-            <strong>{{ slot.rol }}</strong> - Esperando respuesta...
+            <div>
+                <strong>{{ asignacion.personal.usuario.get_full_name }}</strong>
+                <div class="text-muted small">{{ asignacion.personal.get_rol_display }}</div>
+            </div>
+            <div style="margin-left: auto; color: #28a745;">
+                <i class="bi bi-check-circle-fill"></i> Confirmado
+            </div>
         </div>
         {% endfor %}
+        
+        <!-- Slots Pendientes -->
+        {% for slot in slots_pendientes %}
+        <div class="pending-slot">
+            <div class="spinner-border spinner-border-sm text-secondary me-2" role="status"></div>
+            <strong>{{ slot.rol }}</strong> (Faltan {{ slot.cantidad }}) - Esperando respuesta...
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Selección de Sala -->
+    <div class="invite-section mt-4">
+        <h3><i class="bi bi-door-open"></i> Selección de Sala</h3>
+        <p>Seleccione una sala disponible para iniciar el parto:</p>
+        
+        <div class="stats-grid"> 
+            {% for info in salas %}
+                <button type="button" 
+                        class="sala-card {% if info.ocupada %}ocupada{% endif %}" 
+                        onclick="seleccionarSala('{{ info.sala.id }}', '{{ info.sala.nombre }}')"
+                        {% if info.ocupada %}disabled{% endif %}>
+                    <h4><i class="bi bi-hospital"></i> {{ info.sala.nombre }}</h4>
+                     {% if info.ocupada %}
+                        <span class="badge bg-danger">Ocupada ({{ info.tiempo_str }})</span>
+                    {% else %}
+                        <span class="badge bg-success">Disponible</span>
+                    {% endif %}
+                </button>
+            {% endfor %}
+        </div>
+        <input type="hidden" id="sala_seleccionada_id">
+    </div>
+
+    <!-- Panel de Inicio -->
+    <div class="header-card mt-4 text-center" style="background: white; color: #333; border: 2px solid #ddd;">
+        <h3>Estado del Equipo (Bebés: {{ cantidad_bebes }})</h3>
+        <div class="d-flex justify-content-around mb-3 flex-wrap gap-2">
+            <span class="badge {% if aceptados_counts.medico >= reqs.medico %}bg-success{% else %}bg-danger{% endif %} p-2 fs-6">
+                Médicos: {{ aceptados_counts.medico }}/{{ reqs.medico }}
+            </span>
+            <span class="badge {% if aceptados_counts.matrona >= reqs.matrona %}bg-success{% else %}bg-danger{% endif %} p-2 fs-6">
+                Matronas: {{ aceptados_counts.matrona }}/{{ reqs.matrona }}
+            </span>
+            <span class="badge {% if aceptados_counts.tens >= reqs.tens %}bg-success{% else %}bg-danger{% endif %} p-2 fs-6">
+                TENS: {{ aceptados_counts.tens }}/{{ reqs.tens }}
+            </span>
+        </div>
+        
+        <button id="btn-iniciar-parto" class="btn-start" disabled onclick="iniciarPartoDefinitivo()">
+            <i class="bi bi-play-circle"></i> SELECCIONE SALA
+        </button>
+        <p id="msg-requisitos" class="text-muted mt-2">
+            {% if not equipo_completo %}
+                <i class="bi bi-exclamation-triangle text-warning"></i> Falta completar el equipo.
+            {% else %}
+                <i class="bi bi-check-circle-fill text-success"></i> Equipo completo. Seleccione sala.
+            {% endif %}
+        </p>
     </div>
 </div>
 
@@ -259,6 +365,26 @@
                 <i class="bi bi-x-lg"></i> Cancelar
             </button>
         </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="pinModal" class="progress-modal">
+    <div class="progress-content">
+        <div class="progress-icon" style="animation: none;">
+            <i class="bi bi-shield-lock-fill" style="color: #667eea;"></i>
+        </div>
+        <div class="progress-title">Seguridad</div>
+        <div class="progress-message">Ingrese el PIN de autorización enviado al Médico Jefe:</div>
+        
+        <input type="text" id="inputPinParto" class="form-control text-center fs-3 my-3" placeholder="------" maxlength="6" style="letter-spacing: 5px; font-weight: bold;">
+        
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <button class="btn-close-modal" onclick="verificarPinYComenzar()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); width: 100%;">
+                <i class="bi bi-check-lg"></i> Autorizar Inicio
+            </button>
+        </div>
+        <button onclick="document.getElementById('pinModal').classList.remove('active')" class="btn btn-link text-muted mt-2">Cancelar</button>
     </div>
 </div>
 
@@ -443,6 +569,107 @@ function reenviarNotificaciones() {
             });
         }
     );
+}
+
+function autoFillEquipo() {
+    mostrarConfirmacion(
+        '¿[DEBUG] Auto-rellenar equipo faltante y generar PIN?',
+        function() {
+            mostrarProgressModal('Auto-Rellenando...', 'Asignando personal y generando PIN');
+            
+            // Asumiré nueva URL: matrona:debug_rellenar_equipo
+            const url = "/matrona/api/debug/rellenar-equipo/{{ ficha_parto.id }}/"; 
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    mostrarResultado(true, 'Equipo Auto-Rellenado', `Se asignaron: ${data.asignados}. Notificando a médicos. Recargando...`);
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    mostrarResultado(false, 'Error Debug', data.error);
+                }
+            })
+            .catch(error => {
+                mostrarResultado(false, 'Error de conexión', error.toString());
+            });
+        }
+    );
+}
+
+let salaId = null;
+const equipoCompleto = {{ equipo_completo|yesno:"true,false" }};
+
+function seleccionarSala(id, nombre) {
+    // Reset visual
+    document.querySelectorAll('.sala-card').forEach(el => el.classList.remove('selected'));
+    
+    // Select visual
+    const target = event.target.closest('.sala-card');
+    if(target) target.classList.add('selected');
+    
+    salaId = id;
+    const btn = document.getElementById('btn-iniciar-parto');
+    
+    if (equipoCompleto) {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="bi bi-play-circle-fill"></i> INICIAR PARTO EN ${nombre}`;
+        // btn.classList.add('pulse-animation');
+    } else {
+        btn.innerHTML = `ESPERANDO EQUIPO COMPLETO...`;
+        btn.disabled = true;
+    }
+}
+
+function iniciarPartoDefinitivo() {
+    if(!salaId) return;
+    // Abrir Modal de PIN
+    document.getElementById('inputPinParto').value = '';
+    document.getElementById('pinModal').classList.add('active');
+    document.getElementById('inputPinParto').focus();
+}
+
+function verificarPinYComenzar() {
+    const pin = document.getElementById('inputPinParto').value.trim();
+    if (pin.length < 4) {
+        alert("Ingrese un PIN válido.");
+        return;
+    }
+    
+    document.getElementById('pinModal').classList.remove('active');
+    mostrarProgressModal('Validando...', 'Verificando PIN y asignando sala...');
+    
+    fetch("{% url 'matrona:verificar_pin' ficha_parto.id %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            pin: pin,
+            sala_id: salaId
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            mostrarResultado(true, 'Autorizado', 'Redirigiendo al parto...');
+            setTimeout(() => {
+                window.location.href = data.redirect_url;
+            }, 1000);
+        } else {
+            mostrarResultado(false, 'Acceso Denegado', data.error);
+        }
+    })
+    .catch(err => {
+        mostrarResultado(false, 'Error', err.toString());
+    });
 }
 </script>
 {% endblock %}

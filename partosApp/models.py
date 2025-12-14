@@ -150,6 +150,23 @@ class CatalogoMetodoNoFarmacologico(models.Model):
         return self.descripcion
 
 
+class CatalogoTipoEsterilizacion(models.Model):
+    """Catálogo para tipos de esterilización quirúrgica"""
+    codigo = models.CharField(max_length=20, unique=True)
+    descripcion = models.CharField(max_length=100)
+    activo = models.BooleanField(default=True)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        db_table = 'catalogo_tipo_esterilizacion'
+        ordering = ['orden', 'descripcion']
+        verbose_name = 'Catálogo Tipo Esterilización'
+        verbose_name_plural = 'Catálogo Tipos Esterilización'
+
+    def __str__(self):
+        return self.descripcion
+
+
 # ============================================
 # MODELO: REGISTRO DE PARTO (COMPLETO Y CORREGIDO)
 # ============================================
@@ -336,11 +353,12 @@ class RegistroParto(models.Model):
         help_text='Ligadura tubaria, vasectomía, etc.'
     )
     
-    tipo_esterilizacion = models.CharField(
-        max_length=100,
+    tipo_esterilizacion = models.ForeignKey(
+        CatalogoTipoEsterilizacion,
+        on_delete=models.SET_NULL,
+        null=True,
         blank=True,
-        verbose_name='Tipo de Esterilización',
-        help_text='Ligadura tubaria, vasectomía, histerectomía, etc.'
+        verbose_name='Tipo de Esterilización'
     )
     
     fecha_hora_esterilizacion = models.DateTimeField(
@@ -508,6 +526,18 @@ class RegistroParto(models.Model):
         blank=True,
         verbose_name='Alumno/a (Apellido)',
         help_text='Si aplica'
+    )
+
+    tens_responsable_nombre = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='TENS Responsable (Nombre)'
+    )
+    
+    tens_responsable_apellido = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='TENS Responsable (Apellido)'
     )
     
     causa_cesarea = models.ForeignKey(

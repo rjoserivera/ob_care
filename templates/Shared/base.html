@@ -194,8 +194,9 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'gestion_procesos:mis_notificaciones' %}">
+                        <a class="nav-link position-relative" href="{% url 'gestion_procesos:mis_notificaciones' %}">
                             <i class="bi bi-bell-fill"></i> Notificaciones
+                            <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem; z-index: 1000;">0</span>
                         </a>
                     </li>
 
@@ -246,8 +247,9 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'gestion_procesos:mis_notificaciones' %}">
+                        <a class="nav-link position-relative" href="{% url 'gestion_procesos:mis_notificaciones' %}">
                             <i class="bi bi-bell-fill"></i> Notificaciones
+                            <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem; z-index: 1000;">0</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -344,6 +346,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'tens:buscar_paciente' %}">
                             <i class="bi bi-prescription2"></i> Aplicar Tratamiento
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="{% url 'gestion_procesos:mis_notificaciones' %}">
+                            <i class="bi bi-bell-fill"></i> Notificaciones
+                            <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem; z-index: 1000;">0</span>
                         </a>
                     </li>
 
@@ -525,6 +533,13 @@
                                     <i class="bi bi-search"></i> Buscar Persona
                                 </a></li>
                         </ul>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="{% url 'gestion_procesos:mis_notificaciones' %}">
+                            <i class="bi bi-bell-fill"></i> Notificaciones
+                            <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem; z-index: 1000;">0</span>
+                        </a>
                     </li>
 
                     <!-- Usuario -->
@@ -791,35 +806,53 @@
 
             // Check Notifications loop
             function checkNotifications() {
+                console.log("Checking notifications...");
                 fetch(checkUrl).then(r=>r.json()).then(data=>{
+                    console.log("Notif Data:", data);
                     if(!data) return;
-                    if(data.latest_id && data.latest_timestamp > lastTimestamp){
-                         lastTimestamp = data.latest_timestamp;
-                         localStorage.setItem('lastNotifTimestamp', lastTimestamp);
-                         currentNotifId = data.latest_id;
-                         
-                         // PLAY SIREN (Web Audio)
-                         try { playSiren(); } catch(e) { console.error("Siren Error", e); }
-                         
-                         if(navigator.vibrate) navigator.vibrate([1000,500,1000]);
-
-                         if('Notification' in window && Notification.permission==='granted'){
-                             try {
-                                const n = new Notification(data.latest_title||"Alerta", {
-                                    body: data.latest_msg, 
-                                    requireInteraction:true, 
-                                    tag:'med-alert'
-                                });
-                                n.onclick = ()=>window.focus();
-                             } catch(e){}
-                         }
-
-                         document.getElementById('toast-title').innerText = data.latest_title || 'Alerta';
-                         document.getElementById('toast-body').innerText = data.latest_msg || 'Nueva Solicitud';
-                         const t = document.getElementById('liveToast');
-                         new bootstrap.Toast(t, {autohide:false}).show();
+                    
+                    // Actualizar badge si existe
+                    const badge = document.getElementById('notification-badge');
+                    if(badge) {
+                        badge.innerText = data.count || 0;
+                        badge.style.display = data.count > 0 ? 'inline-block' : 'none';
                     }
-                }).catch(e=>{});
+
+                    // Lógica del Toast
+                    if(data.count > 0 && data.latest_id) {
+                         // Si es una nueva (por timestamp) O si tenemos pendientes y acabamos de cargar la página (opcional)
+                         if(data.latest_timestamp > lastTimestamp || (data.count > 0 && !document.getElementById('liveToast').classList.contains('show'))) {
+                             
+                             // Update timestamp only if new
+                             if(data.latest_timestamp > lastTimestamp) {
+                                lastTimestamp = data.latest_timestamp;
+                                localStorage.setItem('lastNotifTimestamp', lastTimestamp);
+                                
+                                // Sound & Vibrate only for new ones
+                                try { playSiren(); } catch(e) { console.error("Siren Error", e); }
+                                if(navigator.vibrate) navigator.vibrate([1000,500,1000]);
+                             }
+
+                             currentNotifId = data.latest_id;
+                             
+                             if('Notification' in window && Notification.permission==='granted'){
+                                 try {
+                                    const n = new Notification(data.latest_title||"Alerta", {
+                                        body: data.latest_msg, 
+                                        requireInteraction:true, 
+                                        tag:'med-alert'
+                                    });
+                                    n.onclick = ()=>window.focus();
+                                 } catch(e){}
+                             }
+
+                             document.getElementById('toast-title').innerText = data.latest_title || 'Alerta';
+                             document.getElementById('toast-body').innerText = data.latest_msg || 'Nueva Solicitud';
+                             const t = document.getElementById('liveToast');
+                             new bootstrap.Toast(t, {autohide:false}).show();
+                         }
+                    }
+                }).catch(e=>{ console.error("Notif Error:", e); });
             }
 
             // Helper GetCookie

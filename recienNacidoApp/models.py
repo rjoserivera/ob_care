@@ -33,6 +33,40 @@ class CatalogoSexoRN(models.Model):
         return self.descripcion
 
 
+class CatalogoComplicacionesRN(models.Model):
+    """Catálogo de complicaciones del recién nacido"""
+    codigo = models.CharField(max_length=20, unique=True)
+    descripcion = models.CharField(max_length=100)
+    activo = models.BooleanField(default=True)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        db_table = 'catalogo_complicaciones_rn'
+        ordering = ['orden', 'descripcion']
+        verbose_name = 'Catálogo Complicaciones RN'
+        verbose_name_plural = 'Catálogo Complicaciones RN'
+
+    def __str__(self):
+        return self.descripcion
+
+
+class CatalogoMotivoHospitalizacionRN(models.Model):
+    """Catálogo para motivos de hospitalización del recién nacido"""
+    codigo = models.CharField(max_length=50, unique=True)
+    descripcion = models.CharField(max_length=150)
+    activo = models.BooleanField(default=True)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        db_table = 'catalogo_motivo_hospitalizacion_rn'
+        ordering = ['orden', 'descripcion']
+        verbose_name = 'Catálogo Motivo Hospitalización RN'
+        verbose_name_plural = 'Catálogo Motivos Hospitalización RN'
+
+    def __str__(self):
+        return self.descripcion
+
+
 # ============================================
 # REGISTRO DE RECIÉN NACIDO
 # ============================================
@@ -52,6 +86,18 @@ class RegistroRecienNacido(models.Model):
         on_delete=models.CASCADE,
         related_name='recien_nacidos',   # <- varios RN por parto
         verbose_name='Registro de Parto'
+    )
+
+    matrona_responsable = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='Matrona Responsable'
+    )
+
+    tens_responsable = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='TENS Responsable'
     )
 
     # ==========================
@@ -283,12 +329,22 @@ class RegistroRecienNacido(models.Model):
         verbose_name='Otras Complicaciones'
     )
 
+    complicaciones_seleccionadas = models.ManyToManyField(
+        CatalogoComplicacionesRN,
+        blank=True,
+        verbose_name='Complicaciones (Selección Multiple)',
+        related_name='registros_rn'
+    )
+
     requiere_hospitalizacion = models.BooleanField(
         default=False,
         verbose_name='¿Requiere Hospitalización?'
     )
 
-    motivo_hospitalizacion = models.TextField(
+    motivo_hospitalizacion = models.ForeignKey(
+        CatalogoMotivoHospitalizacionRN,
+        on_delete=models.SET_NULL,
+        null=True,
         blank=True,
         verbose_name='Motivo de Hospitalización',
         help_text='Si aplica'
