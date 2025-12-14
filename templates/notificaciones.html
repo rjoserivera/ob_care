@@ -1,0 +1,178 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Notificaciones - Sistema Obstétrico{% endblock %}
+
+{% block extra_css %}
+<style>
+    .notification-card {
+        background: white;
+        border-left: 5px solid #ffc107;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .notification-urgent {
+        border-left-color: #dc3545;
+        background: #fff5f5;
+    }
+    
+    .notification-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .notification-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #dc3545;
+    }
+    
+    .notification-time {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .notification-details {
+        margin-bottom: 1rem;
+    }
+    
+    .notification-detail-item {
+        margin-bottom: 0.5rem;
+    }
+    
+    .notification-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .btn-accept {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .btn-reject {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 900px; margin-top: 2rem;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-bell-fill"></i> Notificaciones</h2>
+        <span class="badge bg-danger" style="font-size: 1.2rem;">{{ total }} pendiente{{ total|pluralize }}</span>
+    </div>
+    
+    {% if notificaciones %}
+        {% for notif in notificaciones %}
+        <div class="notification-card notification-urgent">
+            <div class="notification-header">
+                <div class="notification-title">
+                    <i class="bi bi-exclamation-triangle-fill"></i> URGENTE: Asistencia a Parto
+                </div>
+                <div class="notification-time">
+                    {{ notif.timestamp|date:"d/m/Y H:i" }}
+                </div>
+            </div>
+            
+            <div class="notification-details">
+                <div class="notification-detail-item">
+                    <strong><i class="bi bi-person-fill"></i> Paciente:</strong> {{ notif.paciente }}
+                </div>
+                <div class="notification-detail-item">
+                    <strong><i class="bi bi-file-earmark-medical"></i> Ficha:</strong> {{ notif.ficha }}
+                </div>
+                <div class="notification-detail-item">
+                    <strong><i class="bi bi-hospital"></i> Sala:</strong> {{ notif.sala }}
+                </div>
+                <div class="notification-detail-item">
+                    <strong><i class="bi bi-person-badge"></i> Rol Solicitado:</strong> {{ notif.rol }}
+                </div>
+                {% if notif.observaciones %}
+                <div class="notification-detail-item">
+                    <strong><i class="bi bi-info-circle"></i> Observaciones:</strong> {{ notif.observaciones }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="notification-actions">
+                <button class="btn-accept" onclick="responderInvitacion({{ notif.id }}, 'aceptar')">
+                    <i class="bi bi-check-lg"></i> Aceptar
+                </button>
+                <button class="btn-reject" onclick="responderInvitacion({{ notif.id }}, 'rechazar')">
+                    <i class="bi bi-x-lg"></i> Rechazar
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No tienes notificaciones pendientes en este momento.
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function responderInvitacion(asignacionId, accion) {
+    const mensaje = accion === 'aceptar' 
+        ? '¿Confirmar asistencia al parto?' 
+        : '¿Rechazar esta invitación?';
+    
+    if (!confirm(mensaje)) {
+        return;
+    }
+    
+    fetch(`/matrona/api/responder-asignacion/${asignacionId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ accion: accion })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + (data.error || 'No se pudo procesar la respuesta'));
+        }
+    })
+    .catch(error => {
+        alert('Error de conexión: ' + error);
+    });
+}
+</script>
+{% endblock %}

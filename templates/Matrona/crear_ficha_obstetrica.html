@@ -1,0 +1,1137 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }} - Sistema Obstétrico{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --matrona-primary: #f5576c;
+        --matrona-secondary: #f093fb;
+    }
+
+    body {
+        background: linear-gradient(135deg, #fff5f7 0%, #fce4ec 100%);
+        min-height: 100vh;
+    }
+
+    .ficha-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .ficha-header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 25px rgba(245, 87, 108, 0.3);
+    }
+
+    .ficha-header h2 { margin-bottom: 0.5rem; }
+
+    .persona-info-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        border-left: 5px solid #f5576c;
+    }
+
+    .persona-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: #666;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.3rem;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .ficha-form {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .form-section:last-of-type { border-bottom: none; }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f5576c;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i { color: #f5576c; }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-group { margin-bottom: 1rem; }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #f5576c;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+    }
+
+    .form-control[readonly] { background-color: #e8f5e9; }
+
+    .form-check-input {
+        width: 1.2rem;
+        height: 1.2rem;
+        margin-right: 0.5rem;
+    }
+
+    .form-check-input:checked {
+        background-color: #f5576c;
+        border-color: #f5576c;
+    }
+
+    .form-text {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 0.25rem;
+    }
+
+    .text-danger { color: #dc3545; }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover { background: #5a6268; }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .sub-section {
+        background: #fff8f9;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-top: 1rem;
+    }
+
+    .sub-section-title {
+        font-weight: 600;
+        color: #f5576c;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .vih-test-card {
+        background: #f0f8ff;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #17a2b8;
+    }
+
+    .vih-test-title {
+        font-weight: 600;
+        color: #17a2b8;
+        margin-bottom: 1rem;
+    }
+
+    /* Tabs Navigation */
+    .nav-tabs-custom {
+        border: none;
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 0.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .nav-tabs-custom .nav-link {
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.25rem;
+        font-weight: 700;
+        font-size: 1rem;
+        color: #000000;
+        background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: 2px solid #7dd3fc;
+    }
+
+    .nav-tabs-custom .nav-link:hover {
+        background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%);
+        color: #000000;
+        border-color: #0284c7;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+    }
+
+    .nav-tabs-custom .nav-link.active {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+        border-color: transparent;
+    }
+
+    .nav-tabs-custom .nav-link span,
+    .nav-tabs-custom .nav-link i {
+        color: #000000 !important;
+    }
+
+    .nav-tabs-custom .nav-link.active span,
+    .nav-tabs-custom .nav-link.active i {
+        color: white !important;
+    }
+
+    .tab-content {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .tab-pane {
+        padding: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-row { grid-template-columns: 1fr; }
+        .button-group { flex-direction: column; }
+        .btn { width: 100%; justify-content: center; }
+        .nav-tabs-custom { flex-direction: column; }
+    }
+
+    /* Tab Navigation Buttons */
+    .tab-navigation {
+        display: flex;
+        justify-content: space-between;
+        padding: 1.5rem 0;
+        margin-top: 2rem;
+        border-top: 2px solid #e0e0e0;
+    }
+
+    .btn-tab-nav {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-tab-prev {
+        background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
+        color: #333;
+    }
+
+    .btn-tab-prev:hover:not(:disabled) {
+        background: linear-gradient(135deg, #bdbdbd 0%, #9e9e9e 100%);
+        transform: translateX(-3px);
+    }
+
+    .btn-tab-next {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+
+    .btn-tab-next:hover:not(:disabled) {
+        background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+        transform: translateX(3px);
+    }
+
+    .btn-tab-nav:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ficha-container">
+    <!-- Header -->
+    <div class="ficha-header">
+        <h2><i class="bi bi-file-earmark-medical"></i> {{ titulo }}</h2>
+        <p>{% if accion == 'editar' %}Modifica los datos de la ficha obstétrica{% else %}Completa los datos de la ficha obstétrica{% endif %}</p>
+    </div>
+
+    <!-- Información de la Persona -->
+    {% if persona %}
+    <div class="persona-info-card">
+        <h3 style="margin-bottom: 1.5rem; color: #333;">
+            <i class="bi bi-person-check-fill"></i> Información de la Paciente
+        </h3>
+        <div class="persona-info-grid">
+            <div class="info-item">
+                <div class="info-label">Nombre Completo</div>
+                <div class="info-value">{{ persona.Nombre }} {{ persona.Apellido_Paterno }} {{ persona.Apellido_Materno }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">RUT</div>
+                <div class="info-value">{{ persona.Rut }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Edad</div>
+                <div class="info-value">{{ edad }} años</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Fecha de Nacimiento</div>
+                <div class="info-value">{{ persona.Fecha_nacimiento|date:"d/m/Y" }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Error Alerts -->
+    {% if form.errors %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="errorAlert" style="margin-bottom: 2rem;">
+        <h5><i class="bi bi-exclamation-triangle-fill"></i> Errores en el formulario</h5>
+        <p>Por favor corrige los siguientes errores:</p>
+        <ul style="margin-bottom: 0;">
+            {% for field in form %}
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            {% endif %}
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    <!-- Formulario -->
+    <div class="ficha-form">
+        <form method="post" id="fichaForm">
+            {% csrf_token %}
+
+            <!-- Navegación de Tabs -->
+            <ul class="nav nav-tabs-custom" id="fichaFormTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tab-contacto" data-bs-toggle="tab" data-bs-target="#panel-contacto" type="button" role="tab">
+                        <i class="bi bi-telephone-fill"></i>
+                        <span>Contacto</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-medidas" data-bs-toggle="tab" data-bs-target="#panel-medidas" type="button" role="tab">
+                        <i class="bi bi-rulers"></i>
+                        <span>Medidas</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-embarazo" data-bs-toggle="tab" data-bs-target="#panel-embarazo" type="button" role="tab">
+                        <i class="bi bi-calendar-heart"></i>
+                        <span>Embarazo</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-emergencia" data-bs-toggle="tab" data-bs-target="#panel-emergencia" type="button" role="tab">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span>Emergencia</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-examenes" data-bs-toggle="tab" data-bs-target="#panel-examenes" type="button" role="tab">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Exámenes</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-patologias" data-bs-toggle="tab" data-bs-target="#panel-patologias" type="button" role="tab">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <span>Patologías</span>
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Contenido de Tabs -->
+            <div class="tab-content" id="fichaFormTabContent">
+
+                <!-- ==================== TAB 1: CONTACTO Y ACOMPAÑANTE ==================== -->
+                <div class="tab-pane fade show active" id="panel-contacto" role="tabpanel">
+            <!-- ==================== SECCIÓN: CONTACTO DE EMERGENCIA ==================== -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-telephone-fill"></i> Contacto de Emergencia
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Nombre Contacto <span class="text-danger">*</span></label>
+                        <input type="text" name="nombre_contacto_emergencia" class="form-control" 
+                               placeholder="Nombre completo" maxlength="200" id="id_nombre_contacto_emergencia"
+                               value="{% if ficha %}{{ ficha.nombre_contacto_emergencia }}{% else %}{{ form.nombre_contacto_emergencia.value|default:'' }}{% endif %}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Teléfono de Emergencia <span class="text-danger">*</span></label>
+                        <input type="tel" name="telefono_emergencia" class="form-control" 
+                               placeholder="+56912345678" id="id_telefono_emergencia"
+                               value="{% if ficha %}{{ ficha.telefono_emergencia }}{% else %}{{ form.telefono_emergencia.value|default:'' }}{% endif %}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Parentesco</label>
+                        <select name="parentesco_contacto_emergencia" class="form-select" id="id_parentesco_contacto_emergencia">
+                            <option value="">Seleccione...</option>
+                            <option value="PAREJA" {% if form.parentesco_contacto_emergencia.value == 'PAREJA' %}selected{% endif %}>Pareja</option>
+                            <option value="ESPOSO" {% if form.parentesco_contacto_emergencia.value == 'ESPOSO' %}selected{% endif %}>Esposo/a</option>
+                            <option value="MADRE" {% if form.parentesco_contacto_emergencia.value == 'MADRE' %}selected{% endif %}>Madre</option>
+                            <option value="PADRE" {% if form.parentesco_contacto_emergencia.value == 'PADRE' %}selected{% endif %}>Padre</option>
+                            <option value="HERMANO" {% if form.parentesco_contacto_emergencia.value == 'HERMANO' %}selected{% endif %}>Hermano/a</option>
+                            <option value="HIJO" {% if form.parentesco_contacto_emergencia.value == 'HIJO' %}selected{% endif %}>Hijo/a</option>
+                            <option value="OTRO" {% if form.parentesco_contacto_emergencia.value == 'OTRO' %}selected{% endif %}>Otro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== SECCIÓN: ACOMPAÑANTE ==================== -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-people"></i> Acompañante
+                </div>
+
+                <div class="form-group">
+                    <label class="form-check-label">
+                        <input type="checkbox" name="tiene_acompanante" class="form-check-input" 
+                               id="id_tiene_acompanante" onchange="toggleAcompanante()"
+                               {% if form.tiene_acompanante.value %}checked{% endif %}>
+                        ¿Tiene Acompañante?
+                    </label>
+                </div>
+
+                <div class="sub-section" id="acompananteSection" style="{% if not form.tiene_acompanante.value %}display:none;{% endif %}">
+                    <div class="sub-section-title">
+                        <i class="bi bi-person-plus"></i> Datos del Acompañante
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Nombre del Acompañante</label>
+                            <input type="text" name="nombre_acompanante" class="form-control" 
+                                   placeholder="Nombre completo" maxlength="200" id="id_nombre_acompanante"
+                                   value="{% if ficha %}{{ ficha.nombre_acompanante }}{% else %}{{ form.nombre_acompanante.value|default:'' }}{% endif %}">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">RUT del Acompañante</label>
+                            <input type="text" name="rut_acompanante" class="form-control" 
+                                   placeholder="12345678-9" maxlength="12" id="id_rut_acompanante"
+                                   value="{% if ficha %}{{ ficha.rut_acompanante }}{% else %}{{ form.rut_acompanante.value|default:'' }}{% endif %}">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Parentesco</label>
+                            <select name="parentesco_acompanante" class="form-select" id="id_parentesco_acompanante">
+                                <option value="">Seleccione...</option>
+                                <option value="PAREJA" {% if form.parentesco_acompanante.value == 'PAREJA' %}selected{% endif %}>Pareja</option>
+                                <option value="ESPOSO" {% if form.parentesco_acompanante.value == 'ESPOSO' %}selected{% endif %}>Esposo/a</option>
+                                <option value="MADRE" {% if form.parentesco_acompanante.value == 'MADRE' %}selected{% endif %}>Madre</option>
+                                <option value="PADRE" {% if form.parentesco_acompanante.value == 'PADRE' %}selected{% endif %}>Padre</option>
+                                <option value="HERMANO" {% if form.parentesco_acompanante.value == 'HERMANO' %}selected{% endif %}>Hermano/a</option>
+                                <option value="SUEGRA" {% if form.parentesco_acompanante.value == 'SUEGRA' %}selected{% endif %}>Suegra/o</option>
+                                <option value="AMIGO" {% if form.parentesco_acompanante.value == 'AMIGO' %}selected{% endif %}>Amigo/a</option>
+                                <option value="OTRO" {% if form.parentesco_acompanante.value == 'OTRO' %}selected{% endif %}>Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Teléfono del Acompañante</label>
+                            <input type="tel" name="telefono_acompanante" class="form-control" 
+                                   placeholder="+56912345678" id="id_telefono_acompanante"
+                                   value="{% if ficha %}{{ ficha.telefono_acompanante }}{% else %}{{ form.telefono_acompanante.value|default:'' }}{% endif %}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button type="button" class="btn-tab-nav btn-tab-prev" disabled>
+                    <i class="bi bi-arrow-left"></i> Anterior
+                </button>
+                <button type="button" class="btn-tab-nav btn-tab-next" onclick="nextTab('tab-medidas')">
+                    Siguiente <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+                </div>
+                <!-- End Tab 1: Contacto -->
+
+                <!-- ==================== TAB 2: MEDIDAS E HISTORIA ==================== -->
+                <div class="tab-pane fade" id="panel-medidas" role="tabpanel">
+
+            <!-- ==================== SECCIÓN: DATOS GENERALES ==================== -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-info-circle"></i> Datos Generales del Embarazo
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            <input type="checkbox" name="plan_de_parto" class="form-check-input" 
+                                   id="id_plan_de_parto" {% if form.plan_de_parto.value %}checked{% endif %}>
+                            ¿Tiene Plan de Parto?
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            <input type="checkbox" name="visita_guiada" class="form-check-input" 
+                                   id="id_visita_guiada" {% if form.visita_guiada.value %}checked{% endif %}>
+                            ¿Realizó Visita Guiada?
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Consultorio o Centro de Origen</label>
+                        <select name="consultorio_origen" class="form-select" id="id_consultorio_origen">
+                            <option value="">Seleccione un consultorio...</option>
+                            {% if form.consultorio_origen.field.queryset %}
+                                {% for consultorio in form.consultorio_origen.field.queryset %}
+                                    <option value="{{ consultorio.pk }}" 
+                                            {% if form.consultorio_origen.value == consultorio.pk|stringformat:"s" or form.consultorio_origen.value == consultorio.pk %}selected{% endif %}>
+                                        {{ consultorio }}
+                                    </option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== SECCIÓN: MEDIDAS ANTROPOMÉTRICAS ==================== -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-rulers"></i> Medidas Antropométricas
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Peso Actual (kg) <span class="text-danger">*</span></label>
+                        <input type="number" name="peso_actual" class="form-control" step="0.01" 
+                               placeholder="Ej: 65.5" id="id_peso_actual"
+                               value="{% if ficha %}{{ ficha.peso_actual }}{% else %}{{ form.peso_actual.value|default:'' }}{% endif %}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Talla (cm) <span class="text-danger">*</span></label>
+                        <input type="number" name="talla_actual" class="form-control" step="0.01" 
+                               placeholder="Ej: 165" id="id_talla_actual"
+                               value="{% if ficha %}{{ ficha.talla_actual }}{% else %}{{ form.talla_actual.value|default:'' }}{% endif %}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label"><strong>IMC (Calculado)</strong></label>
+                        <input type="number" name="imc" class="form-control" step="0.01" 
+                               placeholder="Automático" readonly id="id_imc" 
+                               style="background-color: #e8f5e9;"
+                               value="{% if ficha %}{{ ficha.imc }}{% else %}{{ form.imc.value|default:'' }}{% endif %}">
+                        <small class="form-text" style="color: green;">Se calcula automáticamente</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== SECCIÓN: HISTORIA OBSTÉTRICA ==================== -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-heart-pulse"></i> Historia Obstétrica
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Número de Gestaciones <span class="text-danger">*</span></label>
+                        <input type="number" name="numero_gestas" class="form-control" min="0" required 
+                               id="id_numero_gestas"
+                               value="{% if ficha %}{{ ficha.numero_gestas }}{% else %}{{ form.numero_gestas.value|default:1 }}{% endif %}">
+                        <small class="form-text">Incluye embarazos anteriores + actual</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Número de Partos</label>
+                        <input type="number" name="numero_partos" class="form-control" min="0" 
+                               id="id_numero_partos"
+                               value="{% if ficha %}{{ ficha.numero_partos }}{% else %}{{ form.numero_partos.value|default:0 }}{% endif %}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Partos Vaginales</label>
+                        <input type="number" name="partos_vaginales" class="form-control" min="0" 
+                               id="id_partos_vaginales"
+                               value="{% if ficha %}{{ ficha.partos_vaginales }}{% else %}{{ form.partos_vaginales.value|default:0 }}{% endif %}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Partos por Cesárea</label>
+                        <input type="number" name="partos_cesareas" class="form-control" min="0" 
+                               id="id_partos_cesareas"
+                               value="{% if ficha %}{{ ficha.partos_cesareas }}{% else %}{{ form.partos_cesareas.value|default:0 }}{% endif %}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Número de Abortos</label>
+                        <input type="number" name="numero_abortos" class="form-control" min="0" 
+                               id="id_numero_abortos"
+                               value="{% if ficha %}{{ ficha.numero_abortos }}{% else %}{{ form.numero_abortos.value|default:0 }}{% endif %}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Nacidos Vivos</label>
+                        <input type="number" name="nacidos_vivos" class="form-control" min="0" 
+                               id="id_nacidos_vivos"
+                               value="{% if ficha %}{{ ficha.nacidos_vivos }}{% else %}{{ form.nacidos_vivos.value|default:0 }}{% endif %}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button type="button" class="btn-tab-nav btn-tab-prev" onclick="prevTab('tab-contacto')">
+                    <i class="bi bi-arrow-left"></i> Anterior
+                </button>
+                <button type="button" class="btn-tab-nav btn-tab-next" onclick="nextTab('tab-embarazo')">
+                    Siguiente <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+                </div>
+                <!-- End Tab 2: Medidas -->
+
+                <!-- ==================== TAB 3: EMBARAZO ACTUAL ==================== -->
+                <div class="tab-pane fade" id="panel-embarazo" role="tabpanel">
+
+            <!-- ==================== SECCIÓN: EMBARAZO ACTUAL ==================== -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-calendar-heart"></i> Embarazo Actual
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Fecha Última Regla (FUM) <span class="text-danger">*</span></label>
+                        <input type="date" name="fecha_ultima_regla" class="form-control" required 
+                               id="id_fecha_ultima_regla"
+                               value="{% if ficha and ficha.fecha_ultima_regla %}{{ ficha.fecha_ultima_regla|date:'Y-m-d' }}{% else %}{{ form.fecha_ultima_regla.value|default:'' }}{% endif %}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label"><strong>Edad Gestacional (Semanas)</strong></label>
+                        <input type="number" name="edad_gestacional_semanas" class="form-control" 
+                               readonly id="id_edad_gestacional_semanas" style="background-color: #e8f5e9;"
+                               value="{% if ficha %}{{ ficha.edad_gestacional_semanas }}{% else %}{{ form.edad_gestacional_semanas.value|default:'' }}{% endif %}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label"><strong>Días adicionales</strong></label>
+                        <input type="number" name="edad_gestacional_dias" class="form-control" 
+                               readonly id="id_edad_gestacional_dias" style="background-color: #e8f5e9;"
+                               value="{% if ficha %}{{ ficha.edad_gestacional_dias }}{% else %}{{ form.edad_gestacional_dias.value|default:'' }}{% endif %}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label"><strong>Fecha Probable de Parto (FPP)</strong></label>
+                        <input type="date" name="fecha_probable_parto" class="form-control" 
+                               readonly id="id_fecha_probable_parto" style="background-color: #e8f5e9;"
+                               value="{% if ficha and ficha.fecha_probable_parto %}{{ ficha.fecha_probable_parto|date:'Y-m-d' }}{% else %}{{ form.fecha_probable_parto.value|default:'' }}{% endif %}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Cantidad de Bebés</label>
+                        <input type="number" name="cantidad_bebes" class="form-control" min="1" max="5" 
+                               id="id_cantidad_bebes"
+                               value="{% if ficha %}{{ ficha.cantidad_bebes }}{% else %}{{ form.cantidad_bebes.value|default:1 }}{% endif %}">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            <input type="checkbox" name="control_prenatal" class="form-check-input" 
+                                   id="id_control_prenatal" {% if form.control_prenatal.value %}checked{% endif %}>
+                            ¿Tiene Control Prenatal?
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Número de Controles</label>
+                        <input type="number" name="numero_controles" class="form-control" min="0" 
+                               id="id_numero_controles"
+                               value="{% if ficha %}{{ ficha.numero_controles }}{% else %}{{ form.numero_controles.value|default:0 }}{% endif %}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button type="button" class="btn-tab-nav btn-tab-prev" onclick="prevTab('tab-medidas')">
+                    <i class="bi bi-arrow-left"></i> Anterior
+                </button>
+                <button type="button" class="btn-tab-nav btn-tab-next" onclick="nextTab('tab-examenes')">
+                    Siguiente <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+                </div>
+                <!-- End Tab 3: Embarazo -->
+
+
+
+                <!-- ==================== TAB 4: EMERGENCIA ==================== -->
+                <div class="tab-pane fade" id="panel-emergencia" role="tabpanel">
+                    <div class="form-section" style="border-left: 4px solid #dc3545;">
+                        <div class="section-title" style="color: #dc3545;">
+                            <i class="bi bi-exclamation-triangle-fill"></i> Información de Emergencia
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="bi bi-info-circle"></i> 
+                            <strong>Importante:</strong> Marque como emergencia si la paciente requiere atención inmediata. 
+                            Esto puede habilitar el inicio del proceso de parto de forma automática.
+                        </div>
+
+                        <!-- Checkbox: Es Emergencia -->
+                        <div class="form-group">
+                            <label class="form-check-label">
+                                <input type="checkbox" name="es_emergencia" class="form-check-input" 
+                                       id="id_es_emergencia">
+                                ¿Es una Emergencia?
+                            </label>
+                        </div>
+
+                        <!-- Tipo de Ingreso -->
+                        <div class="form-group">
+                            <label class="form-label">Tipo de Ingreso <span class="text-danger">*</span></label>
+                            <select name="tipo_ingreso" class="form-control" id="id_tipo_ingreso">
+                                <option value="PROGRAMADO">Ingreso Programado (Electivo)</option>
+                                <option value="SALA">Ingreso a Sala (Hospitalización)</option>
+                                <option value="URGENCIA">Ingreso por Urgencia (UEGO)</option>
+                                <option value="DERIVACION">Ingreso por Derivación</option>
+                            </select>
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle"></i> 
+                                Los ingresos por URGENCIA o DERIVACIÓN habilitan el inicio inmediato del parto
+                            </small>
+                        </div>
+
+                        <!-- Observaciones de Emergencia -->
+                        <div class="form-group">
+                            <label class="form-label">Observaciones / Motivo de Emergencia</label>
+                            <textarea name="observaciones_emergencia" class="form-control" rows="4" 
+                                      placeholder="Describa el motivo de la emergencia, síntomas, o situación que requiere atención inmediata..."
+                                      id="id_observaciones_emergencia"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Tab Navigation -->
+                    <div class="tab-navigation">
+                        <button type="button" class="btn-tab-nav btn-tab-prev" onclick="prevTab('tab-embarazo')">
+                            <i class="bi bi-arrow-left"></i> Anterior
+                        </button>
+                        <button type="button" class="btn-tab-nav btn-tab-next" onclick="nextTab('tab-examenes')">
+                            Siguiente <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- End Tab 4: Emergencia -->
+
+                <!-- ==================== TAB 5: EXÁMENES VIH ==================== -->
+                <div class="tab-pane fade" id="panel-examenes" role="tabpanel">
+
+            <!-- ==================== SECCIÓN: VIH ==================== -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-shield-check"></i> Exámenes VIH
+                </div>
+
+                <div class="form-row">
+                    <!-- VIH Test 1 -->
+                    <div class="vih-test-card">
+                        <div class="vih-test-title">
+                            <i class="bi bi-1-circle-fill"></i> Test VIH 1
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-check-label">
+                                    <input type="checkbox" name="vih_1_realizado" class="form-check-input" 
+                                           id="id_vih_1_realizado"
+                                           {% if form.vih_1_realizado.value %}checked{% endif %}>
+                                    Realizado
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Fecha Examen</label>
+                                <input type="date" name="vih_1_fecha" class="form-control" id="id_vih_1_fecha"
+                                       value="{% if ficha and ficha.vih_1_fecha %}{{ ficha.vih_1_fecha|date:'Y-m-d' }}{% else %}{{ form.vih_1_fecha.value|default:'' }}{% endif %}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Resultado</label>
+                                <select name="vih_1_resultado" class="form-select" id="id_vih_1_resultado">
+                                    <option value="">Sin realizar</option>
+                                    <option value="NEGATIVO" {% if form.vih_1_resultado.value == 'NEGATIVO' %}selected{% endif %}>Negativo</option>
+                                    <option value="POSITIVO" {% if form.vih_1_resultado.value == 'POSITIVO' %}selected{% endif %}>Positivo</option>
+                                    <option value="INDETERMINADO" {% if form.vih_1_resultado.value == 'INDETERMINADO' %}selected{% endif %}>Indeterminado</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VIH Test 2 -->
+                    <div class="vih-test-card">
+                        <div class="vih-test-title">
+                            <i class="bi bi-2-circle-fill"></i> Test VIH 2
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-check-label">
+                                    <input type="checkbox" name="vih_2_realizado" class="form-check-input" 
+                                           id="id_vih_2_realizado"
+                                           {% if form.vih_2_realizado.value %}checked{% endif %}>
+                                    Realizado
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Fecha Examen</label>
+                                <input type="date" name="vih_2_fecha" class="form-control" id="id_vih_2_fecha"
+                                       value="{% if ficha and ficha.vih_2_fecha %}{{ ficha.vih_2_fecha|date:'Y-m-d' }}{% else %}{{ form.vih_2_fecha.value|default:'' }}{% endif %}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Resultado</label>
+                                <select name="vih_2_resultado" class="form-select" id="id_vih_2_resultado">
+                                    <option value="">Sin realizar</option>
+                                    <option value="NEGATIVO" {% if form.vih_2_resultado.value == 'NEGATIVO' %}selected{% endif %}>Negativo</option>
+                                    <option value="POSITIVO" {% if form.vih_2_resultado.value == 'POSITIVO' %}selected{% endif %}>Positivo</option>
+                                    <option value="INDETERMINADO" {% if form.vih_2_resultado.value == 'INDETERMINADO' %}selected{% endif %}>Indeterminado</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button type="button" class="btn-tab-nav btn-tab-prev" onclick="prevTab('tab-dilatacion')">
+                    <i class="bi bi-arrow-left"></i> Anterior
+                </button>
+                <button type="button" class="btn-tab-nav btn-tab-next" onclick="nextTab('tab-patologias')">
+                    Siguiente <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+                </div>
+                <!-- End Tab 5: Exámenes -->
+
+                <!-- ==================== TAB 6: PATOLOGÍAS ==================== -->
+                <div class="tab-pane fade" id="panel-patologias" role="tabpanel">
+
+            <!-- ==================== SECCIÓN: PATOLOGÍAS ==================== -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-exclamation-triangle"></i> Patologías
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            <input type="checkbox" name="preeclampsia_severa" class="form-check-input" 
+                                   id="id_preeclampsia_severa"
+                                   {% if form.preeclampsia_severa.value %}checked{% endif %}>
+                            ¿Preeclampsia Severa?
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            <input type="checkbox" name="eclampsia" class="form-check-input" 
+                                   id="id_eclampsia"
+                                   {% if form.eclampsia.value %}checked{% endif %}>
+                            ¿Eclampsia?
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            <input type="checkbox" name="sepsis_infeccion_sistemia" class="form-check-input" 
+                                   id="id_sepsis_infeccion_sistemia"
+                                   {% if form.sepsis_infeccion_sistemia.value %}checked{% endif %}>
+                            ¿Sepsis o Infección Sistémica?
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            <input type="checkbox" name="infeccion_ovular" class="form-check-input" 
+                                   id="id_infeccion_ovular"
+                                   {% if form.infeccion_ovular.value %}checked{% endif %}>
+                            ¿Infección Ovular?
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Otras Patologías</label>
+                    <textarea name="otras_patologias" class="form-control" rows="3" 
+                              placeholder="Describa otras patologías si las hay..."
+                              id="id_otras_patologias">{% if ficha %}{{ ficha.otras_patologias }}{% else %}{{ form.otras_patologias.value|default:'' }}{% endif %}</textarea>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button type="button" class="btn-tab-nav btn-tab-prev" onclick="prevTab('tab-examenes')">
+                    <i class="bi bi-arrow-left"></i> Anterior
+                </button>
+                <button type="button" class="btn-tab-nav btn-tab-next" disabled>
+                    Siguiente <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+                </div>
+                <!-- End Tab 6: Patologías -->
+
+            </div>
+            <!-- End tab-content -->
+
+            <!-- ==================== BOTONES ==================== -->
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> 
+                    {% if accion == 'editar' %}Guardar Cambios{% else %}Crear Ficha{% endif %}
+                </button>
+                <a href="{% url 'matrona:menu_matrona' %}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle Acompañante Section
+    function toggleAcompanante() {
+        const checkbox = document.getElementById('id_tiene_acompanante');
+        const section = document.getElementById('acompananteSection');
+        section.style.display = checkbox.checked ? 'block' : 'none';
+    }
+
+    // Toggle Dilatación Section
+    function toggleDilatacion() {
+        const checkbox = document.getElementById('id_registrar_dilatacion');
+        const section = document.getElementById('dilatacionSection');
+        section.style.display = checkbox.checked ? 'block' : 'none';
+    }
+
+    // Toggle Emergencia Section
+    function toggleEmergencia() {
+        const checkbox = document.getElementById('id_es_emergencia');
+        const section = document.getElementById('emergenciaSection');
+        section.style.display = checkbox.checked ? 'block' : 'none';
+    }
+
+    // Calcular IMC
+    function calcularIMC() {
+        const peso = parseFloat(document.getElementById('id_peso_actual').value);
+        const talla = parseFloat(document.getElementById('id_talla_actual').value);
+        
+        if (peso > 0 && talla > 0) {
+            const tallaMetros = talla / 100;
+            const imc = peso / (tallaMetros * tallaMetros);
+            document.getElementById('id_imc').value = imc.toFixed(2);
+        }
+    }
+
+    // Calcular Edad Gestacional y FPP
+    function calcularEdadGestacional() {
+        const fumInput = document.getElementById('id_fecha_ultima_regla');
+        if (!fumInput.value) return;
+
+        const fum = new Date(fumInput.value);
+        const hoy = new Date();
+        
+        // Calcular diferencia en días
+        const diffTime = hoy - fum;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        // Calcular semanas y días
+        const semanas = Math.floor(diffDays / 7);
+        const dias = diffDays % 7;
+        
+        document.getElementById('id_edad_gestacional_semanas').value = semanas;
+        document.getElementById('id_edad_gestacional_dias').value = dias;
+        
+        // Calcular FPP (FUM + 280 días)
+        const fpp = new Date(fum);
+        fpp.setDate(fpp.getDate() + 280);
+        
+        const fppFormatted = fpp.toISOString().split('T')[0];
+        document.getElementById('id_fecha_probable_parto').value = fppFormatted;
+    }
+
+    // Event Listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // IMC
+        document.getElementById('id_peso_actual').addEventListener('input', calcularIMC);
+        document.getElementById('id_talla_actual').addEventListener('input', calcularIMC);
+        
+        // Edad Gestacional
+        document.getElementById('id_fecha_ultima_regla').addEventListener('change', calcularEdadGestacional);
+    });
+
+    // Tab Navigation Functions
+    function nextTab(tabId) {
+        const tabTrigger = new bootstrap.Tab(document.getElementById(tabId));
+        tabTrigger.show();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function prevTab(tabId) {
+        const tabTrigger = new bootstrap.Tab(document.getElementById(tabId));
+        tabTrigger.show();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ==================== ERROR HANDLING ====================
+    document.addEventListener('DOMContentLoaded', function() {
+        const errorAlert = document.getElementById('errorAlert');
+        
+        if (errorAlert) {
+            // Auto-dismiss after 10 seconds
+            setTimeout(function() {
+                const bsAlert = new bootstrap.Alert(errorAlert);
+                bsAlert.close();
+            }, 10000);
+
+            // Highlight error fields and scroll to first error
+            const form = document.getElementById('fichaForm');
+            if (form) {
+                const formFields = form.querySelectorAll('input, select, textarea');
+                let firstErrorField = null;
+                
+                formFields.forEach(field => {
+                    const fieldName = field.getAttribute('name');
+                    if (fieldName && errorAlert.textContent.includes(fieldName)) {
+                        field.classList.add('is-invalid');
+                        field.style.borderColor = '#dc3545';
+                        field.style.borderWidth = '2px';
+                        
+                        if (!firstErrorField) firstErrorField = field;
+                        
+                        field.addEventListener('input', function() {
+                            this.classList.remove('is-invalid');
+                            this.style.borderColor = '';
+                            this.style.borderWidth = '';
+                        });
+                    }
+                });
+
+                // Navigate to tab with first error and scroll to it
+                if (firstErrorField) {
+                    const tabPane = firstErrorField.closest('.tab-pane');
+                    if (tabPane) {
+                        const tabId = tabPane.getAttribute('id');
+                        const tabButton = document.querySelector(`[data-bs-target="#${tabId}"]`);
+                        if (tabButton) {
+                            new bootstrap.Tab(tabButton).show();
+                        }
+                    }
+                    
+                    setTimeout(() => {
+                        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstErrorField.focus();
+                    }, 300);
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

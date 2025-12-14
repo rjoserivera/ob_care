@@ -1,0 +1,507 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Registrar Nueva Persona - Sistema Obstétrico{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px 15px 0 0;
+        margin: -2rem -2rem 2rem -2rem;
+        text-align: center;
+    }
+
+    .form-header h2 {
+        margin-bottom: 0.5rem;
+        font-size: 1.8rem;
+    }
+
+    .form-header p {
+        margin-bottom: 0;
+        opacity: 0.95;
+        font-size: 0.95rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .form-label .required {
+        color: #dc3545;
+        margin-left: 0.3rem;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-left: 4px solid #667eea;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-radius: 5px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .section-title:first-child {
+        margin-top: 0;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+    }
+
+    .form-check-input {
+        width: 1.2rem;
+        height: 1.2rem;
+        cursor: pointer;
+        border: 2px solid #e0e0e0;
+        border-radius: 4px;
+    }
+
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+
+    .form-check-label {
+        margin-left: 0.5rem;
+        cursor: pointer;
+        margin-bottom: 0;
+        color: #333;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: center;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 150px;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .btn-cancel {
+        background: #e9ecef;
+        color: #333;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        min-width: 150px;
+        justify-content: center;
+    }
+
+    .btn-cancel:hover {
+        background: #dee2e6;
+        color: #333;
+        text-decoration: none;
+    }
+
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0 0 0;
+    }
+
+    .errorlist li {
+        color: #dc3545;
+        font-size: 0.85rem;
+        background: #f8d7da;
+        padding: 0.5rem;
+        border-left: 3px solid #dc3545;
+        padding-left: 0.75rem;
+        margin-bottom: 0.3rem;
+        border-radius: 3px;
+    }
+
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 1.5rem;
+        }
+
+        .form-header {
+            margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+
+        .btn-submit, .btn-cancel {
+            width: 100%;
+        }
+
+        .checkbox-group {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-4">
+    <div class="form-container">
+        <!-- Header del formulario -->
+        <div class="form-header">
+            <h2><i class="bi bi-person-plus-fill"></i> {{ titulo|default:"Registrar Nueva Persona" }}</h2>
+            <p>{{ subtitulo|default:"Complete los datos básicos de la persona" }}</p>
+        </div>
+
+        <!-- Formulario -->
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <!-- SECCIÓN 1: IDENTIFICACIÓN -->
+            <div class="section-title">
+                <i class="bi bi-card-text"></i> Datos de Identificación
+            </div>
+
+            <div class="form-row">
+                <!-- RUT -->
+                <div class="form-group">
+                    <label for="{{ form.Rut.id_for_label }}" class="form-label">
+                        RUT <span class="required">*</span>
+                    </label>
+                    {{ form.Rut }}
+                    {% if form.Rut.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.Rut.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- SECCIÓN 2: DATOS PERSONALES -->
+            <div class="section-title">
+                <i class="bi bi-person-fill"></i> Datos Personales
+            </div>
+
+            <div class="form-row">
+                <!-- Nombre -->
+                <div class="form-group">
+                    <label for="{{ form.Nombre.id_for_label }}" class="form-label">
+                        Nombre <span class="required">*</span>
+                    </label>
+                    {{ form.Nombre }}
+                    {% if form.Nombre.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.Nombre.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <!-- Apellido Paterno -->
+                <div class="form-group">
+                    <label for="{{ form.Apellido_Paterno.id_for_label }}" class="form-label">
+                        Apellido Paterno <span class="required">*</span>
+                    </label>
+                    {{ form.Apellido_Paterno }}
+                    {% if form.Apellido_Paterno.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.Apellido_Paterno.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <!-- Apellido Materno -->
+                <div class="form-group">
+                    <label for="{{ form.Apellido_Materno.id_for_label }}" class="form-label">
+                        Apellido Materno <span class="required">*</span>
+                    </label>
+                    {{ form.Apellido_Materno }}
+                    {% if form.Apellido_Materno.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.Apellido_Materno.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <!-- Fecha de Nacimiento -->
+                <div class="form-group">
+                    <label for="{{ form.Fecha_nacimiento.id_for_label }}" class="form-label">
+                        Fecha de Nacimiento <span class="required">*</span>
+                    </label>
+                    {{ form.Fecha_nacimiento }}
+                    {% if form.Fecha_nacimiento.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.Fecha_nacimiento.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <!-- Sexo -->
+                <div class="form-group">
+                    <label for="{{ form.Sexo.id_for_label }}" class="form-label">
+                        Sexo <span class="required">*</span>
+                    </label>
+                    {{ form.Sexo }}
+                    {% if form.Sexo.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.Sexo.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <!-- Nacionalidad -->
+                <div class="form-group">
+                    <label for="{{ form.Nacionalidad.id_for_label }}" class="form-label">
+                        Nacionalidad
+                    </label>
+                    {{ form.Nacionalidad }}
+                    {% if form.Nacionalidad.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.Nacionalidad.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- SECCIÓN 3: CONTACTO -->
+            <div class="section-title">
+                <i class="bi bi-telephone-fill"></i> Información de Contacto
+            </div>
+
+            <div class="form-row">
+                <!-- Teléfono -->
+                <div class="form-group">
+                    <label for="{{ form.Telefono.id_for_label }}" class="form-label">
+                        Teléfono
+                    </label>
+                    {{ form.Telefono }}
+                    {% if form.Telefono.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.Telefono.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="{{ form.Email.id_for_label }}" class="form-label">
+                        Correo Electrónico
+                    </label>
+                    {{ form.Email }}
+                    {% if form.Email.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.Email.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <!-- Dirección -->
+                <div class="form-group">
+                    <label for="{{ form.Direccion.id_for_label }}" class="form-label">
+                        Dirección
+                    </label>
+                    {{ form.Direccion }}
+                    {% if form.Direccion.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.Direccion.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- SECCIÓN 4: INFORMACIÓN ESPECIAL -->
+            <div class="section-title">
+                <i class="bi bi-info-circle-fill"></i> Información Especial
+            </div>
+
+            <!-- Pueblos Originarios -->
+            <div class="form-group">
+                <label for="{{ form.Pueblos_originarios.id_for_label }}" class="form-label">
+                    Pueblos Originarios
+                </label>
+                {{ form.Pueblos_originarios }}
+                {% if form.Pueblos_originarios.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.Pueblos_originarios.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <!-- Checkboxes - SIN TRANS MASCULINO -->
+            <div class="checkbox-group">
+                <div class="form-check">
+                    {{ form.Inmigrante }}
+                    <label class="form-check-label" for="{{ form.Inmigrante.id_for_label }}">
+                        Es Inmigrante
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    {{ form.Discapacidad }}
+                    <label class="form-check-label" for="{{ form.Discapacidad.id_for_label }}">
+                        Tiene Discapacidad
+                    </label>
+                </div>
+
+                <div class="form-check">
+                    {{ form.Privada_de_Libertad }}
+                    <label class="form-check-label" for="{{ form.Privada_de_Libertad.id_for_label }}">
+                        Privada de Libertad
+                    </label>
+                </div>
+            </div>
+
+            <!-- Tipo de Discapacidad -->
+            <div class="form-group" id="tipo_discapacidad_container">
+                <label for="{{ form.Tipo_de_Discapacidad.id_for_label }}" class="form-label">
+                    Tipo de Discapacidad
+                </label>
+                {{ form.Tipo_de_Discapacidad }}
+                {% if form.Tipo_de_Discapacidad.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.Tipo_de_Discapacidad.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <!-- Botones -->
+            <div class="button-group">
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-check-circle"></i> {{ button_text|default:"Registrar Persona" }}
+                </button>
+                <a href="{% url 'gestion:persona_list' %}" class="btn-cancel">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Formatear RUT mientras se escribe
+        const rutInput = document.querySelector('[name="Rut"]');
+        if (rutInput) {
+            rutInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^0-9kK-]/g, '');
+                
+                if (value.length > 8 && !value.includes('-')) {
+                    value = value.slice(0, -1) + '-' + value.slice(-1);
+                }
+                
+                e.target.value = value.toUpperCase();
+            });
+        }
+
+        // Mostrar/ocultar campo tipo de discapacidad
+        const discapacidadCheck = document.querySelector('[name="Discapacidad"]');
+        const tipoDiscapacidadContainer = document.getElementById('tipo_discapacidad_container');
+        
+        if (discapacidadCheck && tipoDiscapacidadContainer) {
+            function toggleTipoDiscapacidad() {
+                tipoDiscapacidadContainer.style.display = discapacidadCheck.checked ? 'block' : 'none';
+            }
+            
+            toggleTipoDiscapacidad();
+            discapacidadCheck.addEventListener('change', toggleTipoDiscapacidad);
+        }
+    });
+</script>
+{% endblock %}

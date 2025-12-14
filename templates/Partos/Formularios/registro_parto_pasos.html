@@ -1,0 +1,108 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Registro de Parto - Paso {{ paso }} de {{ total_pasos }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-clipboard-heart"></i> Registro de Parto - Paso {{ paso }} de {{ total_pasos }}
+                    </h4>
+                    <div class="progress mt-2" style="height: 5px;">
+                        <div class="progress-bar" role="progressbar" style="width: {{ paso|mul:16.66 }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    {% if paso == 2 %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Paso 2:</strong> Información del trabajo de parto.
+                    </div>
+                    {% elif paso == 3 %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Paso 3:</strong> Información específica del parto.
+                    </div>
+                    {% elif paso == 4 %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Paso 4:</strong> Información del puerperio.
+                    </div>
+                    {% elif paso == 5 %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Paso 5:</strong> Anestesia y analgesia.
+                    </div>
+                    {% elif paso == 6 %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Paso 6:</strong> Profesionales responsables.
+                    </div>
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">
+                                {{ field.label }}
+                                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            
+                            {% if field.field.widget.input_type == 'checkbox' %}
+                                <div class="form-check">
+                                    {{ field }}
+                                    <label class="form-check-label" for="{{ field.id_for_label }}">
+                                        {{ field.label }}
+                                    </label>
+                                </div>
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
+                            
+                            {% if field.errors %}
+                                <div class="text-danger mt-1">{{ field.errors }}</div>
+                            {% endif %}
+                            
+                            {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            {% if paso > 1 %}
+                                <a href="{% url 'partos:registrar_parto_paso'|add:paso|add:'-1' %}" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left-circle"></i> Anterior
+                                </a>
+                            {% else %}
+                                <a href="{% url 'partos:seleccionar_ficha' %}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </a>
+                            {% endif %}
+                            
+                            {% if paso < total_pasos %}
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-arrow-right-circle"></i> Siguiente Paso
+                                </button>
+                            {% else %}
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-check-circle"></i> Finalizar Registro
+                                </button>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

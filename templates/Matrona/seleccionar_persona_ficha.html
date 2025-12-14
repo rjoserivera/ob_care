@@ -1,0 +1,373 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Seleccionar Persona - Ficha Obstétrica{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container-select {
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+
+    .header-section {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .header-section h2 {
+        margin-bottom: 0.5rem;
+    }
+
+    .card-option {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .option-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .option-title i {
+        color: #f5576c;
+        font-size: 1.5rem;
+    }
+
+    .search-box {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1.5rem 0.75rem 3rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        border-color: #f093fb;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(240, 147, 251, 0.1);
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #f5576c;
+        pointer-events: none;
+    }
+
+    .search-results {
+        background: #f8f9fa;
+        border-radius: 10px;
+        max-height: 300px;
+        overflow-y: auto;
+        margin-top: 1rem;
+        display: none;
+    }
+
+    .search-results.active {
+        display: block;
+    }
+
+    .result-item {
+        padding: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .result-item:hover {
+        background: rgba(240, 147, 251, 0.1);
+    }
+
+    .result-item:last-child {
+        border-bottom: none;
+    }
+
+    .result-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.3rem;
+    }
+
+    .result-info {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .result-age {
+        display: inline-block;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 0.2rem 0.6rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        margin-left: 0.5rem;
+    }
+
+    .no-results {
+        padding: 2rem;
+        text-align: center;
+        color: #666;
+    }
+
+    .btn-crear-persona {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-crear-persona:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.3);
+        color: white;
+    }
+
+    .divider {
+        text-align: center;
+        margin: 2rem 0;
+        position: relative;
+    }
+
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #e0e0e0;
+    }
+
+    .divider span {
+        background: white;
+        padding: 0 1rem;
+        color: #999;
+        font-weight: 600;
+        position: relative;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #ddd;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .loading-spinner.active {
+        display: block;
+    }
+
+    .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #f5576c;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb-item {
+        color: #f5576c;
+    }
+
+    .breadcrumb-item.active {
+        color: #666;
+    }
+
+    @media (max-width: 768px) {
+        .container-select {
+            margin: 1rem;
+        }
+
+        .card-option {
+            padding: 1.5rem;
+        }
+
+        .search-results {
+            max-height: 250px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-select">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'matrona:menu_matrona' %}">Matrona</a></li>
+            <li class="breadcrumb-item active">Crear Ficha Obstétrica</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="header-section">
+        <h2><i class="bi bi-file-earmark-medical"></i> Crear Ficha Obstétrica</h2>
+        <p>Selecciona una persona existente o crea una nueva</p>
+    </div>
+
+    <!-- OPCIÓN 1: BUSCAR PERSONA EXISTENTE -->
+    <div class="card-option">
+        <div class="option-title">
+            <i class="bi bi-search"></i> Buscar Persona Existente
+        </div>
+
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Busca por nombre, apellido o RUT..."
+                autocomplete="off" minlength="2">
+        </div>
+
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner"></div>
+        </div>
+
+        <div class="search-results" id="searchResults">
+            <div class="no-results" id="noResults">
+                Escribe al menos 2 caracteres para buscar
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const noResults = document.getElementById('noResults');
+
+        let searchTimeout;
+
+        searchInput.addEventListener('input', function () {
+            const query = this.value.trim();
+
+            // Limpiar timeout anterior
+            clearTimeout(searchTimeout);
+
+            // Si hay menos de 2 caracteres, no buscar
+            if (query.length < 2) {
+                searchResults.classList.remove('active');
+                return;
+            }
+
+            // Mostrar spinner
+            loadingSpinner.classList.add('active');
+            searchResults.classList.add('active');
+
+            // Esperar 300ms antes de buscar (debounce)
+            searchTimeout = setTimeout(function () {
+                // Realizar búsqueda AJAX
+                fetch(`{% url 'gestion:api_buscar_persona' %}?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        loadingSpinner.classList.remove('active');
+
+                        if (data.resultados && data.resultados.length > 0) {
+                            let html = '';
+
+                            data.resultados.forEach(persona => {
+                                html += `
+                                <div class="result-item" onclick="selectPersona(${persona.id}, '${persona.nombre}')">
+                                    <div class="result-name">
+                                        ${persona.nombre}
+                                        ${persona.edad !== 'N/A' ? `<span class="result-age">${persona.edad} años</span>` : ''}
+                                    </div>
+                                    <div class="result-info">
+                                        <strong>RUT:</strong> ${persona.rut}
+                                    </div>
+                                </div>
+                            `;
+                            });
+
+                            searchResults.innerHTML = html;
+                        } else {
+                            noResults.textContent = 'No se encontraron resultados para "' + query + '"';
+                            searchResults.innerHTML = noResults.outerHTML;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        loadingSpinner.classList.remove('active');
+                        noResults.textContent = 'Error en la búsqueda. Intenta de nuevo.';
+                        searchResults.innerHTML = noResults.outerHTML;
+                    });
+            }, 300);
+        });
+
+        // Cerrar resultados al hacer clic fuera
+        document.addEventListener('click', function (e) {
+            if (e.target !== searchInput && !searchResults.contains(e.target)) {
+                searchResults.classList.remove('active');
+            }
+        });
+    });
+
+    function selectPersona(personaId, personaNombre) {
+        // Redirigir a crear ficha con persona pre-seleccionada
+        window.location.href = `/matrona/ficha/crear-persona/${personaId}/`;
+    }
+</script>
+{% endblock %}

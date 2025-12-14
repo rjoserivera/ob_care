@@ -1,0 +1,298 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Fichas Obstétricas - Sistema Obstétrico{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .page-header h2 {
+        margin-bottom: 0.5rem;
+    }
+
+    .filters-box {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table thead {
+        background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table th {
+        color: #333;
+        font-weight: 600;
+        padding: 1rem;
+        text-align: left;
+    }
+
+    .table td {
+        padding: 1rem;
+        border-bottom: 1px solid #dee2e6;
+        vertical-align: middle;
+    }
+
+    .table tbody tr:hover {
+        background: rgba(240, 147, 251, 0.05);
+    }
+
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        margin-right: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-ver {
+        background: #f5576c;
+        color: white;
+    }
+
+    .btn-ver:hover {
+        background: #e04759;
+        color: white;
+    }
+
+    .btn-editar {
+        background: #f093fb;
+        color: white;
+    }
+
+    .btn-editar:hover {
+        background: #e07fe8;
+        color: white;
+    }
+
+    .badge-estado {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-activo {
+        background: rgba(240, 147, 251, 0.2);
+        color: #f5576c;
+        border: 1px solid #f5576c;
+    }
+
+    .badge-completado {
+        background: #cce5ff;
+        color: #004085;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #ddd;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .btn-nueva {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-nueva:hover {
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.3);
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb-item {
+        color: #f5576c;
+    }
+
+    .breadcrumb-item.active {
+        color: #666;
+    }
+
+    /* Botón con paleta de Matrona */
+    .btn-matrona {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-matrona:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'matrona:menu_matrona' %}">Matrona</a></li>
+            <li class="breadcrumb-item active">{{ titulo }}</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="page-header">
+        <h2><i class="bi bi-file-earmark-medical"></i> {{ titulo }}</h2>
+        <p>Todas las fichas obstétricas creadas</p>
+    </div>
+
+    <!-- Botón nuevo -->
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'matrona:seleccionar_persona_ficha' %}" class="btn-nueva">
+            <i class="bi bi-plus-circle-fill"></i> Crear Nueva Ficha
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-box">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="q" class="form-control" placeholder="Buscar por paciente...">
+            </div>
+            <div class="col-md-4">
+                <select name="estado" class="form-select">
+                    <option value="">-- Todos los estados --</option>
+                    <option value="activa">Activa</option>
+                    <option value="completada">Completada</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-matrona w-100">
+                    <i class="bi bi-search"></i> Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla de fichas -->
+    {% if fichas %}
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>N° Ficha</th>
+                    <th>Paciente</th>
+                    <th>RUT</th>
+                    <th>Fecha Ingreso</th>
+                    <th>Edad Gestacional</th>
+                    <th>Equipo Médico</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ficha in fichas %}
+                <tr>
+                    <td><strong>{{ ficha.numero_ficha }}</strong></td>
+                    <td>
+                        <strong>
+                            {{ ficha.paciente.persona.Nombre }} {{ ficha.paciente.persona.Apellido_Paterno }}
+                        </strong>
+                    </td>
+                    <td>{{ ficha.paciente.persona.Rut }}</td>
+                    <td>{{ ficha.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        {% if ficha.edad_gestacional_semanas %}
+                        <strong>{{ ficha.edad_gestacional_semanas }}+{{ ficha.edad_gestacional_dias|default:0
+                            }}</strong> semanas
+                        {% else %}
+                        <span style="color: #999;">No registrado</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% with personal_count=ficha.personal_asignado.count %}
+                        {% if personal_count > 0 %}
+                        <span class="badge"
+                            style="background: #e7f3ff; color: #0066cc; padding: 0.4rem 0.8rem; border-radius: 12px; font-weight: 600;">
+                            <i class="bi bi-people-fill"></i> {{ personal_count }} asignado{{ personal_count|pluralize
+                            }}
+                        </span>
+                        {% else %}
+                        <span style="color: #999;">Sin asignar</span>
+                        {% endif %}
+                        {% endwith %}
+                    </td>
+                    <td>
+                        {% if ficha.activa %}
+                        <span class="badge-estado badge-activo">Activa</span>
+                        {% else %}
+                        <span class="badge-estado badge-completado">Completada</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'matrona:detalle_ficha' ficha.pk %}" class="btn-action btn-ver">
+                            <i class="bi bi-eye"></i> Ver
+                        </a>
+                        <a href="{% url 'matrona:editar_ficha' ficha.pk %}" class="btn-action btn-editar">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="table-container">
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <h4>No hay fichas creadas</h4>
+            <p>Comienza creando una nueva ficha obstétrica</p>
+            <a href="{% url 'matrona:seleccionar_persona_ficha' %}" class="btn-nueva" style="margin-top: 1rem;">
+                <i class="bi bi-plus-circle-fill"></i> Crear Primera Ficha
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

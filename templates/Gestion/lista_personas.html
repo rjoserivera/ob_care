@@ -1,0 +1,321 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Listado de Personas - Sistema Obstétrico{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .page-header h2 {
+        margin-bottom: 0.5rem;
+    }
+
+    .search-box {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table thead {
+        background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table th {
+        color: #333;
+        font-weight: 600;
+        padding: 1rem;
+        text-align: left;
+    }
+
+    .table td {
+        padding: 1rem;
+        border-bottom: 1px solid #dee2e6;
+        vertical-align: middle;
+    }
+
+    .table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        margin-right: 0.5rem;
+    }
+
+    .btn-ver {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-ver:hover {
+        background: #5568d3;
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-editar {
+        background: #11998e;
+        color: white;
+    }
+
+    .btn-editar:hover {
+        background: #0e7a72;
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-desactivar {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+
+    .btn-desactivar:hover {
+        background: #c82333;
+    }
+
+    .badge-activo {
+        background: #28a745;
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    .badge-inactivo {
+        background: #6c757d;
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #ddd;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .btn-nuevo {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-nuevo:hover {
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .pagination {
+        margin-top: 2rem;
+        justify-content: center;
+    }
+
+    .search-input {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        width: 100%;
+    }
+
+    .search-input:focus {
+        border-color: #667eea;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-action {
+            width: 100%;
+            margin-right: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .table {
+            font-size: 0.9rem;
+        }
+
+        .table th, .table td {
+            padding: 0.75rem 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="page-header">
+        <h2><i class="bi bi-people-fill"></i> {{ titulo }}</h2>
+        <p>Total de personas registradas: <strong>{{ total }}</strong></p>
+    </div>
+
+    <!-- Búsqueda -->
+    <div class="search-box">
+        <form method="get" class="d-flex gap-2">
+            <input 
+                type="text" 
+                name="q" 
+                class="search-input" 
+                placeholder="Buscar por nombre, apellido o RUT..."
+                value="{{ query }}"
+            >
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> Buscar
+            </button>
+            {% if query %}
+            <a href="{% url 'gestion:persona_list' %}" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> Limpiar
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Botón nuevo -->
+    <div style="text-align: right; margin-bottom: 1.5rem;">
+        <a href="{% url 'gestion:registrar_persona' %}" class="btn-nuevo">
+            <i class="bi bi-plus-circle-fill"></i> Registrar Nueva Persona
+        </a>
+    </div>
+
+    <!-- Tabla de personas -->
+    {% if personas %}
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>RUT</th>
+                    <th>Nombre</th>
+                    <th>Apellidos</th>
+                    <th>Fecha Nacimiento</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for persona in personas %}
+                <tr>
+                    <td><strong>{{ persona.Rut }}</strong></td>
+                    <td>{{ persona.Nombre }}</td>
+                    <td>{{ persona.Apellido_Paterno }} {{ persona.Apellido_Materno }}</td>
+                    <td>
+                        {% if persona.Fecha_nacimiento %}
+                            {{ persona.Fecha_nacimiento|date:"d/m/Y" }}
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ persona.Telefono|default:"—" }}</td>
+                    <td>
+                        {% if persona.Activo %}
+                            <span class="badge-activo">Activo</span>
+                        {% else %}
+                            <span class="badge-inactivo">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'gestion:detalle_persona' persona.pk %}" class="btn-action btn-ver">
+                                <i class="bi bi-eye"></i> Ver
+                            </a>
+                            <a href="{% url 'gestion:editar_persona' persona.pk %}" class="btn-action btn-editar">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                            {% if persona.Activo %}
+                            <form method="post" action="{% url 'gestion:desactivar_persona' persona.pk %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-desactivar" onclick="return confirm('¿Desactivar esta persona?')">
+                                    <i class="bi bi-x-circle"></i> Desactivar
+                                </button>
+                            </form>
+                            {% else %}
+                            <form method="post" action="{% url 'gestion:activar_persona' persona.pk %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action" style="background: #28a745; color: white;">
+                                    <i class="bi bi-check-circle"></i> Activar
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="table-container">
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <h4>No hay personas registradas</h4>
+            <p>
+                {% if query %}
+                    No se encontraron resultados para "{{ query }}"
+                {% else %}
+                    Comienza registrando una nueva persona
+                {% endif %}
+            </p>
+            <a href="{% url 'gestion:registrar_persona' %}" class="btn-nuevo" style="margin-top: 1rem;">
+                <i class="bi bi-plus-circle-fill"></i> Registrar Primera Persona
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

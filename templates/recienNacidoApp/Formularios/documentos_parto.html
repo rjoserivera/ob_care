@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Documentos de Parto{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-header {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: white;
+        font-weight: 600;
+    }
+    
+    .section-title {
+        border-left: 4px solid #fa709a;
+        padding-left: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .info-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid #17a2b8;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .form-check-input:checked {
+        background-color: #fa709a;
+        border-color: #fa709a;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>
+                        <i class="bi bi-file-earmark-medical-fill text-info"></i>
+                        Documentos de Parto
+                    </h2>
+                    <p class="text-muted mb-0">Registro de documentación y procedimientos post-parto</p>
+                </div>
+                <a href="#" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <!-- Formulario Principal -->
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <!-- Errores Generales -->
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Error:</strong>
+                    {{ form.non_field_errors }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                <!-- SECCIÓN 1: RELACIÓN -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-link-45deg"></i> Recién Nacido Asociado
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.registro_recien_nacido.id_for_label }}" class="form-label required-field">
+                                    {{ form.registro_recien_nacido.label }}
+                                </label>
+                                {{ form.registro_recien_nacido }}
+                                {% if form.registro_recien_nacido.errors %}
+                                    <div class="text-danger small mt-1">{{ form.registro_recien_nacido.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: LEY DOMINGA -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-heart"></i> Ley N° 21.372 Dominga - Recuerdos
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-box">
+                            <h6><i class="bi bi-info-circle"></i> Sobre la Ley Dominga</h6>
+                            <p class="mb-0 small">
+                                Esta ley garantiza el derecho de las familias a conservar recuerdos del proceso de parto, 
+                                tales como fotografías, videos, huellas, mechones de cabello, entre otros.
+                            </p>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.recuerdos_entregados.id_for_label }}" class="form-label">
+                                    {{ form.recuerdos_entregados.label }}
+                                </label>
+                                {{ form.recuerdos_entregados }}
+                                {% if form.recuerdos_entregados.errors %}
+                                    <div class="text-danger small mt-1">{{ form.recuerdos_entregados.errors }}</div>
+                                {% endif %}
+                                {% if form.recuerdos_entregados.help_text %}
+                                    <small class="form-text text-muted">{{ form.recuerdos_entregados.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 3: PLACENTA -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-circle-fill"></i> Manejo de Placenta
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    {{ form.retira_placenta }}
+                                    <label class="form-check-label" for="{{ form.retira_placenta.id_for_label }}">
+                                        {{ form.retira_placenta.label }}
+                                    </label>
+                                </div>
+                                {% if form.retira_placenta.help_text %}
+                                    <small class="form-text text-muted d-block mt-1">
+                                        {{ form.retira_placenta.help_text }}
+                                    </small>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    {{ form.estampado_placenta }}
+                                    <label class="form-check-label" for="{{ form.estampado_placenta.id_for_label }}">
+                                        {{ form.estampado_placenta.label }}
+                                    </label>
+                                </div>
+                                {% if form.estampado_placenta.help_text %}
+                                    <small class="form-text text-muted d-block mt-1">
+                                        {{ form.estampado_placenta.help_text }}
+                                    </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 4: REGISTRO CIVIL -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-file-earmark-text"></i> Registro Civil
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.folio_valido.id_for_label }}" class="form-label">
+                                    {{ form.folio_valido.label }}
+                                </label>
+                                {{ form.folio_valido }}
+                                {% if form.folio_valido.errors %}
+                                    <div class="text-danger small mt-1">{{ form.folio_valido.errors }}</div>
+                                {% endif %}
+                                {% if form.folio_valido.help_text %}
+                                    <small class="form-text text-muted">{{ form.folio_valido.help_text }}</small>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.folios_nulos.id_for_label }}" class="form-label">
+                                    {{ form.folios_nulos.label }}
+                                </label>
+                                {{ form.folios_nulos }}
+                                {% if form.folios_nulos.errors %}
+                                    <div class="text-danger small mt-1">{{ form.folios_nulos.errors }}</div>
+                                {% endif %}
+                                {% if form.folios_nulos.help_text %}
+                                    <small class="form-text text-muted">{{ form.folios_nulos.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 5: MANEJO DEL DOLOR -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-bandaid"></i> Manejo del Dolor No Farmacológico
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-box">
+                            <h6><i class="bi bi-info-circle"></i> Métodos No Farmacológicos</h6>
+                            <p class="mb-0 small">
+                                Incluya técnicas como: masajes, respiración guiada, hidroterapia, 
+                                cambios de posición, aromaterapia, musicoterapia, etc.
+                            </p>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.manejo_dolor_no_farmacologico.id_for_label }}" class="form-label">
+                                    {{ form.manejo_dolor_no_farmacologico.label }}
+                                </label>
+                                {{ form.manejo_dolor_no_farmacologico }}
+                                {% if form.manejo_dolor_no_farmacologico.errors %}
+                                    <div class="text-danger small mt-1">{{ form.manejo_dolor_no_farmacologico.errors }}</div>
+                                {% endif %}
+                                {% if form.manejo_dolor_no_farmacologico.help_text %}
+                                    <small class="form-text text-muted">{{ form.manejo_dolor_no_farmacologico.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <a href="#" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save"></i> Guardar Documentación
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ Formulario de Documentos de Parto cargado');
+    
+    // Advertencia si se marca ambos: retira placenta Y estampado
+    const retiraPlacenta = document.querySelector('#{{ form.retira_placenta.id_for_label }}');
+    const estampadoPlacenta = document.querySelector('#{{ form.estampado_placenta.id_for_label }}');
+    
+    if (retiraPlacenta && estampadoPlacenta) {
+        function verificarPlacenta() {
+            if (retiraPlacenta.checked && estampadoPlacenta.checked) {
+                alert('Nota: Si se realiza el estampado, normalmente no se puede retirar la placenta intacta.');
+            }
+        }
+        
+        retiraPlacenta.addEventListener('change', verificarPlacenta);
+        estampadoPlacenta.addEventListener('change', verificarPlacenta);
+    }
+});
+</script>
+{% endblock %}

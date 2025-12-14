@@ -1,0 +1,97 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Agregar Medicamento - Médico{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .form-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        border-left: 5px solid #38ef7d;
+    }
+
+    .btn-medico {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-medico:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+        color: white;
+    }
+
+    .breadcrumb-item a {
+        color: #38ef7d;
+        text-decoration: none;
+    }
+
+    .breadcrumb-item.active {
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'medico:menu_medico' %}">Médico</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'medico:detalle_ficha' ficha.pk %}">Ficha {{ ficha.numero_ficha
+                    }}</a></li>
+            <li class="breadcrumb-item active">Agregar Medicamento</li>
+        </ol>
+    </nav>
+
+    <div class="page-header">
+        <h2><i class="bi bi-capsule"></i> Agregar Medicamento</h2>
+        <p>Asignar medicamento a la ficha {{ ficha.numero_ficha }}</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="form-card">
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% for error in field.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{% url 'medico:detalle_ficha' ficha.pk %}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-medico">Guardar Medicamento</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

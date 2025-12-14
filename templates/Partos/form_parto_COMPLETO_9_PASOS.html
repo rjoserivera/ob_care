@@ -1,0 +1,742 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Registro Completo de Parto{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-11">
+            <div class="card shadow-lg">
+                <!-- Header -->
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-2">
+                        <i class="bi bi-clipboard-heart"></i> Registro Completo de Parto
+                    </h4>
+                    <div class="progress mt-2" style="height: 25px;">
+                        <div class="progress-bar" role="progressbar" id="progress-bar" style="width: 11.11%">
+                            Paso <span id="paso-actual">1</span>/9
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="card-body p-4">
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                        <i class="bi bi-exclamation-circle"></i> {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    <form method="post" novalidate id="form-registro-parto">
+                        {% csrf_token %}
+
+                        <!-- ============================================
+                             PASO 1: INFORMACIÓN BÁSICA
+                             ============================================ -->
+                        <div class="paso-form" id="paso-1" style="display: block;">
+                            <div class="alert alert-info mb-4">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Paso 1 de 9:</strong> Información básica del parto
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-calendar-event"></i> Fecha y Hora de Admisión</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="{{ form.fecha_hora_admision.id_for_label }}" class="form-label">
+                                            Fecha y Hora de Admisión <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.fecha_hora_admision }}
+                                        {% if form.fecha_hora_admision.errors %}
+                                        <div class="text-danger mt-2"><small>{{ form.fecha_hora_admision.errors }}</small></div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-graph-up"></i> Edad Gestacional</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.edad_gestacional_semanas.id_for_label }}" class="form-label">
+                                                Semanas <span class="text-danger">*</span>
+                                            </label>
+                                            {{ form.edad_gestacional_semanas }}
+                                            {% if form.edad_gestacional_semanas.errors %}
+                                            <div class="text-danger mt-2"><small>{{ form.edad_gestacional_semanas.errors }}</small></div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.edad_gestacional_dias.id_for_label }}" class="form-label">
+                                                Días <span class="text-danger">*</span>
+                                            </label>
+                                            {{ form.edad_gestacional_dias }}
+                                            {% if form.edad_gestacional_dias.errors %}
+                                            <div class="text-danger mt-2"><small>{{ form.edad_gestacional_dias.errors }}</small></div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-diagram-2"></i> Tipo de Parto</h5>
+                                </div>
+                                <div class="card-body">
+                                    <label for="{{ form.tipo_parto.id_for_label }}" class="form-label">
+                                        Selecciona el tipo de parto <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.tipo_parto }}
+                                    {% if form.tipo_parto.errors %}
+                                    <div class="text-danger mt-2"><small>{{ form.tipo_parto.errors }}</small></div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ============================================
+                             PASO 2: DATOS OBSTÉTRICOS
+                             ============================================ -->
+                        <div class="paso-form" id="paso-2" style="display: none;">
+                            <div class="alert alert-info mb-4">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Paso 2 de 9:</strong> Datos obstétricos
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-list-check"></i> Clasificación de Robson</h5>
+                                </div>
+                                <div class="card-body">
+                                    <label for="{{ form.clasificacion_robson.id_for_label }}" class="form-label">
+                                        Clasificación
+                                    </label>
+                                    {{ form.clasificacion_robson }}
+                                    {% if form.clasificacion_robson.errors %}
+                                    <div class="text-danger mt-2"><small>{{ form.clasificacion_robson.errors }}</small></div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-person"></i> Posición Materna</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.posicion_parto.id_for_label }}" class="form-label">
+                                                Posición del parto
+                                            </label>
+                                            {{ form.posicion_parto }}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-check mt-4">
+                                                {{ form.ofrecimiento_posiciones_alternativas }}
+                                                <label class="form-check-label">Se ofrecieron posiciones alternativas</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-bezier2"></i> Alumbramiento</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check mb-2">
+                                        {{ form.alumbramiento_dirigido }}
+                                        <label class="form-check-label">Alumbramiento dirigido</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        {{ form.retira_placenta }}
+                                        <label class="form-check-label">Retira placenta</label>
+                                    </div>
+                                    <div class="form-check">
+                                        {{ form.estampado_placenta }}
+                                        <label class="form-check-label">Estampado de placenta</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ============================================
+                             PASO 3: ALUMBRAMIENTO Y PLACENTA
+                             ============================================ -->
+                        <div class="paso-form" id="paso-3" style="display: none;">
+                            <div class="alert alert-info mb-4">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Paso 3 de 9:</strong> Alumbramiento y placenta
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-square-fill"></i> Revisión Uterina</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        {{ form.revision_utero }}
+                                        <label class="form-check-label">Se realizó revisión uterina</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-square-fill"></i> Restos Placentarios</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        {{ form.restos_placentarios }}
+                                        <label class="form-check-label">Hay restos placentarios</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-chat-dots"></i> Observaciones</h5>
+                                </div>
+                                <div class="card-body">
+                                    <label for="{{ form.observaciones.id_for_label }}" class="form-label">
+                                        Observaciones del alumbramiento
+                                    </label>
+                                    {{ form.observaciones }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ============================================
+                             PASO 4: PERINÉ Y COMPLICACIONES
+                             ============================================ -->
+                        <div class="paso-form" id="paso-4" style="display: none;">
+                            <div class="alert alert-info mb-4">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Paso 4 de 9:</strong> Periné y complicaciones
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-heart"></i> Estado del Periné</h5>
+                                </div>
+                                <div class="card-body">
+                                    <label for="{{ form.estado_perine.id_for_label }}" class="form-label">
+                                        Estado del periné
+                                    </label>
+                                    {{ form.estado_perine }}
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Complicaciones Maternas</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                {{ form.trauma }}
+                                                <label class="form-check-label">Trauma</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                {{ form.hemorragia_postparto }}
+                                                <label class="form-check-label">Hemorragia postparto</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                {{ form.alteracion_coagulacion }}
+                                                <label class="form-check-label">Alteración coagulación</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-droplet"></i> Transfusión</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        {{ form.transfusion_sanguinea }}
+                                        <label class="form-check-label">Se realizó transfusión sanguínea</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-shield-check"></i> Esterilización</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                {{ form.esterilizacion }}
+                                                <label class="form-check-label">Se realizó esterilización</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="{{ form.tipo_esterilizacion.id_for_label }}" class="form-label">
+                                                Tipo de esterilización
+                                            </label>
+                                            {{ form.tipo_esterilizacion }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ============================================
+                             PASO 5: ANESTESIA Y ANALGESIA
+                             ============================================ -->
+                        <div class="paso-form" id="paso-5" style="display: none;">
+                            <div class="alert alert-info mb-4">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Paso 5 de 9:</strong> Anestesia y analgesia
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-square-fill"></i> Tipos de Anestesia</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check mb-2">
+                                        {{ form.anestesia_neuroaxial }}
+                                        <label class="form-check-label">Anestesia neuroaxial</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        {{ form.anestesia_general }}
+                                        <label class="form-check-label">Anestesia general</label>
+                                    </div>
+                                    <div class="form-check">
+                                        {{ form.anestesia_local }}
+                                        <label class="form-check-label">Anestesia local</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-square-fill"></i> Analgesia</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check mb-2">
+                                        {{ form.analgesia_no_farmacologica }}
+                                        <label class="form-check-label">Analgesia no farmacológica</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        {{ form.analgesia_endovenosa }}
+                                        <label class="form-check-label">Analgesia endovenosa</label>
+                                    </div>
+                                    <div class="form-check">
+                                        {{ form.oxido_nitroso }}
+                                        <label class="form-check-label">Óxido nitroso</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-square-fill"></i> Anestesia Peridural</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check mb-2">
+                                        {{ form.peridural_indicada_medico }}
+                                        <label class="form-check-label">Indicada por médico</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        {{ form.peridural_solicitada_paciente }}
+                                        <label class="form-check-label">Solicitada por paciente</label>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        {{ form.peridural_administrada }}
+                                        <label class="form-check-label">Se administró</label>
+                                    </div>
+                                    {% if form.tiempo_espera_peridural_minutos %}
+                                    <div>
+                                        <label for="{{ form.tiempo_espera_peridural_minutos.id_for_label }}" class="form-label">
+                                            Tiempo de espera (minutos)
+                                        </label>
+                                        {{ form.tiempo_espera_peridural_minutos }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ============================================
+                             PASO 6: APEGO Y ACOMPAÑAMIENTO
+                             ============================================ -->
+                        <div class="paso-form" id="paso-6" style="display: none;">
+                            <div class="alert alert-info mb-4">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Paso 6 de 9:</strong> Apego y acompañamiento
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-person-fill"></i> Apego Inmediato</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check mb-3">
+                                        {{ form.apego_canguro }}
+                                        <label class="form-check-label">Apego canguro inmediato</label>
+                                    </div>
+                                    {% if form.tiempo_apego_minutos %}
+                                    <div class="mb-3">
+                                        <label for="{{ form.tiempo_apego_minutos.id_for_label }}" class="form-label">
+                                            Tiempo de apego (minutos)
+                                        </label>
+                                        {{ form.tiempo_apego_minutos }}
+                                    </div>
+                                    {% endif %}
+                                    <div class="form-check">
+                                        {{ form.ligadura_tardia_cordon }}
+                                        <label class="form-check-label">Ligadura tardía de cordón</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-people-fill"></i> Acompañamiento</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check mb-2">
+                                        {{ form.acompanamiento_preparto }}
+                                        <label class="form-check-label">Durante preparto</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        {{ form.acompanamiento_parto }}
+                                        <label class="form-check-label">Durante parto</label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        {{ form.acompanamiento_rn }}
+                                        <label class="form-check-label">Con recién nacido</label>
+                                    </div>
+                                    <div class="form-check">
+                                        {{ form.acompanante_secciona_cordon }}
+                                        <label class="form-check-label">Acompañante secciona cordón</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ============================================
+                             PASO 7: PROFESIONALES
+                             ============================================ -->
+                        <div class="paso-form" id="paso-7" style="display: none;">
+                            <div class="alert alert-info mb-4">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Paso 7 de 9:</strong> Profesionales intervinientes
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-star-fill"></i> Profesional Responsable</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.profesional_responsable_nombre.id_for_label }}" class="form-label">
+                                                Nombre <span class="text-danger">*</span>
+                                            </label>
+                                            {{ form.profesional_responsable_nombre }}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.profesional_responsable_apellido.id_for_label }}" class="form-label">
+                                                Apellido <span class="text-danger">*</span>
+                                            </label>
+                                            {{ form.profesional_responsable_apellido }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-book"></i> Alumno/a (Si aplica)</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.alumno_nombre.id_for_label }}" class="form-label">
+                                                Nombre del alumno/a
+                                            </label>
+                                            {{ form.alumno_nombre }}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.alumno_apellido.id_for_label }}" class="form-label">
+                                                Apellido del alumno/a
+                                            </label>
+                                            {{ form.alumno_apellido }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if form.causa_cesarea %}
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-exclamation-circle"></i> Cesárea (Si aplica)</h5>
+                                </div>
+                                <div class="card-body">
+                                    <label for="{{ form.causa_cesarea.id_for_label }}" class="form-label">
+                                        Razón de la cesárea
+                                    </label>
+                                    {{ form.causa_cesarea }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- ============================================
+                             PASO 8: LEY DOMINGA
+                             ============================================ -->
+                        <div class="paso-form" id="paso-8" style="display: none;">
+                            <div class="alert alert-info mb-4">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Paso 8 de 9:</strong> Ley Dominga N° 21.372
+                            </div>
+
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <strong>Importante:</strong> Esta sección registra el cumplimiento de la Ley Dominga N° 21.372
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-heart"></i> Recuerdos del Parto</h5>
+                                </div>
+                                <div class="card-body">
+                                    <label for="{{ form.ley_dominga_recuerdos.id_for_label }}" class="form-label">
+                                        ¿Cuáles recuerdos se entregaron?
+                                    </label>
+                                    {{ form.ley_dominga_recuerdos }}
+                                    <small class="form-text text-muted d-block mt-2">
+                                        Ejemplos: Pulsera del RN, fotocopia de huella, etc.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-question-circle"></i> Justificación (Si aplica)</h5>
+                                </div>
+                                <div class="card-body">
+                                    <label for="{{ form.ley_dominga_justificacion.id_for_label }}" class="form-label">
+                                        Justificación o motivo
+                                    </label>
+                                    {{ form.ley_dominga_justificacion }}
+                                    <small class="form-text text-muted d-block mt-2">
+                                        Campo opcional. Completa solo si no se entregaron recuerdos.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ============================================
+                             PASO 9: OBSERVACIONES FINALES
+                             ============================================ -->
+                        <div class="paso-form" id="paso-9" style="display: none;">
+                            <div class="alert alert-success mb-4">
+                                <i class="bi bi-check-lg"></i>
+                                <strong>Paso Final (9 de 9):</strong> Observaciones finales
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Complicaciones Maternas</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-2">
+                                                {{ form.inercia_uterina }}
+                                                <label class="form-check-label">Inercia uterina</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-2">
+                                                {{ form.manejo_quirurgico_inercia }}
+                                                <label class="form-check-label">Manejo quirúrgico inercia</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-2">
+                                                {{ form.histerectomia_obstetrica }}
+                                                <label class="form-check-label">Histerectomía obstétrica</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-2">
+                                                {{ form.revision_utero }}
+                                                <label class="form-check-label">Revisión uterina</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-check">
+                                        {{ form.uso_sala_saip }}
+                                        <label class="form-check-label">Uso de sala SAIP</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0"><i class="bi bi-chat-dots"></i> Observaciones Generales</h5>
+                                </div>
+                                <div class="card-body">
+                                    <label for="{{ form.observaciones.id_for_label }}" class="form-label">
+                                        Observaciones generales del parto
+                                    </label>
+                                    {{ form.observaciones }}
+                                </div>
+                            </div>
+
+                            <div class="alert alert-light border-success border-3">
+                                <h5 class="text-success">
+                                    <i class="bi bi-check-all"></i> Resumen del Registro
+                                </h5>
+                                <p>Estás a punto de finalizar el registro de parto. Verifica que toda la información sea correcta.</p>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Navegación -->
+                        <div class="mt-5 pt-3 border-top">
+                            <div class="d-flex justify-content-between gap-2">
+                                <button type="button" class="btn btn-secondary btn-lg" id="btn-anterior" onclick="pasoAnterior()">
+                                    <i class="bi bi-arrow-left-circle"></i> Anterior
+                                </button>
+                                <button type="button" class="btn btn-primary btn-lg" id="btn-siguiente" onclick="pasoSiguiente()">
+                                    <i class="bi bi-arrow-right-circle"></i> Siguiente
+                                </button>
+                                <button type="submit" class="btn btn-success btn-lg" id="btn-finalizar" style="display: none;">
+                                    <i class="bi bi-check2-circle"></i> FINALIZAR
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let pasoActual = 1;
+const totalPasos = 9;
+
+function mostrarPaso(numero) {
+    // Ocultar todos los pasos
+    for (let i = 1; i <= totalPasos; i++) {
+        document.getElementById(`paso-${i}`).style.display = 'none';
+    }
+    
+    // Mostrar el paso actual
+    document.getElementById(`paso-${numero}`).style.display = 'block';
+    
+    // Actualizar barra de progreso
+    const porcentaje = (numero / totalPasos) * 100;
+    document.getElementById('progress-bar').style.width = porcentaje + '%';
+    document.getElementById('paso-actual').textContent = numero;
+    
+    // Scroll arriba
+    window.scrollTo(0, 0);
+    
+    // Actualizar botones
+    actualizarBotones();
+}
+
+function pasoSiguiente() {
+    if (pasoActual < totalPasos) {
+        pasoActual++;
+        mostrarPaso(pasoActual);
+    }
+}
+
+function pasoAnterior() {
+    if (pasoActual > 1) {
+        pasoActual--;
+        mostrarPaso(pasoActual);
+    }
+}
+
+function actualizarBotones() {
+    const btnAnterior = document.getElementById('btn-anterior');
+    const btnSiguiente = document.getElementById('btn-siguiente');
+    const btnFinalizar = document.getElementById('btn-finalizar');
+    
+    // Paso 1: No mostrar botón anterior
+    if (pasoActual === 1) {
+        btnAnterior.style.display = 'none';
+        btnSiguiente.style.display = 'block';
+        btnFinalizar.style.display = 'none';
+    }
+    // Último paso: Mostrar botón finalizar
+    else if (pasoActual === totalPasos) {
+        btnAnterior.style.display = 'block';
+        btnSiguiente.style.display = 'none';
+        btnFinalizar.style.display = 'block';
+    }
+    // Pasos intermedios
+    else {
+        btnAnterior.style.display = 'block';
+        btnSiguiente.style.display = 'block';
+        btnFinalizar.style.display = 'none';
+    }
+}
+
+// Inicializar
+document.addEventListener('DOMContentLoaded', function() {
+    mostrarPaso(1);
+});
+</script>
+
+<style>
+.paso-form {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.form-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.card-header.bg-light {
+    border-bottom: 2px solid #e9ecef;
+}
+</style>
+{% endblock %}

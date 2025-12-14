@@ -1,0 +1,842 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo|default:"Crear Ficha Obstétrica" }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ficha-container {
+        max-width: 1100px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .ficha-header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .ficha-header h2 {
+        margin-bottom: 0.5rem;
+    }
+
+    .ficha-header p {
+        opacity: 0.95;
+        margin-bottom: 0;
+    }
+
+    .persona-info-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border-left: 5px solid #f5576c;
+    }
+
+    .persona-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: #666;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.3rem;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        color: #333;
+        font-weight: 500;
+    }
+
+    /* Tabs */
+    .nav-tabs {
+        border-bottom: 2px solid #f5576c;
+        margin-bottom: 0;
+    }
+
+    .nav-tabs .nav-link {
+        border: none;
+        color: #666;
+        font-weight: 600;
+        padding: 1rem 1.5rem;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .nav-tabs .nav-link:hover {
+        background: #fff5f7;
+        color: #f5576c;
+    }
+
+    .nav-tabs .nav-link.active {
+        background: white;
+        color: #f5576c;
+        border: 2px solid #f5576c;
+        border-bottom: 2px solid white;
+        margin-bottom: -2px;
+    }
+
+    .tab-content {
+        background: white;
+        border-radius: 0 0 15px 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border: 2px solid #f5576c;
+        border-top: none;
+    }
+
+    .ficha-form {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .form-section:last-child {
+        border-bottom: none;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #f5576c;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        color: #f5576c;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #f5576c;
+        box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+        outline: none;
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-check-input {
+        width: 1.2rem;
+        height: 1.2rem;
+    }
+
+    .form-check-input:checked {
+        background-color: #f5576c;
+        border-color: #f5576c;
+    }
+
+    .readonly-field {
+        background-color: #d4edda !important;
+        font-weight: 600;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.3);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #e9ecef;
+        color: #333;
+    }
+
+    .btn-secondary:hover {
+        background: #dee2e6;
+        color: #333;
+    }
+
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0 0 0;
+    }
+
+    .errorlist li {
+        color: #dc3545;
+        font-size: 0.85rem;
+        background: #f8d7da;
+        padding: 0.5rem;
+        border-radius: 4px;
+        margin-top: 0.3rem;
+    }
+
+    .hidden-section {
+        display: none;
+    }
+
+    .vih-badge {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .vih-negativo { background: #d4edda; color: #155724; }
+    .vih-positivo { background: #f8d7da; color: #721c24; }
+    .vih-pendiente { background: #fff3cd; color: #856404; }
+
+    /* Medicamentos */
+    .medicamentos-empty {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+    }
+
+    .medicamentos-empty i {
+        font-size: 3rem;
+        color: #ddd;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ficha-container">
+    <!-- Header -->
+    <div class="ficha-header">
+        <h2><i class="bi bi-file-earmark-medical"></i> {{ titulo|default:"Crear Ficha Obstétrica" }}</h2>
+        <p>Completa los datos de la ficha obstétrica. Los campos en verde se calculan automáticamente.</p>
+    </div>
+
+    <!-- Información de la Persona -->
+    {% if persona %}
+    <div class="persona-info-card">
+        <h3 style="margin-bottom: 1.5rem; color: #333;">
+            <i class="bi bi-person-check-fill"></i> Información de la Persona
+        </h3>
+
+        <div class="persona-info-grid">
+            <div class="info-item">
+                <div class="info-label">Nombre Completo</div>
+                <div class="info-value">{{ persona.Nombre }} {{ persona.Apellido_Paterno }} {{ persona.Apellido_Materno }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">RUT</div>
+                <div class="info-value">{{ persona.Rut }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Edad</div>
+                <div class="info-value">{{ edad }} años</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Fecha de Nacimiento</div>
+                <div class="info-value">{{ persona.Fecha_nacimiento|date:"d/m/Y" }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Teléfono</div>
+                <div class="info-value">{{ persona.Telefono|default:"No registrado" }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Correo Electrónico</div>
+                <div class="info-value">{{ persona.Email|default:"No registrado" }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Dirección</div>
+                <div class="info-value">{{ persona.Direccion|default:"No registrada" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs" id="fichaTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="ficha-tab" data-bs-toggle="tab" data-bs-target="#ficha-content" type="button" role="tab">
+                <i class="bi bi-clipboard-data"></i> Ficha Obstétrica
+            </button>
+        </li>
+        {% if accion == 'editar' %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="medicamentos-tab" data-bs-toggle="tab" data-bs-target="#medicamentos-content" type="button" role="tab">
+                <i class="bi bi-capsule"></i> Medicamentos
+            </button>
+        </li>
+        {% endif %}
+    </ul>
+
+    <div class="tab-content" id="fichaTabsContent">
+        <!-- Tab Ficha Obstétrica -->
+        <div class="tab-pane fade show active" id="ficha-content" role="tabpanel">
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <!-- ERRORES GENERALES -->
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    <strong>Errores en el formulario:</strong>
+                    {% for error in form.non_field_errors %}
+                    <div>• {{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- SECCIÓN 1: ACOMPAÑANTE -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-people-fill"></i> Acompañante
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            {{ form.tiene_acompanante }}
+                            ¿Tiene Acompañante?
+                        </label>
+                    </div>
+
+                    <div id="acompanante-fields" class="hidden-section">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Nombre del Acompañante</label>
+                                {{ form.nombre_acompanante }}
+                                {% if form.nombre_acompanante.errors %}
+                                <ul class="errorlist">
+                                    {% for error in form.nombre_acompanante.errors %}
+                                    <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">RUT del Acompañante</label>
+                                {{ form.rut_acompanante }}
+                                {% if form.rut_acompanante.errors %}
+                                <ul class="errorlist">
+                                    {% for error in form.rut_acompanante.errors %}
+                                    <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: DATOS GENERALES -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-info-circle"></i> Datos Generales del Embarazo
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-check-label">
+                                {{ form.plan_de_parto }}
+                                ¿Tiene Plan de Parto?
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-check-label">
+                                {{ form.visita_guiada }}
+                                ¿Realizó Visita Guiada?
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Cantidad de Bebés</label>
+                            {{ form.cantidad_bebes }}
+                            {% if form.cantidad_bebes.errors %}
+                            <ul class="errorlist">
+                                {% for error in form.cantidad_bebes.errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Consultorio de Origen</label>
+                            {{ form.consultorio_origen }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 3: EXÁMENES VIH -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-shield-check"></i> Control de VIH
+                    </div>
+
+                    <!-- VIH 1 -->
+                    <h5 style="color: #666; margin-bottom: 1rem;">VIH 1 (Primer Trimestre)</h5>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-check-label">
+                                {{ form.vih_1_realizado }}
+                                ¿Se realizó VIH 1?
+                            </label>
+                        </div>
+
+                        <div class="form-group" id="vih1-fecha-group">
+                            <label class="form-label">Fecha VIH 1</label>
+                            {{ form.vih_1_fecha }}
+                        </div>
+
+                        <div class="form-group" id="vih1-resultado-group">
+                            <label class="form-label">Resultado VIH 1</label>
+                            {{ form.vih_1_resultado }}
+                        </div>
+                    </div>
+
+                    <!-- VIH 2 -->
+                    <h5 style="color: #666; margin: 1.5rem 0 1rem;">VIH 2 (Tercer Trimestre)</h5>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-check-label">
+                                {{ form.vih_2_realizado }}
+                                ¿Se realizó VIH 2?
+                            </label>
+                        </div>
+
+                        <div class="form-group" id="vih2-fecha-group">
+                            <label class="form-label">Fecha VIH 2</label>
+                            {{ form.vih_2_fecha }}
+                        </div>
+
+                        <div class="form-group" id="vih2-resultado-group">
+                            <label class="form-label">Resultado VIH 2</label>
+                            {{ form.vih_2_resultado }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 4: HISTORIA OBSTÉTRICA -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-calendar-heart"></i> Historia Obstétrica
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Número de Gestaciones</label>
+                            {{ form.numero_gestas }}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Número de Partos</label>
+                            {{ form.numero_partos }}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Partos Vaginales</label>
+                            {{ form.partos_vaginales }}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Cesáreas</label>
+                            {{ form.partos_cesareas }}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Abortos</label>
+                            {{ form.numero_abortos }}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Nacidos Vivos</label>
+                            {{ form.nacidos_vivos }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 5: EMBARAZO ACTUAL -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-heart-pulse"></i> Embarazo Actual
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Fecha Última Menstruación (FUM)</label>
+                            {{ form.fecha_ultima_regla }}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Fecha Probable de Parto (FPP)</label>
+                            {{ form.fecha_probable_parto }}
+                            <small class="form-text text-muted">Calculado automáticamente</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Semanas de Gestación</label>
+                            {{ form.edad_gestacional_semanas }}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Días Adicionales</label>
+                            {{ form.edad_gestacional_dias }}
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Peso Actual (Kg)</label>
+                            {{ form.peso_actual }}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Talla (metros)</label>
+                            {{ form.talla_actual }}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">IMC</label>
+                            {{ form.imc }}
+                            <small class="form-text text-muted">Calculado automáticamente</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 6: PATOLOGÍAS -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-exclamation-triangle"></i> Patologías
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-check-label">
+                                {{ form.preeclampsia_severa }}
+                                Preeclampsia Severa
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-check-label">
+                                {{ form.eclampsia }}
+                                Eclampsia
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-check-label">
+                                {{ form.sepsis_infeccion_sistemia }}
+                                Sepsis / Infección Sistémica
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-check-label">
+                                {{ form.infeccion_ovular }}
+                                Infección Ovular
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Otras Patologías</label>
+                        {{ form.otras_patologias }}
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 7: CONTROL PRENATAL -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-clipboard-check"></i> Control Prenatal
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-check-label">
+                                {{ form.control_prenatal }}
+                                ¿Tuvo Control Prenatal?
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Número de Controles</label>
+                            {{ form.numero_controles }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTONES -->
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> 
+                        {% if accion == 'editar' %}Guardar Cambios{% else %}Crear Ficha{% endif %}
+                    </button>
+
+                    <a href="{% url 'matrona:seleccionar_persona_ficha' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tab Medicamentos -->
+        {% if accion == 'editar' %}
+        <div class="tab-pane fade" id="medicamentos-content" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4><i class="bi bi-capsule"></i> Medicamentos Asignados</h4>
+                <a href="{% url 'matrona:agregar_medicamento' ficha.pk %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Agregar Medicamento
+                </a>
+            </div>
+
+            {% if medicamentos %}
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Medicamento</th>
+                        <th>Dosis</th>
+                        <th>Vía</th>
+                        <th>Frecuencia</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for med in medicamentos %}
+                    <tr>
+                        <td>{{ med.medicamento.nombre }}</td>
+                        <td>{{ med.dosis }}</td>
+                        <td>{{ med.via_administracion }}</td>
+                        <td>{{ med.frecuencia }}</td>
+                        <td>
+                            {% if med.activo %}
+                            <span class="badge bg-success">Activo</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'matrona:eliminar_medicamento' med.pk %}" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="medicamentos-empty">
+                <i class="bi bi-capsule"></i>
+                <p>No hay medicamentos asignados a esta ficha</p>
+                <a href="{% url 'matrona:agregar_medicamento' ficha.pk %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Agregar Medicamento
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    {% else %}
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle"></i>
+        <strong>Error:</strong> No se encontró la información de la persona.
+        <a href="{% url 'matrona:seleccionar_persona_ficha' %}">Volver a seleccionar</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle campos de acompañante
+    function toggleAcompanante() {
+        const checkbox = document.getElementById('id_tiene_acompanante');
+        const fields = document.getElementById('acompanante-fields');
+        
+        if (checkbox && fields) {
+            fields.style.display = checkbox.checked ? 'block' : 'none';
+        }
+    }
+
+    // Toggle campos VIH 1
+    function toggleVIH1() {
+        const checkbox = document.querySelector('[name="vih_1_realizado"]');
+        const fechaGroup = document.getElementById('vih1-fecha-group');
+        const resultadoGroup = document.getElementById('vih1-resultado-group');
+        
+        if (checkbox) {
+            const show = checkbox.checked;
+            if (fechaGroup) fechaGroup.style.display = show ? 'block' : 'none';
+            if (resultadoGroup) resultadoGroup.style.display = show ? 'block' : 'none';
+        }
+    }
+
+    // Toggle campos VIH 2
+    function toggleVIH2() {
+        const checkbox = document.querySelector('[name="vih_2_realizado"]');
+        const fechaGroup = document.getElementById('vih2-fecha-group');
+        const resultadoGroup = document.getElementById('vih2-resultado-group');
+        
+        if (checkbox) {
+            const show = checkbox.checked;
+            if (fechaGroup) fechaGroup.style.display = show ? 'block' : 'none';
+            if (resultadoGroup) resultadoGroup.style.display = show ? 'block' : 'none';
+        }
+    }
+
+    // Calcular FPP y edad gestacional
+    function calcularFPP() {
+        const fumInput = document.querySelector('[name="fecha_ultima_regla"]');
+        const fppInput = document.querySelector('[name="fecha_probable_parto"]');
+        const semanasInput = document.querySelector('[name="edad_gestacional_semanas"]');
+        const diasInput = document.querySelector('[name="edad_gestacional_dias"]');
+        
+        if (fumInput && fumInput.value) {
+            const fum = new Date(fumInput.value);
+            
+            // FPP = FUM + 280 días (40 semanas)
+            const fpp = new Date(fum);
+            fpp.setDate(fpp.getDate() + 280);
+            
+            if (fppInput) {
+                fppInput.value = fpp.toISOString().split('T')[0];
+            }
+            
+            // Edad gestacional
+            const hoy = new Date();
+            const diffTime = hoy - fum;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const semanas = Math.floor(diffDays / 7);
+            const dias = diffDays % 7;
+            
+            if (semanasInput) semanasInput.value = semanas;
+            if (diasInput) diasInput.value = dias;
+        }
+    }
+
+    // Calcular IMC
+    function calcularIMC() {
+        const pesoInput = document.querySelector('[name="peso_actual"]');
+        const tallaInput = document.querySelector('[name="talla_actual"]');
+        const imcInput = document.querySelector('[name="imc"]');
+        
+        if (pesoInput && tallaInput && imcInput) {
+            const peso = parseFloat(pesoInput.value);
+            const talla = parseFloat(tallaInput.value);
+            
+            if (peso > 0 && talla > 0) {
+                const imc = peso / (talla * talla);
+                imcInput.value = imc.toFixed(2);
+            }
+        }
+    }
+
+    // Inicializar al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleAcompanante();
+        toggleVIH1();
+        toggleVIH2();
+        
+        // Event listeners
+        const fumInput = document.querySelector('[name="fecha_ultima_regla"]');
+        if (fumInput) {
+            fumInput.addEventListener('change', calcularFPP);
+        }
+        
+        const pesoInput = document.querySelector('[name="peso_actual"]');
+        const tallaInput = document.querySelector('[name="talla_actual"]');
+        if (pesoInput) pesoInput.addEventListener('input', calcularIMC);
+        if (tallaInput) tallaInput.addEventListener('input', calcularIMC);
+    });
+</script>
+{% endblock %}
