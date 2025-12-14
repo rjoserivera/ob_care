@@ -196,17 +196,6 @@
         </div>
         {% endif %}
 
-        {% if puede_asignar_medicamentos %}
-        <div class="col-md-3 mb-4">
-            <div class="action-card">
-                <i class="bi bi-capsule"></i>
-                <h5>Asignar Medicamentos</h5>
-                <a href="{% url 'matrona:lista_fichas' %}" class="btn btn-action">
-                    Ir
-                </a>
-            </div>
-        </div>
-        {% endif %}
 
         {% if puede_buscar_paciente %}
         <div class="col-md-3 mb-4">
@@ -230,18 +219,20 @@
             </div>
         </div>
 
-        <!-- Editar Ficha - Ahora disponible para Matrona -->
+        <!-- Editar Ficha - Flujo específico -->
         {% if puede_editar_ficha %}
         <div class="col-md-3 mb-4">
             <div class="action-card">
                 <i class="bi bi-pencil-square"></i>
                 <h5>Editar Ficha</h5>
-                <a href="{% url 'matrona:lista_fichas' %}" class="btn btn-action">
+                <a href="{% url 'matrona:lista_fichas' %}?accion=editar" class="btn btn-action">
                     Ir
                 </a>
             </div>
         </div>
         {% endif %}
+
+
     </div>
 </div>
 {% endblock %}

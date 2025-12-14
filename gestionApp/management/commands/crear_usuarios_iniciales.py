@@ -146,18 +146,18 @@ class Command(BaseCommand):
         # ============================================
         self.stdout.write('\n👑 Creando Administrador...')
         
-        if not User.objects.filter(username='Bocchi').exists():
+        if not User.objects.filter(username='admin').exists():
             admin_user = User.objects.create_superuser(
-                username='Bocchi',
+                username='admin',
                 email='admin@hospital.cl',
-                password='Bocchi',
+                password='pass123',
                 first_name='Administrador',
                 last_name='Sistema'
             )
             admin_user.groups.add(grupo_admin)
-            self.stdout.write(self.style.SUCCESS('   ✅ Admin creado: Bocchi / Bocchi'))
+            self.stdout.write(self.style.SUCCESS('   ✅ Admin creado: admin / pass123'))
         else:
-            self.stdout.write(self.style.WARNING('   ⚠️ Admin "Bocchi" ya existe'))
+            self.stdout.write(self.style.WARNING('   ⚠️ Admin "admin" ya existe'))
 
         # ============================================
         # 3. CREAR MÉDICO
@@ -168,7 +168,7 @@ class Command(BaseCommand):
             user_medico = User.objects.create_user(
                 username='medico',
                 email='medico@hospital.cl',
-                password='Bocchi',
+                password='pass123',
                 first_name='Carlos',
                 last_name='González'
             )
@@ -197,7 +197,7 @@ class Command(BaseCommand):
                 Activo=True
             )
             
-            self.stdout.write(self.style.SUCCESS('   ✅ Médico creado: medico / Bocchi'))
+            self.stdout.write(self.style.SUCCESS('   ✅ Médico creado: medico / pass123'))
         else:
             self.stdout.write(self.style.WARNING('   ⚠️ Usuario "medico" ya existe'))
 
@@ -210,7 +210,7 @@ class Command(BaseCommand):
             user_matrona = User.objects.create_user(
                 username='matrona',
                 email='matrona@hospital.cl',
-                password='Bocchi',
+                password='pass123',
                 first_name='María',
                 last_name='López'
             )
@@ -239,7 +239,7 @@ class Command(BaseCommand):
                 Activo=True
             )
             
-            self.stdout.write(self.style.SUCCESS('   ✅ Matrona creada: matrona / Bocchi'))
+            self.stdout.write(self.style.SUCCESS('   ✅ Matrona creada: matrona / pass123'))
         else:
             self.stdout.write(self.style.WARNING('   ⚠️ Usuario "matrona" ya existe'))
 
@@ -252,7 +252,7 @@ class Command(BaseCommand):
             user_tens = User.objects.create_user(
                 username='tens',
                 email='tens@hospital.cl',
-                password='Bocchi',
+                password='pass123',
                 first_name='Juan',
                 last_name='Martínez'
             )
@@ -281,7 +281,7 @@ class Command(BaseCommand):
                 Activo=True
             )
             
-            self.stdout.write(self.style.SUCCESS('   ✅ TENS creado: tens / Bocchi'))
+            self.stdout.write(self.style.SUCCESS('   ✅ TENS creado: tens / pass123'))
         else:
             self.stdout.write(self.style.WARNING('   ⚠️ Usuario "tens" ya existe'))
 
@@ -403,10 +403,10 @@ class Command(BaseCommand):
         self.stdout.write('   ┌─────────────┬─────────────┬─────────────┐')
         self.stdout.write('   │ Usuario     │ Contraseña  │ Rol         │')
         self.stdout.write('   ├─────────────┼─────────────┼─────────────┤')
-        self.stdout.write('   │ Bocchi      │ Bocchi      │ Admin       │')
-        self.stdout.write('   │ medico      │ Bocchi      │ Médico      │')
-        self.stdout.write('   │ matrona     │ Bocchi      │ Matrona     │')
-        self.stdout.write('   │ tens        │ Bocchi      │ TENS        │')
+        self.stdout.write('   │ admin       │ pass123     │ Admin       │')
+        self.stdout.write('   │ medico      │ pass123     │ Médico      │')
+        self.stdout.write('   │ matrona     │ pass123     │ Matrona     │')
+        self.stdout.write('   │ tens        │ pass123     │ TENS        │')
         self.stdout.write('   └─────────────┴─────────────┴─────────────┘')
         self.stdout.write('\n🤰 PACIENTES DE PRUEBA: 3 creadas')
         self.stdout.write('📚 CATÁLOGOS: Todos los catálogos base creados\n')

@@ -275,20 +275,46 @@
     </div>
 
     <!-- FILTROS -->
-    <div class="filtros-card">
-        <span style="font-weight: 600; color: #666;"><i class="bi bi-funnel"></i> Filtrar:</span>
-        <a href="{% url 'matrona:lista_fichas' %}" class="filtro-btn {% if not estado_filtro %}active{% endif %}">
-            Todas
-        </a>
-        <a href="{% url 'matrona:lista_fichas' %}?estado=en_parto" class="filtro-btn {% if estado_filtro == 'en_parto' %}active{% endif %}">
-            🏥 En Parto
-        </a>
-        <a href="{% url 'matrona:lista_fichas' %}?estado=lista" class="filtro-btn {% if estado_filtro == 'lista' %}active{% endif %}">
-            ✅ Listas
-        </a>
-        <a href="{% url 'matrona:lista_fichas' %}?estado=estancada" class="filtro-btn {% if estado_filtro == 'estancada' %}active{% endif %}">
-            ⚠️ Estancadas
-        </a>
+    <div class="filtros-card" style="flex-direction: column; align-items: stretch; gap: 1.5rem;">
+        
+        <!-- BUSCADOR -->
+        <form method="GET" style="display: flex; gap: 10px; width: 100%;">
+            {% if accion %}<input type="hidden" name="accion" value="{{ accion }}">{% endif %}
+            {% if estado_filtro %}<input type="hidden" name="estado" value="{{ estado_filtro }}">{% endif %}
+            
+            <div style="position: relative; flex: 1;">
+                <i class="bi bi-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #f5576c;"></i>
+                <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar por Nombre, RUT o N° Ficha..." 
+                       style="width: 100%; padding: 0.8rem 1rem 0.8rem 2.5rem; border: 2px solid #ffe3e8; border-radius: 50px; outline: none; transition: all 0.3s ease; background: #fff0f3;"
+                       onfocus="this.style.borderColor='#f5576c'; this.style.backgroundColor='white'; this.style.boxShadow='0 0 0 4px rgba(245, 87, 108, 0.1)'"
+                       onblur="this.style.borderColor='#ffe3e8'; this.style.backgroundColor='#fff0f3'; this.style.boxShadow='none'">
+            </div>
+            <button type="submit" class="btn-ver" style="padding: 0 1.5rem; border-radius: 50px;">Buscar</button>
+            {% if busqueda %}
+                <a href="{% url 'matrona:lista_fichas' %}{% if accion %}?accion={{ accion }}{% endif %}" class="btn-ver" style="background: #e9ecef; color: #555; display: flex; align-items: center; justify-content: center; padding: 0 1rem; border-radius: 50px; box-shadow: none;" title="Limpiar búsqueda">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            {% endif %}
+        </form>
+
+        <hr style="margin: 0; border-top: 1px dashed #e0e0e0;">
+
+        <!-- BOTONES DE FILTRO -->
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <span style="font-weight: 600; color: #666;"><i class="bi bi-funnel"></i> Filtrar Estado:</span>
+            <a href="{% url 'matrona:lista_fichas' %}{% if accion %}?accion={{ accion }}{% endif %}" class="filtro-btn {% if not estado_filtro %}active{% endif %}">
+                Todas
+            </a>
+            <a href="{% url 'matrona:lista_fichas' %}?estado=en_parto{% if accion %}&accion={{ accion }}{% endif %}" class="filtro-btn {% if estado_filtro == 'en_parto' %}active{% endif %}">
+                🏥 En Parto
+            </a>
+            <a href="{% url 'matrona:lista_fichas' %}?estado=lista{% if accion %}&accion={{ accion }}{% endif %}" class="filtro-btn {% if estado_filtro == 'lista' %}active{% endif %}">
+                ✅ Listas
+            </a>
+            <a href="{% url 'matrona:lista_fichas' %}?estado=estancada{% if accion %}&accion={{ accion }}{% endif %}" class="filtro-btn {% if estado_filtro == 'estancada' %}active{% endif %}">
+                ⚠️ Estancadas
+            </a>
+        </div>
     </div>
 
     <!-- LISTA DE FICHAS -->
@@ -318,9 +344,15 @@
                 </div>
             </div>
             <div class="ficha-actions">
+                {% if accion == 'editar' %}
+                <a href="{% url 'matrona:editar_ficha' ficha.pk %}" class="btn-ver">
+                    <i class="bi bi-pencil-square"></i> Editar Ficha
+                </a>
+                {% else %}
                 <a href="{% url 'matrona:detalle_ficha' ficha.pk %}" class="btn-ver">
                     <i class="bi bi-eye"></i> Ver Detalle
                 </a>
+                {% endif %}
             </div>
         </div>
         {% endfor %}

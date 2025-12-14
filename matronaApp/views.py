@@ -1,6 +1,6 @@
 """
 matronaApp/views.py
-Vistas para matronaApp - Fichas obstÃ©tricas, medicamentos, dilataciÃ³n y parto
+Vistas para matronaApp - Fichas obstÃ©tricas, medicamentos, dilatación y parto
 COMPLETO: Con TODAS las vistas existentes + nuevas funcionalidades
 """
 
@@ -44,6 +44,7 @@ from partosApp.models import (
 )
 from recienNacidoApp.models import RegistroRecienNacido, CatalogoSexoRN, CatalogoComplicacionesRN, CatalogoMotivoHospitalizacionRN
 from django.contrib.auth.models import User
+from legacyApp.models import ControlesPrevios
 
 # Formularios
 from .forms import FichaObstetricaForm, MedicamentoFichaForm
@@ -71,10 +72,10 @@ def calcular_edad(fecha_nacimiento):
 @login_required
 def menu_matrona(request):
     """
-    MenÃº principal de matrona (Dashboard)
+    Menú principal de matrona (Dashboard)
     URL: /matrona/
     """
-    # EstadÃ­sticas
+    # Estadísticas
     total_fichas = FichaObstetrica.objects.filter(activa=True).count()
     fichas_recientes = FichaObstetrica.objects.filter(
         activa=True
@@ -107,7 +108,7 @@ def menu_matrona(request):
     puede_asignar_medicamentos = True
     puede_buscar_paciente = True
     puede_editar_ficha = True
-    puede_iniciar_parto = False  # Solo mÃ©dico
+    puede_iniciar_parto = False  # Solo médico
     
     context = {
         'titulo': 'Dashboard Matrona',
@@ -149,7 +150,7 @@ def seleccionar_persona_ficha(request):
         )[:20]
     
     context = {
-        'titulo': 'Seleccionar Persona para Ficha ObstÃ©trica',
+        'titulo': 'Seleccionar Persona para Ficha Obstétrica',
         'personas': personas,
         'busqueda': busqueda,
     }
@@ -190,10 +191,10 @@ def crear_ficha_obstetrica(request, paciente_pk):
                 # Procesar medicamentos del POST
                 procesar_medicamentos_post(request, ficha)
                 
-                # Procesar registros de dilataciÃ³n del POST
+                # Procesar registros de dilatación del POST
                 procesar_dilatacion_post(request, ficha)
                 
-                messages.success(request, f'âœ… Ficha ObstÃ©trica {ficha.numero_ficha} creada exitosamente')
+                messages.success(request, f'âœ… Ficha Obstétrica {ficha.numero_ficha} creada exitosamente')
                 return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
         else:
             messages.error(request, 'Por favor corrige los errores en el formulario')
@@ -209,7 +210,7 @@ def crear_ficha_obstetrica(request, paciente_pk):
         'paciente': paciente,
         'persona': persona,
         'edad': edad,
-        'titulo': 'Crear Ficha ObstÃ©trica',
+        'titulo': 'Crear Ficha Obstétrica',
         'accion': 'crear',
         'vias_administracion': vias_administracion,
         'consultorios': consultorios,
@@ -227,7 +228,7 @@ def crear_ficha_obstetrica_persona(request, persona_pk):
     Crear nueva ficha obstÃ©trica a partir de una Persona
     URL: /matrona/ficha/crear-persona/<persona_pk>/
     
-    Si la persona no tiene un paciente creado, lo crea automÃ¡ticamente
+    Si la persona no tiene un paciente creado, lo crea automáticamente
     """
     persona = get_object_or_404(Persona, pk=persona_pk)
     
@@ -263,10 +264,10 @@ def crear_ficha_obstetrica_persona(request, persona_pk):
                 # Procesar medicamentos del POST
                 procesar_medicamentos_post(request, ficha)
                 
-                # Procesar registros de dilataciÃ³n del POST
+                # Procesar registros de dilatación del POST
                 procesar_dilatacion_post(request, ficha)
                 
-                messages.success(request, f'âœ… Ficha ObstÃ©trica {ficha.numero_ficha} creada exitosamente')
+                messages.success(request, f'âœ… Ficha Obstétrica {ficha.numero_ficha} creada exitosamente')
                 return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
         else:
             messages.error(request, 'Por favor corrige los errores en el formulario')
@@ -282,7 +283,7 @@ def crear_ficha_obstetrica_persona(request, persona_pk):
         'paciente': paciente,
         'persona': persona,
         'edad': edad,
-        'titulo': 'Crear Ficha ObstÃ©trica',
+        'titulo': 'Crear Ficha Obstétrica',
         'accion': 'crear',
         'vias_administracion': vias_administracion,
         'consultorios': consultorios,
@@ -315,7 +316,7 @@ def editar_ficha_obstetrica(request, ficha_pk):
                 # Procesar medicamentos del POST
                 procesar_medicamentos_post(request, ficha)
                 
-                # Procesar registros de dilataciÃ³n del POST
+                # Procesar registros de dilatación del POST
                 procesar_dilatacion_post(request, ficha)
                 
                 messages.success(request, f'âœ… Ficha {ficha.numero_ficha} actualizada')
@@ -337,7 +338,7 @@ def editar_ficha_obstetrica(request, ficha_pk):
         'paciente': paciente,
         'persona': persona,
         'edad': edad,
-        'titulo': 'Editar Ficha ObstÃ©trica',
+        'titulo': 'Editar Ficha Obstétrica',
         'accion': 'editar',
         'medicamentos': medicamentos,
         'registros_dilatacion': registros_dilatacion,
@@ -377,12 +378,17 @@ def detalle_ficha_obstetrica(request, ficha_pk):
     
     edad = calcular_edad(persona.Fecha_nacimiento)
     
-    # Verificar estado de dilataciÃ³n
+    # Verificar estado de dilatación
     ficha.verificar_estancamiento()
     puede_parto_vaginal = ficha.puede_parto_vaginal()
     
-    # Obtener informaciÃ³n de parto
+    # Obtener información de parto
     puede_parto, razon_parto, tipo_sugerido = ficha.puede_iniciar_parto()
+    
+    # Obtener controles previos desde la base de datos legacy
+    controles_previos = ControlesPrevios.objects.filter(
+        paciente_rut=persona.Rut
+    ).order_by('-fecha_control')[:20]  # Últimos 20 controles
     
     context = {
         'ficha': ficha,
@@ -398,7 +404,8 @@ def detalle_ficha_obstetrica(request, ficha_pk):
         'razon_parto': razon_parto,
         'tipo_parto_sugerido': tipo_sugerido,
         'titulo': f'Ficha {ficha.numero_ficha}',
-        'edad_gestacional': f"{ficha.edad_gestacional_semanas or 0}+{ficha.edad_gestacional_dias or 0}"
+        'edad_gestacional': f"{ficha.edad_gestacional_semanas or 0}+{ficha.edad_gestacional_dias or 0}",
+        'controles_previos': controles_previos,
     }
     return render(request, 'Matrona/detalle_ficha_obstetrica.html', context)
 
@@ -426,7 +433,7 @@ def lista_fichas_obstetrica(request):
     elif estado == 'lista':
         fichas = fichas.filter(estado_dilatacion='LISTA')
     
-    # BÃºsqueda
+    # Búsqueda
     busqueda = request.GET.get('q', '')
     if busqueda:
         fichas = fichas.filter(
@@ -436,11 +443,16 @@ def lista_fichas_obstetrica(request):
             Q(numero_ficha__icontains=busqueda)
         )
     
+    # Acción (editar vs ver)
+    accion = request.GET.get('accion', '')
+    titulo = 'Seleccionar Ficha para Editar' if accion == 'editar' else 'Fichas Obstétricas'
+
     context = {
         'fichas': fichas,
-        'titulo': 'Fichas ObstÃ©tricas',
+        'titulo': titulo,
         'estado_filtro': estado,
         'busqueda': busqueda,
+        'accion': accion,
     }
     return render(request, 'Matrona/lista_fichas_obstetrica.html', context)
 
@@ -518,7 +530,7 @@ def eliminar_medicamento(request, medicamento_pk):
 @require_POST
 def agregar_medicamento_ajax(request, ficha_pk):
     """
-    API para agregar medicamento vÃ­a AJAX
+    API para agregar medicamento vía AJAX
     URL: /matrona/api/ficha/<ficha_pk>/medicamento/agregar/
     """
     ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk, activa=True)
@@ -560,7 +572,7 @@ def agregar_medicamento_ajax(request, ficha_pk):
 @require_POST
 def eliminar_medicamento_ajax(request, medicamento_pk):
     """
-    API para eliminar medicamento vÃ­a AJAX
+    API para eliminar medicamento vía AJAX
     URL: /matrona/api/medicamento/<medicamento_pk>/eliminar/
     """
     try:
@@ -616,7 +628,7 @@ def buscar_medicamentos(request):
 @require_POST
 def agregar_registro_dilatacion(request, ficha_pk):
     """
-    API para agregar un nuevo registro de dilataciÃ³n
+    API para agregar un nuevo registro de dilatación
     URL: /matrona/api/ficha/<ficha_pk>/dilatacion/agregar/
     Acepta tanto JSON (AJAX) como datos de formulario POST
     """
@@ -638,7 +650,7 @@ def agregar_registro_dilatacion(request, ficha_pk):
             observacion = request.POST.get('observacion', '')
         
         if valor < 0 or valor > 10:
-            error_msg = 'La dilataciÃ³n debe estar entre 0 y 10 cm'
+            error_msg = 'La dilatación debe estar entre 0 y 10 cm'
             if is_ajax:
                 return JsonResponse({'success': False, 'error': error_msg})
             else:
@@ -686,7 +698,7 @@ def agregar_registro_dilatacion(request, ficha_pk):
                 }
             })
         
-        messages.success(request, f'âœ… DilataciÃ³n registrada: {valor} cm')
+        messages.success(request, f'âœ… Dilatación registrada: {valor} cm')
         return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
         
     except (ValueError, KeyError) as e:
@@ -711,7 +723,7 @@ def agregar_registro_dilatacion(request, ficha_pk):
 @login_required
 def verificar_estado_dilatacion(request, ficha_pk):
     """
-    API para verificar el estado actual de dilataciÃ³n
+    API para verificar el estado actual de dilatación
     URL: /matrona/api/ficha/<ficha_pk>/dilatacion/estado/
     """
     ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk)
@@ -776,7 +788,7 @@ def iniciar_proceso_parto(request, ficha_pk):
         tipo_texto = 'parto vaginal' if tipo_parto == 'VAGINAL' else 'cesárea'
         messages.success(request, f'âœ… Proceso de {tipo_texto} iniciado exitosamente.')
     
-    # Redirigir a pÃ¡gina dedicada de proceso de parto
+    # Redirigir a página dedicada de proceso de parto
     return redirect('matrona:proceso_parto_iniciado', ficha_pk=ficha.pk)
 
 
@@ -1269,7 +1281,7 @@ def procesar_medicamentos_post(request, ficha):
 
 
 def procesar_dilatacion_post(request, ficha):
-    """Procesa los registros de dilataciÃ³n enviados en el POST"""
+    """Procesa los registros de dilatación enviados en el POST"""
     index = 0
     while f'dilatacion[{index}][valor]' in request.POST:
         valor = request.POST.get(f'dilatacion[{index}][valor]')
@@ -1390,7 +1402,7 @@ def registrar_dilatacion(request, ficha_id):
             
             # Verificar si está lista para parto
             val = Decimal(valor)
-            if val >= 10:
+            if val >= 8:
                 ficha.estado_dilatacion = 'LISTA'
                 ficha.save(update_fields=['estado_dilatacion'])
             elif val > ficha.valor_dilatacion_actual and ficha.estado_dilatacion != 'LISTA' and ficha.estado_dilatacion != 'ESTANCADA':

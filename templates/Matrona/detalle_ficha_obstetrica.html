@@ -6,9 +6,9 @@
 {% block extra_css %}
 <style>
     :root {
-        --primary-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        --primary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         --danger-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --info-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     }
 
@@ -25,7 +25,7 @@
         padding: 1.5rem 2rem;
         border-radius: 16px;
         margin-bottom: 1.5rem;
-        box-shadow: 0 10px 30px rgba(17, 153, 142, 0.3);
+        box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3);
     }
 
     .ficha-header-top {
@@ -49,7 +49,7 @@
     }
 
     .ficha-numero {
-        background: rgba(255,255,255,0.25);
+        background: rgba(255, 255, 255, 0.25);
         padding: 0.4rem 1rem;
         border-radius: 8px;
         font-size: 0.95rem;
@@ -62,7 +62,7 @@
         gap: 1.5rem;
         margin-top: 1rem;
         padding-top: 1rem;
-        border-top: 1px solid rgba(255,255,255,0.2);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .patient-info-item {
@@ -85,7 +85,7 @@
     }
 
     .badge-activa {
-        background: rgba(255,255,255,0.25);
+        background: rgba(255, 255, 255, 0.25);
         color: white;
     }
 
@@ -158,27 +158,27 @@
         padding: 0.75rem 1.25rem;
         font-weight: 700;
         font-size: 1rem;
-        color: #000000;
-        background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+        color: #444;
+        background: linear-gradient(135deg, #fff0f5 0%, #ffe4e6 100%);
         transition: all 0.3s ease;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        border: 2px solid #7dd3fc;
+        border: 2px solid #fbcfe8;
     }
 
     .nav-tabs-custom .nav-link:hover {
-        background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%);
-        color: #000000;
-        border-color: #0284c7;
+        background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+        color: #d63384;
+        border-color: #f472b6;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+        box-shadow: 0 4px 12px rgba(244, 114, 182, 0.3);
     }
 
     .nav-tabs-custom .nav-link.active {
         background: var(--primary-gradient);
         color: white !important;
-        box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
+        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
         border-color: transparent;
     }
 
@@ -196,7 +196,7 @@
     .tab-content {
         background: white;
         border-radius: 16px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
     }
 
     .tab-pane {
@@ -214,7 +214,7 @@
         padding: 1rem;
         background: #f8f9fa;
         border-radius: 10px;
-        border-left: 4px solid #11998e;
+        border-left: 4px solid #f093fb;
     }
 
     .info-item.warning {
@@ -261,7 +261,7 @@
         font-weight: 600;
         color: #333;
         padding-bottom: 0.75rem;
-        border-bottom: 2px solid #11998e;
+        border-bottom: 2px solid #f093fb;
         margin-bottom: 1.25rem;
         display: flex;
         align-items: center;
@@ -269,12 +269,20 @@
     }
 
     .section-title i {
-        color: #11998e;
+        color: #f093fb;
     }
 
-    .section-title.danger i { color: #dc3545; }
-    .section-title.warning i { color: #ffc107; }
-    .section-title.info i { color: #17a2b8; }
+    .section-title.danger i {
+        color: #dc3545;
+    }
+
+    .section-title.warning i {
+        color: #ffc107;
+    }
+
+    .section-title.info i {
+        color: #17a2b8;
+    }
 
     /* Badges */
     .badge-custom {
@@ -287,10 +295,25 @@
         font-size: 0.85rem;
     }
 
-    .badge-success { background: #d4edda; color: #155724; }
-    .badge-warning { background: #fff3cd; color: #856404; }
-    .badge-danger { background: #f8d7da; color: #721c24; }
-    .badge-info { background: #d1ecf1; color: #0c5460; }
+    .badge-success {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .badge-warning {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-danger {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .badge-info {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
 
     /* Patología Tag */
     .patologia-tag {
@@ -380,7 +403,7 @@
         top: 0;
         bottom: 0;
         width: 3px;
-        background: linear-gradient(to bottom, #11998e, #38ef7d);
+        background: linear-gradient(to bottom, #f093fb, #f5576c);
         border-radius: 3px;
     }
 
@@ -400,10 +423,10 @@
         top: 1.25rem;
         width: 12px;
         height: 12px;
-        background: #11998e;
+        background: #f093fb;
         border-radius: 50%;
         border: 3px solid white;
-        box-shadow: 0 0 0 3px #11998e;
+        box-shadow: 0 0 0 3px #f093fb;
     }
 
     .dilatacion-item .fecha {
@@ -414,7 +437,7 @@
     .dilatacion-item .valor {
         font-size: 1.5rem;
         font-weight: 700;
-        color: #11998e;
+        color: #f093fb;
     }
 
     /* Botones */
@@ -462,8 +485,8 @@
     }
 
     .btn-outline:hover {
-        border-color: #11998e;
-        color: #11998e;
+        border-color: #f093fb;
+        color: #f093fb;
     }
 
     /* MODAL PARTO */
@@ -495,8 +518,15 @@
     }
 
     @keyframes modalSlide {
-        from { transform: translateY(-50px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
+        from {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
     }
 
     .modal-icon {
@@ -546,8 +576,15 @@
     }
 
     @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
     }
 
     .countdown-number {
@@ -621,33 +658,35 @@
         .ficha-header-top {
             flex-direction: column;
         }
-        
+
         .action-card {
             flex-direction: column;
             text-align: center;
         }
-        
+
         .nav-tabs-custom {
             flex-direction: column;
         }
-        
+
         .info-grid {
             grid-template-columns: 1fr;
         }
-        
+
         .btn-actions {
             flex-direction: column;
         }
-        
+
         .modal-buttons {
             flex-direction: column;
         }
     }
+
     /* Profesional Modal Style for Dilatation */
     #modalDilatacion.modal-overlay {
         background: rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(5px);
-        z-index: 1050; /* Above everything */
+        z-index: 1050;
+        /* Above everything */
         display: none;
         justify-content: center;
         align-items: center;
@@ -666,7 +705,7 @@
         background: #ffffff;
         border-radius: 16px;
         border: none;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         width: 90%;
         max-width: 500px;
         padding: 0;
@@ -674,11 +713,12 @@
         animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         display: flex;
         flex-direction: column;
-        position: relative; /* Ensure stacking context */
+        position: relative;
+        /* Ensure stacking context */
     }
 
     #modalDilatacion .modal-header {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         padding: 1.5rem;
         border: none;
         color: white;
@@ -697,7 +737,7 @@
     }
 
     #modalDilatacion .close-btn {
-        background: rgba(255,255,255,0.2);
+        background: rgba(255, 255, 255, 0.2);
         border: none;
         color: white;
         width: 32px;
@@ -712,7 +752,7 @@
     }
 
     #modalDilatacion .close-btn:hover {
-        background: rgba(255,255,255,0.4);
+        background: rgba(255, 255, 255, 0.4);
     }
 
     #modalDilatacion .modal-body {
@@ -733,6 +773,7 @@
             transform: translateY(20px);
             opacity: 0;
         }
+
         to {
             transform: translateY(0);
             opacity: 1;
@@ -763,19 +804,28 @@
                     <span class="ficha-numero">{{ ficha.numero_ficha }}</span>
                 </div>
             </div>
-            <div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                {% if puede_editar_ficha %}
+                <a href="{% url 'matrona:editar_ficha' ficha.pk %}" class="btn btn-light btn-sm shadow-sm"
+                    style="color: #f5576c; font-weight: 700; border-radius: 20px; padding: 0.4rem 1rem;">
+                    <i class="bi bi-pencil-square"></i> Editar Ficha
+                </a>
+                {% endif %}
+                <div>
                 {% if ficha.activa %}
-                    <span class="badge-estado badge-activa"><i class="bi bi-check-circle"></i> Activa</span>
+                <span class="badge-estado badge-activa"><i class="bi bi-check-circle"></i> Activa</span>
                 {% else %}
-                    <span class="badge-estado badge-inactiva"><i class="bi bi-x-circle"></i> Inactiva</span>
+                <span class="badge-estado badge-inactiva"><i class="bi bi-x-circle"></i> Inactiva</span>
                 {% endif %}
             </div>
+            </div>
         </div>
-        
+
         <div class="patient-info-row">
             <div class="patient-info-item">
                 <i class="bi bi-person-fill"></i>
                 <strong>{{ ficha.paciente.persona.Nombre }} {{ ficha.paciente.persona.Apellido_Paterno }} {{ ficha.paciente.persona.Apellido_Materno }}</strong>
+
             </div>
             <div class="patient-info-item">
                 <i class="bi bi-card-text"></i>
@@ -797,17 +847,18 @@
     <div class="action-card {% if puede_parto %}status-active{% else %}status-waiting{% endif %}">
         <div class="action-card-content">
             {% if puede_parto %}
-                <h3><i class="bi bi-exclamation-circle-fill me-2"></i>PARTO HABILITADO</h3>
-                <p>{{ razon_parto }}</p>
-                <p>Tipo sugerido: <strong>{{ tipo_parto_sugerido }}</strong></p>
+            <h3><i class="bi bi-exclamation-circle-fill me-2"></i>PARTO HABILITADO</h3>
+            <p>{{ razon_parto }}</p>
+            <p>Tipo sugerido: <strong>{{ tipo_parto_sugerido }}</strong></p>
             {% else %}
-                <h3 style="color: #6c757d;"><i class="bi bi-hourglass-split me-2"></i>Monitoreo de Parto</h3>
-                <p>{{ razon_parto }}</p>
-                <small class="text-muted">El botón se habilitará automáticamente al cumplir criterios.</small>
+            <h3 style="color: #6c757d;"><i class="bi bi-hourglass-split me-2"></i>Monitoreo de Parto</h3>
+            <p>{{ razon_parto }}</p>
+            <small class="text-muted">El botón se habilitará automáticamente al cumplir criterios.</small>
             {% endif %}
         </div>
-        
-        <button type="button" class="btn-parto" onclick="abrirModalParto()" {% if not puede_parto %}disabled style="opacity: 0.5; cursor: not-allowed; background: #ccc;"{% endif %}>
+
+        <button type="button" class="btn-parto" onclick="abrirModalParto()" {% if not puede_parto %}disabled
+            style="opacity: 0.5; cursor: not-allowed; background: #ccc;" {% endif %}>
             <i class="bi bi-heart-pulse-fill"></i> INICIAR PROCESO DE PARTO
         </button>
     </div>
@@ -815,43 +866,57 @@
     <!-- Navegación de Tabs -->
     <ul class="nav nav-tabs-custom" id="fichaTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="tab-paciente" data-bs-toggle="tab" data-bs-target="#panel-paciente" type="button" role="tab">
+            <button class="nav-link active" id="tab-paciente" data-bs-toggle="tab" data-bs-target="#panel-paciente"
+                type="button" role="tab">
                 <i class="bi bi-person-vcard"></i>
                 <span>Paciente</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-embarazo" data-bs-toggle="tab" data-bs-target="#panel-embarazo" type="button" role="tab">
+            <button class="nav-link" id="tab-embarazo" data-bs-toggle="tab" data-bs-target="#panel-embarazo"
+                type="button" role="tab">
                 <i class="bi bi-calendar-heart"></i>
                 <span>Embarazo</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-historia" data-bs-toggle="tab" data-bs-target="#panel-historia" type="button" role="tab">
+            <button class="nav-link" id="tab-historia" data-bs-toggle="tab" data-bs-target="#panel-historia"
+                type="button" role="tab">
                 <i class="bi bi-clock-history"></i>
                 <span>Historia Obstétrica</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-examenes" data-bs-toggle="tab" data-bs-target="#panel-examenes" type="button" role="tab">
+            <button class="nav-link" id="tab-examenes" data-bs-toggle="tab" data-bs-target="#panel-examenes"
+                type="button" role="tab">
                 <i class="bi bi-droplet"></i>
                 <span>Exámenes</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-dilatacion" data-bs-toggle="tab" data-bs-target="#panel-dilatacion" type="button" role="tab">
+            <button class="nav-link" id="tab-controles-previos" data-bs-toggle="tab"
+                data-bs-target="#panel-controles-previos" type="button" role="tab">
+                <i class="bi bi-clipboard-data"></i>
+                <span>Controles Previos</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-dilatacion" data-bs-toggle="tab" data-bs-target="#panel-dilatacion"
+                type="button" role="tab">
                 <i class="bi bi-bullseye"></i>
                 <span>Dilatación</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-medicamentos" data-bs-toggle="tab" data-bs-target="#panel-medicamentos" type="button" role="tab">
+            <button class="nav-link" id="tab-medicamentos" data-bs-toggle="tab" data-bs-target="#panel-medicamentos"
+                type="button" role="tab">
                 <i class="bi bi-capsule"></i>
                 <span>Medicamentos</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-bebes" data-bs-toggle="tab" data-bs-target="#panel-bebes" type="button" role="tab">
+            <button class="nav-link" id="tab-bebes" data-bs-toggle="tab" data-bs-target="#panel-bebes" type="button"
+                role="tab">
                 <i class="bi bi-emoji-smile"></i>
                 <span>Bebé(s)</span>
             </button>
@@ -860,7 +925,7 @@
 
     <!-- Contenido de Tabs -->
     <div class="tab-content" id="fichaTabContent">
-        
+
         <!-- ==================== TAB 1: PACIENTE ==================== -->
         <div class="tab-pane fade show active" id="panel-paciente" role="tabpanel">
             <!-- Medidas Antropométricas -->
@@ -878,18 +943,19 @@
                         <div class="info-label">Talla</div>
                         <div class="info-value">{{ ficha.talla_actual|default:"--" }} cm</div>
                     </div>
-                    <div class="info-item {% if ficha.imc >= 30 %}danger{% elif ficha.imc >= 25 %}warning{% else %}success{% endif %}">
+                    <div
+                        class="info-item {% if ficha.imc >= 30 %}danger{% elif ficha.imc >= 25 %}warning{% else %}success{% endif %}">
                         <div class="info-label">IMC</div>
                         <div class="info-value">
                             {{ ficha.imc|default:"--" }}
                             {% if ficha.imc %}
-                                {% if ficha.imc >= 30 %}
-                                    <span class="badge-custom badge-danger">Obesidad</span>
-                                {% elif ficha.imc >= 25 %}
-                                    <span class="badge-custom badge-warning">Sobrepeso</span>
-                                {% else %}
-                                    <span class="badge-custom badge-success">Normal</span>
-                                {% endif %}
+                            {% if ficha.imc >= 30 %}
+                            <span class="badge-custom badge-danger">Obesidad</span>
+                            {% elif ficha.imc >= 25 %}
+                            <span class="badge-custom badge-warning">Sobrepeso</span>
+                            {% else %}
+                            <span class="badge-custom badge-success">Normal</span>
+                            {% endif %}
                             {% endif %}
                         </div>
                     </div>
@@ -923,10 +989,11 @@
                     {% else %}
                     <div class="info-item warning">
                         <div class="info-label">Acompañante</div>
-                        <div class="info-value"><span class="badge-custom badge-warning">Sin acompañante registrado</span></div>
+                        <div class="info-value"><span class="badge-custom badge-warning">Sin acompañante
+                                registrado</span></div>
                     </div>
                     {% endif %}
-                    
+
                     {% if ficha.nombre_contacto_emergencia %}
                     <div class="info-item">
                         <div class="info-label">Contacto Emergencia</div>
@@ -953,34 +1020,37 @@
                         <div class="info-label">Tipo de Ingreso</div>
                         <div class="info-value">
                             {% if ficha.tipo_ingreso == 'URGENCIA' %}
-                                <span class="badge-custom badge-danger">🚨 Urgencia</span>
+                            <span class="badge-custom badge-danger">🚨 Urgencia</span>
                             {% elif ficha.tipo_ingreso == 'DERIVACION' %}
-                                <span class="badge-custom badge-warning">🏥 Derivación</span>
+                            <span class="badge-custom badge-warning">🏥 Derivación</span>
                             {% elif ficha.tipo_ingreso == 'PROGRAMADO' %}
-                                <span class="badge-custom badge-success">📅 Programado</span>
+                            <span class="badge-custom badge-success">📅 Programado</span>
                             {% else %}
-                                <span class="badge-custom badge-info">🚶 Sala</span>
+                            <span class="badge-custom badge-info">🚶 Sala</span>
                             {% endif %}
                         </div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">FUM</div>
-                        <div class="info-value">{{ ficha.fecha_ultima_regla|date:"d/m/Y"|default:"No registrada" }}</div>
+                        <div class="info-value">{{ ficha.fecha_ultima_regla|date:"d/m/Y"|default:"No registrada" }}
+                        </div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Edad Gestacional</div>
-                        <div class="info-value">{{ ficha.edad_gestacional_semanas|default:"--" }}+{{ ficha.edad_gestacional_dias|default:"0" }} semanas</div>
+                        <div class="info-value">{{ ficha.edad_gestacional_semanas|default:"--" }}+{{
+                            ficha.edad_gestacional_dias|default:"0" }} semanas</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">FPP</div>
-                        <div class="info-value">{{ ficha.fecha_probable_parto|date:"d/m/Y"|default:"No calculada" }}</div>
+                        <div class="info-value">{{ ficha.fecha_probable_parto|date:"d/m/Y"|default:"No calculada" }}
+                        </div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Cantidad de Bebés</div>
                         <div class="info-value">
                             {{ ficha.cantidad_bebes|default:"1" }}
                             {% if ficha.cantidad_bebes > 1 %}
-                                <span class="badge-custom badge-info">Múltiple</span>
+                            <span class="badge-custom badge-info">Múltiple</span>
                             {% endif %}
                         </div>
                     </div>
@@ -988,9 +1058,9 @@
                         <div class="info-label">Control Prenatal</div>
                         <div class="info-value">
                             {% if ficha.control_prenatal %}
-                                <span class="badge-custom badge-success">✅ Sí</span>
+                            <span class="badge-custom badge-success">✅ Sí</span>
                             {% else %}
-                                <span class="badge-custom badge-warning">❌ No</span>
+                            <span class="badge-custom badge-warning">❌ No</span>
                             {% endif %}
                         </div>
                     </div>
@@ -1002,9 +1072,9 @@
                         <div class="info-label">Plan de Parto</div>
                         <div class="info-value">
                             {% if ficha.plan_de_parto %}
-                                <span class="badge-custom badge-success">✅ Sí</span>
+                            <span class="badge-custom badge-success">✅ Sí</span>
                             {% else %}
-                                <span class="badge-custom badge-warning">❌ No</span>
+                            <span class="badge-custom badge-warning">❌ No</span>
                             {% endif %}
                         </div>
                     </div>
@@ -1012,9 +1082,9 @@
                         <div class="info-label">Visita Guiada</div>
                         <div class="info-value">
                             {% if ficha.visita_guiada %}
-                                <span class="badge-custom badge-success">✅ Sí</span>
+                            <span class="badge-custom badge-success">✅ Sí</span>
                             {% else %}
-                                <span class="badge-custom badge-warning">❌ No</span>
+                            <span class="badge-custom badge-warning">❌ No</span>
                             {% endif %}
                         </div>
                     </div>
@@ -1027,6 +1097,7 @@
 
             <!-- Patologías -->
             {% if ficha.preeclampsia_severa or ficha.eclampsia or ficha.sepsis_infeccion_sistemia or ficha.infeccion_ovular or ficha.patologias.exists %}
+
             <div class="section-block">
                 <div class="section-title danger">
                     <i class="bi bi-exclamation-triangle-fill"></i>
@@ -1034,19 +1105,20 @@
                 </div>
                 <div>
                     {% if ficha.preeclampsia_severa %}
-                        <span class="patologia-tag"><i class="bi bi-exclamation-circle"></i> Preeclampsia Severa</span>
+                    <span class="patologia-tag"><i class="bi bi-exclamation-circle"></i> Preeclampsia Severa</span>
                     {% endif %}
                     {% if ficha.eclampsia %}
-                        <span class="patologia-tag"><i class="bi bi-exclamation-circle"></i> Eclampsia</span>
+                    <span class="patologia-tag"><i class="bi bi-exclamation-circle"></i> Eclampsia</span>
                     {% endif %}
                     {% if ficha.sepsis_infeccion_sistemia %}
-                        <span class="patologia-tag"><i class="bi bi-exclamation-circle"></i> Sepsis/Infección Sistémica</span>
+                    <span class="patologia-tag"><i class="bi bi-exclamation-circle"></i> Sepsis/Infección
+                        Sistémica</span>
                     {% endif %}
                     {% if ficha.infeccion_ovular %}
-                        <span class="patologia-tag"><i class="bi bi-exclamation-circle"></i> Infección Ovular</span>
+                    <span class="patologia-tag"><i class="bi bi-exclamation-circle"></i> Infección Ovular</span>
                     {% endif %}
                     {% for patologia in ficha.patologias.all %}
-                        <span class="patologia-tag"><i class="bi bi-bandaid"></i> {{ patologia.nombre }}</span>
+                    <span class="patologia-tag"><i class="bi bi-bandaid"></i> {{ patologia.nombre }}</span>
                     {% endfor %}
                 </div>
                 {% if ficha.otras_patologias %}
@@ -1106,9 +1178,9 @@
                         <div class="info-label">VIH 1 Realizado</div>
                         <div class="info-value">
                             {% if ficha.vih_1_realizado %}
-                                <span class="badge-custom badge-success">✅ Sí</span>
+                            <span class="badge-custom badge-success">✅ Sí</span>
                             {% else %}
-                                <span class="badge-custom badge-warning">❌ No</span>
+                            <span class="badge-custom badge-warning">❌ No</span>
                             {% endif %}
                         </div>
                     </div>
@@ -1117,7 +1189,8 @@
                         <div class="info-label">Fecha VIH 1</div>
                         <div class="info-value">{{ ficha.vih_1_fecha|date:"d/m/Y"|default:"--" }}</div>
                     </div>
-                    <div class="info-item {% if ficha.vih_1_resultado == 'POSITIVO' %}danger{% else %}success{% endif %}">
+                    <div
+                        class="info-item {% if ficha.vih_1_resultado == 'POSITIVO' %}danger{% else %}success{% endif %}">
                         <div class="info-label">Resultado VIH 1</div>
                         <div class="info-value">{{ ficha.vih_1_resultado|default:"Pendiente" }}</div>
                     </div>
@@ -1126,9 +1199,9 @@
                         <div class="info-label">VIH 2 Realizado</div>
                         <div class="info-value">
                             {% if ficha.vih_2_realizado %}
-                                <span class="badge-custom badge-success">✅ Sí</span>
+                            <span class="badge-custom badge-success">✅ Sí</span>
                             {% else %}
-                                <span class="badge-custom badge-warning">❌ No</span>
+                            <span class="badge-custom badge-warning">❌ No</span>
                             {% endif %}
                         </div>
                     </div>
@@ -1137,12 +1210,424 @@
                         <div class="info-label">Fecha VIH 2</div>
                         <div class="info-value">{{ ficha.vih_2_fecha|date:"d/m/Y"|default:"--" }}</div>
                     </div>
-                    <div class="info-item {% if ficha.vih_2_resultado == 'POSITIVO' %}danger{% else %}success{% endif %}">
+                    <div
+                        class="info-item {% if ficha.vih_2_resultado == 'POSITIVO' %}danger{% else %}success{% endif %}">
                         <div class="info-label">Resultado VIH 2</div>
                         <div class="info-value">{{ ficha.vih_2_resultado|default:"Pendiente" }}</div>
                     </div>
                     {% endif %}
                 </div>
+            </div>
+        </div>
+
+
+        <!-- ==================== TAB: CONTROLES PREVIOS ==================== -->
+        <div class="tab-pane fade" id="panel-controles-previos" role="tabpanel">
+            <div class="section-block">
+                <div class="section-title">
+                    <i class="bi bi-clipboard-data"></i>
+                    Controles Previos (Historial Legacy)
+                </div>
+
+                {% if controles_previos %}
+                <div style="margin-bottom: 1.5rem;">
+                    <span class="badge-custom badge-info">
+                        <i class="bi bi-info-circle"></i>
+                        Se encontraron {{ controles_previos.count }} controles previos
+                    </span>
+                </div>
+
+                {% for control in controles_previos %}
+                <div class="control-previo-card"
+                    style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid #dee2e6; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+
+                    <!-- HEADER DEL CONTROL -->
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 3px solid #f093fb;">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 0.5rem 0; color: #f093fb; font-weight: 700; font-size: 1.3rem;">
+                                <i class="bi bi-calendar-event"></i>
+                                Control #{{ control.numero_control|default:forloop.counter }} - {{ control.tipo_control|default:"PRENATAL" }}
+
+                            </h4>
+                            <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                                <div>
+                                    <small style="color: #666; font-weight: 600;"><i class="bi bi-calendar3"></i>
+                                        Fecha:</small>
+                                    <strong style="color: #333; margin-left: 0.3rem;">{{ control.fecha_control|date:"d/m/Y" }}</strong>
+                                </div>
+                                {% if control.profesional_nombre %}
+                                <div>
+                                    <small style="color: #666; font-weight: 600;"><i class="bi bi-person-badge"></i>
+                                        Profesional:</small>
+                                    <strong style="color: #333; margin-left: 0.3rem;">{{ control.profesional_nombre }}
+                                        ({{ control.profesional_tipo|default:"" }})</strong>
+                                </div>
+                                {% endif %}
+                                {% if control.consultorio_origen %}
+                                <div>
+                                    <small style="color: #666; font-weight: 600;"><i class="bi bi-hospital"></i>
+                                        Consultorio:</small>
+                                    <strong style="color: #333; margin-left: 0.3rem;">{{ control.consultorio_origen }}</strong>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+                            {% if control.semanas_gestacion %}
+                            <div
+                                style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 0.7rem 1.2rem; border-radius: 25px; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);">
+                                <i class="bi bi-calendar-heart"></i> {{ control.semanas_gestacion }}{% if control.dias_gestacion %}+{{ control.dias_gestacion }}{% endif %} sem
+                            </div>
+                            {% endif %}
+                            {% if control.nivel_riesgo %}
+                            <div
+                                style="background: {% if control.nivel_riesgo == 'ALTO' %}#dc3545{% elif control.nivel_riesgo == 'MEDIO' %}#ffc107{% else %}#28a745{% endif %}; color: white; padding: 0.4rem 0.9rem; border-radius: 15px; font-weight: 600; font-size: 0.9rem;">
+                                Riesgo: {{ control.nivel_riesgo }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN: DATOS CRÍTICOS PARA PARTO -->
+                    {% if control.cesareas_previas or control.paridad_formato or control.vih_resultado or control.vdrl_resultado or control.sgb_resultado or control.diabetes_gestacional or control.hipertension_arterial or control.preeclampsia_leve or control.preeclampsia_severa %}
+
+                    <div
+                        style="background: linear-gradient(135deg, #fff5f5 0%, #ffe0e6 100%); border: 3px solid #ff416c; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <h5 style="color: #ff416c; margin: 0 0 1rem 0; font-weight: 700;">
+                            <i class="bi bi-exclamation-triangle-fill"></i> DATOS CRÍTICOS PARA PARTO
+                        </h5>
+                        <div class="info-grid">
+                            <!-- Historia Obstétrica -->
+                            {% if control.paridad_formato %}
+                            <div class="info-item" style="border-left-color: #ff416c; background: white;">
+                                <div class="info-label"><i class="bi bi-file-medical"></i> PARIDAD</div>
+                                <div class="info-value" style="font-size: 1.2rem; color: #ff416c; font-weight: 700;">
+                                    {{ control.paridad_formato }}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if control.cesareas_previas %}
+                            <div class="info-item danger">
+                                <div class="info-label"><i class="bi bi-scissors"></i> CESÁREAS PREVIAS</div>
+                                <div class="info-value">
+                                    {{ control.cesareas_previas }}
+                                    <span class="badge-custom badge-danger">UTPP</span>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if control.partos_vaginales_previos %}
+                            <div class="info-item success">
+                                <div class="info-label"><i class="bi bi-check-circle"></i> PARTOS VAGINALES</div>
+                                <div class="info-value">{{ control.partos_vaginales_previos }}</div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Exámenes Infecciosos - SIEMPRE VISIBLE -->
+                            <div
+                                class="info-item {% if control.vih_resultado == 'POSITIVO' %}danger{% elif control.vih_resultado %}success{% else %}warning{% endif %}">
+                                <div class="info-label"><i class="bi bi-shield-check"></i> VIH {% if control.vih_orden %}({{ control.vih_orden }}º){% endif %}</div>
+                                <div class="info-value">
+                                    {% if control.vih_resultado %}
+                                    {{ control.vih_resultado }}
+                                    {% if control.vih_fecha_toma %}<br><small>{{ control.vih_fecha_toma|date:"d/m/Y" }}</small>{% endif %}
+                                    {% if control.vih_resultado == 'POSITIVO' %}
+                                    <span class="badge-custom badge-danger">Profilaxis ARV</span>
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="badge-custom badge-warning"><i class="bi bi-question-circle"></i> NO
+                                        REALIZADO</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div
+                                class="info-item {% if control.vdrl_resultado == 'REACTIVO' %}danger{% elif control.vdrl_resultado %}success{% else %}warning{% endif %}">
+                                <div class="info-label"><i class="bi bi-droplet-half"></i> VDRL/Sífilis</div>
+                                <div class="info-value">
+                                    {% if control.vdrl_resultado %}
+                                    {{ control.vdrl_resultado }}
+                                    {% if control.vdrl_fecha %}<br><small>{{ control.vdrl_fecha|date:"d/m/Y" }}</small>{% endif %}
+                                    {% if control.vdrl_resultado == 'REACTIVO' %}
+                                    <span class="badge-custom badge-danger">Tratamiento ATB</span>
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="badge-custom badge-warning"><i class="bi bi-question-circle"></i> NO
+                                        REALIZADO</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div
+                                class="info-item {% if control.sgb_resultado == 'POSITIVO' %}warning{% elif control.sgb_resultado %}success{% else %}warning{% endif %}">
+                                <div class="info-label"><i class="bi bi-bacteria"></i> SGB (Estreptococo B)</div>
+                                <div class="info-value">
+                                    {% if control.sgb_resultado %}
+                                    {{ control.sgb_resultado }}
+                                    {% if control.sgb_fecha_cultivo %}<br><small>{{ control.sgb_fecha_cultivo|date:"d/m/Y" }}</small>{% endif %}
+                                    {% if control.sgb_resultado == 'POSITIVO' %}
+                                    <span class="badge-custom badge-warning">Profilaxis ATB Intraparto</span>
+                                    {% endif %}
+                                    {% if control.sgb_profilaxis %}
+                                    <span class="badge-custom badge-success">Profilaxis ya realizada</span>
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="badge-custom badge-warning"><i class="bi bi-question-circle"></i> NO
+                                        REALIZADO</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if control.hepatitis_b_resultado %}
+                            <div
+                                class="info-item {% if control.hepatitis_b_resultado == 'POSITIVO' %}danger{% else %}success{% endif %}">
+                                <div class="info-label"><i class="bi bi-shield-fill-exclamation"></i> Hepatitis B</div>
+                                <div class="info-value">
+                                    {{ control.hepatitis_b_resultado }}
+                                    {% if control.hepatitis_b_fecha %}<br><small>{{ control.hepatitis_b_fecha|date:"d/m/Y" }}</small>{% endif %}
+                                    {% if control.hepatitis_b_resultado == 'POSITIVO' %}
+                                    <span class="badge-custom badge-danger">Inmunoglobulina RN</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Patologías -->
+                            {% if control.diabetes_gestacional %}
+                            <div class="info-item danger">
+                                <div class="info-label"><i class="bi bi-droplet-fill"></i> DIABETES GESTACIONAL</div>
+                                <div class="info-value">
+                                    <span class="badge-custom badge-danger">SÍ - Vigilar glucemia</span>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if control.hipertension_arterial %}
+                            <div class="info-item danger">
+                                <div class="info-label"><i class="bi bi-heart-pulse-fill"></i> HIPERTENSIÓN</div>
+                                <div class="info-value">
+                                    <span class="badge-custom badge-danger">SÍ - Vigilar PA</span>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if control.preeclampsia_leve or control.preeclampsia_severa or control.eclampsia %}
+                            <div class="info-item danger">
+                                <div class="info-label"><i class="bi bi-exclamation-octagon-fill"></i>
+                                    PREECLAMPSIA/ECLAMPSIA</div>
+                                <div class="info-value">
+                                    {% if control.eclampsia %}
+                                    <span class="badge-custom badge-danger">ECLAMPSIA</span>
+                                    {% elif control.preeclampsia_severa %}
+                                    <span class="badge-custom badge-danger">PREECLAMPSIA SEVERA</span>
+                                    {% elif control.preeclampsia_leve %}
+                                    <span class="badge-custom badge-warning">PREECLAMPSIA LEVE</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Resto de las secciones en acordeón -->
+                    <div class="accordion" id="accordion{{ control.id }}" style="margin-top: 1rem;">
+
+                        <!-- EVALUACIÓN FETAL -->
+                        <div class="accordion-item"
+                            style="border: none; margin-bottom: 0.5rem; border-radius: 8px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#fetal{{ control.id }}"
+                                    style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); font-weight: 600;">
+                                    <i class="bi bi-heart-fill me-2"></i> Evaluación Fetal
+                                </button>
+                            </h2>
+                            <div id="fetal{{ control.id }}" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    <div class="info-grid">
+                                        {% if control.fcf_lpm %}
+                                        <div
+                                            class="info-item {% if control.fcf_lpm < 110 or control.fcf_lpm > 160 %}warning{% else %}success{% endif %}">
+                                            <div class="info-label">FCF</div>
+                                            <div class="info-value">{{ control.fcf_lpm }} lpm</div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if control.movimientos_fetales %}
+                                        <div class="info-item success">
+                                            <div class="info-label">Movimientos</div>
+                                            <div class="info-value">{{ control.movimientos_fetales }}</div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if control.presentacion_fetal %}
+                                        <div class="info-item">
+                                            <div class="info-label">Presentación</div>
+                                            <div class="info-value">{{ control.presentacion_fetal }}</div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if control.situacion_fetal %}
+                                        <div class="info-item">
+                                            <div class="info-label">Situación</div>
+                                            <div class="info-value">{{ control.situacion_fetal }}</div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SIGNOS VITALES Y ANTROPOMETRÍA -->
+                        <div class="accordion-item"
+                            style="border: none; margin-bottom: 0.5rem; border-radius: 8px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#vitales{{ control.id }}"
+                                    style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); font-weight: 600;">
+                                    <i class="bi bi-activity me-2"></i> Signos Vitales y Antropometría
+                                </button>
+                            </h2>
+                            <div id="vitales{{ control.id }}" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    <div class="info-grid">
+                                        {% if control.presion_sistolica or control.presion_diastolica %}
+                                        <div
+                                            class="info-item {% if control.presion_sistolica >= 140 or control.presion_diastolica >= 90 %}danger{% elif control.presion_sistolica >= 120 %}warning{% endif %}">
+                                            <div class="info-label">Presión Arterial</div>
+                                            <div class="info-value">{{ control.presion_sistolica }}/{{
+                                                control.presion_diastolica }} mmHg</div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if control.peso_kg %}
+                                        <div class="info-item">
+                                            <div class="info-label">Peso</div>
+                                            <div class="info-value">{{ control.peso_kg }} kg</div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if control.imc %}
+                                        <div class="info-item">
+                                            <div class="info-label">IMC</div>
+                                            <div class="info-value">{{ control.imc }}</div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if control.ganancia_peso_total_kg %}
+                                        <div class="info-item">
+                                            <div class="info-label">Ganancia Peso Total</div>
+                                            <div class="info-value">{{ control.ganancia_peso_total_kg }} kg</div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if control.altura_uterina_cm %}
+                                        <div class="info-item">
+                                            <div class="info-label">Altura Uterina</div>
+                                            <div class="info-value">{{ control.altura_uterina_cm }} cm</div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- EXÁMENES DE LABORATORIO -->
+                        <div class="accordion-item"
+                            style="border: none; margin-bottom: 0.5rem; border-radius: 8px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#lab{{ control.id }}"
+                                    style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); font-weight: 600;">
+                                    <i class="bi bi-eyedropper me-2"></i> Exámenes de Laboratorio
+                                </button>
+                            </h2>
+                            <div id="lab{{ control.id }}" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    <div class="info-grid">
+                                        {% if control.hemoglobina_g_dl %}
+                                        <div
+                                            class="info-item {% if control.hemoglobina_g_dl < 11 %}danger{% elif control.hemoglobina_g_dl < 12 %}warning{% else %}success{% endif %}">
+                                            <div class="info-label">Hemoglobina</div>
+                                            <div class="info-value">
+                                                {{ control.hemoglobina_g_dl }} g/dL
+                                                {% if control.hemoglobina_g_dl < 11 %} <span
+                                                    class="badge-custom badge-danger">Anemia</span>
+                                                    {% endif %}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if control.grupo_sanguineo %}
+                                        <div class="info-item">
+                                            <div class="info-label">Grupo/Rh</div>
+                                            <div class="info-value">{{ control.grupo_sanguineo }}{{
+                                                control.factor_rh|default:"" }}</div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if control.glucosa_mg_dl %}
+                                        <div
+                                            class="info-item {% if control.glucosa_mg_dl >= 126 %}danger{% elif control.glucosa_mg_dl >= 100 %}warning{% endif %}">
+                                            <div class="info-label">Glucosa</div>
+                                            <div class="info-value">{{ control.glucosa_mg_dl }} mg/dL</div>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if control.proteinuria %}
+                                        <div
+                                            class="info-item {% if control.proteinuria != 'NEGATIVO' %}warning{% endif %}">
+                                            <div class="info-label">Proteinuria</div>
+                                            <div class="info-value">{{ control.proteinuria }}</div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OBSERVACIONES E INDICACIONES -->
+                    {% if control.observaciones or control.indicaciones_medicas %}
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #dee2e6;">
+                        {% if control.observaciones %}
+                        <div style="margin-bottom: 1rem;">
+                            <div class="info-label" style="margin-bottom: 0.5rem;"><i class="bi bi-card-text"></i>
+                                OBSERVACIONES:</div>
+                            <div
+                                style="background: white; padding: 1rem; border-radius: 8px; color: #333; border-left: 4px solid #17a2b8;">
+                                {{ control.observaciones }}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if control.indicaciones_medicas %}
+                        <div>
+                            <div class="info-label" style="margin-bottom: 0.5rem;"><i class="bi bi-prescription2"></i>
+                                INDICACIONES MÉDICAS:</div>
+                            <div
+                                style="background: white; padding: 1rem; border-radius: 8px; color: #333; border-left: 4px solid #28a745;">
+                                {{ control.indicaciones_medicas }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                {% else %}
+                <div style="text-align: center; padding: 3rem; background: #f8f9fa; border-radius: 12px;">
+                    <i class="bi bi-inbox" style="font-size: 4rem; color: #dee2e6;"></i>
+                    <h4 style="margin-top: 1rem; color: #6c757d;">No se encontraron controles previos</h4>
+                    <p style="color: #6c757d;">No hay registros de controles previos en el sistema legacy para esta
+                        paciente.</p>
+                </div>
+                {% endif %}
             </div>
         </div>
 
@@ -1153,9 +1638,10 @@
                     <i class="bi bi-bullseye"></i>
                     Estado de Dilatación
                 </div>
-                
+
                 <div class="info-grid mb-4">
-                    <div class="info-item {% if ficha.valor_dilatacion_actual >= 8 %}success{% elif ficha.valor_dilatacion_actual >= 4 %}warning{% endif %}">
+                    <div
+                        class="info-item {% if ficha.valor_dilatacion_actual >= 8 %}success{% elif ficha.valor_dilatacion_actual >= 4 %}warning{% endif %}">
                         <div class="info-label">Dilatación Actual</div>
                         <div class="info-value" style="font-size: 1.5rem;">{{ ficha.valor_dilatacion_actual|default:"0"|floatformat:"-1" }} cm</div>
                     </div>
@@ -1163,15 +1649,15 @@
                         <div class="info-label">Estado</div>
                         <div class="info-value">
                             {% if ficha.estado_dilatacion == 'SIN_REGISTRO' %}
-                                <span class="badge-custom badge-warning">⏳ Sin registro</span>
+                            <span class="badge-custom badge-warning">⏳ Sin registro</span>
                             {% elif ficha.estado_dilatacion == 'PROGRESANDO' %}
-                                <span class="badge-custom badge-info">📈 Progresando</span>
+                            <span class="badge-custom badge-info">📈 Progresando</span>
                             {% elif ficha.estado_dilatacion == 'ESTANCADA' %}
-                                <span class="badge-custom badge-danger">⚠️ Estancada</span>
+                            <span class="badge-custom badge-danger">⚠️ Estancada</span>
                             {% elif ficha.estado_dilatacion == 'LISTA' %}
-                                <span class="badge-custom badge-success">✅ Lista</span>
+                            <span class="badge-custom badge-success">✅ Lista</span>
                             {% else %}
-                                <span class="badge-custom badge-warning">{{ ficha.estado_dilatacion }}</span>
+                            <span class="badge-custom badge-warning">{{ ficha.estado_dilatacion }}</span>
                             {% endif %}
                         </div>
                     </div>
@@ -1179,9 +1665,9 @@
                         <div class="info-label">Proceso de Parto</div>
                         <div class="info-value">
                             {% if ficha.proceso_parto_iniciado %}
-                                <span class="badge-custom badge-success">✅ Iniciado</span>
+                            <span class="badge-custom badge-success">✅ Iniciado</span>
                             {% else %}
-                                <span class="badge-custom badge-warning">⏳ No iniciado</span>
+                            <span class="badge-custom badge-warning">⏳ No iniciado</span>
                             {% endif %}
                         </div>
                     </div>
@@ -1220,32 +1706,104 @@
                 {% endif %}
             </div>
         </div>
-
         <!-- ==================== TAB 6: MEDICAMENTOS ==================== -->
         <div class="tab-pane fade" id="panel-medicamentos" role="tabpanel">
             <div class="section-block">
-                <div class="section-title info">
-                    <i class="bi bi-capsule-pill"></i>
-                    Medicamentos Asignados
-                </div>
-                
-                {% if medicamentos %}
-                {% for med in medicamentos %}
-                <div class="medicamento-item">
-                    <div class="medicamento-info">
-                        <h5>{{ med.nombre_display }}</h5>
-                        <small>{{ med.via_administracion }} - {{ med.frecuencia }}</small>
+                <div class="section-title" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <i class="bi bi-capsule-pill"></i>
+                        Medicamentos Asignados
                     </div>
-                    <span class="medicamento-dosis">{{ med.dosis }}</span>
+                    <a href="{% url 'matrona:agregar_medicamento' ficha.pk %}" 
+                       class="btn" 
+                       style="background: white; color: #f5576c; padding: 0.6rem 1.5rem; border-radius: 25px; font-weight: 600; text-decoration: none; font-size: 0.9rem;">
+                        <i class="bi bi-plus-circle"></i> Agregar Medicamento
+                    </a>
                 </div>
-                {% endfor %}
+
+                {% if medicamentos %}
+                    <!-- Medicamentos Activos -->
+                    <div style="margin-bottom: 2rem;">
+                        <h5 style="color: #f5576c; margin: 1.5rem 0 1rem; font-weight: 700;">
+                            <i class="bi bi-check-circle-fill me-2"></i>Medicamentos ({{ medicamentos.count }})
+                        </h5>
+                        
+                        {% for med in medicamentos %}
+                        <div class="medicamento-item" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid {% if med.activo %}#28a745{% else %}#6c757d{% endif %}; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; position: relative;">
+                            <!-- Badge de estado -->
+                            <div style="position: absolute; top: 1rem; right: 1rem;">
+                                {% if med.activo %}
+                                    <span class="badge-custom badge-success" style="font-size: 0.8rem;">
+                                        <i class="bi bi-check-circle"></i> Activo
+                                    </span>
+                                {% else %}
+                                    <span class="badge-custom" style="background: #6c757d; color: white; font-size: 0.8rem;">
+                                        <i class="bi bi-x-circle"></i> Finalizado
+                                    </span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="medicamento-info">
+                                <h5 style="color: #333; margin: 0 0 0.5rem 0; font-weight: 700; font-size: 1.3rem;">
+                                    <i class="bi bi-capsule-pill" style="color: #f5576c;"></i> {{ med.nombre_display }}
+                                </h5>
+                                
+                                <!-- Grid de informacion -->
+                                <div class="info-grid" style="margin-top: 1rem;">
+                                    <div class="info-item">
+                                        <div class="info-label"><i class="bi bi-prescription2"></i> Dosis</div>
+                                        <div class="info-value medicamento-dosis" style="color: #f5576c; font-weight: 700; font-size: 1.2rem;">{{ med.dosis }}</div>
+                                    </div>
+                                    
+                                    <div class="info-item">
+                                        <div class="info-label"><i class="bi bi-arrow-repeat"></i> Frecuencia</div>
+                                        <div class="info-value">{{ med.frecuencia }}</div>
+                                    </div>
+                                    
+                                    <div class="info-item">
+                                        <div class="info-label"><i class="bi bi-eyedropper"></i> Via</div>
+                                        <div class="info-value">{{ med.via_administracion }}</div>
+                                    </div>
+                                    
+                                    <div class="info-item">
+                                        <div class="info-label"><i class="bi bi-calendar-check"></i> Inicio</div>
+                                        <div class="info-value">{{ med.fecha_inicio|date:"d/m/Y" }}</div>
+                                    </div>
+                                    
+                                    {% if med.fecha_termino %}
+                                    <div class="info-item">
+                                        <div class="info-label"><i class="bi bi-calendar-x"></i> Termino</div>
+                                        <div class="info-value">{{ med.fecha_termino|date:"d/m/Y" }}</div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if med.indicaciones %}
+                                <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid #f5576c;">
+                                    <div class="info-label" style="margin-bottom: 0.5rem;"><i class="bi bi-card-text"></i> INDICACIONES:</div>
+                                    <div style="color: #333;">{{ med.indicaciones }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 {% else %}
-                <div class="text-center text-muted py-4">
-                    <i class="bi bi-capsule" style="font-size: 3rem;"></i>
-                    <p class="mt-2">No hay medicamentos asignados</p>
-                </div>
+                    <!-- Estado vacio -->
+                    <div style="text-align: center; padding: 4rem 2rem; background: #f8f9fa; border-radius: 12px; margin-top: 1.5rem;">
+                        <i class="bi bi-capsule" style="font-size: 5rem; color: #dee2e6;"></i>
+                        <h4 style="margin: 1.5rem 0 0.5rem; color: #6c757d;">No hay medicamentos asignados</h4>
+                        <p style="color: #adb5bd; margin-bottom: 1.5rem;">Asigna medicamentos para el tratamiento de la paciente</p>
+                        <a href="{% url 'matrona:agregar_medicamento' ficha.pk %}" 
+                           class="btn" 
+                           style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 0.75rem 2rem; border-radius: 25px; font-weight: 600; text-decoration: none; display: inline-block;">
+                            <i class="bi bi-plus-circle"></i> Agregar Primer Medicamento
+                        </a>
+                    </div>
                 {% endif %}
             </div>
+        </div>
+
         </div>
 
         <!-- ==================== TAB 7: BEBÉS ==================== -->
@@ -1255,18 +1813,19 @@
                     <i class="bi bi-emoji-smile-fill"></i>
                     Bebés Esperados
                 </div>
-                
+
                 <div class="info-grid">
                     <div class="info-item" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
-                        <div style="font-size: 4rem; color: #11998e; margin-bottom: 1rem;">
+                        <div style="font-size: 4rem; color: #f093fb; margin-bottom: 1rem;">
                             <i class="bi bi-people-fill"></i>
                         </div>
-                        <div class="info-label" style="font-size: 1.2rem; margin-bottom: 0.5rem;">Cantidad de Bebés Esperados</div>
-                        <div class="info-value" style="font-size: 3rem; font-weight: 700; color: #11998e;">
+                        <div class="info-label" style="font-size: 1.2rem; margin-bottom: 0.5rem;">Cantidad de Bebés
+                            Esperados</div>
+                        <div class="info-value" style="font-size: 3rem; font-weight: 700; color: #f093fb;">
                             {{ ficha.cantidad_bebes|default:"1" }}
                         </div>
                         <p class="text-muted mt-3">
-                            <i class="bi bi-info-circle"></i> 
+                            <i class="bi bi-info-circle"></i>
                             Los datos detallados de cada bebé se registrarán después del parto
                         </p>
                     </div>
@@ -1296,10 +1855,10 @@
         <div class="modal-icon">
             <i class="bi bi-heart-pulse-fill"></i>
         </div>
-        
+
         <div class="modal-title">¿Iniciar Proceso de Parto?</div>
         <div class="modal-subtitle">Esta acción lo llevará a la sala de espera de parto</div>
-        
+
         <div class="modal-paciente">
             <strong>{{ ficha.paciente.persona.Nombre }} {{ ficha.paciente.persona.Apellido_Paterno }}</strong><br>
             <small>RUT: {{ ficha.paciente.persona.Rut }}</small>
@@ -1338,7 +1897,8 @@
                     <i class="bi bi-door-open-fill"></i> INGRESAR A SALA DE PARTO
                 </button>
             </form>
-            <button type="button" class="btn-cancelar" style="width: 100%; margin-top: 0.5rem;" onclick="cerrarModalParto()">
+            <button type="button" class="btn-cancelar" style="width: 100%; margin-top: 0.5rem;"
+                onclick="cerrarModalParto()">
                 Cancelar
             </button>
         </div>
@@ -1381,7 +1941,7 @@
         document.getElementById('countdownContainer').classList.add('active');
         document.getElementById('notificacionInfo').style.display = 'block';
 
-        contadorInterval = setInterval(function() {
+        contadorInterval = setInterval(function () {
             segundosRestantes--;
             document.getElementById('countdownNumber').textContent = segundosRestantes;
 
@@ -1400,11 +1960,11 @@
         document.getElementById('botonFinal').style.display = 'block';
     }
 
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') cerrarModalParto();
     });
 
-    document.getElementById('modalParto').addEventListener('click', function(e) {
+    document.getElementById('modalParto').addEventListener('click', function (e) {
         if (e.target === this) cerrarModalParto();
     });
 </script>
@@ -1413,19 +1973,19 @@
     // ==========================================
     // LOGICA DE REGISTRO DE DILATACION
     // ==========================================
-    
+
     function mostrarModalDilatacion() {
         const modal = document.getElementById('modalDilatacion');
         if (modal) {
             modal.style.display = 'flex';
-            
+
             // Set current date and time
             const now = new Date();
             const dateInput = document.getElementById('id_dilatacion_fecha');
             if (dateInput) {
                 dateInput.valueAsDate = now;
             }
-            
+
             // Format time for input type="time"
             const timeInput = document.getElementById('id_dilatacion_hora');
             if (timeInput) {
@@ -1433,7 +1993,7 @@
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 timeInput.value = hours + ':' + minutes;
             }
-            
+
             // Focus on first input
             setTimeout(() => {
                 const firstInput = document.getElementById('id_dilatacion_cm');
@@ -1450,7 +2010,7 @@
     }
 
     // Close modal on Escape
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') cerrarModalDilatacion();
     });
 
@@ -1471,18 +2031,18 @@
     }
 
     // Validacion y Envio AJAX
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const formDilatacion = document.getElementById('formDilatacion');
-        
+
         if (formDilatacion) {
-            formDilatacion.addEventListener('submit', function(e) {
+            formDilatacion.addEventListener('submit', function (e) {
                 e.preventDefault();
                 console.log('Interceptando envío de formulario...');
 
                 const formData = new FormData(this);
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const originalText = submitBtn.innerHTML;
-                
+
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Guardando...';
 
@@ -1498,30 +2058,29 @@
                         'X-CSRFToken': csrftoken
                     }
                 })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text || response.statusText) });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.status === 'success') {
-                    submitBtn.classList.remove('btn-primary');
-                    submitBtn.classList.add('btn-success');
-                    submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> ¡Guardado!';
-                    setTimeout(() => location.reload(), 500);
-                } else {
-                    throw new Error(data.message || 'Error desconocido del servidor');
-                }
-            })
-            .catch(error => {
-                console.error('Error AJAX:', error);
-                alert('Hubo un problema al guardar: ' + error.message);
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => { throw new Error(text || response.statusText) });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === 'success') {
+                            submitBtn.classList.remove('btn-primary');
+                            submitBtn.classList.add('btn-success');
+                            submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> ¡Guardado!';
+                            setTimeout(() => location.reload(), 500);
+                        } else {
+                            throw new Error(data.message || 'Error desconocido del servidor');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error AJAX:', error);
+                        alert('Hubo un problema al guardar: ' + error.message);
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    });
             });
-            });
-        });
     }
     }); // End DOMContentLoaded
 
@@ -1543,9 +2102,9 @@
             document.body.style.overflow = 'auto';
         }
     }
-    
+
     // Cerrar modal al hacer click fuera
-    window.onclick = function(event) {
+    window.onclick = function (event) {
         const modalParto = document.getElementById('modalIniciarParto');
         if (event.target == modalParto) {
             cerrarModalParto();
@@ -1564,42 +2123,39 @@
             </h3>
             <button class="close-btn" type="button" onclick="cerrarModalDilatacion()">&times;</button>
         </div>
-        
+
         <form id="formDilatacion">
             {% csrf_token %}
             <div class="modal-body">
                 <div class="form-group mb-3">
                     <label class="form-label">Dilatacion (cm) <span class="text-danger">*</span></label>
-                    <input type="number" name="valor_dilatacion" id="id_dilatacion_cm" 
-                           class="form-control" step="0.5" min="0" max="10" required
-                           placeholder="Ej: 5.5">
+                    <input type="number" name="valor_dilatacion" id="id_dilatacion_cm" class="form-control" step="0.5"
+                        min="0" max="10" required placeholder="Ej: 5.5">
                     <small class="text-muted">Ingrese valor entre 0 y 10 cm</small>
                 </div>
-                
+
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label class="form-label">Fecha <span class="text-danger">*</span></label>
-                            <input type="date" name="fecha" id="id_dilatacion_fecha" 
-                                   class="form-control" required>
+                            <input type="date" name="fecha" id="id_dilatacion_fecha" class="form-control" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label class="form-label">Hora <span class="text-danger">*</span></label>
-                            <input type="time" name="hora" id="id_dilatacion_hora" 
-                                   class="form-control" required>
+                            <input type="time" name="hora" id="id_dilatacion_hora" class="form-control" required>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="form-group mb-3">
                     <label class="form-label">Observaciones</label>
-                    <textarea name="observacion" class="form-control" rows="3" 
-                              placeholder="Opcional: detalles adicionales..."></textarea>
+                    <textarea name="observacion" class="form-control" rows="3"
+                        placeholder="Opcional: detalles adicionales..."></textarea>
                 </div>
             </div>
-            
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="cerrarModalDilatacion()">Cancelar</button>
                 <button type="submit" class="btn btn-primary">
@@ -1613,12 +2169,16 @@
 
 {% block modal_parto %}
 <!-- Modal Iniciar Parto -->
-<div id="modalIniciarParto" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1050; background: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
-    <div class="modal-dialog" style="background: white; border-radius: 8px; max-width: 500px; width: 90%; margin: 10% auto; padding: 0;">
+<div id="modalIniciarParto" class="modal-overlay"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1050; background: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
+    <div class="modal-dialog"
+        style="background: white; border-radius: 8px; max-width: 500px; width: 90%; margin: 10% auto; padding: 0;">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white p-3" style="border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center;">
+            <div class="modal-header bg-primary text-white p-3"
+                style="border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center;">
                 <h5 class="modal-title m-0"><i class="bi bi-heart-pulse-fill me-2"></i>Iniciar Proceso de Parto</h5>
-                <button type="button" class="btn-close btn-close-white" onclick="cerrarModalParto()" style="background: transparent; border: none; color: white; font-size: 1.5rem;">&times;</button>
+                <button type="button" class="btn-close btn-close-white" onclick="cerrarModalParto()"
+                    style="background: transparent; border: none; color: white; font-size: 1.5rem;">&times;</button>
             </div>
             <form action="{% url 'matrona:iniciar_parto' ficha.id %}" method="POST">
                 {% csrf_token %}
@@ -1626,8 +2186,9 @@
                     <div class="text-center mb-4">
                         <i class="bi bi-exclamation-circle text-warning" style="font-size: 3rem;"></i>
                     </div>
-                    <p class="text-center mb-4">¿Está seguro que desea iniciar el proceso de parto para la paciente <strong>{{ paciente.persona.get_nombre_completo }}</strong>?</p>
-                    
+                    <p class="text-center mb-4">¿Está seguro que desea iniciar el proceso de parto para la paciente
+                        <strong>{{ paciente.persona.get_nombre_completo }}</strong>?</p>
+
                     <div class="alert alert-info">
                         <strong>Condición Actual:</strong> {{ razon_parto }}<br>
                         <strong>Tipo Sugerido:</strong> {{ tipo_parto_sugerido }}
@@ -1636,13 +2197,16 @@
                     <div class="mb-3">
                         <label class="form-label">Confirmar Tipo de Parto:</label>
                         <select name="tipo_parto" class="form-control">
-                            <option value="VAGINAL" {% if tipo_parto_sugerido == 'VAGINAL' %}selected{% endif %}>Parto Vaginal</option>
-                            <option value="CESAREA" {% if tipo_parto_sugerido == 'CESAREA' %}selected{% endif %}>Cesárea</option>
+                            <option value="VAGINAL" {% if tipo_parto_sugerido == 'VAGINAL' %}selected{% endif %}>Parto
+                                Vaginal</option>
+                            <option value="CESAREA" {% if tipo_parto_sugerido == 'CESAREA' %}selected{% endif %}>Cesárea
+                            </option>
                             <option value="URGENTE">Cesárea de Urgencia</option>
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer p-3 bg-light" style="border-radius: 0 0 8px 8px; display: flex; justify-content: flex-end; gap: 10px;">
+                <div class="modal-footer p-3 bg-light"
+                    style="border-radius: 0 0 8px 8px; display: flex; justify-content: flex-end; gap: 10px;">
                     <button type="button" class="btn btn-secondary" onclick="cerrarModalParto()">Cancelar</button>
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-play-circle-fill me-2"></i>Sí, Iniciar Proceso

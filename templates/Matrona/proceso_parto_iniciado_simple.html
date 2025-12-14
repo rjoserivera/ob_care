@@ -12,7 +12,7 @@
     }
     
     .header-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #f5576c 0%, #f5576c 100%);
         color: white;
         padding: 2rem;
         border-radius: 12px;
@@ -37,7 +37,7 @@
     .stat-number {
         font-size: 2.5rem;
         font-weight: bold;
-        color: #667eea;
+        color: #f5576c;
     }
     
     .stat-label {
@@ -55,7 +55,7 @@
     }
     
     .invite-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #f5576c 0%, #f5576c 100%);
         color: white;
         border: none;
         padding: 1rem 2rem;
@@ -68,7 +68,7 @@
     
     .invite-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
     }
     
     .invite-btn:disabled {
@@ -128,7 +128,7 @@
     
     .progress-icon {
         font-size: 4rem;
-        color: #667eea;
+        color: #f5576c;
         margin-bottom: 1rem;
         animation: spin 2s linear infinite;
     }
@@ -172,11 +172,11 @@
         background: white;
     }
     .sala-card:hover:not(:disabled) {
-        border-color: #667eea;
+        border-color: #f5576c;
         transform: translateY(-2px);
     }
     .sala-card.selected {
-        border-color: #667eea;
+        border-color: #f5576c;
         background: #eef2ff;
         box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
     }
@@ -274,7 +274,7 @@
         {% for asignacion in asignados_aceptados %}
         <div class="team-member">
             <div class="badge rounded-pill me-3" style="min-width: 100px; padding: 0.6rem; font-size: 0.85rem; background: 
-                {% if asignacion.personal.rol == 'MEDICO' %}#4facfe
+                {% if asignacion.personal.rol == 'MEDICO' %}#f093fb
                 {% elif asignacion.personal.rol == 'MATRONA' %}#ff5858
                 {% else %}#43e97b{% endif %};">
                 {{ asignacion.personal.get_rol_display|upper }}
@@ -372,7 +372,7 @@
 <div id="pinModal" class="progress-modal">
     <div class="progress-content">
         <div class="progress-icon" style="animation: none;">
-            <i class="bi bi-shield-lock-fill" style="color: #667eea;"></i>
+            <i class="bi bi-shield-lock-fill" style="color: #f5576c;"></i>
         </div>
         <div class="progress-title">Seguridad</div>
         <div class="progress-message">Ingrese el PIN de autorización enviado al Médico Jefe:</div>
