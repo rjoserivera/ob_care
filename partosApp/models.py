@@ -7,6 +7,7 @@ CORREGIDO: Esterilización agregada + Nombre de clase sin espacio
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
+from .catalogos_nuevos import *
 
 
 # ============================================
@@ -264,6 +265,64 @@ class RegistroParto(models.Model):
     ofrecimiento_posiciones_alternativas = models.BooleanField(
         default=False,
         verbose_name='¿Se ofrecieron Posiciones Alternativas?'
+    )
+
+    # NUEVOS CAMPOS - MANEJO DEL TRABAJO DE PARTO
+    induccion = models.BooleanField(
+        default=False,
+        verbose_name='Inducción'
+    )
+    
+    aceleracion = models.BooleanField(
+        default=False,
+        verbose_name='Aceleración / Conducción'
+    )
+    
+    libertad_movimiento = models.BooleanField(
+        default=False,
+        verbose_name='Libertad de Movimiento en Trabajo de Parto'
+    )
+    
+    monitor_continuo = models.BooleanField(
+        default=False,
+        verbose_name='Monitor Continuo'
+    )
+    
+    # Régimen
+    regimen_parto = models.ForeignKey(
+        'partosApp.CatalogoRegimenParto',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name='Tipo de Régimen en Trabajo de Parto'
+    )
+    
+    # Rotura Membranas (Detallada)
+    tipo_rotura_membrana = models.ForeignKey(
+        'partosApp.CatalogoTipoRoturaMembrana',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name='Tipo Rotura de Membrana'
+    )
+    
+    # Tiempos Totales (En minutos)
+    tiempo_dilatacion_minutos = models.PositiveIntegerField(
+        null=True, 
+        blank=True,
+        verbose_name='Tiempo Dilatación (minutos)'
+    )
+    
+    tiempo_expulsivo_minutos = models.PositiveIntegerField(
+        null=True, 
+        blank=True,
+        verbose_name='Tiempo Expulsivo (minutos)'
+    )
+    
+    tiempo_trabajo_parto_total_minutos = models.PositiveIntegerField(
+        null=True, 
+        blank=True,
+        verbose_name='Tiempo Total Trabajo de Parto (minutos)'
     )
     
     # ============================================

@@ -70,50 +70,25 @@
 
     /* TAF Tabs - High Contrast Fix */
     .taf-tabs .nav-link {
-        color: #212529; /* Black Text */
+        color: white; /* White Text */
         font-weight: 700;
         padding: 1rem 1.5rem;
-        background: #e9ecef; /* Darker Gray Background for Inactive */
+        background: #dc3545; /* RED for Inactive */
         margin-right: 5px;
-        border: 1px solid #ced4da; /* Visible Border */
+        border: 1px solid #dc3545;
         border-bottom: none;
         border-radius: 8px 8px 0 0;
+        opacity: 0.8;
+    }
+    .taf-tabs .nav-link:hover {
+        opacity: 1;
+        background: #bb2d3b;
     }
     .taf-tabs .nav-link.active {
         color: white;
         background: #0d6efd; /* Active Blue */
         border-color: #0d6efd;
-    }
-    .taf-content {
-        background: white;
-        border: 3px solid #0d6efd; /* Thicker Border */
-        border-radius: 0 8px 8px 8px;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-        padding: 2.5rem;
-    }
-    
-    /* Input Visibility */
-    .form-control, .form-select {
-        border: 1px solid #adb5bd !important; /* Darker Border for Inputs */
-        background-color: #fcfcfc;
-        color: #000;
-        font-weight: 500;
-    }
-    .form-control:focus, .form-select:focus {
-        border-color: #0d6efd !important;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        background-color: #fff;
-    }
-
-    /* Strong Labels for Blind Visibility */
-    .form-label {
-        color: #000 !important; /* Pure Black */
-        font-weight: 800 !important;
-        font-size: 1rem;
-    }
-    .form-check-label {
-        color: #212529 !important;
-        font-weight: 700;
+        opacity: 1;
     }
     
     .section-title {
@@ -140,11 +115,7 @@
     }
     h6 { color: #0d6efd; font-weight: 800 !important; margin-bottom: 1rem; }
     
-    .alert-light {
-        background: #fff3cd; /* Warning Yellow tint for context */
-        border: 1px solid #ffecb5;
-        color: #664d03;
-    }
+    /* Removed Yellow Alert Style */
 </style>
 {% endblock %}
 
@@ -189,15 +160,19 @@
         </div>
     </div>
 
+    <!-- FORMULARIO PRINCIPAL -->
+    <form id="partoForm" method="POST" action="{% url 'matrona:guardar_registro_parto' ficha_parto.id %}">
+        {% csrf_token %}
+
     <!-- 4. TAF - PESTAÑAS DE ATENCIÓN FUNCIONAL -->
     <div class="taf-header-box">
         <ul class="nav nav-tabs taf-tabs" id="tafTabs" role="tablist">
-            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#taf1">TAF 1 - Ingreso</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#taf2">TAF 2 - Proceso</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#taf3">TAF 3 - Acompañamiento</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#taf4">TAF 4 - Analgesia</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#taf5">TAF 5 - Periné</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#taf6">TAF 6 - Equipo</button></li>
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#taf1" type="button">Ingreso</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#taf2" type="button">Proceso</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#taf3" type="button">Acompañamiento</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#taf4" type="button">Analgesia</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#taf5" type="button">Periné</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#taf6" type="button">Equipo</button></li>
         </ul>
     </div>
     
@@ -219,11 +194,7 @@
                     <label class="form-label">Diagnóstico de Ingreso</label>
                     <textarea class="form-control" rows="1" readonly>{{ ficha_parto.ficha_obstetrica.diagnostico_ingreso|default:"Sin diagnóstico registrado" }}</textarea>
                 </div>
-                <div class="col-12">
-                    <div class="alert alert-light border">
-                        <strong>Continuidad de la atención:</strong> Paciente proveniente de {{ ficha_parto.ficha_obstetrica.procedencia|default:"Urgencia Maternidad" }}.
-                    </div>
-                </div>
+                <!-- Alert Removed -->
             </div>
         </div>
 
@@ -235,21 +206,27 @@
                     <label class="form-label">Clasificación Clínica</label>
                     <select class="form-select" name="tipo_parto">
                         <option value="">Seleccione...</option>
-                        {% for t in tipos_parto %}<option value="{{t.id}}">{{t.descripcion}}</option>{% endfor %}
+                        {% for t in tipos_parto %}
+                        <option value="{{t.id}}" {% if registro_parto.tipo_parto_id == t.id %}selected{% endif %}>{{t.descripcion}}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Clasificación Robson</label>
-                    <select class="form-select" name="robson">
+                    <select class="form-select" name="clasificacion_robson"> <!-- Name fixed -->
                          <option value="">Seleccione...</option>
-                        {% for r in robsons %}<option value="{{r.id}}">Grupo {{ r.numero_grupo }} - {{r.descripcion}}</option>{% endfor %}
+                        {% for r in robsons %}
+                        <option value="{{r.id}}" {% if registro_parto.clasificacion_robson_id == r.id %}selected{% endif %}>Grupo {{ r.numero_grupo }} - {{r.descripcion}}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Posición Materna</label>
-                    <select class="form-select" name="posicion">
+                    <select class="form-select" name="posicion_parto"> <!-- Name fixed -->
                          <option value="">Seleccione...</option>
-                        {% for p in posiciones %}<option value="{{p.id}}">{{p.descripcion}}</option>{% endfor %}
+                        {% for p in posiciones %}
+                        <option value="{{p.id}}" {% if registro_parto.posicion_parto_id == p.id %}selected{% endif %}>{{p.descripcion}}</option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>
@@ -258,7 +235,7 @@
                 <div class="col-md-6">
                     <label class="form-label d-block mb-2">Posiciones Alternativas</label>
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="checkPosAlt">
+                        <input class="form-check-input" type="checkbox" name="ofrecimiento_posiciones_alternativas" id="checkPosAlt" {% if registro_parto.ofrecimiento_posiciones_alternativas %}checked{% endif %}>
                         <label class="form-check-label" for="checkPosAlt">Se ofrecieron posiciones alternativas durante el trabajo de parto</label>
                     </div>
                 </div>
@@ -270,44 +247,136 @@
                             <label class="form-check-label" for="perPreparto">Preparto</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="perParto" checked>
+                            <input class="form-check-input" type="checkbox" id="perParto" checked disabled>
                             <label class="form-check-label" for="perParto">Parto Vaginal / Cesárea</label>
                         </div>
                         <!-- "Parto con RN" excluido explicita solicitud -->
                     </div>
                 </div>
             </div>
-        </div>
+            
+            <!-- NUEVA SECCION: MANEJO DEL TRABAJO DE PARTO -->
+            <h5 class="section-title mt-4"><i class="bi bi-activity"></i> Manejo y Tiempos</h5>
+            <div class="row g-4 bg-light p-3 rounded border">
+                <!-- COLUMNA 1: PROCESOS -->
+                <div class="col-md-3">
+                    <h6 class="small text-muted text-uppercase fw-bold mb-3">Intervenciones</h6>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="monitor_continuo" id="chkMonitor" {% if registro_parto.monitor_continuo %}checked{% endif %}>
+                        <label class="form-check-label" for="chkMonitor">Monitor Continuo</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="induccion" id="chkInduccion" {% if registro_parto.induccion %}checked{% endif %}>
+                        <label class="form-check-label" for="chkInduccion">Inducción</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="aceleracion" id="chkAceleracion" {% if registro_parto.aceleracion %}checked{% endif %}>
+                        <label class="form-check-label" for="chkAceleracion">Aceleración (Oxitocina)</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="libertad_movimiento" id="chkLibertad" {% if registro_parto.libertad_movimiento %}checked{% endif %}>
+                        <label class="form-check-label" for="chkLibertad">Libertad de Movimiento</label>
+                    </div>
+                </div>
 
+                <!-- COLUMNA 2: REGIMEN Y MEMBRANAS -->
+                <div class="col-md-4">
+                    <h6 class="small text-muted text-uppercase fw-bold mb-3">Manejo Clínico</h6>
+                    <label class="form-label small">Régimen</label>
+                    <select class="form-select mb-3" name="regimen_parto">
+                        <option value="">Seleccione...</option>
+                        {% for r in regimenes_parto %}
+                        <option value="{{ r.id }}" {% if registro_parto.regimen_parto_id == r.id %}selected{% endif %}>{{ r.descripcion }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label class="form-label small">Rotura de Membranas</label>
+                    <select class="form-select" name="tipo_rotura_membrana">
+                        <option value="">Seleccione...</option>
+                        {% for rm in tipos_rotura %}
+                        <option value="{{ rm.id }}" {% if registro_parto.tipo_rotura_membrana_id == rm.id %}selected{% endif %}>{{ rm.descripcion }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- COLUMNA 3: TIEMPOS TOTALES -->
+                <div class="col-md-5">
+                    <h6 class="small text-muted text-uppercase fw-bold mb-3">Tiempos Totales (Minutos)</h6>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text" style="width: 140px;">Dilatación</span>
+                        <input type="number" class="form-control" name="tiempo_dilatacion_minutos" value="{{ registro_parto.tiempo_dilatacion_minutos|default:'' }}" placeholder="Min">
+                    </div>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text" style="width: 140px;">Expulsivo</span>
+                        <input type="number" class="form-control" name="tiempo_expulsivo_minutos" value="{{ registro_parto.tiempo_expulsivo_minutos|default:'' }}" placeholder="Min">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text" style="width: 140px;">Total Parto</span>
+                        <input type="number" class="form-control" name="tiempo_trabajo_parto_total_minutos" value="{{ registro_parto.tiempo_trabajo_parto_total_minutos|default:'' }}" placeholder="Min">
+                    </div>
+                </div>
+            </div>
+        </div>
+            
         <!-- TAF 3: ACOMPAÑAMIENTO -->
         <div class="tab-pane fade" id="taf3">
             <h5 class="section-title"><i class="bi bi-people"></i> Acompañamiento</h5>
             <div class="row g-4">
                  <div class="col-md-5">
                     <label class="form-label">Nombre Acompañante</label>
-                    <input type="text" class="form-control" name="nombre_acompanante" placeholder="Nombre completo">
+                    <input type="text" class="form-control" name="nombre_acompanante" value="{{ registro_parto.ficha_obstetrica.nombre_acompanante|default:'' }}" placeholder="Nombre completo"> <!-- Bound to FichaObstetrica original? Check backend -->
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Vínculo</label>
-                    <select class="form-select" name="vinculo_acompanante">
+                    <select class="form-select" name="persona_acompanante">
                         <option value="">Seleccione...</option>
-                        {% for p in personas_acompanante %}<option value="{{p.id}}">{{p.descripcion}}</option>{% endfor %}
+                        {% for p in personas_acompanante %}
+                        <option value="{{p.id}}" {% if registro_parto.persona_acompanante_id == p.id %}selected{% endif %}>{{p.descripcion}}</option>
+                        {% endfor %}
                     </select>
                 </div>
                  <div class="col-md-4">
                     <label class="form-label">Motivo NO Acompañado</label>
-                    <select class="form-select" name="motivo_no_acomp">
+                    <select class="form-select" name="motivo_parto_no_acompanado">
                         <option value="">(Si aplica) Seleccione...</option>
-                        {% for m in motivos_no_acompanado %}<option value="{{m.id}}">{{m.descripcion}}</option>{% endfor %}
+                        {% for m in motivos_no_acompanado %}
+                        <option value="{{m.id}}" {% if registro_parto.motivo_parto_no_acompanado_id == m.id %}selected{% endif %}>{{m.descripcion}}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 
-                <div class="col-12 mt-3">
-                    <div class="form-check p-3 border rounded bg-light">
-                        <input class="form-check-input" type="checkbox" name="corta_cordon" id="checkCortaCordon">
-                        <label class="form-check-label fw-bold" for="checkCortaCordon">
-                            Acompañante participa en corte de cordón umbilical
-                        </label>
+                <div class="col-12">
+                    <h6 class="small text-muted fw-bold">Detalles</h6>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="acompanamiento_preparto" id="chkAcompP" {% if registro_parto.acompanamiento_preparto %}checked{% endif %}>
+                        <label class="form-check-label" for="chkAcompP">En Preparto</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="acompanamiento_parto" id="chkAcompPa" {% if registro_parto.acompanamiento_parto %}checked{% endif %}>
+                        <label class="form-check-label" for="chkAcompPa">En Parto</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="acompanamiento_rn" id="chkAcompRN" {% if registro_parto.acompanamiento_rn %}checked{% endif %}>
+                        <label class="form-check-label" for="chkAcompRN">Con Recién Nacido</label>
+                    </div>
+                     <div class="form-check form-check-inline ms-3">
+                        <input class="form-check-input" type="checkbox" name="acompanante_secciona_cordon" id="chkCordon" {% if registro_parto.acompanante_secciona_cordon %}checked{% endif %}>
+                        <label class="form-check-label" for="chkCordon">Acompañante secciona cordón</label>
+                    </div>
+                </div>
+                
+                 <!-- Ley Dominga -->
+                 <div class="col-12 mt-3">
+                    <h5 class="section-title" style="font-size: 1rem;"><i class="bi bi-heart"></i> Ley Dominga</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Recuerdos Entregados</label>
+                            <textarea class="form-control" name="ley_dominga_recuerdos" rows="2">{{ registro_parto.ley_dominga_recuerdos|default:'' }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Justificación (Si no se entregan)</label>
+                            <textarea class="form-control" name="ley_dominga_justificacion" rows="2">{{ registro_parto.ley_dominga_justificacion|default:'' }}</textarea>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -315,60 +384,101 @@
 
         <!-- TAF 4: ANALGESIA -->
         <div class="tab-pane fade" id="taf4">
-             <h5 class="section-title"><i class="bi bi-prescription2"></i> Manejo del Dolor</h5>
-             
-             <div class="row">
-                 <!-- Farmacologico -->
-                 <div class="col-md-6 border-end">
-                     <h6 class="text-secondary fw-bold mb-3">Anestesia / Analgesia Farmacológica</h6>
-                     
-                     <div class="mb-3">
-                         <label class="form-label fw-bold">Peridural</label>
-                         <div class="d-flex flex-column gap-2 ms-2">
-                             <div class="form-check"><input type="checkbox" class="form-check-input" id="peri1"> <label for="peri1">Solicitada por Paciente</label></div>
-                             <div class="form-check"><input type="checkbox" class="form-check-input" id="peri2"> <label for="peri2">Indicada por Médico</label></div>
-                             <div class="form-check"><input type="checkbox" class="form-check-input" id="peri3"> <label for="peri3">Administrada Efectivamente</label></div>
-                         </div>
-                     </div>
-                     
-                     <div class="mb-3">
-                         <label class="form-label fw-bold">Otras</label>
-                         <div class="d-flex flex-column gap-2 ms-2">
-                             <div class="form-check"><input type="checkbox" class="form-check-input" id="anestOtras"> <label for="anestOtras">Neuroaxial (Raquídea/Espinal)</label></div>
-                             <div class="form-check"><input type="checkbox" class="form-check-input" id="anestGral"> <label for="anestGral">Anestesia General</label></div>
-                             <div class="form-check"><input type="checkbox" class="form-check-input" id="anestLocal"> <label for="anestLocal">Anestesia Local / Pudenda</label></div>
-                             <div class="form-check"><input type="checkbox" class="form-check-input" id="anestNitro"> <label for="anestNitro">Óxido Nitroso</label></div>
-                         </div>
-                     </div>
-                 </div>
-                 
-                 <!-- No Farmacologico -->
-                 <div class="col-md-6 ps-4">
-                     <h6 class="text-secondary fw-bold mb-3">Métodos No Farmacológicos</h6>
-                     <div class="row row-cols-2 g-3">
-                         {% for m in metodos_no_farm %}
-                         <div class="col">
+            <h5 class="section-title"><i class="bi bi-capsule"></i> Manejo del Dolor</h5>
+            <div class="row g-4">
+                 <div class="col-12 mb-3">
+                    <h6 class="text-primary fw-bold">Métodos No Farmacológicos</h6>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="analgesia_no_farmacologica" id="chkNoFarm" {% if registro_parto.analgesia_no_farmacologica %}checked{% endif %}>
+                        <label class="form-check-label" for="chkNoFarm">Se utilizaron métodos no farmacológicos</label>
+                    </div>
+                    <div class="p-3 bg-light border rounded">
+                        <small class="d-block text-muted mb-2 fw-bold">Seleccione los métodos usados:</small>
+                        <div class="row row-cols-md-4 g-2">
+                            {% for m in metodos_no_farm %}
+                            <div class="col">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="metodos_no_farmacologicos" value="{{m.id}}" id="metodo{{m.id}}" 
+                                    {% if m in registro_parto.metodos_no_farmacologicos.all %}checked{% endif %}>
+                                    <label class="form-check-label" for="metodo{{m.id}}">{{m.descripcion}}</label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <h6 class="text-primary fw-bold">Analgesia Farmacológica (Peridural)</h6>
+                    <div class="row">
+                        <div class="col-md-3">
                              <div class="form-check">
-                                 <input class="form-check-input" type="checkbox" name="metodo_no_farm_{{m.id}}" id="mn_{{m.id}}">
-                                 <label class="form-check-label" for="mn_{{m.id}}">{{ m.descripcion }}</label>
-                             </div>
-                         </div>
-                         {% endfor %}
-                     </div>
-                 </div>
-             </div>
+                                <input class="form-check-input" type="checkbox" name="peridural_solicitada_paciente" id="periSol" {% if registro_parto.peridural_solicitada_paciente %}checked{% endif %}>
+                                <label class="form-check-label" for="periSol">Solicitada por Paciente</label>
+                            </div>
+                        </div>
+                         <div class="col-md-3">
+                             <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="peridural_indicada_medico" id="periInd" {% if registro_parto.peridural_indicada_medico %}checked{% endif %}>
+                                <label class="form-check-label" for="periInd">Indicada por Médico</label>
+                            </div>
+                        </div>
+                         <div class="col-md-3">
+                             <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="peridural_administrada" id="periAdm" {% if registro_parto.peridural_administrada %}checked{% endif %}>
+                                <label class="form-check-label" for="periAdm">Administrada</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                             <label class="form-label">Tiempo Espera (min)</label>
+                             <input type="number" class="form-control" name="tiempo_espera_peridural_minutos" value="{{ registro_parto.tiempo_espera_peridural_minutos|default:'' }}">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 mt-3">
+                    <h6 class="text-secondary fw-bold">Otras Anestesias (Parto)</h6>
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                             <input class="form-check-input" type="checkbox" name="anestesia_local" id="anesLocal" {% if registro_parto.anestesia_local %}checked{% endif %}>
+                             <label class="form-check-label" for="anesLocal">Anestesia Local (Periné)</label>
+                        </div>
+                        <div class="form-check">
+                             <input class="form-check-input" type="checkbox" name="anestesia_general" id="anesGral" {% if registro_parto.anestesia_general %}checked{% endif %}>
+                             <label class="form-check-label" for="anesGral">Anestesia General</label>
+                        </div>
+                         <div class="form-check">
+                             <input class="form-check-input" type="checkbox" name="anestesia_raquidea" id="anesRaq" {% if registro_parto.anestesia_raquidea %}checked{% endif %}>
+                             <label class="form-check-label" for="anesRaq">Raquídea / Espinal</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- TAF 5: PERINÉ -->
+        <!-- TAF 5: PERINÉ Y ALUMBRAMIENTO -->
         <div class="tab-pane fade" id="taf5">
-             <h5 class="section-title"><i class="bi bi-bandaid"></i> Periné y Complicaciones</h5>
+             <h5 class="section-title"><i class="bi bi-layers"></i> Alumbramiento y Periné</h5>
              
              <div class="row g-4 mb-4">
-                 <div class="col-md-6">
-                     <label class="form-label">Estado del Periné Post-Parto</label>
+                 <div class="col-md-5">
+                     <h6 class="fw-bold mb-2">Alumbramiento (Placenta)</h6>
+                     <div class="form-check">
+                         <input class="form-check-input" type="checkbox" name="alumbramiento_dirigido" id="alumDir" {% if registro_parto.alumbramiento_dirigido %}checked{% endif %}>
+                         <label class="form-check-label" for="alumDir">Manejo Dirigido (Oxitocina Profiláctica)</label>
+                     </div>
+                      <div class="form-check mt-2">
+                         <input class="form-check-input" type="checkbox" name="retira_placenta" id="retPlac" {% if registro_parto.retira_placenta %}checked{% endif %}>
+                         <label class="form-check-label" for="retPlac">Placenta Completa (Revisión)</label>
+                     </div>
+                 </div>
+                 <div class="col-md-3">
+                     <label class="form-label">Estado del Periné</label>
                      <select class="form-select" name="estado_perine">
                          <option value="">Seleccione...</option>
-                         {% for p in perines %}<option value="{{p.id}}">{{p.descripcion}}</option>{% endfor %}
+                         {% for p in perines %}
+                         <option value="{{p.id}}" {% if registro_parto.estado_perine_id == p.id %}selected{% endif %}>{{p.descripcion}}</option>
+                         {% endfor %}
                      </select>
                  </div>
              </div>
@@ -377,12 +487,11 @@
              
              <h6 class="text-danger fw-bold mb-3">Complicaciones Maternas</h6>
              <div class="row row-cols-md-3 g-3 mb-4">
-                 <div class="col"><div class="form-check"><input type="checkbox" class="form-check-input" id="comp1"><label for="comp1">Inercia Uterina</label></div></div>
-                 <div class="col"><div class="form-check"><input type="checkbox" class="form-check-input" id="comp2"><label for="comp2">Restos Placentarios</label></div></div>
-                 <div class="col"><div class="form-check"><input type="checkbox" class="form-check-input" id="comp3"><label for="comp3">Desgarro / Trauma</label></div></div>
-                 <div class="col"><div class="form-check"><input type="checkbox" class="form-check-input" id="comp4"><label for="comp4">Hemorragia Post-Parto</label></div></div>
-                 <div class="col"><div class="form-check"><input type="checkbox" class="form-check-input" id="comp5"><label for="comp5">Histerectomía Obstétrica</label></div></div>
-                 <div class="col"><div class="form-check"><input type="checkbox" class="form-check-input" id="comp6"><label for="comp6">Transfusión Sanguínea</label></div></div>
+                 <div class="col"><div class="form-check"><input type="checkbox" name="inercia_uterina" class="form-check-input" id="comp1" {% if registro_parto.inercia_uterina %}checked{% endif %}><label for="comp1">Inercia Uterina</label></div></div>
+                 <div class="col"><div class="form-check"><input type="checkbox" name="restos_placentarios" class="form-check-input" id="comp2" {% if registro_parto.restos_placentarios %}checked{% endif %}><label for="comp2">Restos Placentarios</label></div></div>
+                 <div class="col"><div class="form-check"><input type="checkbox" name="desgarro_vaginal" class="form-check-input" id="comp3" {% if registro_parto.desgarro_vaginal %}checked{% endif %}><label for="comp3">Desgarro / Trauma</label></div></div>
+                 <div class="col"><div class="form-check"><input type="checkbox" name="hemorragia_postparto" class="form-check-input" id="comp4" {% if registro_parto.hemorragia_postparto %}checked{% endif %}><label for="comp4">Hemorragia Post-Parto</label></div></div>
+                 <!-- Note: Histerectomía and Transfusión not in simple model boolean list, might check model -->
              </div>
              
              <div class="card bg-light border-0 p-3">
@@ -390,18 +499,20 @@
                  <div class="row align-items-center">
                      <div class="col-md-3">
                          <div class="form-check">
-                             <input type="checkbox" class="form-check-input" id="checkEsterilizacion">
+                             <input type="checkbox" name="esterilizacion" class="form-check-input" id="checkEsterilizacion" {% if registro_parto.esterilizacion %}checked{% endif %}>
                              <label class="form-check-label" for="checkEsterilizacion">Se realizó esterilización</label>
                          </div>
                      </div>
                      <div class="col-md-4">
-                         <select class="form-select" id="selTipoEst" disabled>
+                         <select class="form-select" name="tipo_esterilizacion" id="selTipoEst">
                              <option value="">Tipo...</option>
-                             {% for t in tipos_esterilizacion %}<option value="{{t.id}}">{{t.descripcion}}</option>{% endfor %}
+                             {% for t in tipos_esterilizacion %}
+                             <option value="{{t.id}}" {% if registro_parto.tipo_esterilizacion_id == t.id %}selected{% endif %}>{{t.descripcion}}</option>
+                             {% endfor %}
                          </select>
                      </div>
                      <div class="col-md-3">
-                         <input type="datetime-local" class="form-control" id="fechaEst" disabled>
+                         <input type="datetime-local" class="form-control" id="fechaEst" value="{{ registro_parto.fecha_esterilizacion|date:'Y-m-d\TH:i' }}">
                      </div>
                  </div>
              </div>
@@ -410,44 +521,63 @@
         <!-- TAF 6: EQUIPO MATERNO -->
         <div class="tab-pane fade" id="taf6">
             <h5 class="section-title"><i class="bi bi-person-badge"></i> Equipo Responsable (Madre)</h5>
-            <p class="text-muted mb-4">Profesionales responsables de la atención directa de la mujer durante el parto.</p>
+            <p class="text-muted mb-4 d-flex justify-content-between align-items-center">
+                <span>Profesionales responsables de la atención directa.</span>
+                <span class="badge bg-secondary">{{ matronas_staff.count|add:tens_staff.count }} Asignados</span>
+            </p>
             
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="card h-100 border-primary shadow-sm" style="border-left-width: 5px;">
-                        <div class="card-body">
-                            <h6 class="card-title text-primary fw-bold">Matrona Responsable</h6>
-                            <select class="form-select form-select-lg mb-3">
-                                <option value="">Seleccione...</option>
-                                {% for m in matronas_staff %}<option value="{{m.usuario.id}}">{{m.usuario.get_full_name}}</option>{% endfor %}
-                            </select>
-                            <small class="text-muted">Lidera el proceso de parto y atención inmediata.</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card h-100 border-success shadow-sm" style="border-left-width: 5px;">
-                         <div class="card-body">
-                            <h6 class="card-title text-success fw-bold">TENS de Apoyo</h6>
-                            <select class="form-select form-select-lg mb-3">
-                                <option value="">Seleccione...</option>
-                                {% for t in tens_staff %}<option value="{{t.usuario.id}}">{{t.usuario.get_full_name}}</option>{% endfor %}
-                            </select>
-                             <small class="text-muted">Asiste en procedimientos y confort de la paciente.</small>
-                        </div>
-                    </div>
-                </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nombre Completo</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if matronas_staff %}
+                            {% for m in matronas_staff %}
+                            <tr>
+                                <td class="fw-bold text-primary">{{ m.usuario.get_full_name }}</td>
+                                <td><span class="badge bg-primary">Matrona</span></td>
+                                <td>Responsable</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                             <tr><td colspan="3" class="text-center text-muted">No hay matronas asignadas.</td></tr>
+                        {% endif %}
+
+                        {% if tens_staff %}
+                            {% for t in tens_staff %}
+                            <tr>
+                                <td class="fw-bold text-success">{{ t.usuario.get_full_name }}</td>
+                                <td><span class="badge bg-success">TENS</span></td>
+                                <td>Apoyo</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                             <tr><td colspan="3" class="text-center text-muted">No hay TENS asignados.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
             </div>
         </div>
 
     </div>
 
-    <!-- Acciones Finales -->
-    <div class="text-end mt-4">
+    <!-- Acciones Finales (CON BOTON GUARDAR) -->
+    <div class="d-flex justify-content-end align-items-center gap-3 mt-4 border-top pt-3">
+        <button type="submit" class="btn btn-primary btn-lg px-5">
+            <i class="bi bi-save"></i> Guardar Ficha
+        </button>
         <a href="{% url 'matrona:cierre_parto' ficha_parto.id %}" class="btn btn-dark btn-lg">
             Finalizar Atención Materna <i class="bi bi-arrow-right"></i>
         </a>
     </div>
+
+    </form>
+
 
 </div>
 

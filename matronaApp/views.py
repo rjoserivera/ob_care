@@ -41,7 +41,8 @@ from ingresoPartoApp.models import FichaParto
 from partosApp.models import (
     RegistroParto, CatalogoTipoParto, CatalogoPosicionParto, CatalogoEstadoPerine, 
     CatalogoClasificacionRobson, CatalogoCausaCesarea, CatalogoMotivoPartoNoAcompanado, 
-    CatalogoPersonaAcompanante, CatalogoMetodoNoFarmacologico, CatalogoTipoEsterilizacion
+    CatalogoPersonaAcompanante, CatalogoMetodoNoFarmacologico, CatalogoTipoEsterilizacion,
+    CatalogoRegimenParto, CatalogoTipoRoturaMembrana
 )
 from recienNacidoApp.models import RegistroRecienNacido, CatalogoSexoRN, CatalogoComplicacionesRN, CatalogoMotivoHospitalizacionRN
 from django.contrib.auth.models import User
@@ -1645,6 +1646,8 @@ def sala_parto_view(request, ficha_parto_id):
     personas_acompanante = CatalogoPersonaAcompanante.objects.filter(activo=True).order_by('orden')
     metodos_no_farm = CatalogoMetodoNoFarmacologico.objects.filter(activo=True).order_by('orden')
     tipos_esterilizacion = CatalogoTipoEsterilizacion.objects.filter(activo=True).order_by('orden')
+    regimenes_parto = CatalogoRegimenParto.objects.filter(activo=True).order_by('orden')
+    tipos_rotura = CatalogoTipoRoturaMembrana.objects.filter(activo=True).order_by('orden')
     
     # Staff asignado (Filtrado por rol para TAF 6)
     # PersonalAsignadoParto está linkeado a FichaObstetrica, no FichaParto directamente
@@ -1873,6 +1876,9 @@ def ficha_rn_view(request, rn_id):
         'personas_acompanante': personas_acompanante,
         'metodos_no_farm': metodos_no_farm,
         'tipos_esterilizacion': tipos_esterilizacion,
+        # Nuevos Catalogos Contexto
+        'regimenes_parto': regimenes_parto,
+        'tipos_rotura': tipos_rotura,
         # Contexto Catálogos RN
         'sexos': sexos,
         'complicaciones_rn': complicaciones_rn,
