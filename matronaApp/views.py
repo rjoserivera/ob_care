@@ -14,6 +14,7 @@ from django.db import transaction
 from django.db.models import Q, Count
 from datetime import date
 import json
+from django.utils.dateparse import parse_datetime
 from gestionProcesosApp.models import AsignacionPersonal, PersonalTurno
 
 # ============================================
@@ -406,6 +407,8 @@ def detalle_ficha_obstetrica(request, ficha_pk):
         'titulo': f'Ficha {ficha.numero_ficha}',
         'edad_gestacional': f"{ficha.edad_gestacional_semanas or 0}+{ficha.edad_gestacional_dias or 0}",
         'controles_previos': controles_previos,
+        'vias_administracion': CatalogoViaAdministracion.objects.filter(activo=True),
+        'medicamentos_catalogo': CatalogoMedicamento.objects.filter(activo=True).order_by('nombre'),
     }
     return render(request, 'Matrona/detalle_ficha_obstetrica.html', context)
 
@@ -546,7 +549,8 @@ def agregar_medicamento_ajax(request, ficha_pk):
             via_administracion_id=data.get('via_administracion_id'),
             frecuencia=data.get('frecuencia', ''),
             cantidad=int(data.get('cantidad', 1)),
-            fecha_inicio=timezone.now(),
+            fecha_inicio=parse_datetime(data.get('fecha_inicio')) if data.get('fecha_inicio') else timezone.now(),
+            fecha_termino=parse_datetime(data.get('fecha_termino')) if data.get('fecha_termino') else None,
             indicaciones=data.get('indicaciones', ''),
         )
         
@@ -822,7 +826,7 @@ def proceso_parto_iniciado(request, ficha_pk):
 
     # 2. Calcular Requerimientos
     # 2. Calcular Requerimientos
-    cantidad_bebes = ficha_parto.bebes_esperados.count()
+    cantidad_bebes = ficha_parto.ficha_obstetrica.cantidad_bebes
     if cantidad_bebes < 1: cantidad_bebes = 1
     
     medicos_req = cantidad_bebes * 1
@@ -1213,6 +1217,36 @@ def verificar_pin(request, ficha_parto_id):
                 sala.proceso_activo = ficha
                 sala.estado = 'OCUPADA'
                 sala.save()
+
+            # ============================================
+            # PERSISTENCIA DEL EQUIPO (MIGRACIÓN)
+            # ============================================
+            from gestionProcesosApp.models import AsignacionPersonal
+            from matronaApp.models import PersonalAsignadoParto
+
+            # 1. Limpiar asignaciones previas para esta ficha (evitar duplicados si re-inician)
+            PersonalAsignadoParto.objects.filter(ficha=ficha.ficha_obstetrica).delete()
+
+            # 2. Buscar aceptados del panel de preparación
+            asignaciones_aceptadas = AsignacionPersonal.objects.filter(
+                proceso=ficha,
+                estado_respuesta='ACEPTADA'
+            ).select_related('personal__usuario')
+
+            # 3. Crear registros permanentes
+            for asignacion in asignaciones_aceptadas:
+                # Determinar rol normalizado
+                rol_final = 'TENS'
+                if asignacion.rol_en_proceso == 'MEDICO': rol_final = 'MEDICO'
+                elif asignacion.rol_en_proceso == 'MATRONA': rol_final = 'MATRONA'
+                
+                PersonalAsignadoParto.objects.create(
+                    ficha=ficha.ficha_obstetrica,
+                    usuario=asignacion.personal.usuario,
+                    rol=rol_final,
+                    activo=True,
+                    bebe_numero=1 # Por defecto 1, lógica compleja pendiente si hay múltiples
+                )
             
             from django.urls import reverse
             return JsonResponse({
@@ -1423,6 +1457,49 @@ def registrar_dilatacion(request, ficha_id):
         }, status=500)
 
 
+
+# ============================================
+# VISTA CIERRE DE PARTO (NUEVO)
+# ============================================
+
+@login_required
+def cierre_parto_view(request, ficha_parto_id):
+    """
+    Vista final para Checklist Ley Dominga y Cierre de Ficha.
+    """
+    ficha_parto = get_object_or_404(FichaParto, pk=ficha_parto_id)
+    
+    if request.method == 'POST':
+        # Validar Ley Dominga
+        ley_dominga = request.POST.get('ley_dominga_informada') == 'on'
+        obs = request.POST.get('observaciones_cierre', '')
+        
+        # 1. Guardar info de cierre
+        # Si no hay campos aun, lo haremos en observaciones del parto o similares
+        # ficha_parto.observaciones = f"{ficha_parto.observaciones or ''} [Cierre: {obs}, LeyDominga: {ley_dominga}]"
+        
+        # 2. Cerrar Ficha y Liberar Sala
+        ficha_parto.estado_proceso = 'FINALIZADO'
+        if ficha_parto.sala_asignada:
+            # Liberar sala
+            sala = ficha_parto.sala_asignada
+            sala.proceso_activo = None
+            sala.estado = 'DISPONIBLE'
+            sala.save()
+            
+            # Desvincular sala
+            ficha_parto.sala_asignada = None
+        
+        ficha_parto.save()
+        
+        # Redirigir a listado o Dashboard
+        messages.success(request, f'Proceso de parto finalizado para ficha {ficha_parto.numero_ficha}. Sala liberada.')
+        return redirect('matrona:menu_matrona')
+
+    return render(request, 'Matrona/cierre_parto.html', {
+        'ficha': ficha_parto
+    })
+
 # ============================================
 # DEBUG - AUTO RELLENAR EQUIPO
 # ============================================
@@ -1439,11 +1516,12 @@ def debug_rellenar_equipo(request, ficha_parto_id):
         from gestionProcesosApp.models import AsignacionPersonal, PersonalTurno
         from gestionProcesosApp.pin_utils import equipo_completo, generar_pin, enviar_pin_a_medicos
         from django.contrib.auth.models import User
+        from datetime import timedelta
         
         ficha_parto = get_object_or_404(FichaParto, pk=ficha_parto_id)
         
         # Calcular requerimientos
-        cantidad_bebes = ficha_parto.bebes_esperados.count()
+        cantidad_bebes = ficha_parto.ficha_obstetrica.cantidad_bebes
         if cantidad_bebes < 1: cantidad_bebes = 1
         
         target_map = {
@@ -1487,13 +1565,10 @@ def debug_rellenar_equipo(request, ficha_parto_id):
                         usuario=user_dummy,
                         defaults={
                             'rol': rol,
-                            'rut': f'9999-{uuid.uuid4().hex[:4]}',
-                            'telefono': '99999999',
-                            'email': f'{rol.lower()}_{uuid.uuid4().hex[:4]}@debug.com',
                             'estado': 'DISPONIBLE',
-                            'en_turno': True,
-                            'inicio_turno': timezone.now(),
-                            'fin_turno': timezone.now() + timezone.timedelta(hours=12)
+                            'fecha_inicio_turno': timezone.now(),
+                            'fecha_fin_turno': timezone.now() + timedelta(hours=12),
+                            'dispositivo_activo': True
                         }
                     )
                     candidatos.append(p_dummy)
@@ -1541,24 +1616,26 @@ def debug_rellenar_equipo(request, ficha_parto_id):
 # ============================================
 
 @login_required
+@login_required
 def sala_parto_view(request, ficha_parto_id):
     """
-    Vista principal de la Sala de Parto (Chronological Interface)
+    Vista principal de la Sala de Parto (SOLO MATERNA).
+    RNs se gestionan en vistas separadas.
     """
     ficha_parto = get_object_or_404(FichaParto, pk=ficha_parto_id)
     
     # 1. Registro de Parto (Evento)
     try:
         registro_parto = ficha_parto.registro_parto
-    except Exception: # Puede ser DoesNotExist o RelatedObjectDoesNotExist
+    except Exception: 
         registro_parto = None
         
-    # 2. Recién Nacidos
+    # 2. Recién Nacidos (Solo para listarlos y linkearlos)
     recien_nacidos = []
     if registro_parto:
-        recien_nacidos = registro_parto.recien_nacidos.all()
+        recien_nacidos = registro_parto.recien_nacidos.all().order_by('fecha_nacimiento', 'hora_nacimiento', 'id')
         
-    # Catálogos para Parto
+    # Catálogos para Parto (MATERNO)
     tipos_parto = CatalogoTipoParto.objects.filter(activo=True).order_by('orden')
     posiciones = CatalogoPosicionParto.objects.filter(activo=True).order_by('orden')
     robsons = CatalogoClasificacionRobson.objects.filter(activo=True).order_by('numero_grupo')
@@ -1569,11 +1646,115 @@ def sala_parto_view(request, ficha_parto_id):
     metodos_no_farm = CatalogoMetodoNoFarmacologico.objects.filter(activo=True).order_by('orden')
     tipos_esterilizacion = CatalogoTipoEsterilizacion.objects.filter(activo=True).order_by('orden')
     
-    # Catálogos para RN
+    # Staff asignado (Filtrado por rol para TAF 6)
+    # PersonalAsignadoParto está linkeado a FichaObstetrica, no FichaParto directamente
+    staff_asignado = ficha_parto.ficha_obstetrica.personal_asignado.all()
+    matronas_staff = staff_asignado.filter(rol='MATRONA')
+    tens_staff = staff_asignado.filter(rol='TENS')
+    
+    return render(request, 'Matrona/sala_parto.html', {
+        'ficha_parto': ficha_parto,
+        'registro_parto': registro_parto,
+        'recien_nacidos': recien_nacidos,
+        # Catalogos Maternos
+        'tipos_parto': tipos_parto,
+        'posiciones': posiciones,
+        'robsons': robsons,
+        'perines': perines,
+        'causas_cesarea': causas_cesarea,
+        'motivos_no_acompanado': motivos_no_acompanado,
+        'personas_acompanante': personas_acompanante,
+        'metodos_no_farm': metodos_no_farm, 
+        'tipos_esterilizacion': tipos_esterilizacion,
+        # Staff
+        'matronas_staff': matronas_staff,
+        'tens_staff': tens_staff,
+        'staff_completo': staff_asignado,
+    })
+
+@login_required
+def crear_asociacion_rn(request, ficha_parto_id):
+    """
+    Crea un nuevo RegistroRecienNacido vacío asociado a la FichaParto y redirige a su ficha.
+    """
+    ficha_parto = get_object_or_404(FichaParto, pk=ficha_parto_id)
+    
+    # Asegurar que existe RegistroParto
+    from partosApp.models import RegistroParto, CatalogoTipoParto, CatalogoPosicionParto, CatalogoEstadoPerine
+    
+    # Check if existing via Reverse Relation or explicit query
+    # The related name in FichaParto is 'registro_parto' (OneToOne)
+    if not hasattr(ficha_parto, 'registro_parto') or ficha_parto.registro_parto is None:
+        # Pre-populate required fields
+        tipo_parto_def = CatalogoTipoParto.objects.first()
+        if not tipo_parto_def:
+            # Fallback for empty catalog
+            tipo_parto_def, _ = CatalogoTipoParto.objects.get_or_create(codigo='VAGINAL', defaults={'descripcion': 'Parto Vaginal'})
+            
+        eg_semanas = ficha_parto.ficha_obstetrica.edad_gestacional_semanas or 38 # Default if None
+            
+        rp = RegistroParto.objects.create(
+            ficha_ingreso_parto=ficha_parto,
+            ficha_obstetrica=ficha_parto.ficha_obstetrica,
+            edad_gestacional_semanas=eg_semanas,
+            tipo_parto=tipo_parto_def,
+            activo=True
+        )
+    else:
+        rp = ficha_parto.registro_parto
+        
+    # Crear RN
+    from recienNacidoApp.models import RegistroRecienNacido, CatalogoSexoRN
+    
+    # Default Sexo (Indeterminado o primero disponible)
+    sexo_default = CatalogoSexoRN.objects.first()
+    if not sexo_default:
+         sexo_default, _ = CatalogoSexoRN.objects.get_or_create(codigo='IND', defaults={'descripcion': 'Indeterminado'})
+    
+    rn = RegistroRecienNacido.objects.create(
+        registro_parto=rp,
+        sexo=sexo_default,
+        fecha_nacimiento=timezone.now().date(),
+        hora_nacimiento=timezone.now().time(),
+        peso_gramos=3000, # Default placeholder
+        talla_centimetros=50.0,
+        apgar_1_minuto=9,
+        apgar_5_minutos=10,
+        activo=True
+    )
+    
+    messages.success(request, f"Recién Nacido creado exitosamente.")
+    return redirect('matrona:ficha_rn', rn_id=rn.id)
+
+@login_required
+def ficha_rn_view(request, rn_id):
+    """
+    Vista independiente para gestionar un Recién Nacido específico.
+    """
+    from recienNacidoApp.models import RegistroRecienNacido, CatalogoSexoRN, CatalogoComplicacionesRN, CatalogoMotivoHospitalizacionRN
+    
+    rn = get_object_or_404(RegistroRecienNacido, pk=rn_id)
+    ficha_parto = rn.registro_parto.ficha_ingreso_parto
+    
+    # Catalogos RN
     sexos = CatalogoSexoRN.objects.filter(activo=True).order_by('orden')
     complicaciones_rn = CatalogoComplicacionesRN.objects.filter(activo=True).order_by('orden')
     motivos_hospitalizacion = CatalogoMotivoHospitalizacionRN.objects.filter(activo=True).order_by('orden')
     
+    # Staff asignado (para asociar responsables RN)
+    staff_asignado = ficha_parto.ficha_obstetrica.personal_asignado.all()
+    matronas_staff = staff_asignado.filter(rol='MATRONA')
+    tens_staff = staff_asignado.filter(rol='TENS')
+    
+    return render(request, 'Matrona/ficha_rn.html', {
+        'rn': rn,
+        'ficha_parto': ficha_parto,
+        'sexos': sexos,
+        'complicaciones_rn': complicaciones_rn,
+        'motivos_hospitalizacion': motivos_hospitalizacion,
+        'matronas_staff': matronas_staff,
+        'tens_staff': tens_staff,
+    })    
     # Staff Filtering using PersonalAsignadoParto
     assigned_staff = PersonalAsignadoParto.objects.filter(
         ficha=ficha_parto.ficha_obstetrica, 
@@ -1712,3 +1893,60 @@ def guardar_registro_rn(request, ficha_parto_id):
             return JsonResponse({'success': False, 'message': f'Error al guardar RN: {str(e)}'}, status=500)
     else:
         return JsonResponse({'success': False, 'message': 'Error de validación RN', 'errors': form.errors}, status=400)
+# ============================================
+# API ADMINISTRACIÓN MEDICAMENTOS
+# ============================================
+
+@login_required
+def obtener_administraciones(request, medicamento_id):
+    """
+    API para obtener el historial de administraciones de un medicamento
+    URL: /matrona/api/medicamento/<medicamento_id>/administraciones/
+    """
+    med = get_object_or_404(MedicamentoFicha, id=medicamento_id)
+    adms = med.administraciones.all().order_by('-fecha_hora_administracion')
+    
+    data = []
+    for adm in adms:
+        data.append({
+            'id': adm.id,
+            'fecha': adm.fecha_hora_administracion.strftime('%d/%m/%Y %H:%M'),
+            'dosis': adm.dosis_administrada,
+            'responsable': f"{adm.tens.first_name} {adm.tens.last_name}" if adm.tens else "Desconocido",
+            'observaciones': adm.observaciones
+        })
+        
+    return JsonResponse({'administraciones': data})
+
+@login_required
+@require_POST
+def registrar_administracion(request, medicamento_id):
+    """
+    API para registrar una administración
+    URL: /matrona/api/medicamento/<medicamento_id>/registrar_administracion/
+    """
+    med = get_object_or_404(MedicamentoFicha, id=medicamento_id)
+    
+    try:
+        data = json.loads(request.body)
+        
+        fecha_str = data.get('fecha') # "2025-12-14T15:30"
+        # Parse datetime
+        # Input default is ISO like "2025-12-14T15:30"
+        fecha_dt = timezone.datetime.fromisoformat(fecha_str)
+        if timezone.is_naive(fecha_dt):
+            fecha_dt = timezone.make_aware(fecha_dt)
+            
+        AdministracionMedicamento.objects.create(
+            medicamento_ficha=med,
+            tens=request.user, # Asumiendo que quien lo registra es quien lo administra por ahora
+            fecha_hora_administracion=fecha_dt,
+            dosis_administrada=data.get('dosis'),
+            se_realizo_lavado=data.get('lavado', False),
+            observaciones=data.get('observaciones', ''),
+            administrado_exitosamente=True
+        )
+        
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

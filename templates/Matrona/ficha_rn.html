@@ -1,0 +1,210 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Ficha RN {{ rn.id }} - Ficha {{ ficha_parto.numero_ficha }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Global */
+    .rn-container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+    
+    /* Header RN - Professional Blue/Cyan High Contrast */
+    .rn-header {
+        background: linear-gradient(to right, #ffffff, #f2fcff);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(13, 202, 240, 0.15);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-left: 6px solid #0dcaf0; 
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid #e1ecf0;
+    }
+    
+    .rn-title h2 { color: #055160; font-weight: 800; margin: 0; font-size: 1.7rem; letter-spacing: -0.5px; }
+    .rn-subtitle { color: #495057; font-size: 1rem; margin-top: 0.4rem; font-weight: 600; }
+    
+    .rn-card {
+        background: white;
+        border: 2px solid #0dcaf0;
+        border-radius: 0 8px 8px 8px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+        padding: 2.5rem;
+    }
+
+    /* Tabs RN - Professional Folder Style */
+    .rn-tabs .nav-link { 
+        color: #6c757d; 
+        font-weight: 700; 
+        padding: 1rem 1.5rem;
+        border: 1px solid #dee2e6; 
+        border-bottom: none;
+        background: #f8f9fa;
+        margin-right: 5px;
+        border-radius: 8px 8px 0 0;
+        transition: all 0.2s;
+    }
+    .rn-tabs .nav-link:hover {
+        background: #e0faff;
+        color: #0dcaf0;
+    }
+    .rn-tabs .nav-link.active {
+        color: white;
+        background: #0dcaf0; /* Active Cyan */
+        border-color: #0dcaf0;
+    }
+    
+    .form-group-rn label {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: #212529; /* Black for Labels */
+        margin-bottom: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    h5.text-info {
+        color: #055160 !important; /* Dark Cyan */
+        background: #cff4fc;
+        padding: 0.8rem 1.2rem;
+        border-left: 5px solid #0dcaf0;
+        font-weight: 800;
+        border-radius: 4px;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rn-container">
+    
+    <!-- HEADER -->
+    <div class="rn-header">
+        <div class="rn-title">
+            <h2><i class="bi bi-person-baby"></i> Recién Nacido #{{ rn.id }}</h2>
+            <div class="rn-subtitle">
+                Asociado a Ficha Materna <strong>{{ ficha_parto.numero_ficha }}</strong> | Madre: {{ ficha_parto.ficha_obstetrica.paciente.persona.nombre_completo }}
+            </div>
+        </div>
+        <div>
+            <span class="badge bg-light text-dark border p-2">Estado: Activo</span>
+        </div>
+    </div>
+
+    <!-- MAIN FORM -->
+    <div class="rn-card">
+        
+        <ul class="nav nav-tabs rn-tabs mb-4" id="rnTabs" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-ident">Identificación</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-apgar">Apgar</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-antropo">Antropometría</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-equipo">Equipo RN</button></li>
+        </ul>
+        
+        <form method="post" id="form-rn">
+            {% csrf_token %}
+            <div class="tab-content">
+                
+                <!-- IDENTIFICACION -->
+                <div class="tab-pane fade show active" id="tab-ident">
+                    <h5 class="text-info mb-3">Datos del Nacimiento</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4 form-group-rn">
+                            <label>Fecha Nacimiento</label>
+                            <input type="date" class="form-control" name="fecha_nacimiento" value="{{ rn.fecha_nacimiento|date:'Y-m-d' }}">
+                        </div>
+                        <div class="col-md-4 form-group-rn">
+                            <label>Hora Nacimiento</label>
+                            <input type="time" class="form-control" name="hora_nacimiento" value="{{ rn.hora_nacimiento|time:'H:i' }}">
+                        </div>
+                        <div class="col-md-4 form-group-rn">
+                            <label>Sexo</label>
+                            <select class="form-select" name="sexo">
+                                {% for s in sexos %}
+                                <option value="{{ s.id }}" {% if rn.sexo_id == s.id %}selected{% endif %}>{{ s.descripcion }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- APGAR -->
+                <div class="tab-pane fade" id="tab-apgar">
+                    <h5 class="text-info mb-3">Puntuación Apgar</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4 form-group-rn">
+                            <label>Apgar 1 Minuto</label>
+                            <input type="number" class="form-control" name="apgar1" min="0" max="10" value="{{ rn.apgar_1_minuto }}">
+                        </div>
+                        <div class="col-md-4 form-group-rn">
+                            <label>Apgar 5 Minutos</label>
+                            <input type="number" class="form-control" name="apgar5" min="0" max="10" value="{{ rn.apgar_5_minutos }}">
+                        </div>
+                        <div class="col-md-4 form-group-rn">
+                            <label>Apgar 10 Minutos (Opcional)</label>
+                            <input type="number" class="form-control" name="apgar10" min="0" max="10" value="{{ rn.apgar_10_minutos }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ANTROPOMETRIA -->
+                <div class="tab-pane fade" id="tab-antropo">
+                    <h5 class="text-info mb-3">Medidas al Nacer</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4 form-group-rn">
+                            <label>Peso (gramos)</label>
+                            <input type="number" class="form-control" name="peso" placeholder="3000" value="{{ rn.peso_gramos }}">
+                        </div>
+                        <div class="col-md-4 form-group-rn">
+                            <label>Talla (cm)</label>
+                            <input type="number" class="form-control" name="talla" placeholder="50" step="0.1" value="{{ rn.talla_centimetros|stringformat:'.1f' }}">
+                        </div>
+                        <div class="col-md-4 form-group-rn">
+                            <label>Perímetro Cefálico (cm)</label>
+                            <input type="number" class="form-control" name="pc" placeholder="35" step="0.1" value="{{ rn.perimetro_cefalico|default:'' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EQUIPO RN -->
+                <div class="tab-pane fade" id="tab-equipo">
+                    <h5 class="text-info mb-3">Equipo Neonatal</h5>
+                    <div class="alert alert-warning small">
+                        <i class="bi bi-exclamation-triangle"></i> Este equipo es específico para este RN.
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6 form-group-rn">
+                            <label>Matrona Responsable (RN)</label>
+                            <select class="form-select" name="matrona_rn">
+                                <option value="">Seleccione...</option>
+                                {% for m in matronas_staff %}
+                                <option value="{{ m.usuario.id }}" {% if rn.matrona_responsable == m.usuario.get_full_name %}selected{% endif %}>
+                                    {{ m.usuario.get_full_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 form-group-rn">
+                             <label>TENS Responsable (RN)</label>
+                            <select class="form-select" name="tens_rn">
+                                <option value="">Seleccione...</option>
+                                {% for t in tens_staff %}
+                                <option value="{{ t.usuario.id }}">{{ t.usuario.get_full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="text-end mt-4 pt-3 border-top">
+                <button type="submit" class="btn btn-primary px-5">
+                    <i class="bi bi-save"></i> Guardar Ficha RN
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

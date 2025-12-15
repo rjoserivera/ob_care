@@ -11,8 +11,8 @@ ROLE_REDIRECT_MAP = {
     "medico": "authentication:dashboard_medico",
     "medicos": "authentication:dashboard_medico",
 
-    "matrona": "matrona:menu_matrona",
-    "matronas": "matrona:menu_matrona",
+    "matrona": "authentication:dashboard_matrona",
+    "matronas": "authentication:dashboard_matrona",
 
     "tens": "authentication:dashboard_tens",
     "tecnico en enfermeria": "authentication:dashboard_tens",

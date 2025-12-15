@@ -12,11 +12,13 @@
     }
     
     .header-card {
-        background: linear-gradient(135deg, #f5576c 0%, #f5576c 100%);
-        color: white;
-        padding: 2rem;
+        background: #ffffff;
+        color: #2c3e50;
+        padding: 1.5rem;
         border-radius: 12px;
         margin-bottom: 2rem;
+        border-left: 6px solid #0d6efd;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
     
     .stats-grid {
@@ -37,7 +39,7 @@
     .stat-number {
         font-size: 2.5rem;
         font-weight: bold;
-        color: #f5576c;
+        color: #0d6efd;
     }
     
     .stat-label {
@@ -55,7 +57,7 @@
     }
     
     .invite-btn {
-        background: linear-gradient(135deg, #f5576c 0%, #f5576c 100%);
+        background: #0d6efd;
         color: white;
         border: none;
         padding: 1rem 2rem;
@@ -68,7 +70,7 @@
     
     .invite-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
     }
     
     .invite-btn:disabled {
@@ -127,8 +129,8 @@
     }
     
     .progress-icon {
-        font-size: 4rem;
-        color: #f5576c;
+        font-size: 3rem;
+        color: #0d6efd;
         margin-bottom: 1rem;
         animation: spin 2s linear infinite;
     }
@@ -156,9 +158,22 @@
         border-radius: 8px;
         margin-bottom: 1rem;
     }
-    
-        font-weight: bold;
+    .btn-close-modal {
+        background: #6c757d; /* Default gray if not overridden */
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
         cursor: pointer;
+        transition: all 0.2s;
+        font-size: 1rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .btn-close-modal:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        opacity: 0.95;
     }
     
     .sala-card {
@@ -172,13 +187,13 @@
         background: white;
     }
     .sala-card:hover:not(:disabled) {
-        border-color: #f5576c;
+        border-color: #0d6efd;
         transform: translateY(-2px);
     }
     .sala-card.selected {
-        border-color: #f5576c;
-        background: #eef2ff;
-        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+        border-color: #0d6efd;
+        background: #e7f1ff;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2);
     }
     .sala-card.ocupada {
         background: #f8d7da;
@@ -212,8 +227,22 @@
 <div class="control-panel">
     <!-- Header -->
     <div class="header-card">
-        <h1><i class="bi bi-hospital"></i> Centro de Control - Sala de Preparación</h1>
-        <p class="mb-0">Paciente: {{ ficha.paciente.persona.nombre_completo }} | Ficha: {{ ficha.numero_ficha }}</p>
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-2"><i class="bi bi-hospital"></i> Centro de Control - Sala de Preparación</h2>
+                <h4 class="mb-0 fw-bold">{{ ficha.paciente.persona.nombre_completo }}</h4>
+                <div class="mt-2 opacity-75">
+                    <span class="me-3"><i class="bi bi-card-text"></i> RUT: {{ ficha.paciente.persona.rut }}-{{ ficha.paciente.persona.dv }}</span>
+                    <span class="me-3"><i class="bi bi-person"></i> Edad: {{ ficha.paciente.edad }} años</span>
+                    <span class="me-3"><i class="bi bi-folder"></i> Ficha: {{ ficha.numero_ficha }}</span>
+                </div>
+            </div>
+            <div class="text-end bg-white text-dark p-3 rounded-3 shadow-sm">
+                <div class="small text-muted text-uppercase fw-bold">Edad Gestacional</div>
+                <div class="display-6 fw-bold text-danger">{{ ficha.edad_gestacional_semanas }}<small class="fs-6 text-muted">sem</small> + {{ ficha.edad_gestacional_dias }}<small class="fs-6 text-muted">días</small></div>
+                <div class="badge bg-danger mt-1">Bebés: {{ cantidad_bebes }}</div>
+            </div>
+        </div>
     </div>
 
     <!-- Estadísticas -->
@@ -253,7 +282,7 @@
             <i class="bi bi-clipboard-pulse"></i> Invitar TENS ({{ personal_counts.TENS }})
         </button>
         
-        <button class="invite-btn" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);" onclick="reenviarNotificaciones()">
+        <button class="invite-btn" style="background: #6c757d;" onclick="reenviarNotificaciones()">
             <i class="bi bi-arrow-clockwise"></i> Reenviar Notificaciones
         </button>
         
@@ -353,15 +382,15 @@
 <div id="confirmModal" class="progress-modal">
     <div class="progress-content">
         <div class="progress-icon" style="animation: none;">
-            <i class="bi bi-question-circle-fill" style="color: #ffc107;"></i>
+            <i class="bi bi-question-circle-fill" style="color: #0d6efd;"></i>
         </div>
         <div class="progress-title">Confirmar Invitación</div>
         <div id="confirmMessage" class="progress-message"></div>
         <div style="display: flex; gap: 1rem; justify-content: center;">
-            <button class="btn-close-modal" onclick="confirmarInvitacion()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+            <button class="btn-close-modal" onclick="confirmarInvitacion()" style="background: #198754;">
                 <i class="bi bi-check-lg"></i> Aceptar
             </button>
-            <button class="btn-close-modal" onclick="cancelarInvitacion()" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+            <button class="btn-close-modal" onclick="cancelarInvitacion()" style="background: #dc3545;">
                 <i class="bi bi-x-lg"></i> Cancelar
             </button>
         </div>
@@ -372,7 +401,7 @@
 <div id="pinModal" class="progress-modal">
     <div class="progress-content">
         <div class="progress-icon" style="animation: none;">
-            <i class="bi bi-shield-lock-fill" style="color: #f5576c;"></i>
+            <i class="bi bi-shield-lock-fill" style="color: #0d6efd;"></i>
         </div>
         <div class="progress-title">Seguridad</div>
         <div class="progress-message">Ingrese el PIN de autorización enviado al Médico Jefe:</div>
@@ -380,7 +409,7 @@
         <input type="text" id="inputPinParto" class="form-control text-center fs-3 my-3" placeholder="------" maxlength="6" style="letter-spacing: 5px; font-weight: bold;">
         
         <div style="display: flex; gap: 1rem; justify-content: center;">
-            <button class="btn-close-modal" onclick="verificarPinYComenzar()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); width: 100%;">
+            <button class="btn-close-modal" onclick="verificarPinYComenzar()" style="background: #0d6efd; width: 100%;">
                 <i class="bi bi-check-lg"></i> Autorizar Inicio
             </button>
         </div>

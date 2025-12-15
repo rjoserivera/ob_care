@@ -46,7 +46,7 @@ class DashboardAdminView(TemplateView):
     template_name = "Gestion/Data/dashboard_admin.html"
 
     def dispatch(self, request, *args, **kwargs):
-        if not (request.user.is_superuser or user_has_role(request.user, "administrador")):
+        if not (request.user.is_superuser or user_has_role(request.user, "administradores")):
             messages.error(request, "No tienes permisos para acceder al panel de administración.")
             return redirect("home")
         return super().dispatch(request, *args, **kwargs)
@@ -71,7 +71,7 @@ class DashboardMedicoView(TemplateView):
     template_name = "Medico/Data/dashboard_medico.html"
 
     def dispatch(self, request, *args, **kwargs):
-        if not (request.user.is_superuser or user_has_role(request.user, "medico")):
+        if not (request.user.is_superuser or user_has_role(request.user, "medicos")):
             messages.error(request, "No tienes permisos para acceder al dashboard médico.")
             return redirect("home")
         return super().dispatch(request, *args, **kwargs)
@@ -95,7 +95,7 @@ class DashboardMatronaView(TemplateView):
     template_name = "Matrona/Data/dashboard_matrona.html"
 
     def dispatch(self, request, *args, **kwargs):
-        if not (request.user.is_superuser or user_has_role(request.user, "matrona")):
+        if not (request.user.is_superuser or user_has_role(request.user, "matronas")):
             messages.error(request, "No tienes permisos para acceder al dashboard de matrona.")
             return redirect("home")
         return super().dispatch(request, *args, **kwargs)

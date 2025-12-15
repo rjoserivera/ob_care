@@ -46,11 +46,13 @@ class Command(BaseCommand):
                             if 'message' in update:
                                 message = update['message']
                                 chat_id = message['chat']['id']
-                                text = message.get('text', '')
+                                text = message.get('text', '').strip()
                                 username = message['from'].get('username', 'Sin username')
                                 first_name = message['from'].get('first_name', '')
                                 
-                                if text == '/start':
+                                self.stdout.write(f"📩 Mensaje recibido de {first_name} (@{username}): {text}")
+
+                                if text.lower() == '/start':
                                     # Enviar mensaje con el Chat ID
                                     send_url = f"https://api.telegram.org/bot{token}/sendMessage"
                                     send_data = {
@@ -74,8 +76,25 @@ Ahora recibirás notificaciones urgentes aquí.
                                     requests.post(send_url, data=send_data)
                                     
                                     self.stdout.write(self.style.SUCCESS(
-                                        f'✅ Usuario conectado: {first_name} (@{username}) - Chat ID: {chat_id}'
+                                        f'✅ UID enviado a: {first_name} (@{username}) - Chat ID: {chat_id}'
                                     ))
+                                else:
+                                    # Responder a cualquier otro mensaje con ayuda
+                                    send_url = f"https://api.telegram.org/bot{token}/sendMessage"
+                                    send_data = {
+                                        'chat_id': chat_id,
+                                        'text': f"""
+👋 Hola {first_name}!
+
+Para obtener tu Chat ID, por favor envía el comando:
+/start
+
+Tu Chat ID actual es: <code>{chat_id}</code>
+""",
+                                        'parse_mode': 'HTML'
+                                    }
+                                    requests.post(send_url, data=send_data)
+                                    self.stdout.write(f"ℹ️ Respuesta de ayuda enviada a {first_name}")
                     
                 except requests.exceptions.Timeout:
                     continue

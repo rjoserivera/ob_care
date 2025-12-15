@@ -570,13 +570,19 @@
     </nav>
     {% endif %}
 
-    <!-- Mensajes -->
+    <!-- Mensajes (Estilo Toast Flotante) -->
     {% if messages %}
-    <div class="container mt-3">
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 10000; margin-top: 60px;">
         {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="toast align-items-center text-white bg-{{ message.tags|yesno:'success,danger,warning,info' }} border-0 show fade" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    {% if message.tags == 'success' %}<i class="bi bi-check-circle-fill me-2"></i>{% endif %}
+                    {% if message.tags == 'error' %}<i class="bi bi-exclamation-triangle-fill me-2"></i>{% endif %}
+                    {{ message }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
         </div>
         {% endfor %}
     </div>
@@ -613,12 +619,7 @@
         <source src="https://raw.githubusercontent.com/anars/blank-audio/master/250-milliseconds-of-silence.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- Floating Action Button for Service Mode -->
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999; margin-bottom: 80px;">
-        <button id="btn-enable-guard" class="btn btn-warning rounded-pill shadow-lg fw-bold animate__animated animate__pulse animate__infinite border border-3 border-dark" style="min-width: 220px; font-size: 1.1rem;">
-            <i class="bi bi-broadcast me-2"></i>ACTIVAR ALERTAS
-        </button>
-    </div>
+
 
     <!-- Toast Code (Unchanged) -->
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
@@ -661,145 +662,17 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const checkUrl = "{% url 'gestion_procesos:check_nuevas_notificaciones' %}";
-            let lastTimestamp = localStorage.getItem('lastNotifTimestamp') || 0;
+            let lastNotifId = localStorage.getItem('lastNotifId') || "";
             let currentNotifId = null;
 
-            // WEB AUDIO CONSTANTS
-            let audioCtx = null;
-            
-            function initAudio() {
-                if (!audioCtx) {
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    audioCtx = new AudioContext();
-                }
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-            }
-
-            function playSiren() {
-                if (!audioCtx) initAudio();
-                
-                const osc = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-
-                osc.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-
-                // Siren Effect
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(880, audioCtx.currentTime + 0.5);
-                osc.frequency.linearRampToValueAtTime(440, audioCtx.currentTime + 1.0);
-                osc.frequency.linearRampToValueAtTime(880, audioCtx.currentTime + 1.5);
-
-                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2.0);
-
-                osc.start();
-                osc.stop(audioCtx.currentTime + 2.0);
-            }
-
-            // HELPER: Enable Guard
-            async function enableGuardMode() {
-                // 1. Initialize & Resume Audio Context
-                initAudio();
-                
-                // 2. Play Short Beep to Confirm Logic
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.frequency.value = 880; 
-                osc.type = 'sine';
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.5);
-
-                // 3. Silent Loop (Background Keep Alive)
-                const bgAudio = document.getElementById('bg-keep-alive');
-                if(bgAudio) { bgAudio.volume = 0.1; bgAudio.play().catch(e=>console.error("BG-Audio", e)); }
-
-                // 4. Wake Lock
-                try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch(e) {}
-
-                // Update UI
-                const btn = document.getElementById('btn-enable-guard');
-                if(btn) {
-                    btn.className = 'btn btn-success rounded-pill shadow-lg fw-bold border border-3 border-dark';
-                    btn.innerHTML = '<i class="bi bi-check-all me-2"></i>GUARDIA ACTIVO';
-                }
-
-                // Persist State
-                sessionStorage.setItem('guardMode', 'true');
-            }
-
-            // 1. CHECK PERSISTENCE
-            if (sessionStorage.getItem('guardMode') === 'true') {
-                const overlay = document.getElementById('guard-overlay');
-                overlay.classList.remove('d-none');
-                
-                document.getElementById('btn-resume-guard').addEventListener('click', async () => {
-                   await enableGuardMode(); // Resumes Context
-                   overlay.classList.add('d-none');
-                });
-            }
-
-            // 2. MANUAL ACTIVATION
-            const btnGuard = document.getElementById('btn-enable-guard');
-            if(btnGuard) {
-                // Ensure visibility (force)
-                btnGuard.classList.remove('d-none');
-                
-                btnGuard.addEventListener('click', async () => {
-                    // Visual Feedback
-                    btnGuard.style.backgroundColor = 'blue';
-
-                    // Permission
-                    if ('Notification' in window && Notification.permission !== 'granted') {
-                        Notification.requestPermission().then(permission => {
-                            if (permission === "granted") new Notification("Sistema", {body: "Habilitado"});
-                        });
-                    }
-                    
-                    await enableGuardMode();
-                });
-            }
-
-            // Confirmar Logic (Unchanged)
-            const btnAccept = document.getElementById('btn-accept-notif');
-            if (btnAccept) {
-                btnAccept.addEventListener('click', function() {
-                     if(!currentNotifId) return;
-                     const confirmUrl = `/procesos/api/notificacion/${currentNotifId}/confirmar/`;
-                     const btn = this;
-                     btn.disabled = true; btn.innerHTML = 'Confirmando...';
-                     
-                     fetch(confirmUrl, {
-                        method: 'POST',
-                        headers: {'X-CSRFToken': getCookie('csrftoken')}
-                     }).then(res=>res.json()).then(data=>{
-                        if(data.success){
-                             btn.className = 'btn btn-success btn-sm w-100 disabled';
-                             btn.innerHTML = '<i class="bi bi-check-lg"></i> Listo';
-                             setTimeout(() => {
-                                bootstrap.Toast.getInstance(document.getElementById('liveToast')).hide();
-                                btn.disabled=false; btn.innerHTML='ACEPTAR';
-                             }, 2000);
-                        } else { alert(data.error); btn.disabled=false; btn.innerText='Reintentar'; }
-                     });
-                });
-            }
+            // ...
 
             // Check Notifications loop
-            function checkNotifications() {
-                console.log("Checking notifications...");
+            function checkNotifications(isInit = false) {
                 fetch(checkUrl).then(r=>r.json()).then(data=>{
-                    console.log("Notif Data:", data);
                     if(!data) return;
                     
-                    // Actualizar badge si existe
+                    // Actualizar badge
                     const badge = document.getElementById('notification-badge');
                     if(badge) {
                         badge.innerText = data.count || 0;
@@ -808,40 +681,52 @@
 
                     // Lógica del Toast
                     if(data.count > 0 && data.latest_id) {
-                         // Si es una nueva (por timestamp) O si tenemos pendientes y acabamos de cargar la página (opcional)
-                         if(data.latest_timestamp > lastTimestamp || (data.count > 0 && !document.getElementById('liveToast').classList.contains('show'))) {
-                             
-                             // Update timestamp only if new
-                             if(data.latest_timestamp > lastTimestamp) {
-                                lastTimestamp = data.latest_timestamp;
-                                localStorage.setItem('lastNotifTimestamp', lastTimestamp);
-                                
-                                // Sound & Vibrate only for new ones
-                                try { playSiren(); } catch(e) { console.error("Siren Error", e); }
-                                if(navigator.vibrate) navigator.vibrate([1000,500,1000]);
-                             }
+                         // Validar duplicados por ID (Más seguro que timestamp)
+                         const serverId = String(data.latest_id);
 
-                             currentNotifId = data.latest_id;
-                             
-                             if('Notification' in window && Notification.permission==='granted'){
-                                 try {
-                                    const n = new Notification(data.latest_title||"Alerta", {
-                                        body: data.latest_msg, 
-                                        requireInteraction:true, 
-                                        tag:'med-alert'
-                                    });
-                                    n.onclick = ()=>window.focus();
-                                 } catch(e){}
-                             }
-
-                             document.getElementById('toast-title').innerText = data.latest_title || 'Alerta';
-                             document.getElementById('toast-body').innerText = data.latest_msg || 'Nueva Solicitud';
-                             const t = document.getElementById('liveToast');
-                             new bootstrap.Toast(t, {autohide:false}).show();
+                         // Si el ID es el mismo que ya teníamos, NO hacemos nada (ya se notificó)
+                         if (serverId === lastNotifId) {
+                             return;
                          }
+
+                         // Si es un ID NUEVO:
+                         // 1. Lo guardamos
+                         lastNotifId = serverId;
+                         localStorage.setItem('lastNotifId', lastNotifId);
+
+                         // 2. Si es inicialización (carga de página), SALIMOS en silencio
+                         // (asumimos que si estaba pendiente al cargar, no es una "nueva alerta" en tiempo real)
+                         if (isInit) {
+                             return; 
+                         }
+
+                         // 3. SOLO SI NO ES INIT mostramos la alerta
+                         // Sound & Vibrate
+                         try { playSiren(); } catch(e) { console.error("Siren Error", e); }
+                         if(navigator.vibrate) navigator.vibrate([1000,500,1000]);
+
+                         currentNotifId = data.latest_id;
+                         
+                         if('Notification' in window && Notification.permission==='granted'){
+                             try {
+                                const n = new Notification(data.latest_title||"Alerta", {
+                                    body: data.latest_msg, 
+                                    requireInteraction:true, 
+                                    tag:'med-alert'
+                                });
+                                n.onclick = ()=>window.focus();
+                             } catch(e){}
+                         }
+
+                         document.getElementById('toast-title').innerText = data.latest_title || 'Alerta';
+                         document.getElementById('toast-body').innerText = data.latest_msg || 'Nueva Solicitud';
+                         const t = document.getElementById('liveToast');
+                         new bootstrap.Toast(t, {autohide:false}).show();
                     }
                 }).catch(e=>{ console.error("Notif Error:", e); });
             }
+
+
 
             // Helper GetCookie
             function getCookie(name) {
@@ -859,7 +744,11 @@
                 return cookieValue;
             }
 
-            setInterval(checkNotifications, 10000);
+            // Ejecutar inmediatamente en modo silencioso para sincronizar
+            checkNotifications(true);
+            
+            // Intervalo regular (cada 10s) en modo normal
+            setInterval(() => checkNotifications(false), 10000);
         });
     </script>
     {% endif %}

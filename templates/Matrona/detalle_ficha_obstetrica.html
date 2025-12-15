@@ -1712,13 +1712,8 @@
                 <div class="section-title" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <i class="bi bi-capsule-pill"></i>
-                        Medicamentos Asignados
                     </div>
-                    <a href="{% url 'matrona:agregar_medicamento' ficha.pk %}" 
-                       class="btn" 
-                       style="background: white; color: #f5576c; padding: 0.6rem 1.5rem; border-radius: 25px; font-weight: 600; text-decoration: none; font-size: 0.9rem;">
-                        <i class="bi bi-plus-circle"></i> Agregar Medicamento
-                    </a>
+                    <!-- Boton blanco eliminado por solicitud -->
                 </div>
 
                 {% if medicamentos %}
@@ -1727,66 +1722,67 @@
                         <h5 style="color: #f5576c; margin: 1.5rem 0 1rem; font-weight: 700;">
                             <i class="bi bi-check-circle-fill me-2"></i>Medicamentos ({{ medicamentos.count }})
                         </h5>
-                        
-                        {% for med in medicamentos %}
-                        <div class="medicamento-item" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid {% if med.activo %}#28a745{% else %}#6c757d{% endif %}; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; position: relative;">
-                            <!-- Badge de estado -->
-                            <div style="position: absolute; top: 1rem; right: 1rem;">
-                                {% if med.activo %}
-                                    <span class="badge-custom badge-success" style="font-size: 0.8rem;">
-                                        <i class="bi bi-check-circle"></i> Activo
-                                    </span>
-                                {% else %}
-                                    <span class="badge-custom" style="background: #6c757d; color: white; font-size: 0.8rem;">
-                                        <i class="bi bi-x-circle"></i> Finalizado
-                                    </span>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="medicamento-info">
-                                <h5 style="color: #333; margin: 0 0 0.5rem 0; font-weight: 700; font-size: 1.3rem;">
-                                    <i class="bi bi-capsule-pill" style="color: #f5576c;"></i> {{ med.nombre_display }}
-                                </h5>
-                                
-                                <!-- Grid de informacion -->
-                                <div class="info-grid" style="margin-top: 1rem;">
-                                    <div class="info-item">
-                                        <div class="info-label"><i class="bi bi-prescription2"></i> Dosis</div>
-                                        <div class="info-value medicamento-dosis" style="color: #f5576c; font-weight: 700; font-size: 1.2rem;">{{ med.dosis }}</div>
-                                    </div>
-                                    
-                                    <div class="info-item">
-                                        <div class="info-label"><i class="bi bi-arrow-repeat"></i> Frecuencia</div>
-                                        <div class="info-value">{{ med.frecuencia }}</div>
-                                    </div>
-                                    
-                                    <div class="info-item">
-                                        <div class="info-label"><i class="bi bi-eyedropper"></i> Via</div>
-                                        <div class="info-value">{{ med.via_administracion }}</div>
-                                    </div>
-                                    
-                                    <div class="info-item">
-                                        <div class="info-label"><i class="bi bi-calendar-check"></i> Inicio</div>
-                                        <div class="info-value">{{ med.fecha_inicio|date:"d/m/Y" }}</div>
-                                    </div>
-                                    
-                                    {% if med.fecha_termino %}
-                                    <div class="info-item">
-                                        <div class="info-label"><i class="bi bi-calendar-x"></i> Termino</div>
-                                        <div class="info-value">{{ med.fecha_termino|date:"d/m/Y" }}</div>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                
-                                {% if med.indicaciones %}
-                                <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid #f5576c;">
-                                    <div class="info-label" style="margin-bottom: 0.5rem;"><i class="bi bi-card-text"></i> INDICACIONES:</div>
-                                    <div style="color: #333;">{{ med.indicaciones }}</div>
-                                </div>
-                                {% endif %}
-                            </div>
+
+                        <div class="mb-3">
+                            <button type="button" class="btn-gradient" onclick="mostrarModalMedicamento()">
+                                <i class="bi bi-plus-circle"></i> Agregar Medicamento
+                            </button>
                         </div>
-                        {% endfor %}
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Medicamento</th>
+                                        <th>Dosis</th>
+                                        <th>Vía</th>
+                                        <th>Frecuencia</th>
+                                        <th>Fecha Inicio</th>
+                                        <th>Fecha Término</th>
+                                        <th>Estado</th>
+                                        <th>Indicaciones</th>
+                                        <th style="width: 15%;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for med in medicamentos %}
+                                    <tr>
+                                        <td>
+                                            <div style="font-weight: 600;">{{ med.medicamento_catalogo.nombre|default:med.medicamento }}</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge" style="background-color: #e3f2fd; color: #0d6efd; font-weight: 500;">
+                                                {{ med.dosis }}
+                                            </span>
+                                        </td>
+                                        <td>{{ med.via_administracion }}</td>
+                                        <td>{{ med.frecuencia }}</td>
+                                        <td>{{ med.fecha_inicio|date:"d/m/Y H:i" }}</td>
+                                        <td>{{ med.fecha_termino|date:"d/m/Y H:i"|default:"-" }}</td>
+                                        <td>
+                                            {% if med.activo %}
+                                                <span class="badge bg-success rounded-pill">Activo</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary rounded-pill">Finalizado</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if med.indicaciones %}
+                                                <small class="text-muted" title="{{ med.indicaciones }}">{{ med.indicaciones|truncatechars:30 }}</small>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" onclick="abrirModalAdministracion('{{ med.id }}', '{{ med.nombre_display|escapejs }}', '{{ med.dosis|escapejs }}')">
+                                                <i class="bi bi-clock-history"></i> Administraciones
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 {% else %}
                     <!-- Estado vacio -->
@@ -1794,11 +1790,12 @@
                         <i class="bi bi-capsule" style="font-size: 5rem; color: #dee2e6;"></i>
                         <h4 style="margin: 1.5rem 0 0.5rem; color: #6c757d;">No hay medicamentos asignados</h4>
                         <p style="color: #adb5bd; margin-bottom: 1.5rem;">Asigna medicamentos para el tratamiento de la paciente</p>
-                        <a href="{% url 'matrona:agregar_medicamento' ficha.pk %}" 
-                           class="btn" 
-                           style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 0.75rem 2rem; border-radius: 25px; font-weight: 600; text-decoration: none; display: inline-block;">
-                            <i class="bi bi-plus-circle"></i> Agregar Primer Medicamento
-                        </a>
+                        <button type="button" 
+                                class="btn" 
+                                onclick="mostrarModalMedicamento()"
+                                style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 0.75rem 2rem; border-radius: 25px; font-weight: 600; text-decoration: none; display: inline-block; border: none;">
+                             <i class="bi bi-plus-circle"></i> Agregar Primer Medicamento
+                         </button>
                     </div>
                 {% endif %}
             </div>
@@ -1830,13 +1827,14 @@
                         </p>
                     </div>
                 </div>
+                </div>
             </div>
         </div>
 
-    </div>
+    </div> <!-- Close tab-content -->
 
     <!-- Botones de Acción -->
-    <div class="btn-actions">
+    <div class="btn-actions" style="display: flex; justify-content: flex-start; gap: 1rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #eee;">
         <a href="{% url 'matrona:editar_ficha' ficha.pk %}" class="btn-gradient">
             <i class="bi bi-pencil"></i> Editar Ficha
         </a>
@@ -1847,7 +1845,8 @@
             <i class="bi bi-house"></i> Volver al Menú
         </a>
     </div>
-</div>
+
+</div> <!-- Close ficha-container -->
 
 <!-- MODAL INICIAR PARTO -->
 <div class="modal-overlay" id="modalParto">
@@ -2165,6 +2164,356 @@
         </form>
     </div>
 </div>
+
+<!-- Modal Registrar Medicamento (NUEVO) -->
+<div id="modalMedicamento" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="background: white; max-width: 600px; border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 1.5rem 2rem;">
+            <h3 class="modal-title" style="font-weight: 700; margin: 0;">
+                <i class="bi bi-capsule-pill"></i> Registrar Medicamento
+            </h3>
+        </div>
+
+        <form id="formMedicamento">
+            {% csrf_token %}
+            <div class="modal-body" style="padding: 2rem;">
+                <!-- Nombre y Dosis -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Medicamento <span class="text-danger">*</span></label>
+                            <label class="form-label">Medicamento <span class="text-danger">*</span></label>
+                            <input type="text" list="medicamentos_list" name="medicamento_texto" id="id_medicamento_input" class="form-control" required placeholder="Buscar o Escribir..." oninput="actualizarInputMedicamento(this)">
+                            <datalist id="medicamentos_list"></datalist>
+                            <input type="hidden" name="medicamento_catalogo_id" id="id_medicamento_catalogo_id">
+                            <input type="hidden" name="medicamento" id="id_medicamento_nombre">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Dosis <span class="text-danger">*</span></label>
+                            <input type="text" list="dosis_list" name="dosis" id="id_dosis_input" class="form-control" required placeholder="Seleccionar o Escribir..." oninput="actualizarInputDosis(this)">
+                            <datalist id="dosis_list"></datalist>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Via y Frecuencia -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Vía de Administración <span class="text-danger">*</span></label>
+                            <select name="via_administracion_id" class="form-select" required>
+                                <option value="">Seleccione...</option>
+                                {% for via in vias_administracion %}
+                                <option value="{{ via.id }}">{{ via.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Frecuencia <span class="text-danger">*</span></label>
+                            <input type="text" name="frecuencia" class="form-control" required placeholder="Ej: Cada 8 horas">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fechas -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Fecha Inicio</label>
+                            <input type="datetime-local" name="fecha_inicio" id="id_med_inicio" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Fecha Término (Opcional)</label>
+                            <input type="datetime-local" name="fecha_termino" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label">Indicaciones</label>
+                    <textarea name="indicaciones" class="form-control" rows="3" placeholder="Instrucciones especiales..."></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="border-top: none; padding: 0 2rem 2rem 2rem; justify-content: center;">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalMedicamento()" style="border-radius: 20px; padding: 0.5rem 2rem;">Cancelar</button>
+                <button type="submit" class="btn" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 20px; border: none; padding: 0.5rem 2rem; font-weight: 600;">
+                    <i class="bi bi-save"></i> Guardar Medicamento
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // LOGICA MEDICAMENTOS (AJAX)
+    // ==========================================
+
+    // Build Catalog Map in JS
+    const RAW_MEDICAMENTOS = [
+        {% for med in medicamentos_catalogo %}
+            { id: "{{ med.id }}", nombre: "{{ med.nombre }}", dosis: "{{ med.concentracion }}" },
+        {% endfor %}
+    ];
+    
+    const MED_MAP = {};
+    const UNIQUE_NAMES = new Set();
+    
+    RAW_MEDICAMENTOS.forEach(m => {
+        if (!MED_MAP[m.nombre]) {
+            MED_MAP[m.nombre] = [];
+        }
+        MED_MAP[m.nombre].push(m);
+        UNIQUE_NAMES.add(m.nombre);
+    });
+
+    // Initialize Name List
+    document.addEventListener('DOMContentLoaded', function() {
+        const dataList = document.getElementById('medicamentos_list');
+        UNIQUE_NAMES.forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            dataList.appendChild(opt);
+        });
+    });
+
+    function actualizarInputMedicamento(input) {
+        const val = input.value;
+        const doseList = document.getElementById('dosis_list');
+        const hiddenId = document.getElementById('id_medicamento_catalogo_id');
+        const hiddenName = document.getElementById('id_medicamento_nombre');
+        
+        hiddenName.value = val; // Always save typed name
+        hiddenId.value = ''; // Reset ID until dose verified (or left empty for manual)
+        
+        // Clear previous doses
+        doseList.innerHTML = '';
+        document.getElementById('id_dosis_input').value = '';
+        
+        if (MED_MAP[val]) {
+            // Populate Dose List
+            MED_MAP[val].forEach(m => {
+                if(m.dosis) {
+                    const opt = document.createElement('option');
+                    opt.value = m.dosis;
+                    opt.setAttribute('data-id', m.id);
+                    doseList.appendChild(opt);
+                }
+            });
+            
+            // Auto-select if only 1 dose? 
+            // Better to let user pick, but if there's only 1, it's convenient.
+            // Let's NOT auto-fill to urge user verification, UNLESS explicit request.
+        } else {
+            // Manual entry (new med) -> Empty dose list
+        }
+    }
+
+    function actualizarInputDosis(input) {
+        const val = input.value;
+        const medName = document.getElementById('id_medicamento_input').value;
+        const hiddenId = document.getElementById('id_medicamento_catalogo_id');
+        
+        // Try to find matching ID in map
+        if (MED_MAP[medName]) {
+            const match = MED_MAP[medName].find(m => m.dosis === val);
+            if (match) {
+                hiddenId.value = match.id;
+            } else {
+                hiddenId.value = ''; // Manual dose or non-matching combination
+            }
+        }
+    }
+
+    function mostrarModalMedicamento() {
+        const modal = document.getElementById('modalMedicamento');
+        if (modal) {
+            modal.style.display = 'flex';
+            
+            // Auto-fill start date with current time
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            const nowStr = now.toISOString().slice(0, 16);
+            
+            const startInput = document.getElementById('id_med_inicio');
+            if(startInput && !startInput.value) {
+                startInput.value = nowStr;
+            }
+        }
+    }
+
+    function cerrarModalMedicamento() {
+        const modal = document.getElementById('modalMedicamento');
+        if (modal) modal.style.display = 'none';
+        const form = document.getElementById('formMedicamento');
+        if(form) form.reset();
+    }
+
+    // ==========================================
+    // LOGICA ADMINISTRACION (HISTORIAL)
+    // ==========================================
+    
+    function abrirModalAdministracion(medId, nombre, dosis) {
+        const modal = document.getElementById('modalAdministracion');
+        if(!modal) return;
+        
+        document.getElementById('admin_medicamento_id').value = medId;
+        document.getElementById('adminMedInfo').innerHTML = `<strong>${nombre}</strong> - Dosis indicada: ${dosis}`;
+        
+        // Pre-fill datetime
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('admin_fecha').value = now.toISOString().slice(0, 16);
+        
+        // Pre-fill dosis
+        document.getElementById('admin_dosis').value = dosis; // Default to prescribed dose
+        
+        modal.display = 'flex'; // Wait, it's flex style
+        modal.style.display = 'flex';
+        
+        cargarHistorialAdministraciones(medId);
+    }
+    
+    function cerrarModalAdministracion() {
+        document.getElementById('modalAdministracion').style.display = 'none';
+    }
+
+    function cargarHistorialAdministraciones(medId) {
+        const container = document.getElementById('listaAdministraciones');
+        container.innerHTML = '<div class="text-center text-muted py-3"><i class="spinner-border spinner-border-sm"></i> Cargando...</div>';
+        
+        fetch(`/matrona/api/medicamento/${medId}/administraciones/`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.administraciones && data.administraciones.length > 0) {
+                    let html = '<ul class="list-group list-group-flush">';
+                    data.administraciones.forEach(adm => {
+                        html += `
+                            <li class="list-group-item d-flex justify-content-between align-items-center" style="background: transparent;">
+                                <div>
+                                    <div style="font-weight: 600; color: #333;">${adm.fecha}</div>
+                                    <small class="text-muted"><i class="bi bi-person"></i> ${adm.responsable}</small>
+                                    ${adm.observaciones ? `<div style="font-size: 0.85rem; color: #666; font-style: italic;">"${adm.observaciones}"</div>` : ''}
+                                </div>
+                                <span class="badge bg-success rounded-pill">${adm.dosis}</span>
+                            </li>
+                        `;
+                    });
+                    html += '</ul>';
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<div class="text-center text-muted py-3">No hay administraciones registradas.</div>';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                container.innerHTML = '<div class="text-center text-danger py-3">Error al cargar historial.</div>';
+            });
+    }
+
+    function guardarAdministracion() {
+        const medId = document.getElementById('admin_medicamento_id').value;
+        const fecha = document.getElementById('admin_fecha').value;
+        const dosis = document.getElementById('admin_dosis').value;
+        const lavado = document.getElementById('admin_lavado').checked;
+        const obs = document.getElementById('admin_obs').value;
+        
+        if(!fecha || !dosis) {
+            alert('Fecha y Dosis son obligatorias');
+            return;
+        }
+        
+        const data = {
+            fecha: fecha,
+            dosis: dosis,
+            lavado: lavado,
+            observaciones: obs
+        };
+        
+        fetch(`/matrona/api/medicamento/${medId}/registrar_administracion/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                // Refresh history
+                cargarHistorialAdministraciones(medId);
+                // Clear form
+                document.getElementById('admin_obs').value = '';
+                // Optional: alert success
+                // alert('Administración registrada');
+            } else {
+                alert('Error al registrar: ' + data.error);
+            }
+        })
+        .catch(err => alert('Error de conexión'));
+    }
+
+    document.getElementById('modalMedicamento').addEventListener('click', function(e) {
+        if (e.target === this) cerrarModalMedicamento();
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const formApp = document.getElementById('formMedicamento');
+        if (formApp) {
+            formApp.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Guardando...';
+
+                // Convert FormData to JSON
+                const formData = new FormData(this);
+                const data = {};
+                formData.forEach((value, key) => data[key] = value);
+
+                const url = "{% url 'matrona:api_agregar_medicamento' ficha.pk %}";
+                const csrftoken = getCookie('csrftoken');
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        submitBtn.classList.remove('btn-primary');
+                        submitBtn.classList.add('btn-success');
+                        submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Guardado';
+                        setTimeout(() => location.reload(), 500);
+                    } else {
+                        throw new Error(data.error || 'Error desconocido');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al guardar: ' + error.message);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                });
+            });
+        }
+    });
+</script>
+
 {% endblock %}
 
 {% block modal_parto %}
