@@ -95,113 +95,260 @@
     <!-- MAIN FORM -->
     <div class="rn-card">
         
-        <ul class="nav nav-tabs rn-tabs mb-4" id="rnTabs" role="tablist">
-            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-ident">Identificación</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-apgar">Apgar</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-antropo">Antropometría</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-equipo">Equipo RN</button></li>
-        </ul>
-        
         <form method="post" id="form-rn">
             {% csrf_token %}
-            <div class="tab-content">
-                
-                <!-- IDENTIFICACION -->
-                <div class="tab-pane fade show active" id="tab-ident">
-                    <h5 class="text-info mb-3">Datos del Nacimiento</h5>
-                    <div class="row g-3">
-                        <div class="col-md-4 form-group-rn">
-                            <label>Fecha Nacimiento</label>
-                            <input type="date" class="form-control" name="fecha_nacimiento" value="{{ rn.fecha_nacimiento|date:'Y-m-d' }}">
+            
+                <h5 class="text-info mb-4 border-bottom pb-2">Datos del Nacimiento</h5>
+                <div class="row g-4 mb-3">
+                     <!-- Nuevos Campos Solicitados -->
+                     <div class="col-md-6">
+                        <label class="form-label fw-bold">Nombre Temporal (Social)</label>
+                        <input type="text" class="form-control" name="nombre_temporal" placeholder="Ej: Agustina..." value="{{ rn.nombre_rn_temporal }}">
+                     </div>
+                     <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check p-2 border rounded w-100 bg-white shadow-sm">
+                            <input class="form-check-input ms-2" type="checkbox" name="pulsera_id" id="checkPulsera" {% if rn.pulsera_identificacion %}checked{% endif %}>
+                            <label class="form-check-label fw-bold ms-2" for="checkPulsera">
+                                <i class="bi bi-tag-fill text-primary"></i> Pulsera de Identificación Instalada
+                            </label>
                         </div>
-                        <div class="col-md-4 form-group-rn">
-                            <label>Hora Nacimiento</label>
-                            <input type="time" class="form-control" name="hora_nacimiento" value="{{ rn.hora_nacimiento|time:'H:i' }}">
-                        </div>
-                        <div class="col-md-4 form-group-rn">
-                            <label>Sexo</label>
-                            <select class="form-select" name="sexo">
-                                {% for s in sexos %}
-                                <option value="{{ s.id }}" {% if rn.sexo_id == s.id %}selected{% endif %}>{{ s.descripcion }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
+                     </div>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-3 form-group-rn">
+                        <label>Fecha Nacimiento</label>
+                        <input type="date" class="form-control" name="fecha_nacimiento" value="{{ rn.fecha_nacimiento|date:'Y-m-d' }}">
+                    </div>
+                    <div class="col-md-3 form-group-rn">
+                        <label>Hora Nacimiento</label>
+                        <input type="time" class="form-control" name="hora_nacimiento" value="{{ rn.hora_nacimiento|time:'H:i' }}">
+                    </div>
+                    <div class="col-md-3 form-group-rn">
+                        <label>Sexo</label>
+                        <select class="form-select" name="sexo">
+                            {% for s in sexos %}
+                            <option value="{{ s.id }}" {% if rn.sexo_id == s.id %}selected{% endif %}>{{ s.descripcion }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
-
-                <!-- APGAR -->
-                <div class="tab-pane fade" id="tab-apgar">
-                    <h5 class="text-info mb-3">Puntuación Apgar</h5>
-                    <div class="row g-3">
-                        <div class="col-md-4 form-group-rn">
-                            <label>Apgar 1 Minuto</label>
-                            <input type="number" class="form-control" name="apgar1" min="0" max="10" value="{{ rn.apgar_1_minuto }}">
-                        </div>
-                        <div class="col-md-4 form-group-rn">
-                            <label>Apgar 5 Minutos</label>
-                            <input type="number" class="form-control" name="apgar5" min="0" max="10" value="{{ rn.apgar_5_minutos }}">
-                        </div>
-                        <div class="col-md-4 form-group-rn">
-                            <label>Apgar 10 Minutos (Opcional)</label>
-                            <input type="number" class="form-control" name="apgar10" min="0" max="10" value="{{ rn.apgar_10_minutos }}">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ANTROPOMETRIA -->
-                <div class="tab-pane fade" id="tab-antropo">
-                    <h5 class="text-info mb-3">Medidas al Nacer</h5>
-                    <div class="row g-3">
-                        <div class="col-md-4 form-group-rn">
-                            <label>Peso (gramos)</label>
-                            <input type="number" class="form-control" name="peso" placeholder="3000" value="{{ rn.peso_gramos }}">
-                        </div>
-                        <div class="col-md-4 form-group-rn">
-                            <label>Talla (cm)</label>
-                            <input type="number" class="form-control" name="talla" placeholder="50" step="0.1" value="{{ rn.talla_centimetros|stringformat:'.1f' }}">
-                        </div>
-                        <div class="col-md-4 form-group-rn">
-                            <label>Perímetro Cefálico (cm)</label>
-                            <input type="number" class="form-control" name="pc" placeholder="35" step="0.1" value="{{ rn.perimetro_cefalico|default:'' }}">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- EQUIPO RN -->
-                <div class="tab-pane fade" id="tab-equipo">
-                    <h5 class="text-info mb-3">Equipo Neonatal</h5>
-                    <div class="alert alert-warning small">
-                        <i class="bi bi-exclamation-triangle"></i> Este equipo es específico para este RN.
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-md-6 form-group-rn">
-                            <label>Matrona Responsable (RN)</label>
-                            <select class="form-select" name="matrona_rn">
-                                <option value="">Seleccione...</option>
-                                {% for m in matronas_staff %}
-                                <option value="{{ m.usuario.id }}" {% if rn.matrona_responsable == m.usuario.get_full_name %}selected{% endif %}>
-                                    {{ m.usuario.get_full_name }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-6 form-group-rn">
-                             <label>TENS Responsable (RN)</label>
-                            <select class="form-select" name="tens_rn">
-                                <option value="">Seleccione...</option>
-                                {% for t in tens_staff %}
-                                <option value="{{ t.usuario.id }}">{{ t.usuario.get_full_name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
-            <div class="text-end mt-4 pt-3 border-top">
-                <button type="submit" class="btn btn-primary px-5">
-                    <i class="bi bi-save"></i> Guardar Ficha RN
+            <!-- APGAR / APEGO (Simplified) -->
+            <div class="mb-5">
+                <h5 class="text-info mb-4 border-bottom pb-2">Apgar / Apego</h5>
+                <div class="row g-4 align-items-center">
+                    <div class="col-md-4">
+                        <div class="form-check p-3 border rounded bg-light">
+                            <input class="form-check-input" type="checkbox" id="checkApgar" onchange="toggleApgar()">
+                            <label class="form-check-label fw-bold" for="checkApgar">
+                                ¿Se realizó?
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4" id="apgarInputContainer" style="display:none;">
+                        <label class="form-label fw-bold">Apgar Minutos (Tiempo)</label>
+                        <input type="number" class="form-control" name="apgar1" id="apgarInput" min="0" placeholder="Minutos..." value="{{ rn.apgar_1_minuto|default_if_none:'' }}">
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                function toggleApgar() {
+                    const check = document.getElementById('checkApgar');
+                    const container = document.getElementById('apgarInputContainer');
+                    const input = document.getElementById('apgarInput');
+                    
+                    if (check.checked) {
+                        container.style.display = 'block';
+                    } else {
+                        container.style.display = 'none';
+                        input.value = ''; // Reset if unchecked? OR keep value hidden
+                    }
+                }
+                
+                // Init state
+                document.addEventListener('DOMContentLoaded', function() {
+                    const input = document.getElementById('apgarInput');
+                    const check = document.getElementById('checkApgar');
+                    if (input.value && input.value != '0') {
+                        check.checked = true;
+                        toggleApgar();
+                    }
+                });
+            </script>
+
+            <!-- ANTROPOMETRIA -->
+            <div class="mb-5">
+                <h5 class="text-info mb-4 border-bottom pb-2">Antropometría</h5>
+                <div class="row g-4">
+                    <div class="col-md-3 form-group-rn">
+                        <label>Peso (g)</label>
+                        <input type="number" class="form-control" name="peso" placeholder="3000" value="{{ rn.peso_gramos }}">
+                    </div>
+                    <div class="col-md-3 form-group-rn">
+                        <label>Talla (cm)</label>
+                        <input type="number" class="form-control" name="talla" placeholder="50" step="0.1" value="{{ rn.talla_centimetros|stringformat:'.1f' }}">
+                    </div>
+                    <div class="col-md-3 form-group-rn">
+                        <label>Perímetro Cefálico (cm)</label>
+                        <input type="number" class="form-control" name="pc" placeholder="35" step="0.1" value="{{ rn.perimetro_cefalico|default:'' }}">
+                    </div>
+                    <div class="col-md-3 form-group-rn">
+                        <label>Perímetro Torácico (cm)</label>
+                        <input type="number" class="form-control" name="pt" placeholder="33" step="0.1" value="{{ rn.perimetro_torax|default:'' }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- CORDÓN Y APEGO -->
+            <div class="mb-5">
+                <h5 class="text-info mb-4 border-bottom pb-2">Cordón y Apego</h5>
+                <div class="row g-4 mb-4">
+                    <!-- Cordón -->
+                    <div class="col-md-6 border-end">
+                        <h6 class="text-secondary fw-bold mb-3">Cordón Umbilical</h6>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" name="ligadura_tardia" id="checkLigadura" {% if rn.ligadura_tardia_cordon %}checked{% endif %}>
+                            <label class="form-check-label" for="checkLigadura">Ligadura Tardía (>1 min)</label>
+                        </div>
+                        <div class="row g-2 align-items-center mb-3">
+                             <div class="col-8"><label class="form-label mb-0">Tiempo Ligadura (min)</label></div>
+                             <div class="col-4"><input type="number" class="form-control form-control-sm" name="tiempo_ligadura" value="{{ rn.tiempo_ligadura_minutos|default:'' }}"></div>
+                        </div>
+                        <div class="row g-2 align-items-center">
+                             <div class="col-8"><label class="form-label mb-0">N° Vasos Sanguíneos</label></div>
+                             <div class="col-4"><input type="number" class="form-control form-control-sm" name="vasos_cordon" min="1" max="3" value="{{ rn.numero_vasos_cordon }}"></div>
+                        </div>
+                    </div>
+                    <!-- Apego -->
+                    <div class="col-md-6 ps-4">
+                         <h6 class="text-secondary fw-bold mb-3">Apego y Acompañamiento</h6>
+                         <div class="form-check"><input type="checkbox" class="form-check-input" name="apego_piel" {% if rn.apego_piel_con_piel %}checked{% endif %}> <label>Apego Piel con Piel</label></div>
+                         <div class="form-check"><input type="checkbox" class="form-check-input" name="apego_canguro" {% if rn.apego_canguro %}checked{% endif %}> <label>Método Canguro</label></div>
+                         <div class="form-check"><input type="checkbox" class="form-check-input" name="acomp_madre" {% if rn.acompanamiento_madre %}checked{% endif %}> <label>Acompañamiento Madre</label></div>
+                         <div class="form-check"><input type="checkbox" class="form-check-input" name="acomp_ext" {% if rn.acompanamiento_acompanante %}checked{% endif %}> <label>Acompañamiento Externo</label></div>
+                         <div class="mt-2 row align-items-center">
+                             <div class="col-auto"><label class="small text-muted">Duración Canguro (min):</label></div>
+                             <div class="col"><input type="number" class="form-control form-control-sm" name="duracion_canguro" value="{{ rn.duracion_apego_canguro_minutos|default:'' }}"></div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EVALUACIONES Y PROFILAXIS -->
+            <div class="mb-5">
+                <h5 class="text-info mb-4 border-bottom pb-2">Evaluaciones y Profilaxis</h5>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card bg-light border-0 p-3 h-100">
+                             <h6 class="fw-bold mb-3">Evaluaciones Generales</h6>
+                             <div class="form-check mb-2"><input type="checkbox" class="form-check-input" name="examen_fisico" {% if rn.examen_fisico_completo %}checked{% endif %}> <label class="form-check-label fw-bold">Examen Físico Completo</label></div>
+                             <div class="form-check mb-2"><input type="checkbox" class="form-check-input" name="screening" {% if rn.screening_metabolico %}checked{% endif %}> <label>Screening Metabólico (PKU/TSH)</label></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light border-0 p-3 h-100">
+                             <h6 class="fw-bold mb-3">Profilaxis Realizadas</h6>
+                             <div class="form-check mb-2"><input type="checkbox" class="form-check-input" name="vac_hep_b" {% if rn.vacuna_hepatitis_b %}checked{% endif %}> <label>Vacuna Hepatitis B</label></div>
+                             <div class="form-check mb-2"><input type="checkbox" class="form-check-input" name="vit_k" {% if rn.vitamina_k %}checked{% endif %}> <label>Vitamina K (Intramuscular)</label></div>
+                             <div class="form-check mb-2"><input type="checkbox" class="form-check-input" name="prof_oftal" {% if rn.profilaxis_oftalmologica %}checked{% endif %}> <label>Profilaxis Oftalmológica</label></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ALAMENTACIÓN -->
+            <div class="mb-5">
+                <h5 class="text-info mb-4 border-bottom pb-2">Alimentación</h5>
+                <div class="row align-items-center g-4">
+                    <div class="col-md-3">
+                         <div class="form-check">
+                             <input type="checkbox" class="form-check-input" name="lactancia_iniciada" id="checkLactancia" {% if rn.lactancia_iniciada %}checked{% endif %}>
+                             <label class="form-check-label fw-bold" for="checkLactancia">Lactancia Materna Iniciada</label>
+                         </div>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" class="form-control" name="tiempo_lactancia" placeholder="Minutos inicio..." value="{{ rn.tiempo_inicio_lactancia_minutos|default:'' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <div class="input-group-text bg-white">
+                                <input class="form-check-input mt-0" type="checkbox" name="formula" id="checkFormula" {% if rn.alimentacion_con_formula %}checked{% endif %}>
+                                <label class="ms-2 mb-0" for="checkFormula">Fórmula</label>
+                            </div>
+                            <input type="text" class="form-control" name="razon_formula" placeholder="Razón (si aplica)" value="{{ rn.razon_formula }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPLICACIONES -->
+            <div class="mb-5">
+                <h5 class="text-info mb-4 border-bottom pb-2">Estado y Complicaciones</h5>
+                <div class="row row-cols-md-3 g-3 mb-4">
+                    <div class="col"><div class="form-check"><input type="checkbox" class="form-check-input" name="dif_resp" {% if rn.dificultad_respiratoria %}checked{% endif %}><label>Dificultad Respiratoria</label></div></div>
+                    <div class="col"><div class="form-check"><input type="checkbox" class="form-check-input" name="hipoglucemia" {% if rn.hipoglucemia %}checked{% endif %}><label>Hipoglucemia</label></div></div>
+                    <div class="col"><div class="form-check"><input type="checkbox" class="form-check-input" name="hipotermia" {% if rn.hipotermia %}checked{% endif %}><label>Hipotermia</label></div></div>
+                    <div class="col"><div class="form-check"><input type="checkbox" class="form-check-input" name="ictericia" {% if rn.ictericia %}checked{% endif %}><label>Ictericia</label></div></div>
+                    <div class="col"><div class="form-check"><input type="checkbox" class="form-check-input" name="trauma_obs" {% if rn.traumatismo_obstetrico %}checked{% endif %}><label>Traumatismo Obstétrico</label></div></div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Otras Complicaciones / Observaciones</label>
+                    <textarea class="form-control" name="otras_complicaciones" rows="2">{{ rn.otras_complicaciones }}</textarea>
+                </div>
+                
+                <div class="card border-warning bg-warning-subtle p-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                             <div class="form-check">
+                                 <input type="checkbox" class="form-check-input" name="hospitalizacion" id="checkHosp" {% if rn.requiere_hospitalizacion %}checked{% endif %}>
+                                 <label class="form-check-label fw-bold text-danger" for="checkHosp">Requiere Hospitalización</label>
+                             </div>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-select" name="motivo_hosp">
+                                <option value="">Motivo...</option>
+                                {% for mh in motivos_hospitalizacion %}
+                                <option value="{{ mh.id }}" {% if rn.motivo_hospitalizacion_id == mh.id %}selected{% endif %}>{{ mh.descripcion }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EQUIPO RN -->
+            <div class="mb-4">
+                <h5 class="text-info mb-4 border-bottom pb-2">Equipo Neonatal</h5>
+                <div class="row g-4">
+                    <div class="col-md-6 form-group-rn">
+                        <label>Matrona Responsable (RN)</label>
+                        <select class="form-select" name="matrona_rn">
+                            <option value="">Seleccione...</option>
+                            {% for m in matronas_staff %}
+                            <option value="{{ m.usuario.id }}" {% if rn.matrona_responsable == m.usuario.get_full_name %}selected{% endif %}>
+                                {{ m.usuario.get_full_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 form-group-rn">
+                         <label>TENS Responsable (RN)</label>
+                        <select class="form-select" name="tens_rn">
+                            <option value="">Seleccione...</option>
+                            {% for t in tens_staff %}
+                            <option value="{{ t.usuario.id }}">{{ t.usuario.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-end mt-5 pt-4 border-top">
+                <button type="submit" class="btn btn-primary px-5 py-3 fw-bold fs-5">
+                    <i class="bi bi-save-fill"></i> GUARDAR FICHA
                 </button>
             </div>
         </form>

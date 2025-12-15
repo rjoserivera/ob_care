@@ -1746,6 +1746,86 @@ def ficha_rn_view(request, rn_id):
     matronas_staff = staff_asignado.filter(rol='MATRONA')
     tens_staff = staff_asignado.filter(rol='TENS')
     
+    # Handle POST - Save Data
+    if request.method == "POST":
+        try:
+            # 1. Identificación y Antropometría
+            rn.fecha_nacimiento = request.POST.get('fecha_nacimiento')
+            rn.hora_nacimiento = request.POST.get('hora_nacimiento')
+            rn.sexo_id = request.POST.get('sexo')
+            
+            # Nuevos Campos ID
+            rn.nombre_rn_temporal = request.POST.get('nombre_temporal', '')
+            rn.pulsera_identificacion = 'pulsera_id' in request.POST
+            
+            rn.peso_gramos = request.POST.get('peso') or 3000
+            rn.talla_centimetros = request.POST.get('talla') or 50
+            rn.perimetro_cefalico = request.POST.get('pc')
+            rn.perimetro_torax = request.POST.get('pt')
+            
+            # 2. Apgar (Simplified)
+            # Only if checkApgar was visible/checked ideally, but saving value if present is fine
+            rn.apgar_1_minuto = request.POST.get('apgar1') or 0
+            
+            # 3. Cordón
+            rn.ligadura_tardia_cordon = 'ligadura_tardia' in request.POST
+            rn.tiempo_ligadura_minutos = request.POST.get('tiempo_ligadura') or 0
+            rn.numero_vasos_cordon = request.POST.get('vasos_cordon') or 3
+            
+            # 4. Apego
+            rn.apego_piel_con_piel = 'apego_piel' in request.POST
+            rn.apego_canguro = 'apego_canguro' in request.POST
+            rn.duracion_apego_canguro_minutos = request.POST.get('duracion_canguro') or 0
+            rn.acompanamiento_madre = 'acomp_madre' in request.POST
+            rn.acompanamiento_acompanante = 'acomp_ext' in request.POST
+            
+            # 5. Evaluaciones
+            rn.examen_fisico_completo = 'examen_fisico' in request.POST
+            rn.screening_metabolico = 'screening' in request.POST
+            rn.vacuna_hepatitis_b = 'vac_hep_b' in request.POST
+            rn.vitamina_k = 'vit_k' in request.POST
+            rn.profilaxis_oftalmologica = 'prof_oftal' in request.POST
+            
+            # 6. Alimentación
+            rn.lactancia_iniciada = 'lactancia_iniciada' in request.POST
+            rn.tiempo_inicio_lactancia_minutos = request.POST.get('tiempo_lactancia') or 0
+            rn.alimentacion_con_formula = 'formula' in request.POST
+            rn.razon_formula = request.POST.get('razon_formula', '')
+            
+            # 7. Complicaciones
+            rn.dificultad_respiratoria = 'dif_resp' in request.POST
+            rn.hipoglucemia = 'hipoglucemia' in request.POST
+            rn.hipotermia = 'hipotermia' in request.POST
+            rn.ictericia = 'ictericia' in request.POST
+            rn.traumatismo_obstetrico = 'trauma_obs' in request.POST
+            rn.otras_complicaciones = request.POST.get('otras_complicaciones', '')
+            
+            rn.requiere_hospitalizacion = 'hospitalizacion' in request.POST
+            motivo_id = request.POST.get('motivo_hosp')
+            if motivo_id:
+                rn.motivo_hospitalizacion_id = motivo_id
+            else:
+                 rn.motivo_hospitalizacion = None
+            
+            # 8. Staff Responsable
+            matrona_id = request.POST.get('matrona_rn')
+            tens_id = request.POST.get('tens_rn')
+            
+            if matrona_id:
+                u = User.objects.get(pk=matrona_id)
+                rn.matrona_responsable = u.get_full_name()
+            
+            if tens_id:
+                u = User.objects.get(pk=tens_id)
+                rn.tens_responsable = u.get_full_name()
+            
+            rn.save()
+            messages.success(request, 'Ficha Recién Nacido guardada correctamente.')
+            return redirect('matrona:ficha_rn', rn_id=rn.id)
+            
+        except Exception as e:
+            messages.error(request, f'Error al guardar: {str(e)}')
+            
     return render(request, 'Matrona/ficha_rn.html', {
         'rn': rn,
         'ficha_parto': ficha_parto,
