@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from medicoApp import views as medico_views
+from matronaApp import views as matrona_views
 
 app_name = 'authentication'
 
@@ -11,7 +12,7 @@ urlpatterns = [
     # Dashboards por rol
     path('dashboard/admin/', views.DashboardAdminView.as_view(), name='dashboard_admin'),
     path('dashboard/medico/', medico_views.DashboardMedicoView.as_view(), name='dashboard_medico'),
-    path('dashboard/matrona/', views.DashboardMatronaView.as_view(), name='dashboard_matrona'),
+    path('dashboard/matrona/', matrona_views.DashboardMatronaView.as_view(), name='dashboard_matrona'),
     path('dashboard/tens/', views.DashboardTensView.as_view(), name='dashboard_tens'),
     
     # Registro de usuarios

@@ -49,6 +49,9 @@ class DashboardMedicoView(TemplateView):
         # 3. TENS Activos
         context['total_tens'] = User.objects.filter(groups__name='TENS', is_active=True).count()
         
+        # 4. Médicos Activos
+        context['total_medicos'] = User.objects.filter(groups__name='Medicos', is_active=True).count()
+        
         # Permisos
         context['puede_agregar_paciente'] = True
         context['puede_editar_ficha'] = True

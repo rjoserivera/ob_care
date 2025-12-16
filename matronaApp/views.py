@@ -74,63 +74,54 @@ def calcular_edad(fecha_nacimiento):
 # MENU MATRONA (DASHBOARD)
 # ============================================
 
-@login_required
-def menu_matrona(request):
-    """
-    Menú principal de matrona (Dashboard)
-    URL: /matrona/
-    """
-    # Estadísticas
-    total_fichas = FichaObstetrica.objects.filter(activa=True).count()
-    fichas_recientes = FichaObstetrica.objects.filter(
-        activa=True
-    ).select_related('paciente__persona').order_by('-fecha_creacion')[:5]
+# ============================================
+# MENU MATRONA (DASHBOARD)
+# ============================================
+
+from django.views.generic import TemplateView
+from django.utils.decorators import method_decorator
+from authentication.utils import user_has_role
+
+@method_decorator(login_required, name='dispatch')
+class DashboardMatronaView(TemplateView):
+    template_name = "Matrona/Data/dashboard_matrona.html"
     
-    # Fichas con proceso de parto activo
-    fichas_en_parto = FichaObstetrica.objects.filter(
-        activa=True, 
-        proceso_parto_iniciado=True
-    ).count()
+    def dispatch(self, request, *args, **kwargs):
+        # Permitir matronas y superusuarios
+        if not (user_has_role(request.user, "matrona") or request.user.is_superuser):
+            messages.error(request, "No tienes permisos para acceder al dashboard de matrona.")
+            return redirect("home")
+        return super().dispatch(request, *args, **kwargs)
     
-    # Fichas con estancamiento
-    fichas_estancadas = FichaObstetrica.objects.filter(
-        activa=True,
-        estado_dilatacion='ESTANCADA'
-    ).count()
-    
-    # Fichas listas para parto
-    fichas_listas = FichaObstetrica.objects.filter(
-        activa=True,
-        estado_dilatacion='LISTA'
-    ).count()
-    
-    # Datos para el dashboard
-    total_ingresos = IngresoPaciente.objects.filter(activo=True).count()
-    total_medicamentos_asignados = MedicamentoFicha.objects.filter(activo=True).count()
-    
-    # Permisos especÃ­ficos de matrona
-    puede_ingresar_paciente = True
-    puede_asignar_medicamentos = True
-    puede_buscar_paciente = True
-    puede_editar_ficha = True
-    puede_iniciar_parto = False  # Solo médico
-    
-    context = {
-        'titulo': 'Dashboard Matrona',
-        'total_fichas': total_fichas,
-        'fichas_recientes': fichas_recientes,
-        'fichas_en_parto': fichas_en_parto,
-        'fichas_estancadas': fichas_estancadas,
-        'fichas_listas': fichas_listas,
-        'total_ingresos': total_ingresos,
-        'total_medicamentos_asignados': total_medicamentos_asignados,
-        'puede_ingresar_paciente': puede_ingresar_paciente,
-        'puede_asignar_medicamentos': puede_asignar_medicamentos,
-        'puede_buscar_paciente': puede_buscar_paciente,
-        'puede_editar_ficha': puede_editar_ficha,
-        'puede_iniciar_parto': puede_iniciar_parto,
-    }
-    return render(request, 'Matrona/Data/dashboard_matrona.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        context['titulo'] = 'Dashboard Matrona'
+        context['usuario'] = self.request.user
+        
+        # 1. Fichas Activas
+        context['total_fichas'] = FichaObstetrica.objects.filter(activa=True).count()
+        
+        # 2. Médicos Activos
+        context['total_medicos'] = User.objects.filter(groups__name='Medicos', is_active=True).count()
+        
+        # 3. Matronas Activas
+        context['total_matronas'] = User.objects.filter(groups__name='Matronas', is_active=True).count()
+        
+        # 4. TENS Activos
+        context['total_tens'] = User.objects.filter(groups__name='TENS', is_active=True).count()
+
+        # Permisos
+        context['puede_ingresar_paciente'] = True
+        context['puede_asignar_medicamentos'] = True
+        context['puede_buscar_paciente'] = True
+        context['puede_editar_ficha'] = True
+        context['puede_iniciar_parto'] = False
+        
+        return context
+
+# Mantener soporte para URL antigua si es necesario, o redirigir
+menu_matrona = DashboardMatronaView.as_view()
 
 
 # ============================================
