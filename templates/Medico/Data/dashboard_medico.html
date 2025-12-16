@@ -5,8 +5,36 @@
 
 {% block extra_css %}
 <style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --admin-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --medico-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        --matrona-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --tens-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --export-gradient: linear-gradient(135deg, #434343 0%, #000000 100%);
+        --bg-color: #f0f2f5;
+        --card-bg: #ffffff;
+        --text-primary: #1a1a2e;
+        --text-secondary: #6c757d;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: var(--bg-color);
+        /* min-height handled by base */
+    }
+
+    /* Dashboard Container */
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    /* Navbar Custom */
     .navbar-custom {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+        /* Darker gradient for better text visibility */
+        background: linear-gradient(135deg, #0d736a 0%, #2cb65f 100%) !important;
         padding: 1rem 0;
     }
 
@@ -16,33 +44,61 @@
         font-weight: 600;
     }
 
-    .welcome-card {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        color: white;
-        border-radius: 20px;
-        padding: 2rem;
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
         margin-bottom: 2rem;
     }
 
-    .stat-box {
-        background: white;
-        border-left: 5px solid #11998e;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin-bottom: 1rem;
+    .stat-card {
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: 1.25rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #11998e;
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     }
 
-    .stat-label {
-        color: #666;
-        font-size: 0.95rem;
+    .stat-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: white;
+        flex-shrink: 0;
     }
 
+    /* Icon Gradients */
+    .stat-icon.ingresos { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+    .stat-icon.medicamentos { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .stat-icon.fichas { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+
+    .stat-info h3 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .stat-info p {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin: 0;
+    }
+
+    /* Action Cards */
     .action-card {
         background: white;
         border-radius: 15px;
@@ -50,6 +106,11 @@
         text-align: center;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
         transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
 
     .action-card:hover {
@@ -59,13 +120,14 @@
 
     .action-card i {
         font-size: 3rem;
-        color: #11998e;
+        color: #11998e; /* Main green */
         margin-bottom: 1rem;
     }
 
     .action-card h5 {
         color: #333;
         margin-bottom: 1rem;
+        font-weight: 600;
     }
 
     .btn-action {
@@ -81,14 +143,15 @@
     .btn-action:hover {
         transform: scale(1.05);
         color: white;
+        box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);
     }
-
-    /* Alerta personalizada de Médico */
-    .alert-medico {
+    
+    /* Alerts */
+     .alert-medico {
         background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
         color: white;
         border: none;
-        border-left: 4px solid #38ef7d;
+        border-left: 4px solid #0d736a;
     }
 
     .alert-medico .alert-heading {
@@ -99,12 +162,18 @@
     .alert-medico .btn-close {
         filter: brightness(0) invert(1);
     }
+    
+    /* Date Time */
+    .date-time-section { text-align: right; margin-bottom: 1.5rem; }
+    .date-time-section .date { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
+
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid" style="padding: 20px;">
-    <!-- Welcome Alert (Auto-close after 5 seconds) -->
+<div class="dashboard-container">
+    
+    <!-- Welcome Alert -->
     <div class="alert alert-medico alert-dismissible fade show" role="alert" id="welcomeAlert">
         <h5 class="alert-heading"><i class="bi bi-stethoscope"></i> ¡Bienvenido/a al Menú de Médico!</h5>
         <p class="mb-0">{{ request.user.get_full_name|default:request.user.username }}</p>
@@ -112,32 +181,43 @@
     </div>
 
     <!-- Date and Time Section -->
-    <div class="date-time-section mb-4 text-end">
+    <div class="date-time-section">
         <div class="date fw-bold fs-5" id="currentDate"></div>
         <div class="text-muted" id="currentTime"></div>
     </div>
 
-    <!-- Estadísticas -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="stat-box">
-                <div class="stat-number">{{ total_ingresos|default:0 }}</div>
-                <div class="stat-label">Ingresos Registrados</div>
+    <!-- Estadísticas (Diseño Estilo Admin) -->
+    <div class="stats-grid">
+        <!-- Fichas Activas -->
+        <div class="stat-card">
+            <div class="stat-icon fichas"><i class="bi bi-file-earmark-medical-fill"></i></div>
+            <div class="stat-info">
+                <h3>{{ total_fichas|default:"0" }}</h3>
+                <p>Fichas Activas</p>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="stat-box">
-                <div class="stat-number">{{ total_medicamentos_asignados|default:0 }}</div>
-                <div class="stat-label">Medicamentos Asignados</div>
+        
+        <!-- Matronas Activas -->
+        <div class="stat-card">
+            <div class="stat-icon ingresos"><i class="bi bi-person-heart"></i></div>
+            <div class="stat-info">
+                <h3>{{ total_matronas|default:"0" }}</h3>
+                <p>Matronas Activas</p>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="stat-box">
-                <div class="stat-number">{{ total_fichas|default:0 }}</div>
-                <div class="stat-label">Fichas en Seguimiento</div>
+        
+        <!-- TENS Activos -->
+        <div class="stat-card">
+            <div class="stat-icon medicamentos"><i class="bi bi-person-badge-fill"></i></div>
+            <div class="stat-info">
+                <h3>{{ total_tens|default:"0" }}</h3>
+                <p>TENS Activos</p>
             </div>
         </div>
     </div>
+
+
+
 
     <!-- Acciones disponibles -->
     <div class="row">

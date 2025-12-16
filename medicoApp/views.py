@@ -15,9 +15,49 @@ from matronaApp.models import FichaObstetrica, MedicamentoFicha, IngresoPaciente
 # VISTA PRINCIPAL DEL MÓDULO MÉDICO
 # ============================================
 
-from gestionApp.views_dashboards import DashboardMedicoView
+from django.views.generic import TemplateView
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from authentication.utils import user_has_role
+from matronaApp.models import FichaObstetrica, IngresoPaciente, MedicamentoFicha
+from gestionApp.models import Paciente
 
-# Reemplazamos la vista funcional por la vista basada en clases
+@method_decorator(login_required, name='dispatch')
+class DashboardMedicoView(TemplateView):
+    template_name = "Medico/Data/dashboard_medico.html"
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not (user_has_role(request.user, "medico") or request.user.is_superuser):
+            messages.error(request, "No tienes permisos para acceder al dashboard médico.")
+            return redirect("home")
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from django.contrib.auth.models import User
+        
+        context['titulo'] = 'Dashboard Médico'
+        context['usuario'] = self.request.user
+        
+        # Nuevos conteos solicitados
+        # 1. Fichas Activas
+        context['total_fichas'] = FichaObstetrica.objects.filter(activa=True).count()
+        
+        # 2. Matronas Activas
+        context['total_matronas'] = User.objects.filter(groups__name='Matronas', is_active=True).count()
+        
+        # 3. TENS Activos
+        context['total_tens'] = User.objects.filter(groups__name='TENS', is_active=True).count()
+        
+        # Permisos
+        context['puede_agregar_paciente'] = True
+        context['puede_editar_ficha'] = True
+        context['puede_iniciar_parto'] = True
+        context['puede_asignar_medicamentos'] = True
+        context['puede_ver_historial'] = True
+        
+        return context
+
 menu_medico = DashboardMedicoView.as_view()
 
 

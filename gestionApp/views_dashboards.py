@@ -31,12 +31,19 @@ class DashboardMedicoView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
+        # Importar modelos necesarios para los conteos
+        from matronaApp.models import FichaObstetrica, IngresoPaciente, MedicamentoFicha
+        
         context['titulo'] = 'Dashboard Médico'
         context['usuario'] = self.request.user
-        context['total_pacientes'] = Paciente.objects.filter(activo=True).count()
-        context['total_fichas'] = 0
-        context['partos_pendientes'] = 0
         
+        # Conteos reales
+        context['total_pacientes'] = Paciente.objects.filter(activo=True).count()
+        context['total_ingresos'] = IngresoPaciente.objects.filter(activo=True).count()
+        context['total_medicamentos_asignados'] = MedicamentoFicha.objects.filter(activo=True).count()
+        context['total_fichas'] = FichaObstetrica.objects.filter(activa=True).count()
+        
+        # Permisos (Flags para la vista)
         context['puede_agregar_paciente'] = True
         context['puede_editar_ficha'] = True
         context['puede_iniciar_parto'] = True
