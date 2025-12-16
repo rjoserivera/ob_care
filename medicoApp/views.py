@@ -15,15 +15,10 @@ from matronaApp.models import FichaObstetrica, MedicamentoFicha, IngresoPaciente
 # VISTA PRINCIPAL DEL MÓDULO MÉDICO
 # ============================================
 
-@login_required
-def menu_medico(request):
-    """Vista principal del módulo Médico"""
-    context = {
-        'total_ingresos': IngresoPaciente.objects.filter(activo=True).count(),
-        'total_medicamentos_asignados': MedicamentoFicha.objects.filter(activo=True).count(),
-        'total_fichas': FichaObstetrica.objects.filter(activa=True).count(),
-    }
-    return render(request, 'Medico/Data/dashboard_medico.html', context)
+from gestionApp.views_dashboards import DashboardMedicoView
+
+# Reemplazamos la vista funcional por la vista basada en clases
+menu_medico = DashboardMedicoView.as_view()
 
 
 # ============================================

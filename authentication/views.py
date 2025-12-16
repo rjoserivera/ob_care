@@ -3,7 +3,7 @@ authentication/views.py - CORREGIDO para usar User + Groups
 Sistema de autenticación y dashboards por rol
 """
 
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.decorators import login_required
@@ -57,10 +57,20 @@ class DashboardAdminView(TemplateView):
         context['usuario'] = self.request.user
         
         # Conteos usando User + Groups
+        # Conteos usando User + Groups
+        from django.db.models import Q
+        from matronaApp.models import FichaObstetrica
+        from gestionApp.models import Persona
+        
         context['total_pacientes'] = Paciente.objects.filter(activo=True).count()
+        context['total_personas'] = Persona.objects.filter(Activo=True).count()
         context['total_medicos'] = User.objects.filter(groups__name='Medicos', is_active=True).count()
         context['total_matronas'] = User.objects.filter(groups__name='Matronas', is_active=True).count()
         context['total_tens'] = User.objects.filter(groups__name='TENS', is_active=True).count()
+        context['total_administradores'] = User.objects.filter(Q(groups__name='Administradores') | Q(is_superuser=True), is_active=True).distinct().count()
+        
+        # Fichas Obstétricas Activas
+        context['total_fichas'] = FichaObstetrica.objects.filter(activa=True).count()
         context['total_usuarios'] = User.objects.filter(is_active=True).count()
         
         return context
@@ -130,3 +140,26 @@ class DashboardTensView(TemplateView):
         context['total_pacientes'] = Paciente.objects.filter(activo=True).count()
         
         return context
+
+
+from .forms import RegistroUsuarioForm
+
+@login_required
+def registro_usuario(request):
+    """
+    Vista para registrar nuevos usuarios (Solo Admin/Superuser)
+    """
+    if not (request.user.is_superuser or user_has_role(request.user, "administradores")):
+        messages.error(request, "Acceso denegado.")
+        return redirect("home")
+
+    if request.method == 'POST':
+        form = RegistroUsuarioForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, f"Usuario {user.username} creado exitosamente con rol {form.cleaned_data['rol']}.")
+            return redirect('authentication:dashboard_admin')
+    else:
+        form = RegistroUsuarioForm()
+    
+    return render(request, 'authentication/registro_usuario.html', {'form': form})

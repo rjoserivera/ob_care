@@ -321,10 +321,10 @@
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon total"><i class="bi bi-collection"></i></div>
+            <div class="stat-icon total"><i class="bi bi-file-earmark-medical-fill"></i></div>
             <div class="stat-info">
-                <h3>{{ total_personas|default:"0" }}</h3>
-                <p>Total Registros</p>
+                <h3>{{ total_fichas|default:"0" }}</h3>
+                <p>Fichas Obstétricas</p>
             </div>
         </div>
     </div>
@@ -344,14 +344,14 @@
             </div>
             <div class="role-body">
                 <ul class="function-list">
-                    <li><a href="/admin/" class="admin-link"><i class="bi bi-speedometer2"></i> Panel de Django Admin</a></li>
-                    <li><a href="/gestion/registrar-persona/" class="admin-link"><i class="bi bi-person-plus-fill"></i> Registrar Nueva Persona</a></li>
-                    <li><a href="/gestion/personas/" class="admin-link"><i class="bi bi-people-fill"></i> Ver Todas las Personas</a></li>
-                    <li><a href="/gestion/buscar-persona/" class="admin-link"><i class="bi bi-search"></i> Buscar Persona por RUT</a></li>
-                    <li><a href="#" class="admin-link"><i class="bi bi-gear-fill"></i> Configuración del Sistema</a></li>
-                    <li><a href="{% url 'gestion:configurar_telegram' %}" class="admin-link text-primary"><i class="bi bi-telegram"></i> Configurar Telegram</a></li>
-                    <li><a href="{% url 'partos:exportar_libro_partos' %}" class="admin-link text-success"><i class="bi bi-file-earmark-excel-fill"></i> Exportación de Datos</a></li>
-                    <li><a href="{% url 'gestion:listar_logs' %}" class="admin-link text-dark"><i class="bi bi-clock-history"></i> Ver Logs del Sistema</a></li>
+                    <li><a href="/admin/" class="admin-link"><i class="bi bi-speedometer2 text-primary"></i> Panel de Django Admin</a></li>
+                    <li><a href="{% url 'authentication:registro_usuario' %}" class="admin-link"><i class="bi bi-person-fill-add text-primary"></i> Registrar Nuevo Usuario</a></li>
+                    <li><a href="/gestion/registrar-persona/" class="admin-link"><i class="bi bi-person-plus-fill text-primary"></i> Registrar Nueva Persona</a></li>
+                    <li><a href="/gestion/personas/" class="admin-link"><i class="bi bi-people-fill text-primary"></i> Ver Todas las Personas</a></li>
+                    <li><a href="/gestion/buscar-persona/" class="admin-link"><i class="bi bi-search text-primary"></i> Buscar Persona por RUT</a></li>
+                    <li><a href="{% url 'gestion:configurar_telegram' %}" class="admin-link"><i class="bi bi-telegram text-primary"></i> Configurar Telegram</a></li>
+                    <li><a href="{% url 'partos:exportar_libro_partos' %}" class="admin-link"><i class="bi bi-file-earmark-excel-fill text-primary"></i> Exportación de Datos</a></li>
+                    <li><a href="{% url 'gestion:listar_logs' %}" class="admin-link"><i class="bi bi-clock-history text-primary"></i> Ver Logs del Sistema</a></li>
                 </ul>
             </div>
         </div>
@@ -387,11 +387,11 @@
                 </div>
                 
                 <ul class="function-list">
-                    <li><a href="/medico/" class="medico-link"><i class="bi bi-house-door-fill"></i> Menú Principal Médico</a></li>
-                    <li><a href="/medico/seleccionar-persona/" class="medico-link"><i class="bi bi-file-earmark-plus-fill"></i> Crear Ficha Obstétrica</a></li>
-                    <li><a href="/medico/fichas/" class="medico-link"><i class="bi bi-folder-fill"></i> Ver Fichas Obstétricas</a></li>
-                    <li><a href="/partos/" class="medico-link"><i class="bi bi-journal-medical"></i> Registro de Partos</a></li>
-                    <li><a href="{% url 'partos:exportar_libro_partos' %}" class="medico-link"><i class="bi bi-file-earmark-excel-fill"></i> Exportación de Datos</a></li>
+                    <li><a href="/medico/" class="medico-link"><i class="bi bi-house-door-fill text-success"></i> Menú Principal Médico</a></li>
+                    <li><a href="/medico/seleccionar-persona/" class="medico-link"><i class="bi bi-file-earmark-plus-fill text-success"></i> Crear Ficha Obstétrica</a></li>
+                    <li><a href="/medico/fichas/" class="medico-link"><i class="bi bi-folder-fill text-success"></i> Ver Fichas Obstétricas</a></li>
+                    <li><a href="/partos/" class="medico-link"><i class="bi bi-journal-medical text-success"></i> Registro de Partos</a></li>
+                    <li><a href="{% url 'partos:exportar_libro_partos' %}" class="medico-link"><i class="bi bi-file-earmark-excel-fill text-success"></i> Exportación de Datos</a></li>
                 </ul>
             </div>
         </div>
@@ -427,10 +427,10 @@
                 </div>
                 
                 <ul class="function-list">
-                    <li><a href="/matrona/" class="matrona-link"><i class="bi bi-house-door-fill"></i> Menú Principal Matrona</a></li>
-                    <li><a href="/matrona/seleccionar-persona/" class="matrona-link"><i class="bi bi-file-earmark-plus-fill"></i> Crear Ficha Obstétrica</a></li>
-                    <li><a href="/matrona/fichas/" class="matrona-link"><i class="bi bi-folder-fill"></i> Ver Fichas Obstétricas</a></li>
-                    <li><a href="/partos/" class="matrona-link"><i class="bi bi-journal-medical"></i> Registro de Partos</a></li>
+                    <li><a href="/matrona/" class="matrona-link"><i class="bi bi-house-door-fill text-danger"></i> Menú Principal Matrona</a></li>
+                    <li><a href="/matrona/seleccionar-persona/" class="matrona-link"><i class="bi bi-file-earmark-plus-fill text-danger"></i> Crear Ficha Obstétrica</a></li>
+                    <li><a href="/matrona/fichas/" class="matrona-link"><i class="bi bi-folder-fill text-danger"></i> Ver Fichas Obstétricas</a></li>
+                    <li><a href="/partos/" class="matrona-link"><i class="bi bi-journal-medical text-danger"></i> Registro de Partos</a></li>
                 </ul>
             </div>
         </div>
@@ -466,10 +466,10 @@
                 </div>
                 
                 <ul class="function-list">
-                    <li><a href="/tens/" class="tens-link"><i class="bi bi-house-door-fill"></i> Menú Principal TENS</a></li>
-                    <li><a href="/tens/buscar-paciente/" class="tens-link"><i class="bi bi-search"></i> Buscar Paciente</a></li>
-                    <li><a href="/tens/parametros/" class="tens-link"><i class="bi bi-activity"></i> Registrar Signos Vitales</a></li>
-                    <li><a href="/tens/buscar-paciente/" class="tens-link"><i class="bi bi-capsule"></i> Ver Tratamientos por Paciente</a></li>
+                    <li><a href="/tens/" class="tens-link"><i class="bi bi-house-door-fill text-info"></i> Menú Principal TENS</a></li>
+                    <li><a href="/tens/signos-vitales/" class="tens-link"><i class="bi bi-heart-pulse-fill text-info"></i> Registrar Signos Vitales</a></li>
+                    <li><a href="/tens/pacientes/" class="tens-link"><i class="bi bi-people-fill text-info"></i> Ver Pacientes Activos</a></li>
+                    <li><a href="/tens/buscar-paciente/" class="tens-link"><i class="bi bi-capsule text-info"></i> Ver Tratamientos por Paciente</a></li>
                 </ul>
             </div>
         </div>

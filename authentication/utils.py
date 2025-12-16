@@ -14,8 +14,23 @@ ROLE_REDIRECT_MAP = {
     "matrona": "authentication:dashboard_matrona",
     "matronas": "authentication:dashboard_matrona",
 
-    "tens": "authentication:dashboard_tens",
     "tecnico en enfermeria": "authentication:dashboard_tens",
+}
+
+ROLE_ALIASES = {
+    # Canonicals (Database is Singular)
+    "administradores": "administrador",
+    "admin": "administrador",
+    "administrador": "administrador",
+
+    "medicos": "medico",
+    "medico": "medico",
+
+    "matronas": "matrona",
+    "matrona": "matrona",
+
+    "tens": "tens",
+    "tecnico en enfermeria": "tens",
 }
 
 def _normalize_role_name(name: str) -> str:
@@ -23,12 +38,27 @@ def _normalize_role_name(name: str) -> str:
     return "".join(ch for ch in normalized if unicodedata.category(ch) != "Mn").lower().strip()
 
 def user_has_role(user, role_key: str) -> bool:
-    normalized_role = _normalize_role_name(role_key)
-    normalized_groups = {
+    target_canonical = _normalize_role_name(role_key)
+    
+    # Resolve alias if exists for the TARGET role
+    if target_canonical in ROLE_ALIASES:
+        target_canonical = ROLE_ALIASES[target_canonical]
+        
+    # Get user groups and normalize them
+    normalized_groups_raw = {
         _normalize_role_name(name)
         for name in user.groups.values_list("name", flat=True)
     }
-    return normalized_role in normalized_groups
+    
+    # Map user groups to their canonical forms
+    user_groups_canonical = set()
+    for g in normalized_groups_raw:
+        if g in ROLE_ALIASES:
+            user_groups_canonical.add(ROLE_ALIASES[g])
+        else:
+            user_groups_canonical.add(g)
+
+    return target_canonical in user_groups_canonical
 
 def get_dashboard_url_for_user(user) -> Optional[str]:
     if not user.is_authenticated:

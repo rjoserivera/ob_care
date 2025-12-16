@@ -61,10 +61,46 @@
             </div>
         </div>
         {% endfor %}
-    {% else %}
+    {% endif %}
+
+    {% if notificaciones %}
+        <h5 class="mt-4 mb-3 text-muted"><i class="bi bi-info-circle"></i> Avisos y Mensajes</h5>
+        {% for notif in notificaciones %}
+        <div class="notification-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="fw-bold mb-0 text-primary">
+                    {{ notif.titulo }}
+                </h6>
+                <small class="text-muted">{{ notif.timestamp_envio|timesince }} atrás</small>
+            </div>
+            
+            <p class="mb-2">{{ notif.mensaje }}</p>
+            {% if notif.proceso %}
+            <small class="text-muted d-block mb-2">
+                <i class="bi bi-journal-medical"></i> Ficha: {{ notif.proceso.numero_ficha_parto|default:"N/A" }}
+                {# Usamos safe navigation en template por si falta la relacion #}
+                {% if notif.proceso.ficha_obstetrica %}
+                | Paciente: {{ notif.proceso.ficha_obstetrica.paciente.persona.nombre_completo }}
+                {% endif %}
+            </small>
+            {% endif %}
+            
+            <div class="mt-3">
+                <textarea class="form-control mb-2" id="respuesta-{{ notif.id }}" rows="1" placeholder="Escribir respuesta (opcional)..."></textarea>
+                <div class="d-flex justify-content-end gap-2">
+                    <button class="btn btn-sm btn-outline-primary" onclick="marcarLeida({{ notif.id }})">
+                        <i class="bi bi-reply"></i> Responder / Marcar Leída
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if not asignaciones and not notificaciones %}
         <div class="text-center py-5">
             <i class="bi bi-bell-slash display-1 text-muted opacity-25"></i>
-            <p class="mt-3 text-muted">No tienes invitaciones pendientes.</p>
+            <p class="mt-3 text-muted">No tienes notificaciones pendientes.</p>
         </div>
     {% endif %}
 </div>
@@ -94,7 +130,7 @@ function responderInvitacion(asignacionId, accion) {
         return;
     }
     
-    fetch(`/matrona/api/responder-asignacion/${asignacionId}/`, {
+    fetch(`/procesos/api/responder-asignacion/${asignacionId}/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -109,6 +145,33 @@ function responderInvitacion(asignacionId, accion) {
             location.reload();
         } else {
             alert('Error: ' + (data.error || 'No se pudo procesar la respuesta'));
+        }
+    })
+    .catch(error => {
+        alert('Error de conexión: ' + error);
+    });
+}
+
+function marcarLeida(notificacionId) {
+    const textarea = document.getElementById(`respuesta-${notificacionId}`);
+    const respuesta = textarea ? textarea.value : '';
+
+    fetch(`/procesos/api/notificacion/${notificacionId}/marcar-leida/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            mensaje_respuesta: respuesta
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + (data.error || 'No se pudo marcar como leída'));
         }
     })
     .catch(error => {

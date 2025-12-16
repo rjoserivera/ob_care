@@ -200,7 +200,7 @@
     <!-- Global Notifications System -->
     <!-- Alert Sound (Base64 Beep to ensure local loading) -->
     <audio id="global-notif-sound" preload="auto">
-        <source src="data:audio/mp3;base64,SUQzBAAAAAABAFRYWFQAAAASAAIAVGVjaG5vbG9neQBMYXZmNTguMjkuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwGKwAAAAAAAAAAAAgIAgAAAAAAIBAJAAAAAAAxI7hBgAAAAALiWQAAsSExpjGmMctYxKxjGMWsYxK1jErWMSsYxKxjErWMSsYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxK1jEr/////////+5IxEAAAAA0gAAAAABjErmMSsYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxK1jErmMSv/////////7kjEQAAAAADSAAAAAAGMSsYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxK1jErWMSv/////////7kjEQAAAAADSAAAAAAGMSsYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxK1jErWMSv/////////7kjEQAAAAADSAAAAAAGMSsYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxK1jErWMSv/////////7kjEQAAAAADSAAAAAAGMSsYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxK1jErWMSv/////////7kjEQAAAAADSAAAAAAGMSsYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxK1jErWMSv/////////7kjEQAAAAADSAAAAAAGMSsYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxK1jErWMSv/////////7kjEQAAAAADSAAAAAAGMSsYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxK1jErWMSv/////////7kjEQAAAAADSAAAAAAGMSsYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxK1jErWMSv/////////7kjEQAAAAADSAAAAAAGMSsYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxK1jErWMSv/////////7kjEQAAAAADSAAAAAAGMSsYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxK1jErWMSv/////////7kjEQAAAAADSAAAAAAGMSsYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxK1jErWMSv/////////7kjEQAAAAADSAAAAAAGMSsYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxK1jErWMSv/////////7kjEQAAAAADSAAAAAAGMSsYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxKxjErWMStYxK1jErWMSsYxK1jErWMSv/////////" type="audio/mpeg">
+        <source src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU" type="audio/wav">
     </audio>
     <!-- Background Keep-Alive (Silence) -->
     <audio id="bg-keep-alive" loop preload="auto">
@@ -223,7 +223,7 @@
             </div>
             <div class="toast-body pt-0 mt-2">
                  <div class="d-grid gap-2">
-                     <a href="{% url 'gestion_procesos:notificaciones' %}" class="btn btn-primary btn-sm fw-bold">
+                     <a href="{% url 'gestion_procesos:mis_notificaciones' %}" class="btn btn-primary btn-sm fw-bold">
                         <i class="bi bi-eye-fill me-2"></i>VER DETALLE
                      </a>
                  </div>
@@ -254,6 +254,14 @@
             let currentNotifId = null;
 
             // ...
+            
+            function playSiren() {
+                const audio = document.getElementById('global-notif-sound');
+                if (audio) {
+                    audio.currentTime = 0;
+                    audio.play().catch(e => console.log("Audio play failed (user interaction needed):", e));
+                }
+            }
 
             // Check Notifications loop
             function checkNotifications(isInit = false) {
@@ -282,11 +290,8 @@
                          lastNotifId = serverId;
                          localStorage.setItem('lastNotifId', lastNotifId);
 
-                         // 2. Si es inicialización (carga de página), SALIMOS en silencio
-                         // (asumimos que si estaba pendiente al cargar, no es una "nueva alerta" en tiempo real)
-                         if (isInit) {
-                             return; 
-                         }
+                         // 2. Si es inicialización (carga de página), NO SALIMOS. Mostramos la alerta igual para verificar.
+                         // (Eliminado if isInit return)
 
                          // 3. SOLO SI NO ES INIT mostramos la alerta
                          // Sound & Vibrate

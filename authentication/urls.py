@@ -12,4 +12,7 @@ urlpatterns = [
     path('dashboard/medico/', views.DashboardMedicoView.as_view(), name='dashboard_medico'),
     path('dashboard/matrona/', views.DashboardMatronaView.as_view(), name='dashboard_matrona'),
     path('dashboard/tens/', views.DashboardTensView.as_view(), name='dashboard_tens'),
+    
+    # Registro de usuarios
+    path('registro/', views.registro_usuario, name='registro_usuario'),
 ]
