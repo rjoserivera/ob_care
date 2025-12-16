@@ -6,192 +6,200 @@
 {% block extra_css %}
 <style>
     .container-select {
-        max-width: 900px;
-        margin: 2rem auto;
+        max-width: 800px;
+        margin: 3rem auto;
+        padding: 0 1rem;
     }
 
     .header-section {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
+        padding: 3rem 2rem 4rem; /* Extra bottom padding for overlap */
+        border-radius: 20px;
+        margin-bottom: -40px; /* Overlap effect */
         text-align: center;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 10px 30px rgba(118, 75, 162, 0.3);
     }
 
     .header-section h2 {
+        font-weight: 700;
         margin-bottom: 0.5rem;
+        font-size: 2rem;
+    }
+    
+    .header-section p {
+        opacity: 0.9;
+        font-size: 1.1rem;
     }
 
     .card-option {
         background: white;
-        border-radius: 15px;
-        padding: 2rem;
+        border-radius: 20px;
+        padding: 3rem 2.5rem 2.5rem;
         margin-bottom: 2rem;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-    }
-
-    .option-title {
-        font-size: 1.3rem;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .option-title i {
-        color: #f5576c;
-        font-size: 1.5rem;
-    }
-
-    .search-box {
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         position: relative;
-        margin-bottom: 1rem;
+        z-index: 5;
+    }
+
+    .search-box-container {
+        position: relative;
+        margin-bottom: 2rem;
+        max-width: 650px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .search-input {
         width: 100%;
-        padding: 0.75rem 1.5rem 0.75rem 3rem;
-        border: 2px solid #e0e0e0;
-        border-radius: 10px;
-        font-size: 1rem;
+        padding: 1.2rem 1.5rem 1.2rem 3.5rem;
+        border: 2px solid #eef2f7;
+        border-radius: 12px;
+        font-size: 1.1rem;
         transition: all 0.3s ease;
+        background: #f8f9fa;
+        color: #333;
     }
 
     .search-input:focus {
-        border-color: #f093fb;
+        border-color: #764ba2;
+        background: white;
         outline: none;
-        box-shadow: 0 0 0 3px rgba(240, 147, 251, 0.1);
+        box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.1);
     }
 
-    .search-box i {
+    .search-icon {
         position: absolute;
-        left: 1rem;
+        left: 1.2rem;
         top: 50%;
         transform: translateY(-50%);
-        color: #f5576c;
+        color: #764ba2;
+        font-size: 1.3rem;
         pointer-events: none;
     }
 
     .search-results {
-        background: #f8f9fa;
-        border-radius: 10px;
-        max-height: 300px;
+        background: white;
+        border: 1px solid #eef2f7;
+        border-radius: 12px;
+        max-height: 400px;
         overflow-y: auto;
         margin-top: 1rem;
         display: none;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     }
 
     .search-results.active {
         display: block;
+        animation: fadeIn 0.3s ease;
     }
 
     .result-item {
-        padding: 1rem;
-        border-bottom: 1px solid #e0e0e0;
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .result-item:hover {
-        background: rgba(240, 147, 251, 0.1);
+        background: #f9fbfd;
+        padding-left: 1.8rem; /* Slide effect */
     }
 
     .result-item:last-child {
         border-bottom: none;
     }
 
+    .result-info-main {
+        display: flex;
+        flex-direction: column;
+    }
+
     .result-name {
         font-weight: 600;
         color: #333;
-        margin-bottom: 0.3rem;
+        font-size: 1.05rem;
+        margin-bottom: 0.2rem;
     }
 
-    .result-info {
+    .result-rut {
         font-size: 0.9rem;
-        color: #666;
+        color: #6c757d;
     }
 
     .result-age {
-        display: inline-block;
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 0.2rem 0.6rem;
-        border-radius: 15px;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
         font-size: 0.8rem;
-        margin-left: 0.5rem;
+        font-weight: 600;
+        box-shadow: 0 4px 10px rgba(118, 75, 162, 0.2);
     }
 
     .no-results {
-        padding: 2rem;
+        padding: 3rem 2rem;
         text-align: center;
-        color: #666;
+        color: #6c757d;
     }
-
-    .btn-crear-persona {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s ease;
-    }
-
-    .btn-crear-persona:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.3);
-        color: white;
-    }
-
-    .divider {
-        text-align: center;
-        margin: 2rem 0;
-        position: relative;
-    }
-
-    .divider::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: #e0e0e0;
-    }
-
-    .divider span {
-        background: white;
-        padding: 0 1rem;
-        color: #999;
-        font-weight: 600;
-        position: relative;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 2rem;
-        color: #666;
-    }
-
-    .empty-state i {
-        font-size: 3rem;
-        color: #ddd;
+    
+    .no-results i {
+        font-size: 2.5rem;
+        color: #dee2e6;
         margin-bottom: 1rem;
         display: block;
+    }
+
+    .create-new-section {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 2px dashed #eef2f7;
+        text-align: center;
+    }
+    
+    .create-new-title {
+        font-size: 1rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+
+    .btn-create-new {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 1rem 2rem;
+        background: white;
+        color: #667eea;
+        border: 2px solid #667eea;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 4px 6px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn-create-new:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: transparent;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-create-new i {
+        font-size: 1.2rem;
     }
 
     .loading-spinner {
         display: none;
         text-align: center;
-        padding: 1rem;
+        padding: 2rem;
     }
 
     .loading-spinner.active {
@@ -199,8 +207,8 @@
     }
 
     .spinner {
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #f5576c;
+        border: 3px solid rgba(118, 75, 162, 0.1);
+        border-top: 3px solid #764ba2;
         border-radius: 50%;
         width: 30px;
         height: 30px;
@@ -209,55 +217,45 @@
     }
 
     @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-
-        100% {
-            transform: rotate(360deg);
-        }
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .breadcrumb {
         background: transparent;
         padding: 0;
         margin-bottom: 2rem;
+        opacity: 0.8;
     }
 
-    .breadcrumb-item {
-        color: #f5576c;
+    .breadcrumb-item a {
+        color: #6c757d;
+        text-decoration: none;
     }
-
+    
     .breadcrumb-item.active {
-        color: #666;
+        color: #333;
+        font-weight: 600;
     }
 
     @media (max-width: 768px) {
-        .container-select {
-            margin: 1rem;
-        }
-
-        .card-option {
-            padding: 1.5rem;
-        }
-
-        .search-results {
-            max-height: 250px;
-        }
+        .container-select { margin: 1rem; }
+        .header-section { padding: 2rem 1.5rem 3rem; }
+        .card-option { padding: 2.5rem 1.5rem 1.5rem; }
+        .search-input { padding: 1rem 1rem 1rem 3rem; }
+        .search-icon { left: 1rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container-select">
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'matrona:menu_matrona' %}">Matrona</a></li>
-            <li class="breadcrumb-item active">Crear Ficha Obstétrica</li>
-        </ol>
-    </nav>
+
 
     <!-- Header -->
     <div class="header-section">
@@ -267,25 +265,37 @@
 
     <!-- OPCIÓN 1: BUSCAR PERSONA EXISTENTE -->
     <div class="card-option">
-        <div class="option-title">
-            <i class="bi bi-search"></i> Buscar Persona Existente
-        </div>
-
-        <div class="search-box">
-            <i class="bi bi-search"></i>
-            <input type="text" id="searchInput" class="search-input" placeholder="Busca por nombre, apellido o RUT..."
+        
+        <div class="search-box-container">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Busca por nombre, rut o apellido..."
                 autocomplete="off" minlength="2">
         </div>
 
         <div class="loading-spinner" id="loadingSpinner">
             <div class="spinner"></div>
+            <p style="margin-top: 1rem; color: #666;">Buscando persona...</p>
         </div>
 
         <div class="search-results" id="searchResults">
             <div class="no-results" id="noResults">
-                Escribe al menos 2 caracteres para buscar
+                <i class="bi bi-search"></i>
+                <p>Escribe al menos 2 caracteres para buscar</p>
             </div>
         </div>
+
+        <!-- Create New Person Section -->
+        {% if puede_registrar %}
+        <div class="create-new-section">
+            <div class="create-new-title">¿La persona no está registrada?</div>
+            <a href="{% url 'matrona:crear_ficha_persona' 0 %}" class="btn-create-new" onclick="event.preventDefault(); window.location.href='{% url 'gestion:registrar_persona' %}?next={% url 'matrona:seleccionar_persona_ficha' %}'">
+                <i class="bi bi-person-plus-fill"></i> Registrar Nueva Persona
+            </a>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #999;">
+                Serás redirigido para crear la persona y luego podrás crear su ficha.
+            </p>
+        </div>
+        {% endif %}
     </div>
 </div>
 
@@ -331,28 +341,39 @@
                             data.resultados.forEach(persona => {
                                 html += `
                                 <div class="result-item" onclick="selectPersona(${persona.id}, '${persona.nombre}')">
-                                    <div class="result-name">
-                                        ${persona.nombre}
-                                        ${persona.edad !== 'N/A' ? `<span class="result-age">${persona.edad} años</span>` : ''}
+                                    <div class="result-info-main">
+                                        <div class="result-name">
+                                            ${persona.nombre}
+                                            ${persona.edad !== 'N/A' ? `<span class="result-age">${persona.edad} años</span>` : ''}
+                                        </div>
+                                        <div class="result-rut">
+                                            ${persona.rut}
+                                        </div>
                                     </div>
-                                    <div class="result-info">
-                                        <strong>RUT:</strong> ${persona.rut}
-                                    </div>
+                                    <i class="bi bi-chevron-right" style="color: #dee2e6;"></i>
                                 </div>
                             `;
                             });
 
                             searchResults.innerHTML = html;
                         } else {
-                            noResults.textContent = 'No se encontraron resultados para "' + query + '"';
-                            searchResults.innerHTML = noResults.outerHTML;
+                            searchResults.innerHTML = `
+                                <div class="no-results">
+                                    <i class="bi bi-search"></i>
+                                    <p>No se encontraron resultados para "${query}"</p>
+                                </div>
+                            `;
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
                         loadingSpinner.classList.remove('active');
-                        noResults.textContent = 'Error en la búsqueda. Intenta de nuevo.';
-                        searchResults.innerHTML = noResults.outerHTML;
+                        searchResults.innerHTML = `
+                            <div class="no-results">
+                                <i class="bi bi-exclamation-circle"></i>
+                                <p>Error en la búsqueda. Intenta de nuevo.</p>
+                            </div>
+                        `;
                     });
             }, 300);
         });

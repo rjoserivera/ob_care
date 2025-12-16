@@ -387,6 +387,10 @@ class FichaObstetricaForm(forms.ModelForm):
             except:
                 pass
 
+
+
+
+
     
     def clean(self):
         """Validaciones personalizadas"""

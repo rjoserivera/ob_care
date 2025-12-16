@@ -6,12 +6,12 @@
 {% block extra_css %}
 <style>
     :root {
-        --matrona-primary: #f5576c;
-        --matrona-secondary: #f093fb;
+        --matrona-primary: #0d6efd;
+        --matrona-secondary: #6c757d;
     }
 
     body {
-        background: linear-gradient(135deg, #fff5f7 0%, #fce4ec 100%);
+        background-color: #f8f9fa;
         min-height: 100vh;
     }
 
@@ -22,12 +22,12 @@
     }
 
     .ficha-header {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
         color: white;
         padding: 2rem;
         border-radius: 15px;
         margin-bottom: 2rem;
-        box-shadow: 0 8px 25px rgba(245, 87, 108, 0.3);
+        box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);
     }
 
     .ficha-header h2 { margin-bottom: 0.5rem; }
@@ -38,7 +38,7 @@
         padding: 2rem;
         margin-bottom: 2rem;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-        border-left: 5px solid #f5576c;
+        border-left: 5px solid #0d6efd;
     }
 
     .persona-info-grid {
@@ -88,14 +88,14 @@
         font-weight: 600;
         color: #333;
         padding-bottom: 1rem;
-        border-bottom: 2px solid #f5576c;
+        border-bottom: 2px solid #0d6efd;
         margin-bottom: 1.5rem;
         display: flex;
         align-items: center;
         gap: 0.5rem;
     }
 
-    .section-title i { color: #f5576c; }
+    .section-title i { color: #0d6efd; }
 
     .form-row {
         display: grid;
@@ -123,9 +123,9 @@
     }
 
     .form-control:focus, .form-select:focus {
-        border-color: #f5576c;
+        border-color: #86b7fe;
         outline: none;
-        box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
     }
 
     .form-control[readonly] { background-color: #e8f5e9; }
@@ -137,8 +137,8 @@
     }
 
     .form-check-input:checked {
-        background-color: #f5576c;
-        border-color: #f5576c;
+        background-color: #0d6efd;
+        border-color: #0d6efd;
     }
 
     .form-text {
@@ -163,13 +163,13 @@
     }
 
     .btn-primary {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background-color: #0d6efd;
         color: white;
     }
 
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);
     }
 
     .btn-secondary {
@@ -195,7 +195,7 @@
 
     .sub-section-title {
         font-weight: 600;
-        color: #f5576c;
+        color: #0d6efd;
         margin-bottom: 1rem;
         display: flex;
         align-items: center;
@@ -203,16 +203,16 @@
     }
 
     .vih-test-card {
-        background: #f0f8ff;
+        background: #e7f1ff;
         border-radius: 10px;
         padding: 1rem;
         margin-bottom: 1rem;
-        border-left: 4px solid #17a2b8;
+        border-left: 4px solid #0d6efd;
     }
 
     .vih-test-title {
         font-weight: 600;
-        color: #17a2b8;
+        color: #0d6efd;
         margin-bottom: 1rem;
     }
 
@@ -252,9 +252,9 @@
     }
 
     .nav-tabs-custom .nav-link.active {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background-color: #0d6efd;
         color: white !important;
-        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+        box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);
         border-color: transparent;
     }
 
@@ -317,12 +317,12 @@
     }
 
     .btn-tab-next {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background-color: #0d6efd;
         color: white;
     }
 
     .btn-tab-next:hover:not(:disabled) {
-        background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+        background-color: #0b5ed7;
         transform: translateX(3px);
     }
 
@@ -448,7 +448,7 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="tab-patologias" data-bs-toggle="tab" data-bs-target="#panel-patologias" type="button" role="tab">
+                    <button class="nav-link" id="tab-patologias" data-bs-toggle="tab" data-bs-target="#panel-patologias-check" type="button" role="tab">
                         <i class="bi bi-exclamation-triangle"></i>
                         <span>Patologías</span>
                     </button>
@@ -1036,10 +1036,12 @@
                 </button>
             </div>
                 </div>
+                <!-- Fix potential unclosed div from previous tab -->
+                </div>
                 <!-- End Tab 5: Exámenes -->
 
                 <!-- ==================== TAB 6: PATOLOGÍAS ==================== -->
-                <div class="tab-pane fade" id="panel-patologias" role="tabpanel">
+                <div class="tab-pane" id="panel-patologias-check" role="tabpanel">
 
             <!-- ==================== SECCIÓN: PATOLOGÍAS ==================== -->
             <div class="form-section">
@@ -1084,6 +1086,8 @@
                         </label>
                     </div>
                 </div>
+
+
 
                 <div class="form-group">
                     <label class="form-label">Otras Patologías</label>

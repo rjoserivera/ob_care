@@ -145,10 +145,14 @@ def seleccionar_persona_ficha(request):
             Q(Apellido_Materno__icontains=busqueda)
         )[:20]
     
+    # Verificar permisos para crear personas (Solo Matrona y Admin)
+    puede_registrar = user_has_role(request.user, 'matrona') or request.user.is_superuser
+
     context = {
         'titulo': 'Seleccionar Persona para Ficha Obstétrica',
         'personas': personas,
         'busqueda': busqueda,
+        'puede_registrar': puede_registrar,
     }
     return render(request, 'Matrona/seleccionar_persona_ficha.html', context)
 

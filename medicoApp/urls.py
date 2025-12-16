@@ -4,6 +4,7 @@ Incluye gestión de patologías, fichas obstétricas y medicamentos
 """
 from django.urls import path
 from . import views
+from matronaApp import views as matrona_views
 
 app_name = 'medico'
 
@@ -14,20 +15,22 @@ urlpatterns = [
     path('', views.menu_medico, name='menu_medico'),
     
     # ============================================
-    # FICHAS OBSTÉTRICAS
+    # FICHAS OBSTÉTRICAS (USANDO VISTAS DE MATRONA)
     # ============================================
-    path('ficha/crear/<int:paciente_pk>/', views.crear_ficha_obstetrica, name='crear_ficha'),
-    path('ficha/crear-persona/<int:persona_pk>/', views.crear_ficha_obstetrica_persona, name='crear_ficha_persona'),
-    path('ficha/<int:ficha_pk>/editar/', views.editar_ficha_obstetrica, name='editar_ficha'),
-    path('ficha/<int:ficha_pk>/', views.detalle_ficha_obstetrica, name='detalle_ficha'),
-    path('fichas/', views.lista_fichas_obstetrica, name='lista_fichas'),
+    # Redirigir la creación y edición a las vistas unificadas de matronaApp
+    path('ficha/crear/<int:paciente_pk>/', matrona_views.crear_ficha_obstetrica, name='crear_ficha'),
+    path('ficha/crear-persona/<int:persona_pk>/', matrona_views.crear_ficha_obstetrica_persona, name='crear_ficha_persona'),
+    path('ficha/<int:ficha_pk>/editar/', matrona_views.editar_ficha_obstetrica, name='editar_ficha'),
+    path('ficha/<int:ficha_pk>/', matrona_views.detalle_ficha_obstetrica, name='detalle_ficha'),
+    path('fichas/', matrona_views.lista_fichas_obstetrica, name='lista_fichas'),
     
     # ============================================
     # MEDICAMENTOS
     # ============================================
-    path('ficha/<int:ficha_pk>/medicamento/agregar/', views.agregar_medicamento, name='agregar_medicamento'),
-    path('medicamento/<int:medicamento_pk>/eliminar/', views.eliminar_medicamento, name='eliminar_medicamento'),
-    path('seleccionar-persona/', views.seleccionar_persona_ficha, name='seleccionar_persona_ficha'),
+    path('ficha/<int:ficha_pk>/medicamento/agregar/', matrona_views.agregar_medicamento, name='agregar_medicamento'),
+    path('medicamento/<int:medicamento_pk>/eliminar/', matrona_views.eliminar_medicamento, name='eliminar_medicamento'),
+    # Vista unificada para seleccionar persona
+    path('seleccionar-persona/', matrona_views.seleccionar_persona_ficha, name='seleccionar_persona_ficha'),
     
     # ============================================
     # GESTIÓN DE PATOLOGÍAS

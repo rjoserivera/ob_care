@@ -6,10 +6,10 @@
 {% block extra_css %}
 <style>
     :root {
-        --primary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        --danger-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        --info-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+        --danger-gradient: linear-gradient(135deg, #dc3545 0%, #e35d6a 100%);
+        --info-gradient: linear-gradient(135deg, #0dcaf0 0%, #39d2f3 100%);
+        --warning-gradient: linear-gradient(135deg, #ffc107 0%, #ffca2c 100%);
     }
 
     .ficha-container {
@@ -25,7 +25,7 @@
         padding: 1.5rem 2rem;
         border-radius: 16px;
         margin-bottom: 1.5rem;
-        box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3);
+        box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
     }
 
     .ficha-header-top {
@@ -96,8 +96,8 @@
 
     /* Card de Acción (Iniciar Parto) */
     .action-card {
-        background: linear-gradient(135deg, #fff5f5 0%, #ffe0e6 100%);
-        border: 2px dashed #ff416c;
+        background: #e7f1ff;
+        border: 2px dashed #0d6efd;
         border-radius: 16px;
         padding: 1.5rem 2rem;
         margin-bottom: 1.5rem;
@@ -109,7 +109,7 @@
     }
 
     .action-card-content h3 {
-        color: #ff416c;
+        color: #0d6efd;
         margin: 0 0 0.25rem 0;
         font-size: 1.2rem;
     }
@@ -120,7 +120,7 @@
     }
 
     .btn-parto {
-        background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        background: #0d6efd;
         color: white;
         border: none;
         padding: 1rem 2rem;
@@ -135,8 +135,8 @@
     }
 
     .btn-parto:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 30px rgba(255, 65, 108, 0.4);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
         color: white;
     }
 
@@ -158,27 +158,27 @@
         padding: 0.75rem 1.25rem;
         font-weight: 700;
         font-size: 1rem;
-        color: #444;
-        background: linear-gradient(135deg, #fff0f5 0%, #ffe4e6 100%);
-        transition: all 0.3s ease;
+        color: #495057;
+        background: transparent;
+        transition: all 0.2s ease;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        border: 2px solid #fbcfe8;
+        border: 1px solid transparent;
     }
 
     .nav-tabs-custom .nav-link:hover {
-        background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
-        color: #d63384;
-        border-color: #f472b6;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(244, 114, 182, 0.3);
+        background-color: #e9ecef;
+        color: #212529;
+        border-color: #dee2e6;
+        transform: translateY(-1px);
+        box-shadow: none;
     }
 
     .nav-tabs-custom .nav-link.active {
-        background: var(--primary-gradient);
+        background: #0d6efd;
         color: white !important;
-        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+        box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);
         border-color: transparent;
     }
 
@@ -443,15 +443,28 @@
     /* Botones */
     .btn-actions {
         display: flex;
-        gap: 1rem;
+        gap: 0.5rem; /* Reduced gap */
         flex-wrap: wrap;
-        padding: 1.5rem 2rem;
-        background: #f8f9fa;
-        border-radius: 0 0 16px 16px;
+        padding: 0.75rem 1.5rem; /* Reduced padding */
+        margin: 1rem auto; /* Reduced margin */
+        
+        /* Floating Island Style */
+        position: sticky;
+        bottom: 1rem; /* Closer to bottom */
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Softer shadow */
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 50px;
+        width: fit-content;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.3s ease;
     }
 
     .btn-gradient {
-        background: var(--primary-gradient);
+        background: #0d6efd;
         border: none;
         padding: 0.75rem 1.5rem;
         border-radius: 8px;
@@ -465,14 +478,16 @@
     }
 
     .btn-gradient:hover {
+        background: #0b5ed7;
         transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(17, 153, 142, 0.4);
+        box-shadow: 0 4px 8px rgba(13, 110, 253, 0.25);
         color: white;
     }
 
     .btn-outline {
         background: white;
-        border: 2px solid #dee2e6;
+        border: 2px solid #0d6efd;
+        color: #0d6efd;
         padding: 0.75rem 1.5rem;
         border-radius: 8px;
         color: #6c757d;
@@ -485,8 +500,8 @@
     }
 
     .btn-outline:hover {
-        border-color: #f093fb;
-        color: #f093fb;
+        background: #0d6efd;
+        color: white;
     }
 
     /* MODAL PARTO */
@@ -784,15 +799,6 @@
 
 {% block content %}
 <div class="ficha-container">
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Inicio</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'matrona:menu_matrona' %}">Matrona</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'matrona:lista_fichas' %}">Fichas</a></li>
-            <li class="breadcrumb-item active">{{ ficha.numero_ficha }}</li>
-        </ol>
-    </nav>
 
     <!-- Header Principal -->
     <div class="ficha-header">
@@ -1288,62 +1294,7 @@
                     </div>
                     {% endif %}
                     
-                    <!-- TTC -->
-                    <div class="info-item">
-                        <div class="info-label"><i class="bi bi-activity"></i> Estado TTC</div>
-                        <div class="info-value">
-                            {% if ficha.ttc_estado == 'NO_INDICADO' %}
-                            <span class="badge-custom badge-secondary">No indicado</span>
-                            {% elif ficha.ttc_estado == 'SOLICITADO' %}
-                            <span class="badge-custom badge-info">Solicitado</span>
-                            {% elif ficha.ttc_estado == 'EN_ESPERA' %}
-                            <span class="badge-custom badge-warning">En espera</span>
-                            {% elif ficha.ttc_estado == 'REALIZADO' %}
-                            <span class="badge-custom badge-success">Realizado</span>
-                            {% elif ficha.ttc_estado == 'SUSPENDIDO' %}
-                            <span class="badge-custom badge-danger">Suspendido</span>
-                            {% elif ficha.ttc_estado == 'CONTRAINDICADO' %}
-                            <span class="badge-custom badge-danger">Contraindicado</span>
-                            {% else %}
-                            {{ ficha.ttc_estado }}
-                            {% endif %}
-                        </div>
-                    </div>
 
-                    <!-- Hepatitis B -->
-                    <div class="info-item">
-                        <div class="info-label">Hepatitis B Realizado</div>
-                        <div class="info-value">
-                            {% if ficha.hepatitis_b_realizado %}
-                            <span class="badge-custom badge-success">✅ Sí</span>
-                            {% else %}
-                            <span class="badge-custom badge-warning">❌ No</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% if ficha.hepatitis_b_fecha or ficha.hepatitis_b_resultado %}
-                    <div class="info-item">
-                        <div class="info-label">Fecha Hepatitis B</div>
-                        <div class="info-value">{{ ficha.hepatitis_b_fecha|date:"d/m/Y"|default:"--" }}</div>
-                    </div>
-                    <div
-                        class="info-item {% if ficha.hepatitis_b_resultado == 'POSITIVO' %}danger{% else %}success{% endif %}">
-                        <div class="info-label">Resultado Hepatitis B</div>
-                        <div class="info-value">
-                            {{ ficha.hepatitis_b_resultado|default:"Pendiente" }}
-                            {% if ficha.hepatitis_b_resultado == 'POSITIVO' %}
-                            <span class="badge-custom badge-danger">Inmunoglobulina RN</span>
-                            {% endif %}
-                            
-                            {% if ficha.derivacion_hepatitis_b %}
-                            <div style="margin-top: 0.5rem; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 0.5rem;">
-                                <small class="text-muted" style="display: block; font-weight: 600; margin-bottom: 0.2rem;">Derivación:</small>
-                                <span class="badge bg-light text-dark border"><i class="bi bi-arrow-right-short"></i> {{ ficha.derivacion_hepatitis_b.nombre }}</span>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -1970,7 +1921,7 @@
     </div> <!-- Close tab-content -->
 
     <!-- Botones de Acción -->
-    <div class="btn-actions" style="display: flex; justify-content: flex-start; gap: 1rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #eee;">
+    <div class="btn-actions">
         <a href="{% url 'matrona:editar_ficha' ficha.pk %}" class="btn-gradient">
             <i class="bi bi-pencil"></i> Editar Ficha
         </a>
