@@ -1,0 +1,108 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Detalle de Parto - {{ registro.numero_registro }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bg-gradient-header {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+    }
+    .card-hover:hover {
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .avatar-circle {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-weight: bold;
+    }
+    .detail-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        margin-bottom: 0.1rem;
+        font-weight: 700;
+    }
+    .detail-value {
+        font-weight: 500;
+        font-size: 1rem;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+    .section-icon {
+        color: #0d6efd;
+        margin-right: 0.5rem;
+    }
+    .badge-soft {
+        background-color: #e7f1ff;
+        color: #0d6efd;
+        border: 1px solid #cce5ff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid bg-light min-vh-100 py-4">
+    <div class="container">
+    
+        <!-- HEADER -->
+        <div class="card shadow border-0 overflow-hidden mb-4">
+            <div class="card-body bg-gradient-header p-4 position-relative">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="badge bg-white text-primary mb-2 opacity-75">
+                            <i class="bi bi-hash"></i> {{ registro.numero_registro }}
+                        </div>
+                        <h2 class="fw-bold mb-1 text-white">
+                            {{ paciente.persona.Nombre }} {{ paciente.persona.Apellido_Paterno }}
+                        </h2>
+                        <p class="mb-0 opacity-75">
+                            <i class="bi bi-person-vcard"></i> RUT: {{ paciente.persona.Rut }}
+                        </p>
+                    </div>
+                    <div class="d-none d-md-block text-end">
+                        <div class="display-6 fw-bold">
+                            {{ registro.fecha_hora_parto|date:"H:i" }}
+                        </div>
+                        <small>{{ registro.fecha_hora_parto|date:"d M, Y" }}</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ACTIONS BAR -->
+            <div class="card-footer bg-white py-3 border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <a href="{% url 'matrona:lista_fichas' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                            <i class="bi bi-arrow-left me-2"></i> Volver
+                        </a>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'matrona:cierre_parto' ficha_parto.id %}" class="btn btn-dark rounded-pill px-4">
+                             <i class="bi bi-check-circle me-2"></i> Finalizar / Cierre
+                        </a>
+                        <a href="{% url 'matrona:sala_parto' ficha_parto.id %}" class="btn btn-outline-primary rounded-pill px-4">
+                            <i class="bi bi-pencil me-2"></i> Editar
+                        </a>
+                        <button onclick="window.print()" class="btn btn-primary rounded-pill px-4">
+                            <i class="bi bi-printer me-2"></i> Imprimir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT BODY FROM PARTIAL -->
+        {% include 'Matrona/partials/detalle_parto_content.html' %}
+        
+    </div>
+</div>
+{% endblock %}

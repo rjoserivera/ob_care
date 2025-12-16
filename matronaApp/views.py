@@ -5,13 +5,16 @@ COMPLETO: Con TODAS las vistas existentes + nuevas funcionalidades
 """
 
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+# Force reload - ARO updated
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+from legacyApp.models import ControlesPrevios # Importación explícita
 from django.db import transaction
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Case, When, Value, IntegerField
 from datetime import date
 import json
 from django.utils.dateparse import parse_datetime
@@ -207,17 +210,8 @@ def crear_ficha_obstetrica(request, paciente_pk):
     vias_administracion = CatalogoViaAdministracion.objects.filter(activo=True)
     consultorios = CatalogoConsultorioOrigen.objects.filter(activo=True)
     
-    context = {
-        'form': form,
-        'paciente': paciente,
-        'persona': persona,
-        'edad': edad,
-        'titulo': 'Crear Ficha Obstétrica',
-        'accion': 'crear',
-        'vias_administracion': vias_administracion,
-        'consultorios': consultorios,
-    }
-    return render(request, 'Matrona/crear_ficha_obstetrica.html', context)
+    
+
 
 
 # ============================================
@@ -280,6 +274,13 @@ def crear_ficha_obstetrica_persona(request, persona_pk):
     vias_administracion = CatalogoViaAdministracion.objects.filter(activo=True)
     consultorios = CatalogoConsultorioOrigen.objects.filter(activo=True)
     
+    # Obtener controles previos si existen
+    controles_previos = ControlesPrevios.objects.filter(
+        paciente_rut=persona.Rut
+    ).order_by('-fecha_control')[:20]
+
+    from ingresoPartoApp.models import CatalogoDerivacion
+
     context = {
         'form': form,
         'paciente': paciente,
@@ -289,6 +290,8 @@ def crear_ficha_obstetrica_persona(request, persona_pk):
         'accion': 'crear',
         'vias_administracion': vias_administracion,
         'consultorios': consultorios,
+        'controles_previos': controles_previos,
+        'derivaciones_hepatitis': CatalogoDerivacion.objects.filter(activo=True),
     }
     return render(request, 'Matrona/crear_ficha_obstetrica.html', context)
 
@@ -333,6 +336,13 @@ def editar_ficha_obstetrica(request, ficha_pk):
     # CatÃ¡logos para el template
     vias_administracion = CatalogoViaAdministracion.objects.filter(activo=True)
     consultorios = CatalogoConsultorioOrigen.objects.filter(activo=True)
+
+    # Obtener controles previos si existen
+    controles_previos = ControlesPrevios.objects.filter(
+        paciente_rut=persona.Rut
+    ).order_by('-fecha_control')[:20]
+    
+    from ingresoPartoApp.models import CatalogoDerivacion
     
     context = {
         'form': form,
@@ -346,6 +356,8 @@ def editar_ficha_obstetrica(request, ficha_pk):
         'registros_dilatacion': registros_dilatacion,
         'vias_administracion': vias_administracion,
         'consultorios': consultorios,
+        'controles_previos': controles_previos,
+        'derivaciones_hepatitis': CatalogoDerivacion.objects.filter(activo=True),
     }
     return render(request, 'Matrona/crear_ficha_obstetrica.html', context)
 
@@ -1494,8 +1506,8 @@ def cierre_parto_view(request, ficha_parto_id):
         ficha_parto.save()
         
         # Redirigir a listado o Dashboard
-        messages.success(request, f'Proceso de parto finalizado para ficha {ficha_parto.numero_ficha}. Sala liberada.')
-        return redirect('matrona:menu_matrona')
+        messages.success(request, f'Proceso de parto finalizado para ficha {ficha_parto.numero_ficha_parto}. Sala liberada.')
+        return redirect('matrona:resumen_final_parto', ficha_parto_id=ficha_parto.id)
 
     return render(request, 'Matrona/cierre_parto.html', {
         'ficha': ficha_parto
@@ -1669,6 +1681,8 @@ def sala_parto_view(request, ficha_parto_id):
         'personas_acompanante': personas_acompanante,
         'metodos_no_farm': metodos_no_farm, 
         'tipos_esterilizacion': tipos_esterilizacion,
+        'regimenes_parto': regimenes_parto,
+        'tipos_rotura': tipos_rotura,
         # Staff
         'matronas_staff': matronas_staff,
         'tens_staff': tens_staff,
@@ -1823,8 +1837,10 @@ def ficha_rn_view(request, rn_id):
                 rn.tens_responsable = u.get_full_name()
             
             rn.save()
-            messages.success(request, 'Ficha Recién Nacido guardada correctamente.')
-            return redirect('matrona:ficha_rn', rn_id=rn.id)
+            messages.success(request, 'Ficha Recién Nacido guardada correctamente. Proceda al cierre del parto.')
+            # Redirigir al cierre del parto como solicitó el usuario ("activarse el cerrar ficha parto")
+            return redirect('matrona:cierre_parto', ficha_parto_id=ficha_parto.id)
+
             
         except Exception as e:
             messages.error(request, f'Error al guardar: {str(e)}')
@@ -1899,11 +1915,18 @@ def ficha_rn_view(request, rn_id):
 def guardar_registro_parto(request, ficha_parto_id):
     ficha_parto = get_object_or_404(FichaParto, pk=ficha_parto_id)
     
-    # Get or create instance
+    # 1. Intentar obtener instancia existente por relación
+    instance = None
     try:
         instance = ficha_parto.registro_parto
     except Exception:
         instance = None
+        
+    # 2. Si no se encuentra por relación, buscar por Numero de Registro (para evitar error de unique)
+    if not instance:
+        numero_registro = request.POST.get('numero_registro')
+        if numero_registro:
+            instance = RegistroParto.objects.filter(numero_registro=numero_registro).first()
 
     form = RegistroPartoForm(request.POST, instance=instance)
     
@@ -1911,33 +1934,84 @@ def guardar_registro_parto(request, ficha_parto_id):
         try:
             with transaction.atomic():
                 registro = form.save(commit=False)
-                registro.ficha_parto = ficha_parto
                 
-                # Handle Staff Names manually based on ID
+                # CORRECCIÓN: Asignar al campo OneToOne correcto
+                registro.ficha_ingreso_parto = ficha_parto
+                
+                # Manejo de Nombres de Staff basados en ID
                 prof_id = form.cleaned_data.get('profesional_responsable_id')
                 tens_id = form.cleaned_data.get('tens_responsable_id')
                 
                 if prof_id:
                     try:
                         u = User.objects.get(pk=prof_id)
-                        registro.responsable_atencion = f"{u.first_name} {u.last_name}"
+                        # CORRECCIÓN: Usar los campos correctos del modelo
+                        registro.profesional_responsable_nombre = u.first_name or u.username
+                        registro.profesional_responsable_apellido = u.last_name or ""
                     except User.DoesNotExist:
                         pass
                 
                 if tens_id:
                     try:
                         u = User.objects.get(pk=tens_id)
-                        registro.tens_responsable_nombre = u.first_name
-                        registro.tens_responsable_apellido = u.last_name
+                        registro.tens_responsable_nombre = u.first_name or u.username
+                        registro.tens_responsable_apellido = u.last_name or ""
                     except User.DoesNotExist:
                         pass
                 
                 registro.save()
-                return JsonResponse({'success': True, 'message': 'Registro de Parto guardado correctamente.'})
+                
+                # URL de redirección al detalle
+                redirect_url = reverse('matrona:detalle_registro_parto', args=[ficha_parto.id])
+                return JsonResponse({
+                    'success': True, 
+                    'message': 'Registro de Parto guardado correctamente.',
+                    'redirect_url': redirect_url
+                })
         except Exception as e:
             return JsonResponse({'success': False, 'message': f'Error al guardar: {str(e)}'}, status=500)
     else:
         return JsonResponse({'success': False, 'message': 'Error de validación', 'errors': form.errors}, status=400)
+
+
+@login_required
+def detalle_registro_parto(request, ficha_parto_id):
+    """
+    Vista de sólo lectura con el detalle del parto registrado
+    """
+    ficha_parto = get_object_or_404(FichaParto, pk=ficha_parto_id)
+    
+    # 1. Registro de Parto
+    try:
+        registro = ficha_parto.registro_parto
+    except Exception:
+        # Si no existe, redirigir a sala de parto para crear
+        return redirect('matrona:sala_parto', ficha_parto_id=ficha_parto.id)
+
+    # 2. Recién Nacidos
+    recien_nacidos = registro.recien_nacidos.all().order_by('id')
+    
+    context = {
+        'titulo': f'Detalle Parto - {registro.numero_registro}',
+        'ficha_parto': ficha_parto,
+        'registro': registro,
+        'recien_nacidos': recien_nacidos,
+        'ficha_obstetrica': registro.ficha_obstetrica,
+        'paciente': registro.ficha_obstetrica.paciente,
+        'staff_asignado': registro.ficha_obstetrica.personal_asignado.all().annotate(
+            rol_order=Case(
+                When(rol='MEDICO', then=Value(1)),
+                When(rol='MATRONA', then=Value(2)),
+                When(rol='TENS', then=Value(3)),
+                default=Value(4),
+                output_field=IntegerField(),
+            )
+        ).order_by('rol_order', 'usuario__first_name')
+    }
+    
+    return render(request, 'Matrona/detalle_registro_parto.html', context)
+
+
 
 
 @require_POST
@@ -2036,3 +2110,36 @@ def registrar_administracion(request, medicamento_id):
         return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+@login_required
+def resumen_final_parto_view(request, ficha_parto_id):
+    """
+    Vista de resumen final post-cierre.
+    Muestra detalles de la madre y RNs en pestañas.
+    """
+    ficha_parto = get_object_or_404(FichaParto, pk=ficha_parto_id)
+    
+    # Obtener Registro Parto
+    try:
+        registro = RegistroParto.objects.get(ficha_ingreso_parto=ficha_parto)
+    except RegistroParto.DoesNotExist:
+        messages.error(request, 'No se encontró el registro de parto asociado.')
+        return redirect('matrona:menu_matrona')
+        
+    # Obtener Recién Nacidos
+    recien_nacidos = RegistroRecienNacido.objects.filter(registro_parto=registro)
+    
+    return render(request, 'Matrona/resumen_final_parto.html', {
+        'ficha_parto': ficha_parto,
+        'registro': registro,
+        'recien_nacidos': recien_nacidos,
+        'paciente': ficha_parto.ficha_obstetrica.paciente,
+        'staff_asignado': ficha_parto.ficha_obstetrica.personal_asignado.all().annotate(
+            rol_order=Case(
+                When(rol='MEDICO', then=Value(1)),
+                When(rol='MATRONA', then=Value(2)),
+                When(rol='TENS', then=Value(3)),
+                default=Value(4),
+                output_field=IntegerField(),
+            )
+        ).order_by('rol_order', 'usuario__first_name')
+    })

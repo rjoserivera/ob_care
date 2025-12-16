@@ -9,8 +9,13 @@ from ..models import (
     MedicamentoFicha, 
     CatalogoConsultorioOrigen, 
     CatalogoViaAdministracion,
-    CatalogoMedicamento
+    CatalogoMedicamento,
+    CatalogoTipoPaciente,
+    CatalogoDiscapacidad,
+    CatalogoARO
 )
+from decimal import Decimal, ROUND_HALF_UP
+
 
 
 class FichaObstetricaForm(forms.ModelForm):
@@ -20,9 +25,13 @@ class FichaObstetricaForm(forms.ModelForm):
         model = FichaObstetrica
         fields = [
             # ============================================
-            # SECCIÓN 1: TIPO DE INGRESO (NUEVO)
+            # SECCIÓN 1: TIPO DE INGRESO Y PACIENTE
             # ============================================
             'tipo_ingreso',
+            'tipo_paciente',
+            'clasificacion_aro',
+            'tiene_discapacidad',
+            'discapacidad',
             
             # ============================================
             # SECCIÓN 2: ACOMPAÑANTE
@@ -101,6 +110,21 @@ class FichaObstetricaForm(forms.ModelForm):
             # ============================================
             'tipo_ingreso': forms.RadioSelect(attrs={
                 'class': 'form-check-input'
+            }),
+            'tipo_paciente': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'clasificacion_aro': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'tiene_discapacidad': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'id': 'id_tiene_discapacidad', # ID para control JS
+                'onchange': 'toggleDiscapacidad()'
+            }),
+            'discapacidad': forms.Select(attrs={
+                'class': 'form-select',
+                'id': 'id_discapacidad_select'
             }),
             
             # ============================================
@@ -319,8 +343,12 @@ class FichaObstetricaForm(forms.ModelForm):
             'fecha_ultima_regla', 'fecha_probable_parto',
             'edad_gestacional_semanas', 'edad_gestacional_dias',
             'vih_1_fecha', 'vih_1_resultado', 'vih_2_fecha', 'vih_2_resultado',
-            'otras_patologias',
+            'fecha_ultima_regla', 'fecha_probable_parto',
+            'edad_gestacional_semanas', 'edad_gestacional_dias',
+            'vih_1_fecha', 'vih_1_resultado', 'vih_2_fecha', 'vih_2_resultado',
+            'otras_patologias', 'tipo_paciente', 'discapacidad', 'clasificacion_aro',
         ]
+
         
         for campo in campos_opcionales:
             if campo in self.fields:
@@ -333,6 +361,32 @@ class FichaObstetricaForm(forms.ModelForm):
                 self.fields['consultorio_origen'].empty_label = "Seleccione consultorio..."
             except:
                 pass
+
+        # Queryset para Clasificación ARO
+        if 'clasificacion_aro' in self.fields:
+            try:
+                self.fields['clasificacion_aro'].queryset = CatalogoARO.objects.filter(activo=True)
+                self.fields['clasificacion_aro'].empty_label = "Seleccione clasificación ARO..."
+            except:
+                pass
+        
+        # Queryset para Tipo Paciente
+        if 'tipo_paciente' in self.fields:
+            try:
+                self.fields['tipo_paciente'].queryset = CatalogoTipoPaciente.objects.filter(activo=True)
+                self.fields['tipo_paciente'].empty_label = "Seleccione Tipo de Paciente..."
+            except:
+                pass
+
+        # Queryset para Discapacidad
+        if 'discapacidad' in self.fields:
+            try:
+                self.fields['discapacidad'].queryset = CatalogoDiscapacidad.objects.filter(activo=True)
+                self.fields['discapacidad'].empty_label = "Seleccione Discapacidad (Si aplica)..."
+                self.fields['discapacidad'].required = False
+            except:
+                pass
+
     
     def clean(self):
         """Validaciones personalizadas"""
@@ -343,9 +397,17 @@ class FichaObstetricaForm(forms.ModelForm):
         talla = cleaned_data.get('talla_actual')
         
         if peso and talla and talla > 0:
-            talla_metros = float(talla) / 100
-            imc = float(peso) / (talla_metros ** 2)
-            cleaned_data['imc'] = round(imc, 2)
+            try:
+                # Usar Decimal para mantener precisión y evitar errores de validación
+                talla_metros = Decimal(str(talla)) / Decimal('100')
+                peso_decimal = Decimal(str(peso))
+                # Calcular IMC
+                imc = peso_decimal / (talla_metros ** 2)
+                # Redondear explícitamente a 2 decimales (hacia arriba si es .5)
+                cleaned_data['imc'] = imc.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            except Exception as e:
+                # Fallback en caso de error de conversión (maniobra defensiva)
+                pass
         
         # Validar datos del acompañante si viene con uno
         tiene_acompanante = cleaned_data.get('tiene_acompanante')

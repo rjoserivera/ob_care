@@ -50,124 +50,117 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding-top: 60px;
+            padding-top: 20px;
             padding-bottom: 40px;
         }
 
         .center-box {
             width: 100%;
-            max-width: 900px;
+            max-width: 1600px;
             text-align: center;
         }
 
         /* LOGO + TITULO */
+        .logo-section {
+            margin-bottom: 2rem;
+        }
+
         .logo-section h1 {
-            font-size: 2.8rem;
-            font-weight: 700;
+            font-size: 4rem;
+            font-weight: 800;
             text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-            margin-bottom: 8px;
+            margin-bottom: 0.2rem;
+            letter-spacing: -1px;
         }
 
         .logo-section p {
             opacity: 0.9;
-            font-size: 1.15rem;
-            margin-bottom: 40px;
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .logo-img {
+            width: 240px;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 50%;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            border: 6px solid rgba(255,255,255,0.25);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
         }
 
         /* GRID */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 25px;
-            padding: 0 20px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            padding: 0 40px;
+            margin-bottom: 3rem;
         }
 
         .stat-card {
-            background: rgba(255,255,255,0.15);
-            border-radius: 18px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 24px;
             padding: 25px 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: 0.3s;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.15);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .stat-card i {
-            font-size: 2.8rem;
-            margin-bottom: 10px;
-            opacity: 0.95;
+        .stat-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            background: rgba(255,255,255,0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border-color: rgba(255,255,255,0.4);
         }
 
-        .stat-number {
-            font-size: 2.8rem;
-            font-weight: bold;
-            margin: 10px 0 5px;
-        }
-
-        .stat-label {
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-
-        /* FOOTER */
-        .footer-section {
-            text-align: center;
-            padding: 30px 0 40px;
+        /* BOTÓN DE INICIO DE SESIÓN PROFESIONAL */
+        .login-btn-container {
+            margin-top: 1rem;
         }
 
         .login-btn {
-            background: rgba(255,255,255,0.95);
-            color: #5f6fe8;
-            font-weight: 600;
-            padding: 13px 45px;
-            border-radius: 40px;
-            border: none;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            background: transparent;
+            color: #fff;
+            font-weight: 700;
+            padding: 15px 50px;
+            border-radius: 50px;
+            border: 3px solid rgba(255,255,255,0.6);
             text-decoration: none;
-            transition: 0.3s;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(5px);
         }
 
         .login-btn:hover {
-            transform: scale(1.05);
-            background: white;
-            color: #764ba2;
+            background: #fff;
+            color: #667eea;
+            border-color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
         }
 
-        @media (max-width: 768px) {
-            .logo-section h1 {
-                font-size: 2rem;
-            }
-
-            .stat-card i {
-                font-size: 2.2rem;
-            }
-
-            .stat-number {
-                font-size: 2.2rem;
-            }
+        /* Responsive overrides... */
+        @media (max-width: 992px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
-
-        /* CONTACTO DE EMERGENCIA */
-        .emergency-contact {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(255, 50, 50, 0.85);
-            color: #fff;
-            padding: 12px 18px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            backdrop-filter: blur(8px);
-            z-index: 9999;
+        @media (max-width: 576px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .logo-section h1 { font-size: 2.5rem; }
+            .logo-img { width: 180px; height: 180px; }
         }
-
-        .emergency-contact i {
-            font-size: 1.6rem;
-        }
-
     </style>
 </head>
 <body>
@@ -183,8 +176,12 @@
         <div class="center-box">
 
             <div class="logo-section">
-                <h1><i class="bi bi-hospital-fill"></i> Gestor Obstétrico</h1>
+                <h1>Gestor Obstétrico</h1>
                 <p>Hospital Clínico Herminda Martín</p>
+                
+                <div class="mb-4">
+                    <img src="{% static 'Imagenes/Logo.png' %}" alt="Logo" class="logo-img">
+                </div>
             </div>
 
             <div class="stats-grid">
@@ -213,25 +210,88 @@
                 </div>
             </div>
 
+            <!-- Botón Login integrado -->
+            <div class="login-btn-container">
+                <a href="{% url 'authentication:login' %}" class="login-btn">
+                    <i class="bi bi-box-arrow-in-right"></i> INGRESAR AL SISTEMA
+                </a>
+            </div>
+
         </div>
     </div>
 
-    <!-- Footer -->
-    <div class="footer-section">
-        <a href="{% url 'authentication:login' %}" class="login-btn">
-            <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
-        </a>
+    <!-- FAB About Button -->
+    <div class="position-fixed bottom-0 start-0 p-4" style="z-index: 9999;">
+        <button class="btn btn-dark rounded-circle shadow-lg d-flex align-items-center justify-content-center border-0" 
+                style="width: 60px; height: 60px; background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); transition: transform 0.3s;"
+                onmouseover="this.style.transform='scale(1.1)'" 
+                onmouseout="this.style.transform='scale(1)'"
+                data-bs-toggle="modal" 
+                data-bs-target="#aboutModal"
+                title="Acerca de Obstetric Care">
+            <img src="{% static 'Imagenes/Logo.png' %}" alt="Logo" class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;">
+        </button>
     </div>
 
-    <!-- CONTACTO DE EMERGENCIA -->
-    <div class="emergency-contact">
-        <i class="bi bi-exclamation-triangle-fill"></i>
-        <div>
-            <strong>Soporte</strong><br>
-            rjoseeliecer@gmail.com<br>
-            +56 9 7342 5549
+    <!-- About Modal -->
+    <div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true" style="color: #333;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-2xl" style="border-radius: 24px; overflow: hidden;">
+                <!-- Header con gradiente elegante -->
+                <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);">
+                    <h5 class="modal-title fw-bold d-flex align-items-center" id="aboutModalLabel">
+                        <i class="bi bi-info-circle-fill me-2 text-info"></i> Acerca del Sistema
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <!-- Body con diseño moderno -->
+                <div class="modal-body text-center p-5 bg-white">
+                    <!-- Logo con efecto de elevación -->
+                    <div class="mb-4 position-relative d-inline-block">
+                        <div class="position-absolute top-50 start-50 translate-middle rounded-circle bg-primary opacity-10" style="width: 140px; height: 140px;"></div>
+                        <img src="{% static 'Imagenes/Logo.png' %}" alt="Logo Hospital" class="rounded-circle shadow-lg position-relative" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid white;">
+                    </div>
+                    
+                    <h3 class="fw-bold text-dark mb-1">Obstetric Care</h3>
+                    <p class="text-uppercase text-secondary fw-bold small tracking-wide mb-4">Gestión Clínica Inteligente</p>
+                    
+                    <p class="text-muted mb-4 px-2" style="font-size: 1rem; line-height: 1.6;">
+                        Plataforma digital para la trazabilidad y gestión integral de pacientes en el 
+                        <strong>Hospital Clínico Herminda Martín</strong>.
+                    </p>
+
+                    <!-- Contacto de Emergencia Estilizado -->
+                    <div class="card border-0 rounded-4 mb-4 overflow-hidden text-white shadow" style="background-color: #ef4444;">
+                        <div class="card-body p-4 d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="bi bi-exclamation-triangle-fill" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <div class="text-start">
+                                <h5 class="fw-bold mb-1">Soporte</h5>
+                                <p class="mb-0 fw-medium" style="font-size: 0.95rem;">rjoseeliecer@gmail.com</p>
+                                <p class="mb-0 fw-bold fs-5 mt-1">+56 9 7342 5549</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Versión -->
+                    <div class="d-inline-flex align-items-center justify-content-center gap-2 px-3 py-1 rounded-pill bg-light border">
+                        <span class="badge bg-success rounded-circle p-1"> </span>
+                        <span class="fw-bold text-secondary small">Prototipo Funcional v1.0.4-beta</span>
+                    </div>
+                </div>
+
+                <!-- Footer Minimalista -->
+                <div class="modal-footer justify-content-center border-0 py-3 bg-light">
+                    <small class="text-muted fw-medium">© 2025 Hospital Clínico Herminda Martín</small>
+                </div>
+            </div>
         </div>
     </div>
+    
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         // Reloj y fecha

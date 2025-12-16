@@ -839,6 +839,10 @@
                 <i class="bi bi-telephone"></i>
                 {{ ficha.paciente.persona.Telefono|default:"Sin teléfono" }}
             </div>
+            <div class="patient-info-item">
+                <i class="bi bi-calendar-plus"></i>
+                Creación: {{ ficha.fecha_creacion|date:"d/m/Y H:i" }}
+            </div>
         </div>
     </div>
 
@@ -866,7 +870,14 @@
     <!-- Navegación de Tabs -->
     <ul class="nav nav-tabs-custom" id="fichaTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="tab-paciente" data-bs-toggle="tab" data-bs-target="#panel-paciente"
+            <button class="nav-link active" id="tab-general" data-bs-toggle="tab" data-bs-target="#panel-general"
+                type="button" role="tab">
+                <i class="bi bi-info-circle"></i>
+                <span>General</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-paciente" data-bs-toggle="tab" data-bs-target="#panel-paciente"
                 type="button" role="tab">
                 <i class="bi bi-person-vcard"></i>
                 <span>Paciente</span>
@@ -926,8 +937,48 @@
     <!-- Contenido de Tabs -->
     <div class="tab-content" id="fichaTabContent">
 
+        <!-- ==================== TAB 0: GENERAL ==================== -->
+        <div class="tab-pane fade show active" id="panel-general" role="tabpanel">
+            <div class="section-block">
+                <div class="section-title">
+                    <i class="bi bi-info-circle-fill"></i>
+                    Información General
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Tipo de Paciente</div>
+                        <div class="info-value">{{ ficha.tipo_paciente|default:"-" }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Clasificación ARO</div>
+                        <div class="info-value">
+                             {% if ficha.clasificacion_aro %}
+                                {{ ficha.clasificacion_aro }}
+                             {% else %}
+                                -
+                             {% endif %}
+                        </div>
+                    </div>
+                    {% if ficha.tiene_discapacidad %}
+                    <div class="info-item warning">
+                        <div class="info-label">Discapacidad</div>
+                        <div class="info-value">
+                            <span class="badge-custom badge-warning">Sí</span>
+                            {{ ficha.discapacidad|default:"" }}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="info-item">
+                        <div class="info-label">Discapacidad</div>
+                        <div class="info-value">No posee</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
         <!-- ==================== TAB 1: PACIENTE ==================== -->
-        <div class="tab-pane fade show active" id="panel-paciente" role="tabpanel">
+        <div class="tab-pane fade" id="panel-paciente" role="tabpanel">
             <!-- Medidas Antropométricas -->
             <div class="section-block">
                 <div class="section-title">
@@ -1033,6 +1084,26 @@
                     <div class="info-item">
                         <div class="info-label">FUM</div>
                         <div class="info-value">{{ ficha.fecha_ultima_regla|date:"d/m/Y"|default:"No registrada" }}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="bi bi-activity"></i> Estado TTC</div>
+                        <div class="info-value">
+                            {% if ficha.ttc_estado == 'NO_INDICADO' %}
+                            <span class="badge-custom badge-secondary">No indicado</span>
+                            {% elif ficha.ttc_estado == 'SOLICITADO' %}
+                            <span class="badge-custom badge-info">Solicitado</span>
+                            {% elif ficha.ttc_estado == 'EN_ESPERA' %}
+                            <span class="badge-custom badge-warning">En espera</span>
+                            {% elif ficha.ttc_estado == 'REALIZADO' %}
+                            <span class="badge-custom badge-success">Realizado</span>
+                            {% elif ficha.ttc_estado == 'SUSPENDIDO' %}
+                            <span class="badge-custom badge-danger">Suspendido</span>
+                            {% elif ficha.ttc_estado == 'CONTRAINDICADO' %}
+                            <span class="badge-custom badge-danger">Contraindicado</span>
+                            {% else %}
+                            {{ ficha.ttc_estado }}
+                            {% endif %}
                         </div>
                     </div>
                     <div class="info-item">
@@ -1216,6 +1287,63 @@
                         <div class="info-value">{{ ficha.vih_2_resultado|default:"Pendiente" }}</div>
                     </div>
                     {% endif %}
+                    
+                    <!-- TTC -->
+                    <div class="info-item">
+                        <div class="info-label"><i class="bi bi-activity"></i> Estado TTC</div>
+                        <div class="info-value">
+                            {% if ficha.ttc_estado == 'NO_INDICADO' %}
+                            <span class="badge-custom badge-secondary">No indicado</span>
+                            {% elif ficha.ttc_estado == 'SOLICITADO' %}
+                            <span class="badge-custom badge-info">Solicitado</span>
+                            {% elif ficha.ttc_estado == 'EN_ESPERA' %}
+                            <span class="badge-custom badge-warning">En espera</span>
+                            {% elif ficha.ttc_estado == 'REALIZADO' %}
+                            <span class="badge-custom badge-success">Realizado</span>
+                            {% elif ficha.ttc_estado == 'SUSPENDIDO' %}
+                            <span class="badge-custom badge-danger">Suspendido</span>
+                            {% elif ficha.ttc_estado == 'CONTRAINDICADO' %}
+                            <span class="badge-custom badge-danger">Contraindicado</span>
+                            {% else %}
+                            {{ ficha.ttc_estado }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Hepatitis B -->
+                    <div class="info-item">
+                        <div class="info-label">Hepatitis B Realizado</div>
+                        <div class="info-value">
+                            {% if ficha.hepatitis_b_realizado %}
+                            <span class="badge-custom badge-success">✅ Sí</span>
+                            {% else %}
+                            <span class="badge-custom badge-warning">❌ No</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if ficha.hepatitis_b_fecha or ficha.hepatitis_b_resultado %}
+                    <div class="info-item">
+                        <div class="info-label">Fecha Hepatitis B</div>
+                        <div class="info-value">{{ ficha.hepatitis_b_fecha|date:"d/m/Y"|default:"--" }}</div>
+                    </div>
+                    <div
+                        class="info-item {% if ficha.hepatitis_b_resultado == 'POSITIVO' %}danger{% else %}success{% endif %}">
+                        <div class="info-label">Resultado Hepatitis B</div>
+                        <div class="info-value">
+                            {{ ficha.hepatitis_b_resultado|default:"Pendiente" }}
+                            {% if ficha.hepatitis_b_resultado == 'POSITIVO' %}
+                            <span class="badge-custom badge-danger">Inmunoglobulina RN</span>
+                            {% endif %}
+                            
+                            {% if ficha.derivacion_hepatitis_b %}
+                            <div style="margin-top: 0.5rem; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 0.5rem;">
+                                <small class="text-muted" style="display: block; font-weight: 600; margin-bottom: 0.2rem;">Derivación:</small>
+                                <span class="badge bg-light text-dark border"><i class="bi bi-arrow-right-short"></i> {{ ficha.derivacion_hepatitis_b.nombre }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -1391,9 +1519,17 @@
                                     {% if control.hepatitis_b_resultado == 'POSITIVO' %}
                                     <span class="badge-custom badge-danger">Inmunoglobulina RN</span>
                                     {% endif %}
+                                    {% if control.derivacion_hepatitis_b %}
+                                    <div style="margin-top: 0.5rem; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 0.5rem;">
+                                        <small class="text-muted" style="display: block; font-weight: 600; margin-bottom: 0.2rem;">Derivación:</small>
+                                        <span class="badge bg-light text-dark border"><i class="bi bi-arrow-right-short"></i> {{ control.derivacion_hepatitis_b.nombre }}</span>
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
                             {% endif %}
+
+
 
                             <!-- Patologías -->
                             {% if control.diabetes_gestacional %}

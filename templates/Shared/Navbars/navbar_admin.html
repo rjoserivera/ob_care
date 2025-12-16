@@ -1,0 +1,86 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <img src="{% static 'Imagenes/Logo.png' %}" alt="Logo" width="40" height="40" class="d-inline-block align-middle rounded-circle me-2">
+            Obstetric Care - Administrador
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/">
+                        <i class="bi bi-shield-lock"></i> Panel Django
+                    </a>
+                </li>
+                
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-people"></i> Gestión Personas
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'gestion:registrar_persona' %}">
+                            <i class="bi bi-person-plus"></i> Registrar Nueva Persona
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'gestion:persona_list' %}">
+                            <i class="bi bi-list-ul"></i> Ver Todas las Personas
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'gestion:buscar_persona' %}">
+                            <i class="bi bi-search"></i> Buscar Persona
+                        </a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'partos:exportar_libro_partos' %}">
+                        <i class="bi bi-file-earmark-excel-fill"></i> Exportación
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'gestion:listar_logs' %}">
+                        <i class="bi bi-clock-history"></i> Logs
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link position-relative" href="{% url 'gestion_procesos:mis_notificaciones' %}">
+                        <i class="bi bi-bell-fill"></i> Notificaciones
+                        <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem; z-index: 1000;">0</span>
+                    </a>
+                </li>
+                
+                <!-- Usuario -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> {{ request.user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                             <h6 class="dropdown-header">
+                                <i class="bi bi-person"></i> {{ user.get_full_name|default:user.username }}
+                            </h6>
+                        </li>
+                        <li><span class="dropdown-item-text text-muted small">
+                                <i class="bi bi-shield-lock"></i> Administrador
+                            </span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#">
+                            <i class="bi bi-gear"></i> Configuración
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'gestion:configurar_telegram' %}">
+                            <i class="bi bi-telegram"></i> Telegram
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'authentication:logout' %}">
+                            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                        </a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

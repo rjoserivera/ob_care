@@ -138,31 +138,49 @@
         </div>
     </div>
 
-    <!-- 2. & 3. SECCIÓN DE ASOCIACIONES -->
-    <div class="association-card">
-        <div>
-            <h6 class="text-muted fw-bold text-uppercase mb-2" style="font-size: 0.8rem;">Recién Nacidos Asociados</h6>
-            <div class="rn-list">
-                {% for rn in recien_nacidos %}
-                <a href="{% url 'matrona:ficha_rn' rn.id %}" class="rn-link" target="_blank">
-                    <i class="bi bi-person-baby"></i> RN{{ forloop.counter }} 
-                    <small class="text-muted">#{{ rn.id }}</small>
-                </a>
-                {% empty %}
-                <span class="text-muted fst-italic">No hay recién nacidos asociados aún.</span>
-                {% endfor %}
-            </div>
+    <!-- 2. SECCIÓN DE ASOCIACIONES - DISEÑO LIMPIO V2 -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+             <h6 class="text-uppercase mb-0 fw-bold text-secondary">
+                <i class="bi bi-people-fill me-2"></i>Recién Nacidos Asociados
+             </h6>
         </div>
-        <div>
-            <a href="{% url 'matrona:asociar_rn' ficha_parto.id %}" class="btn-associate">
-                <i class="bi bi-plus-lg"></i> Asociar Recién Nacido
-            </a>
+        <div class="card-body">
+                <div class="rn-list d-flex flex-wrap gap-2">
+                    {% for rn in recien_nacidos %}
+                    <a href="{% url 'matrona:ficha_rn' rn.id %}" target="_blank" 
+                       class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2"
+                       style="border-radius: 20px; padding: 0.4rem 1rem; font-weight: 600;">
+                        <i class="bi bi-person-badge"></i>
+                        <span>RN{{ forloop.counter }}</span>
+                        <small class="text-muted opacity-75">#{{ rn.id }}</small>
+                    </a>
+                    {% empty %}
+                    <span class="text-muted fst-italic" style="font-size: 0.9rem;">
+                        <i class="bi bi-info-circle me-1"></i>No hay recién nacidos asociados aún.
+                    </span>
+                    {% endfor %}
+                 </div>
+
+             
+             <div class="d-grid mt-2">
+                 <a href="{% url 'matrona:asociar_rn' ficha_parto.id %}" class="btn btn-outline-success border-2 fw-bold py-2">
+                    <i class="bi bi-plus-lg me-1"></i> Asociar Nuevo Recién Nacido
+                 </a>
+             </div>
         </div>
     </div>
 
-    <!-- FORMULARIO PRINCIPAL -->
     <form id="partoForm" method="POST" action="{% url 'matrona:guardar_registro_parto' ficha_parto.id %}">
         {% csrf_token %}
+        
+        <!-- Hidden Required Fields -->
+        <input type="hidden" name="ficha_obstetrica" value="{{ ficha_parto.ficha_obstetrica.id }}">
+        <input type="hidden" name="edad_gestacional_semanas" value="{{ ficha_parto.ficha_obstetrica.edad_gestacional_semanas }}">
+        <input type="hidden" name="edad_gestacional_dias" value="{{ ficha_parto.ficha_obstetrica.edad_gestacional_dias }}">
+        <input type="hidden" name="fecha_hora_admision" value="{{ ficha_parto.pin_generado_en|date:'Y-m-d\TH:i' }}">
+        <input type="hidden" name="numero_registro" value="{{ registro_parto.numero_registro|default:'' }}">
+
 
     <!-- 4. TAF - PESTAÑAS DE ATENCIÓN FUNCIONAL -->
     <div class="taf-header-box">
@@ -190,17 +208,10 @@
                     <label class="form-label">Edad Gestacional Reales</label>
                     <input type="text" class="form-control" value="{{ ficha_parto.ficha_obstetrica.edad_gestacional_semanas }}+{{ ficha_parto.ficha_obstetrica.edad_gestacional_dias }}" readonly>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">Diagnóstico de Ingreso</label>
-                    <textarea class="form-control" rows="1" readonly>{{ ficha_parto.ficha_obstetrica.diagnostico_ingreso|default:"Sin diagnóstico registrado" }}</textarea>
-                </div>
-                <!-- Alert Removed -->
             </div>
-        </div>
 
-        <!-- TAF 2: PROCESO DE PARTO -->
-        <div class="tab-pane fade" id="taf2">
-            <h5 class="section-title"><i class="bi bi-heart-pulse"></i> Desarrollo del Parto</h5>
+            <!-- Clasificaciones y Posiciones -->
+            <h5 class="section-title mt-4"><i class="bi bi-bookmark-check"></i> Clasificación del Parto</h5>
             <div class="row g-4 mb-4">
                 <div class="col-md-4">
                     <label class="form-label">Clasificación Clínica</label>
@@ -213,8 +224,8 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Clasificación Robson</label>
-                    <select class="form-select" name="clasificacion_robson"> <!-- Name fixed -->
-                         <option value="">Seleccione...</option>
+                    <select class="form-select" name="clasificacion_robson">
+                        <option value="">Seleccione...</option>
                         {% for r in robsons %}
                         <option value="{{r.id}}" {% if registro_parto.clasificacion_robson_id == r.id %}selected{% endif %}>Grupo {{ r.numero_grupo }} - {{r.descripcion}}</option>
                         {% endfor %}
@@ -222,15 +233,15 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Posición Materna</label>
-                    <select class="form-select" name="posicion_parto"> <!-- Name fixed -->
-                         <option value="">Seleccione...</option>
+                    <select class="form-select" name="posicion_parto">
+                        <option value="">Seleccione...</option>
                         {% for p in posiciones %}
                         <option value="{{p.id}}" {% if registro_parto.posicion_parto_id == p.id %}selected{% endif %}>{{p.descripcion}}</option>
                         {% endfor %}
                     </select>
                 </div>
             </div>
-            
+
             <div class="row g-4">
                 <div class="col-md-6">
                     <label class="form-label d-block mb-2">Posiciones Alternativas</label>
@@ -239,21 +250,12 @@
                         <label class="form-check-label" for="checkPosAlt">Se ofrecieron posiciones alternativas durante el trabajo de parto</label>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label d-block mb-2">Periodos del Parto</label>
-                    <div class="d-flex gap-4">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="perPreparto" checked disabled>
-                            <label class="form-check-label" for="perPreparto">Preparto</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="perParto" checked disabled>
-                            <label class="form-check-label" for="perParto">Parto Vaginal / Cesárea</label>
-                        </div>
-                        <!-- "Parto con RN" excluido explicita solicitud -->
-                    </div>
-                </div>
+                <!-- Alert Removed -->
             </div>
+        </div>
+
+        <!-- TAF 2: PROCESO DE PARTO -->
+        <div class="tab-pane fade" id="taf2">
             
             <!-- NUEVA SECCION: MANEJO DEL TRABAJO DE PARTO -->
             <h5 class="section-title mt-4"><i class="bi bi-activity"></i> Manejo y Tiempos</h5>
@@ -598,5 +600,64 @@
         document.getElementById('chronometer').textContent = 
             (h<10?"0"+h:h) + ":" + (m<10?"0"+m:m) + ":" + (s<10?"0"+s:s);
     }, 1000);
+
+    // Form Submission Logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const partoForm = document.getElementById('partoForm');
+        
+        if (partoForm) {
+            partoForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const form = this;
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                
+                // Disable button during current submission
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
+
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Success: Alert and Redirect/Reload
+                        alert(data.message || 'Registro guardado correctamente.');
+                        if (data.redirect_url) {
+                            window.location.href = data.redirect_url;
+                        } else {
+                            window.location.reload(); 
+                        }
+                    } else {
+                        // Error: Alert and Re-enable
+                        let errorMsg = data.message || 'Ha ocurrido un error.';
+                        if (data.errors) {
+                            const details = Object.values(data.errors).flat().join('\n');
+                            errorMsg += '\n\nDetalles:\n' + details;
+                        }
+                        alert(errorMsg);
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error de conexión o del servidor.');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                });
+            });
+        } else {
+            console.error('El formulario partoForm no se encontró en el DOM.');
+        }
+    });
+
 </script>
 {% endblock %}

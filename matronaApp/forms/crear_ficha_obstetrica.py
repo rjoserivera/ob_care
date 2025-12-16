@@ -16,56 +16,52 @@ class FichaObstetricaForm(forms.ModelForm):
     class Meta:
         model = FichaObstetrica
         fields = [
-            # Acompañante
+            'tipo_ingreso',
+            'tipo_paciente',
+            'clasificacion_aro',
+            'tiene_discapacidad',
+            'discapacidad',
             'tiene_acompanante',
             'nombre_acompanante',
             'rut_acompanante',
             'parentesco_acompanante',
             'telefono_acompanante',
-            # Contacto emergencia
             'nombre_contacto_emergencia',
             'telefono_emergencia',
             'parentesco_contacto_emergencia',
-            # Datos generales
             'plan_de_parto',
             'visita_guiada',
             'consultorio_origen',
-            # Medidas antropométricas
             'peso_actual',
             'talla_actual',
             'imc',
-            # Historia obstétrica
             'numero_gestas',
             'numero_partos',
             'partos_vaginales',
             'partos_cesareas',
             'numero_abortos',
             'nacidos_vivos',
-            # Embarazo actual
             'fecha_ultima_regla',
+            'fecha_probable_parto',
             'edad_gestacional_semanas',
             'edad_gestacional_dias',
-            'fecha_probable_parto',
             'cantidad_bebes',
-            # VIH
-            'vih1_fecha',
-            'vih1_resultado',
-            'vih2_fecha',
-            'vih2_resultado',
-            # Patologías
+            'control_prenatal',
+            'numero_controles',
+            'vih_1_realizado',
+            'vih_1_fecha',
+            'vih_1_resultado',
+            'vih_2_fecha',
+            'vih_2_resultado',
             'preeclampsia_severa',
             'eclampsia',
             'sepsis_infeccion_sistemia',
             'infeccion_ovular',
             'otras_patologias',
-            # Control prenatal
-            'control_prenatal',
-            'numero_controles',
-            # Dilatación y parto
             'dilatacion_inicial',
             'tipo_parto',
         ]
-        
+
         widgets = {
             # Checkboxes
             'tiene_acompanante': forms.CheckboxInput(attrs={
@@ -106,8 +102,7 @@ class FichaObstetricaForm(forms.ModelForm):
             'parentesco_acompanante': forms.Select(attrs={'class': 'form-select'}),
             'parentesco_contacto_emergencia': forms.Select(attrs={'class': 'form-select'}),
             'consultorio_origen': forms.Select(attrs={'class': 'form-select'}),
-            'vih1_resultado': forms.Select(attrs={'class': 'form-select'}),
-            'vih2_resultado': forms.Select(attrs={'class': 'form-select'}),
+            'vih_2_resultado': forms.Select(attrs={'class': 'form-select'}),
             'tipo_parto': forms.RadioSelect(),
             
             # Numéricos

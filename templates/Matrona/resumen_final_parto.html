@@ -1,0 +1,310 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Resumen Final - Atención de Parto{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bg-gradient-header {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+    }
+    .card-hover:hover {
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .avatar-circle {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-weight: bold;
+    }
+    .detail-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        margin-bottom: 0.1rem;
+        font-weight: 700;
+    }
+    .detail-value {
+        font-weight: 500;
+        font-size: 0.95rem;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+    .section-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #495057;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 0.5rem;
+    }
+    
+    /* CUSTOM TABS STYLING */
+    .nav-tabs {
+        border-bottom: 2px solid #e9ecef;
+    }
+    .nav-tabs .nav-link {
+        font-weight: 700;
+        color: #6c757d !important;   /* Force Dark Gray */
+        background-color: transparent;
+        padding: 1rem 1.5rem;
+        border: none;
+        border-bottom: 4px solid transparent;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        color: #343a40 !important;
+        background-color: rgba(0,0,0,0.05);
+    }
+    
+    /* Mother Tab - Celeste (requested "celeste") */
+    .nav-tabs .nav-link#madre-tab.active {
+        color: #0d6efd !important; /* Fallback Blue */
+        color: #0dcaf0 !important; /* Celeste */
+        border-bottom-color: #0dcaf0 !important;
+        background: transparent;
+    }
+
+    /* RN Tab - Red (requested "roja") */
+    .nav-tabs .nav-link#rn-tab.active {
+        color: #dc3545 !important;
+        border-bottom-color: #dc3545 !important;
+        background: transparent;
+    }
+    
+    .badge-rn-id {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid bg-light min-vh-100 py-4">
+    <div class="container">
+    
+        <!-- HEADER -->
+        <div class="card shadow border-0 overflow-hidden mb-4">
+            <div class="card-body bg-gradient-header p-4 position-relative">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="badge bg-white text-primary mb-2 opacity-75">
+                            <i class="bi bi-check-circle-fill"></i> Atención Finalizada
+                        </div>
+                        <h2 class="fw-bold mb-1 text-white">
+                            Resumen Final de Atención
+                        </h2>
+                        <p class="mb-0 opacity-75">
+                            <i class="bi bi-person-vcard"></i> Paciente: {{ paciente.persona.Nombre }} {{ paciente.persona.Apellido_Paterno }}
+                        </p>
+                    </div>
+                     <div class="d-flex align-items-center gap-2">
+                        <a href="{% url 'matrona:menu_matrona' %}" class="btn btn-light btn-lg text-primary fw-bold shadow-sm">
+                            <i class="bi bi-house-door-fill me-2"></i> Volver al Menú
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABS DE NAVEGACIÓN -->
+        <ul class="nav nav-tabs mb-4 px-2" id="resumenTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                
+                <button class="nav-link active fs-5" id="madre-tab" data-bs-toggle="tab" data-bs-target="#madre" type="button" role="tab">
+                    <i class="bi bi-person-standing-dress me-2"></i>Detalle Madre / Parto
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fs-5" id="rn-tab" data-bs-toggle="tab" data-bs-target="#rn" type="button" role="tab">
+                    <i class="bi bi-balloon-heart me-2"></i>Detalle Recién Nacido(s) 
+                    <span class="badge ms-2 rounded-pill {% if recien_nacidos.count > 0 %}bg-danger{% else %}bg-secondary{% endif %}">{{ recien_nacidos.count }}</span>
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="resumenTabsContent">
+            
+            <!-- TAB 1: MADRE (Partial) -->
+            <div class="tab-pane fade show active" id="madre" role="tabpanel">
+                {% include 'Matrona/partials/detalle_parto_content.html' %}
+            </div>
+
+            <!-- TAB 2: RECIÉN NACIDOS -->
+            <div class="tab-pane fade" id="rn" role="tabpanel">
+                
+                {% if recien_nacidos %}
+                <div class="row g-4">
+                    {% for rn in recien_nacidos %}
+                    <div class="col-12">
+                        <div class="card shadow border-0 card-hover border-top border-4 {% if rn.sexo.descripcion == 'Femenino' %}border-danger{% else %}border-primary{% endif %}">
+                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold text-dark">
+                                    <i class="bi bi-person-badge me-2 text-muted"></i>Recién Nacido #{{ forloop.counter }}
+                                    {% if rn.nombre_rn_temporal %}
+                                        <span class="text-muted fw-normal ms-2">"{{ rn.nombre_rn_temporal }}"</span>
+                                    {% endif %}
+                                </h5>
+                                <span class="badge bg-light text-dark shadow-sm border">ID: {{ rn.id }}</span>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row g-4">
+                                    
+                                    <!-- A. DATOS BÁSICOS -->
+                                    <div class="col-md-3 border-end">
+                                        <h6 class="section-title text-primary">Datos Básicos</h6>
+                                        <div class="detail-label">Sexo</div>
+                                        <div class="detail-value">{{ rn.sexo }}</div>
+                                        
+                                        <div class="detail-label">Hora Nacimiento</div>
+                                        <div class="detail-value fw-bold fs-5">{{ rn.hora_nacimiento|time:"H:i" }}</div>
+                                        
+                                        <div class="detail-label">Peso</div>
+                                        <div class="detail-value">{{ rn.peso_gramos }} g</div>
+                                        
+                                        <div class="detail-label">Talla</div>
+                                        <div class="detail-value">{{ rn.talla_centimetros }} cm</div>
+                                        
+                                        <div class="detail-label">Perímetros</div>
+                                        <div class="detail-value small">
+                                            PC: {{ rn.perimetro_cefalico|default:"-" }} cm<br>
+                                            PT: {{ rn.perimetro_torax|default:"-" }} cm
+                                        </div>
+                                    </div>
+
+                                    <!-- B. APGAR Y CORDÓN -->
+                                    <div class="col-md-3 border-end">
+                                        <h6 class="section-title text-info">Evaluación Inicial</h6>
+                                        <div class="detail-label">Apgar (1' / 5' / 10')</div>
+                                        <div class="detail-value">
+                                            <span class="badge bg-primary">{{ rn.apgar_1_minuto }}</span> - 
+                                            <span class="badge bg-success">{{ rn.apgar_5_minutos }}</span> - 
+                                            <span class="badge bg-secondary">{{ rn.apgar_10_minutos|default:"-" }}</span>
+                                        </div>
+
+                                        <div class="detail-label mt-3">Cordón Umbilical</div>
+                                        <ul class="list-unstyled small mb-0">
+                                            <li>Vasos: <strong>{{ rn.numero_vasos_cordon }}</strong></li>
+                                            <li>Ligadura Tardía: <strong>{{ rn.ligadura_tardia_cordon|yesno:"Sí,No" }}</strong>
+                                                {% if rn.ligadura_tardia_cordon and rn.tiempo_ligadura_minutos %}
+                                                    ({{ rn.tiempo_ligadura_minutos }} min)
+                                                {% endif %}
+                                            </li>
+                                        </ul>
+                                        
+                                        <div class="detail-label mt-3">Estado General</div>
+                                        <ul class="list-unstyled small mb-0">
+                                            <li>Examen Físico: {{ rn.examen_fisico_completo|yesno:"Sí,No" }}</li>
+                                            <li>Screening Metab: {{ rn.screening_metabolico|yesno:"Sí,No" }}</li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- C. APEGO, ACOMPAÑAMIENTO Y LACTANCIA -->
+                                    <div class="col-md-3 border-end">
+                                        <h6 class="section-title text-success">Vínculo y Alimentación</h6>
+                                        
+                                        <div class="detail-label">Apego</div>
+                                        <ul class="list-unstyled small mb-2">
+                                            <li>Piel con Piel: 
+                                                {% if rn.apego_piel_con_piel %}<i class="bi bi-check-circle text-success"></i> ({{ rn.tiempo_primer_apego_minutos }}m){% else %}No{% endif %}
+                                            </li>
+                                            <li>Canguro: 
+                                                {% if rn.apego_canguro %}<i class="bi bi-check-circle text-success"></i> ({{ rn.duracion_apego_canguro_minutos }}m){% else %}No{% endif %}
+                                            </li>
+                                        </ul>
+
+                                        <div class="detail-label">Acompañamiento</div>
+                                        <ul class="list-unstyled small mb-2">
+                                            <li>Madre: {{ rn.acompanamiento_madre|yesno:"Sí,No" }}</li>
+                                            <li>Acompañante: {{ rn.acompanamiento_acompanante|yesno:"Sí,No" }}</li>
+                                            <li>Seccionó Cordón: {{ rn.acompanante_secciona_cordon|yesno:"Sí,No" }}</li>
+                                        </ul>
+                                        
+                                        <div class="detail-label">Lactancia</div>
+                                        {% if rn.lactancia_iniciada %}
+                                            <span class="text-success small fw-bold"><i class="bi bi-check2"></i> Iniciada ({{ rn.tiempo_inicio_lactancia_minutos }} min)</span>
+                                        {% else %}
+                                            <span class="text-muted small">No iniciada</span>
+                                        {% endif %}
+                                        {% if rn.alimentacion_con_formula %}
+                                            <div class="alert alert-warning p-1 mt-1 mb-0 small">
+                                                Fórmula: {{ rn.razon_formula }}
+                                            </div>
+                                        {% endif %}
+
+                                    </div>
+
+                                    <!-- D. CLÍNICA Y COMPLICACIONES -->
+                                    <div class="col-md-3">
+                                        <h6 class="section-title text-danger">Clínica y Complicaciones</h6>
+                                        
+                                        <div class="detail-label">Profilaxis</div>
+                                        <div class="small mb-3">
+                                            <div>Ocular: {{ rn.profilaxis_oftalmologica|yesno:"Sí,No" }}</div>
+                                            <div>Vit K: {{ rn.vitamina_k|yesno:"Sí,No" }}</div>
+                                            <div>Hep B: {{ rn.vacuna_hepatitis_b|yesno:"Sí,No" }}</div>
+                                        </div>
+
+                                        <div class="detail-label">Complicaciones</div>
+                                        <div class="small">
+                                            {% if rn.dificultad_respiratoria %}<span class="badge bg-danger mb-1">Dif. Respiratoria</span>{% endif %}
+                                            {% if rn.hipoglucemia %}<span class="badge bg-danger mb-1">Hipoglucemia</span>{% endif %}
+                                            {% if rn.hipotermia %}<span class="badge bg-danger mb-1">Hipotermia</span>{% endif %}
+                                            {% if rn.ictericia %}<span class="badge bg-warning text-dark mb-1">Ictericia</span>{% endif %}
+                                            
+                                            {% if rn.traumatismo_obstetrico %}
+                                                <div class="text-danger fw-bold mt-1">Traumatismo:</div>
+                                                <div class="text-muted fst-italic">{{ rn.descripcion_traumatismo }}</div>
+                                            {% endif %}
+                                            
+                                            {% if not rn.dificultad_respiratoria and not rn.hipoglucemia and not rn.hipotermia and not rn.ictericia and not rn.traumatismo_obstetrico %}
+                                                <div class="text-success"><i class="bi bi-shield-check"></i> Sin complicaciones registradas</div>
+                                            {% endif %}
+                                            
+                                            {% if rn.otras_complicaciones %}
+                                                <div class="mt-2 text-muted border-top pt-1">{{ rn.otras_complicaciones }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% if rn.requiere_hospitalizacion %}
+                                        <div class="alert alert-danger mt-3 mb-0 p-2 small">
+                                            <strong>Hospitalizado:</strong><br>
+                                            {{ rn.motivo_hospitalizacion|default:"Sin motivo esp." }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white border-0 py-3 text-center">
+                                <a href="{% url 'matrona:ficha_rn' rn.id %}" target="_blank" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                                    <i class="bi bi-file-earmark-medical me-2"></i>Ver Ficha Individual
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info d-flex align-items-center" role="alert">
+                    <i class="bi bi-info-circle-fill me-3 fs-3"></i>
+                    <div>
+                        No se encontraron registros de recién nacidos asociados a esta ficha de parto.
+                    </div>
+                </div>
+                {% endif %}
+                
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

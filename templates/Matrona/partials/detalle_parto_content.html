@@ -1,0 +1,322 @@
+<!-- MATERNAL DETAILS PARTIAL -->
+<div class="row g-4">
+    
+    <!-- COLUMNA IZQUIERDA: DATOS CLÍNICOS COMPLETOS -->
+    <div class="col-lg-8">
+        
+        <!-- 1. RESUMEN Y TIEMPOS -->
+        <div class="card mb-4 shadow-sm border-0 card-hover">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 text-primary fw-bold">
+                    <i class="bi bi-stopwatch section-icon"></i>Resumen y Tiempos
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="detail-label">Tipo de Parto</div>
+                        <div class="detail-value text-primary fw-bold">{{ registro.tipo_parto }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-label">Edad Gestacional</div>
+                        <div class="detail-value">{{ registro.edad_gestacional_semanas }}+{{ registro.edad_gestacional_dias }} sem</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-label">Clasificación Robson</div>
+                        <div class="detail-value small">{{ registro.clasificacion_robson|default:"-" }}</div>
+                    </div>
+                </div>
+                <hr class="text-muted opacity-25">
+                <div class="row">
+                     <div class="col-md-4">
+                        <div class="detail-label">Dilatación</div>
+                        <div class="detail-value">{{ registro.tiempo_dilatacion_minutos|default:"-" }} min</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-label">Expulsivo</div>
+                        <div class="detail-value">{{ registro.tiempo_expulsivo_minutos|default:"-" }} min</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="detail-label">Total Parto</div>
+                        <div class="detail-value fw-bold">{{ registro.tiempo_trabajo_parto_total_minutos|default:"-" }} min</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. MANEJO CLÍNICO -->
+        <div class="card mb-4 shadow-sm border-0 card-hover">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 text-secondary fw-bold">
+                    <i class="bi bi-activity section-icon"></i>Manejo Clínico
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="detail-label">Intervenciones</div>
+                        <div class="mb-3">
+                            {% if registro.monitor_continuo %}<span class="badge badge-soft me-1">Monitor Continuo</span>{% endif %}
+                            {% if registro.induccion %}<span class="badge badge-soft me-1">Inducción</span>{% endif %}
+                            {% if registro.aceleracion %}<span class="badge badge-soft me-1">Aceleración</span>{% endif %}
+                            {% if not registro.monitor_continuo and not registro.induccion and not registro.aceleracion %}
+                                <span class="text-muted small">-</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                     <div class="col-md-6">
+                        <div class="detail-label">Libertad Movimiento</div>
+                        <div class="detail-value">
+                            {% if registro.libertad_movimiento %}<i class="bi bi-check-circle text-success"></i> Sí{% else %}No{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-label">Régimen</div>
+                        <div class="detail-value">{{ registro.regimen_parto|default:"-" }}</div>
+                    </div>
+                     <div class="col-md-6">
+                        <div class="detail-label">Rotura Membranas</div>
+                        <div class="detail-value">{{ registro.tipo_rotura_membrana|default:"-" }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-label">Posición Materna</div>
+                        <div class="detail-value">{{ registro.posicion_parto|default:"-" }}</div>
+                    </div>
+                     <div class="col-md-6">
+                        <div class="detail-label">Posiciones Alternativas</div>
+                        <div class="detail-value">{% if registro.ofrecimiento_posiciones_alternativas %}Sí (Ofrecidas){% else %}No{% endif %}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. ANALGESIA Y ANESTESIA -->
+        <div class="card mb-4 shadow-sm border-0 card-hover">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 text-info fw-bold">
+                    <i class="bi bi-capsule section-icon"></i>Analgesia
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="detail-label">No Farmacológica</div>
+                        <div class="detail-value">
+                            {% if registro.analgesia_no_farmacologica %}
+                                <span class="text-success"><i class="bi bi-check2"></i> Sí</span>
+                                <div class="small text-muted">
+                                    {% for m in registro.metodos_no_farmacologicos.all %}
+                                        {{ m.descripcion }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% else %}No{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-label">Anestesia / Peridural</div>
+                        <div class="detail-value">
+                            {% if registro.peridural_administrada %}
+                                <span class="badge bg-primary">Peridural Administrada</span>
+                                {% if registro.tiempo_espera_peridural_minutos %}
+                                <div class="small text-muted mt-1">Espera: {{ registro.tiempo_espera_peridural_minutos }} min</div>
+                                {% endif %}
+                            {% endif %}
+                            
+                            {% if registro.anestesia_general %}<span class="badge bg-danger ms-1">General</span>{% endif %}
+                            {% if registro.anestesia_raquidea %}<span class="badge bg-warning text-dark ms-1">Raquídea</span>{% endif %}
+                            {% if registro.anestesia_local %}<span class="badge bg-secondary ms-1">Local</span>{% endif %}
+                            
+                            {% if not registro.peridural_administrada and not registro.anestesia_general and not registro.anestesia_raquidea and not registro.anestesia_local %}
+                                -
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. ALUMBRAMIENTO Y PERINÉ -->
+         <div class="card mb-4 shadow-sm border-0 card-hover">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 text-danger fw-bold">
+                    <i class="bi bi-layers section-icon"></i>Alumbramiento y Periné
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                     <div class="col-md-6">
+                        <div class="detail-label">Alumbramiento</div>
+                        <div class="mb-3">
+                            {% if registro.alumbramiento_dirigido %}<div class="text-dark"><i class="bi bi-check2-square text-primary"></i> Dirigido</div>{% endif %}
+                            {% if registro.retira_placenta %}<div class="text-dark"><i class="bi bi-check2-square text-primary"></i> Placenta Completa</div>{% endif %}
+                            {% if not registro.alumbramiento_dirigido and not registro.retira_placenta %}-{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-label">Estado Perineal</div>
+                        <div class="detail-value fw-bold">{{ registro.estado_perine|default:"-" }}</div>
+                    </div>
+                     <div class="col-12">
+                        <div class="detail-label">Complicaciones Maternas</div>
+                        <div>
+                            {% if registro.tiene_complicaciones %}
+                                <span class="badge bg-danger mb-2">Presenta Complicaciones</span>
+                                <ul class="mb-0 text-danger small">
+                                    {% if registro.inercia_uterina %}<li>Inercia Uterina</li>{% endif %}
+                                    {% if registro.restos_placentarios %}<li>Restos Placentarios</li>{% endif %}
+                                    {% if registro.desgarro_vaginal %}<li>Desgarro Vaginal</li>{% endif %}
+                                    {% if registro.hemorragia_postparto %}<li>Hemorragia Post-parto</li>{% endif %}
+                                </ul>
+                            {% else %}
+                                <span class="badge bg-success">Sin Complicaciones</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                     <!-- Esterilización -->
+                    {% if registro.esterilizacion %}
+                    <div class="col-12 mt-3 pt-3 border-top">
+                        <div class="alert alert-warning border-0 mb-0 d-flex align-items-center">
+                            <i class="bi bi-exclamation-circle fs-4 me-3"></i>
+                            <div>
+                                <h6 class="fw-bold mb-0">Esterilización Quirúrgica Realizada</h6>
+                                <small>{{ registro.tipo_esterilizacion }} - {{ registro.fecha_esterilizacion }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- COLUMNA DERECHA: RECIÉN NACIDOS Y ACOMPAÑAMIENTO -->
+    <div class="col-lg-4">
+        
+        <!-- RECIÉN NACIDOS -->
+        <div class="card mb-4 shadow border-0 card-hover border-start border-4 border-success">
+            <div class="card-header bg-success bg-opacity-10 border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-success fw-bold">
+                    <i class="bi bi-balloon-heart me-2"></i>Recién Nacidos
+                </h5>
+                <span class="badge bg-success rounded-pill px-3">{{ recien_nacidos.count }}</span>
+            </div>
+            <div class="card-body p-0">
+                {% if recien_nacidos %}
+                <div class="list-group list-group-flush">
+                    {% for rn in recien_nacidos %}
+                    <div class="list-group-item p-4 border-0 border-bottom">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle {% if rn.sexo == 'M' %}bg-primary bg-opacity-10 text-primary{% elif rn.sexo == 'F' %}bg-danger bg-opacity-10 text-danger{% else %}bg-secondary bg-opacity-10 text-secondary{% endif %} me-3">
+                                {% if rn.sexo == 'M' %}M{% elif rn.sexo == 'F' %}F{% else %}?{% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-1">RN #{{ forloop.counter }}</h6>
+                                <div class="d-flex flex-wrap gap-2 text-muted small">
+                                    <span>{{ rn.hora_nacimiento|time:"H:i" }}</span>
+                                    <span>{{ rn.peso_gramos }}g</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">No registrados</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ACOMPAÑAMIENTO -->
+        <div class="card mb-4 shadow-sm border-0">
+             <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 text-warning fw-bold text-dark">
+                    <i class="bi bi-people section-icon text-warning"></i>Acompañamiento
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                {% if registro.acompanamiento_parto %}
+                    <div class="alert alert-success border-0 mb-3">
+                        <i class="bi bi-check-circle-fill me-2"></i> <strong>Acompañada</strong>
+                        <div class="small mt-1">{{ registro.nombre_acompanante }} ({{ registro.persona_acompanante }})</div>
+                    </div>
+                    <ul class="small text-muted mb-0">
+                        {% if registro.acompanamiento_preparto %}<li>En Preparto</li>{% endif %}
+                        {% if registro.acompanamiento_parto %}<li>En Parto</li>{% endif %}
+                        {% if registro.acompanante_secciona_cordon %}<li>Seccionó Cordón</li>{% endif %}
+                    </ul>
+                {% else %}
+                    <div class="alert alert-light border mb-0">No Acompañada</div>
+                    <small class="text-muted d-block mt-2">Motivo: {{ registro.motivo_parto_no_acompanado }}</small>
+                {% endif %}
+                
+                <!-- Ley Dominga -->
+                 {% if registro.ley_dominga_recuerdos or registro.ley_dominga_justificacion %}
+                 <div class="mt-3 pt-3 border-top">
+                     <h6 class="small fw-bold text-purple"><i class="bi bi-heart-fill text-danger"></i> Ley Dominga</h6>
+                     {% if registro.ley_dominga_recuerdos %}
+                        <small class="d-block text-muted">Recuerdos: {{ registro.ley_dominga_recuerdos }}</small>
+                     {% endif %}
+                     {% if registro.ley_dominga_justificacion %}
+                        <small class="d-block text-danger">Justificación: {{ registro.ley_dominga_justificacion }}</small>
+                     {% endif %}
+                 </div>
+                 {% endif %}
+            </div>
+        </div>
+
+         <!-- EQUIPO -->
+        <div class="card shadow-sm border-0 mb-4 bg-dark text-white">
+            <div class="card-header bg-transparent border-0 pt-4">
+                <h6 class="text-uppercase opacity-75 fw-bold ls-1 mb-0">Equipo</h6>
+            </div>
+            <div class="card-body">
+                {% if staff_asignado %}
+                    {% for p in staff_asignado %}
+                    <div class="d-flex align-items-center mb-3">
+                         <div class="avatar-circle bg-white text-dark me-3 shadow-sm opacity-75">
+                             {% if p.rol == 'MATRONA' %}<i class="bi bi-person-fill"></i>
+                             {% else %}<i class="bi bi-person"></i>{% endif %}
+                         </div>
+                        <div>
+                            <small class="d-block opacity-75">{{ p.get_rol_display }}</small>
+                            <div class="fw-bold">{{ p.usuario.get_full_name|default:"Sin Nombre" }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar-circle bg-white text-dark me-3 shadow-sm"><i class="bi bi-person-fill"></i></div>
+                        <div>
+                            <small class="d-block opacity-75">Matrona/ón</small>
+                            <div class="fw-bold">
+                                {% if registro.profesional_responsable_nombre or registro.profesional_responsable_apellido %}
+                                    {{ registro.profesional_responsable_nombre }} {{ registro.profesional_responsable_apellido }}
+                                {% else %}
+                                    <span class="text-white-50 fst-italic">No identificado</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% if registro.tens_responsable_nombre or registro.tens_responsable_id %}
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-circle bg-white text-dark me-3 shadow-sm opacity-75"><i class="bi bi-person"></i></div>
+                        <div>
+                            <small class="d-block opacity-75">TENS</small>
+                            <div class="fw-bold">
+                                 {% if registro.tens_responsable_nombre or registro.tens_responsable_apellido %}
+                                    {{ registro.tens_responsable_nombre }} {{ registro.tens_responsable_apellido }}
+                                {% else %}
+                                    <span class="text-white-50 fst-italic">No identificado</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        
+    </div>
+    
+</div>

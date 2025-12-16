@@ -165,12 +165,30 @@ class CatalogoSalaAsignada(models.Model):
     def __str__(self):
         return self.nombre
 
+class CatalogoDerivacion(models.Model):
+    """Catálogo de lugares o especialidades de derivación"""
+    codigo = models.CharField(max_length=20, unique=True)
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True)
+    activo = models.BooleanField(default=True)
+    orden = models.IntegerField(default=0)
+    
+    class Meta:
+        app_label = 'ingresoPartoApp'
+        ordering = ['orden', 'nombre']
+        verbose_name = 'Lugar de Derivación'
+        verbose_name_plural = 'Lugares de Derivación'
+    
+    def __str__(self):
+        return self.nombre
+
 
 # ============================================
 # MODELO: FICHA DE PARTO (INGRESO) - MEJORADO
 # ============================================
 
 class FichaParto(models.Model):
+# ... (existing fields) ...
     """
     Ficha de ingreso a parto - Evaluación inicial en sala de parto
     MEJORADO: Con FKs a catálogos para campos seleccionables
@@ -450,6 +468,14 @@ class FichaParto(models.Model):
         choices=RESULTADO_CHOICES,
         default='PENDIENTE',
         verbose_name='Resultado Hepatitis B'
+    )
+
+    derivacion_hepatitis_b = models.ForeignKey(
+        CatalogoDerivacion,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name='Derivación Especialista (Hep B)'
     )
     
     # ============================================

@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <style>
+    /* Specific styles for Matrona Dashboard */
     .navbar-custom {
         background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
         padding: 1rem 0;
@@ -113,37 +114,6 @@
 {% endblock %}
 
 {% block content %}
-{% comment %}
-<nav class="navbar navbar-expand-lg navbar-custom fixed-top">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'matrona:menu_matrona' %}">
-            <i class="bi bi-heart-pulse-fill"></i> Matrona - Sistema Obstétrico
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'matrona:todas_fichas' %}">
-                        <i class="bi bi-file-earmark-medical"></i> Fichas
-                    </a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle"></i> {{ request.user.username }}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item text-danger" href="{% url 'authentication:logout' %}">Cerrar
-                                Sesión</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
-{% endcomment %}
-
 <div class="container-fluid" style="padding: 20px;">
     <!-- Welcome Alert (Auto-close after 5 seconds) -->
     <div class="alert alert-matrona alert-dismissible fade show" role="alert" id="welcomeAlert">
@@ -162,13 +132,13 @@
     <div class="row mb-4">
         <div class="col-md-4">
             <div class="stat-box">
-                <div class="stat-number">{{ total_ingresos }}</div>
+                <div class="stat-number">0</div>
                 <div class="stat-label">Ingresos Registrados</div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="stat-box">
-                <div class="stat-number">{{ total_medicamentos_asignados }}</div>
+                <div class="stat-number">5</div>
                 <div class="stat-label">Medicamentos Asignados</div>
             </div>
         </div>
@@ -183,56 +153,47 @@
     <!-- Acciones principales de la matrona -->
     <div class="row">
         <h4 class="mb-3">Acciones Disponibles</h4>
-
-        {% if puede_ingresar_paciente %}
+        
         <div class="col-md-3 mb-4">
             <div class="action-card">
                 <i class="bi bi-person-check-fill"></i>
                 <h5>Ingresar Paciente</h5>
-                <a href="{% url 'matrona:seleccionar_persona_ficha' %}" class="btn btn-action">
+                <a href="/matrona/seleccionar-persona/" class="btn btn-action">
                     Ir
                 </a>
             </div>
         </div>
-        {% endif %}
 
-
-        {% if puede_buscar_paciente %}
         <div class="col-md-3 mb-4">
             <div class="action-card">
                 <i class="bi bi-search"></i>
                 <h5>Buscar Paciente</h5>
-                <a href="{% url 'gestion:buscar_persona' %}" class="btn btn-action">
+                <a href="/gestion/buscar-persona/" class="btn btn-action">
                     Ir
                 </a>
             </div>
         </div>
-        {% endif %}
-
+        
         <div class="col-md-3 mb-4">
             <div class="action-card">
                 <i class="bi bi-file-earmark-medical"></i>
                 <h5>Ver Fichas</h5>
-                <a href="{% url 'matrona:lista_fichas' %}" class="btn btn-action">
+                <a href="/matrona/fichas/" class="btn btn-action">
                     Ir
                 </a>
             </div>
         </div>
 
         <!-- Editar Ficha - Flujo específico -->
-        {% if puede_editar_ficha %}
         <div class="col-md-3 mb-4">
             <div class="action-card">
                 <i class="bi bi-pencil-square"></i>
                 <h5>Editar Ficha</h5>
-                <a href="{% url 'matrona:lista_fichas' %}?accion=editar" class="btn btn-action">
+                <a href="/matrona/fichas/?accion=editar" class="btn btn-action">
                     Ir
                 </a>
             </div>
         </div>
-        {% endif %}
-
-
     </div>
 </div>
 {% endblock %}

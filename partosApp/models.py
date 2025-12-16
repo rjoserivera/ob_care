@@ -460,6 +460,12 @@ class RegistroParto(models.Model):
         verbose_name='Anestesia Local'
     )
     
+    # Anestesia Raquídea/Espinal
+    anestesia_raquidea = models.BooleanField(
+        default=False,
+        verbose_name='Anestesia Raquídea/Espinal'
+    )
+    
     # Analgesia NO Farmacológica
     analgesia_no_farmacologica = models.BooleanField(
         default=False,

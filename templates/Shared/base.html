@@ -148,426 +148,14 @@
 
 <body>
     <!-- Navbar -->
-    {% if user.is_authenticated and user.groups.first.name|lower == 'matrona' %}
-    <!-- Navbar Personalizado para Matrona -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top navbar-matrona">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'matrona:menu_matrona' %}">
-                <i class="bi bi-heart-pulse"></i>
-                Obstetric Care - Matrona
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'matrona:menu_matrona' %}">
-                            <i class="bi bi-house-door"></i> Menú Principal
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'matrona:seleccionar_persona_ficha' %}">
-                            <i class="bi bi-person-plus"></i> Ingresar Paciente
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'matrona:lista_fichas' %}">
-                            <i class="bi bi-file-earmark-medical"></i> Ver Fichas
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'matrona:lista_fichas' %}?accion=editar">
-                            <i class="bi bi-pencil-square"></i> Editar Ficha
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="{% url 'gestion_procesos:mis_notificaciones' %}">
-                            <i class="bi bi-bell-fill"></i> Notificaciones
-                            <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem; z-index: 1000;">0</span>
-                        </a>
-                    </li>
-
-                    <!-- Usuario -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle"></i>
-                            {{ user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <h6 class="dropdown-header">
-                                    <i class="bi bi-person"></i> {{ user.get_full_name|default:user.username }}
-                                </h6>
-                            </li>
-                            <li><span class="dropdown-item-text text-muted small">
-                                    <i class="bi bi-shield-check"></i> Matrona
-                                </span></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="{% url 'authentication:logout' %}">
-                                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-                                </a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    {% elif user.is_authenticated and user.groups.first.name == 'Médico' %}
-    <!-- Navbar Personalizado para Médico -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top navbar-medico">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'medico:menu_medico' %}">
-                <i class="bi bi-stethoscope"></i>
-                Obstetric Care - Médico
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'medico:menu_medico' %}">
-                            <i class="bi bi-house-door"></i> Menú Principal
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="{% url 'gestion_procesos:mis_notificaciones' %}">
-                            <i class="bi bi-bell-fill"></i> Notificaciones
-                            <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem; z-index: 1000;">0</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'matrona:seleccionar_persona_ficha' %}">
-                            <i class="bi bi-person-plus"></i> Ingresar Paciente
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'matrona:lista_fichas' %}">
-                            <i class="bi bi-file-earmark-medical"></i> Ver Fichas
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'matrona:lista_fichas' %}">
-                            <i class="bi bi-pencil-square"></i> Editar Ficha
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'gestion:buscar_persona' %}">
-                            <i class="bi bi-search"></i> Buscar Paciente
-                        </a>
-                    </li>
-
-                    <!-- Usuario -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle"></i>
-                            {{ user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <h6 class="dropdown-header">
-                                    <i class="bi bi-person"></i> {{ user.get_full_name|default:user.username }}
-                                </h6>
-                            </li>
-                            <li><span class="dropdown-item-text text-muted small">
-                                    <i class="bi bi-shield-check"></i> Médico
-                                </span></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="{% url 'authentication:logout' %}">
-                                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-                                </a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    {% elif user.is_authenticated and user.groups.first.name == 'Tens' %}
-    <!-- Navbar Personalizado para TENS -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top navbar-tens">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'tens:menu_tens' %}">
-                <i class="bi bi-hospital"></i>
-                Obstetric Care - TENS
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'tens:menu_tens' %}">
-                            <i class="bi bi-house-door"></i> Menú Principal
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'tens:buscar_paciente' %}">
-                            <i class="bi bi-search"></i> Buscar Paciente
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'tens:parametros_tens' %}">
-                            <i class="bi bi-heart-pulse"></i> Registrar Signos Vitales
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'tens:buscar_paciente' %}">
-                            <i class="bi bi-clipboard-data"></i> Ver Historial
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'tens:buscar_paciente' %}">
-                            <i class="bi bi-prescription2"></i> Aplicar Tratamiento
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="{% url 'gestion_procesos:mis_notificaciones' %}">
-                            <i class="bi bi-bell-fill"></i> Notificaciones
-                            <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem; z-index: 1000;">0</span>
-                        </a>
-                    </li>
-
-                    <!-- Usuario -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle"></i>
-                            {{ user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <h6 class="dropdown-header">
-                                    <i class="bi bi-person"></i> {{ user.get_full_name|default:user.username }}
-                                </h6>
-                            </li>
-                            <li><span class="dropdown-item-text text-muted small">
-                                    <i class="bi bi-shield-check"></i> TENS
-                                </span></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="{% url 'authentication:logout' %}">\n <i
-                                        class="bi bi-box-arrow-right"></i> Cerrar Sesión
-                                </a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    {% if user.is_authenticated and user.groups.first.name|lower == 'matronas' or user.groups.first.name|lower == 'matrona' %}
+        {% include 'Shared/Navbars/navbar_matrona.html' %}
+    {% elif user.is_authenticated and user.groups.first.name|lower == 'medicos' or user.groups.first.name|lower == 'médicos' or user.groups.first.name|lower == 'medico' or user.groups.first.name|lower == 'médico' %}
+        {% include 'Shared/Navbars/navbar_medico.html' %}
+    {% elif user.is_authenticated and user.groups.first.name|lower == 'tens' %}
+        {% include 'Shared/Navbars/navbar_tens.html' %}
     {% else %}
-    <!-- Navbar Genérico para otros roles -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'home' %}">
-                <i class="bi bi-hospital"></i>
-                Obstetric Care
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <!-- Médico -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-stethoscope"></i> Médico
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'medico:menu_medico' %}">
-                                    <i class="bi bi-house-door"></i> Menú Médico
-                                </a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <h6 class="dropdown-header">Patologías</h6>
-                            </li>
-                            <li><a class="dropdown-item" href="{% url 'medico:listar_patologias' %}">
-                                    <i class="bi bi-list-check"></i> Ver Patologías
-                                </a></li>
-                            <li><a class="dropdown-item" href="{% url 'medico:registrar_patologia' %}">
-                                    <i class="bi bi-plus-circle"></i> Registrar Patología
-                                </a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <h6 class="dropdown-header">Historial</h6>
-                            </li>
-                            <li><a class="dropdown-item" href="{% url 'medico:buscar_paciente' %}">
-                                    <i class="bi bi-search"></i> Buscar Paciente
-                                </a></li>
-                        </ul>
-                    </li>
-
-                    <!-- Matrona -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-heart-pulse"></i> Matrona
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'matrona:menu_matrona' %}">
-                                    <i class="bi bi-house-door"></i> Menú Matrona
-                                </a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <h6 class="dropdown-header">Pacientes</h6>
-                            </li>
-                            <li><a class="dropdown-item" href="{% url 'matrona:seleccionar_persona_ficha' %}">
-                                    <i class="bi bi-person-plus"></i> Crear Ficha Obstétrica
-                                </a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <h6 class="dropdown-header">Fichas Obstétricas</h6>
-                            </li>
-                            <li><a class="dropdown-item" href="{% url 'matrona:menu_matrona' %}">
-                                    <i class="bi bi-folder-fill"></i> Ver Mis Fichas
-                                </a></li>
-                        </ul>
-                    </li>
-
-                    <!-- Tens -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-badge"></i> Tens
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'tens:menu_tens' %}">
-                                    <i class="bi bi-house-door"></i> Menú Tens
-                                </a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <h6 class="dropdown-header">Pacientes</h6>
-                            </li>
-                            <li><a class="dropdown-item" href="{% url 'tens:buscar_paciente' %}">
-                                    <i class="bi bi-search"></i> Buscar Paciente
-                                </a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <h6 class="dropdown-header">Signos Vitales</h6>
-                            </li>
-                            <li><a class="dropdown-item" href="{% url 'tens:parametros_tens' %}">
-                                    <i class="bi bi-clipboard2-pulse"></i> Registrar Signos Vitales
-                                </a></li>
-                            <li><a class="dropdown-item" href="{% url 'tens:menu_tens' %}">
-                                    <i class="bi bi-pill"></i> Ver Tratamientos
-                                </a></li>
-                        </ul>
-                    </li>
-
-                    <!-- Partos -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-baby"></i> Partos
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'partos:menu_partos' %}">
-                                    <i class="bi bi-house-door"></i> Menú Partos
-                                </a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <h6 class="dropdown-header">Registro</h6>
-                            </li>
-                            <li><a class="dropdown-item" href="{% url 'partos:menu_partos' %}">
-                                    <i class="bi bi-file-earmark-plus"></i> Registrar Parto
-                                </a></li>
-                            <li><a class="dropdown-item" href="{% url 'partos:lista_registros' %}">
-                                    <i class="bi bi-folder-fill"></i> Ver Registros de Partos
-                                </a></li>
-                        </ul>
-                    </li>
-
-                    <!-- Gestión -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-people"></i> Gestión
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'gestion:registrar_persona' %}">
-                                    <i class="bi bi-person-plus"></i> Registrar Persona
-                                </a></li>
-                            <li><a class="dropdown-item" href="{% url 'gestion:persona_list' %}">
-                                    <i class="bi bi-list-ul"></i> Ver Personas
-                                </a></li>
-                            <li><a class="dropdown-item" href="{% url 'gestion:buscar_persona' %}">
-                                    <i class="bi bi-search"></i> Buscar Persona
-                                </a></li>
-                        </ul>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="{% url 'gestion_procesos:mis_notificaciones' %}">
-                            <i class="bi bi-bell-fill"></i> Notificaciones
-                            <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem; z-index: 1000;">0</span>
-                        </a>
-                    </li>
-
-                    <!-- Usuario -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle"></i>
-                            {% if user.is_authenticated %}
-                            {{ user.username }}
-                            {% if user.groups.first %}
-                            <small class="text-white-50">({{ user.groups.first.name|title }})</small>
-                            {% endif %}
-                            {% else %}
-                            Usuario
-                            {% endif %}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            {% if user.is_authenticated %}
-                            <li>
-                                <h6 class="dropdown-header">
-                                    <i class="bi bi-person"></i> {{ user.get_full_name|default:user.username }}
-                                </h6>
-                            </li>
-                            {% if user.groups.first %}
-                            <li><span class="dropdown-item-text text-muted small">
-                                    <i class="bi bi-shield-check"></i> {{ user.groups.first.name|title }}
-                                </span></li>
-                            {% endif %}
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            {% endif %}
-                            <li><a class="dropdown-item" href="{% url 'authentication:logout' %}">\n <i
-                                        class="bi bi-box-arrow-right"></i> Cerrar Sesión
-                                </a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+        {% include 'Shared/Navbars/navbar_admin.html' %}
     {% endif %}
 
     <!-- Mensajes (Estilo Toast Flotante) -->
@@ -754,6 +342,76 @@
     {% endif %}
 
     {% block modal_parto %}{% endblock %}
+
+    <!-- FAB About Button -->
+    <div class="position-fixed bottom-0 end-0 p-4" style="z-index: 9999;">
+        <button class="btn btn-dark rounded-circle shadow-lg d-flex align-items-center justify-content-center border-0" 
+                style="width: 60px; height: 60px; background: linear-gradient(135deg, #2c3e50 0%, #000000 100%); transition: transform 0.3s;"
+                onmouseover="this.style.transform='scale(1.1)'" 
+                onmouseout="this.style.transform='scale(1)'"
+                data-bs-toggle="modal" 
+                data-bs-target="#aboutModal"
+                title="Acerca de Obstetric Care">
+            <img src="{% static 'Imagenes/Logo.png' %}" alt="Logo" class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;">
+        </button>
+    </div>
+
+    <!-- About Modal -->
+    <div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-2xl" style="border-radius: 24px; overflow: hidden;">
+                <!-- Header con gradiente elegante -->
+                <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);">
+                    <h5 class="modal-title fw-bold d-flex align-items-center" id="aboutModalLabel">
+                        <i class="bi bi-info-circle-fill me-2 text-info"></i> Acerca del Sistema
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <!-- Body con diseño moderno -->
+                <div class="modal-body text-center p-5 bg-white">
+                    <!-- Logo con efecto de elevación -->
+                    <div class="mb-4 position-relative d-inline-block">
+                        <div class="position-absolute top-50 start-50 translate-middle rounded-circle bg-primary opacity-10" style="width: 140px; height: 140px;"></div>
+                        <img src="{% static 'Imagenes/Logo.png' %}" alt="Logo Hospital" class="rounded-circle shadow-lg position-relative" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid white;">
+                    </div>
+                    
+                    <h3 class="fw-bold text-dark mb-1">Obstetric Care</h3>
+                    <p class="text-uppercase text-secondary fw-bold small tracking-wide mb-4">Gestión Clínica Inteligente</p>
+                    
+                    <p class="text-muted mb-4 px-2" style="font-size: 1rem; line-height: 1.6;">
+                        Plataforma digital para la trazabilidad y gestión integral de pacientes en el 
+                        <strong>Hospital Clínico Herminda Martín</strong>.
+                    </p>
+
+                    <!-- Contacto de Emergencia Estilizado -->
+                    <div class="card border-0 rounded-4 mb-4 overflow-hidden text-white shadow" style="background-color: #ef4444;">
+                        <div class="card-body p-4 d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="bi bi-exclamation-triangle-fill" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <div class="text-start">
+                                <h5 class="fw-bold mb-1">Soporte</h5>
+                                <p class="mb-0 fw-medium" style="font-size: 0.95rem;">rjoseeliecer@gmail.com</p>
+                                <p class="mb-0 fw-bold fs-5 mt-1">+56 9 7342 5549</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Versión -->
+                    <div class="d-inline-flex align-items-center justify-content-center gap-2 px-3 py-1 rounded-pill bg-light border">
+                        <span class="badge bg-success rounded-circle p-1"> </span>
+                        <span class="fw-bold text-secondary small">Prototipo Funcional v1.0.4-beta</span>
+                    </div>
+                </div>
+
+                <!-- Footer Minimalista -->
+                <div class="modal-footer justify-content-center border-0 py-3 bg-light">
+                    <small class="text-muted fw-medium">© 2025 Hospital Clínico Herminda Martín</small>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

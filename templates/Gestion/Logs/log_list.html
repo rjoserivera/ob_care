@@ -1,0 +1,176 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Logs del Sistema{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-gradient bg-dark text-white p-4 rounded-top-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h3 class="mb-0"><i class="bi bi-clock-history me-2"></i>Auditoría del Sistema</h3>
+                <p class="mb-0 opacity-75">Registro de actividades y acciones de usuarios</p>
+            </div>
+            <a href="{% url 'gestion:listar_logs' %}" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-clockwise"></i> Refrescar</a>
+        </div>
+        
+        <div class="card-body p-4">
+            <!-- Filtros -->
+            <form method="GET" class="row g-3 mb-4 p-3 bg-light rounded-3 shadow-sm">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold small">Buscar</label>
+                    <input type="text" name="search" class="form-control" placeholder="Usuario, IP, Detalle..." value="{{ search }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold small">Fecha Inicio</label>
+                    <input type="date" name="fecha_inicio" class="form-control" value="{{ fecha_inicio }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold small">Fecha Fin</label>
+                    <input type="date" name="fecha_fin" class="form-control" value="{{ fecha_fin }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold small">Acción</label>
+                    <input type="text" name="accion" class="form-control" placeholder="Ej: LOGIN, POST..." value="{{ accion }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter"></i> Filtrar</button>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fecha y Hora</th>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Acción</th>
+                            <th>Módulo</th>
+                            <th>IP</th>
+                            <th>Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td class="small text-nowrap">{{ log.fecha_hora|date:"d/m/Y H:i:s" }}</td>
+                            <td>
+                                {% if log.usuario %}
+                                    <div class="fw-bold">{{ log.usuario.get_full_name|default:log.usuario.username }}</div>
+                                    <div class="small text-muted">{{ log.usuario.username }}</div>
+                                {% else %}
+                                    <span class="text-muted fst-italic">Sistema / Anónimo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary rounded-pill fw-normal">{{ log.rol_usuario|default:"-" }}</span>
+                            </td>
+                            <td>
+                                {% if "DELETE" in log.accion or "Elimin" in log.accion %}
+                                    <span class="badge bg-danger">{{ log.accion }}</span>
+                                {% elif "POST" in log.accion or "Creat" in log.accion or "Updat" in log.accion %}
+                                    <span class="badge bg-success">{{ log.accion }}</span>
+                                {% elif "LOGIN" in log.accion %}
+                                    <span class="badge bg-info text-dark">{{ log.accion }}</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark border">{{ log.accion }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="small">{{ log.modulo|default:"-" }}</td>
+                            <td class="small font-monospace">{{ log.ip_address|default:"-" }}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detailModal" 
+                                    data-date="{{ log.fecha_hora|date:'d/m/Y H:i:s' }}"
+                                    data-user="{{ log.usuario.username|default:'Anónimo' }}"
+                                    data-action="{{ log.accion }}"
+                                    data-detail="{{ log.detalle }}">
+                                    <i class="bi bi-eye"></i> Ver Detalle
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="bi bi-journal-x fs-1 d-block mb-3"></i>
+                                No se encontraron registros de auditoría.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search }}&fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}&accion={{ accion }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    <li class="page-item disabled"><span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search }}&fecha_inicio={{ fecha_inicio }}&fecha_fin={{ fecha_fin }}&accion={{ accion }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Log Detail Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="modalTitle">Detalle del Registro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between text-muted small mb-2">
+                        <span id="modalDate"></span>
+                        <span id="modalUser"></span>
+                    </div>
+                    <h6 class="fw-bold mb-3" id="modalAction"></h6>
+                    <label class="form-label text-secondary small text-uppercase fw-bold">Detalle Completo</label>
+                    <div class="p-3 bg-light border rounded font-monospace text-wrap" style="word-break: break-all;" id="modalDetail"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var detailModal = document.getElementById('detailModal');
+        detailModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            
+            var date = button.getAttribute('data-date');
+            var user = button.getAttribute('data-user');
+            var action = button.getAttribute('data-action');
+            var detail = button.getAttribute('data-detail');
+            
+            detailModal.querySelector('#modalDate').textContent = date;
+            detailModal.querySelector('#modalUser').textContent = 'Usuario: ' + user;
+            detailModal.querySelector('#modalAction').textContent = action;
+            detailModal.querySelector('#modalDetail').textContent = detail || 'Sin detalles registrados.';
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,225 @@
+﻿{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Historial de Tratamientos - TENS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(240, 147, 251, 0.3);
+    }
+
+    .page-header h2 {
+        color: white;
+        margin: 0 0 0.5rem 0;
+        font-weight: bold;
+    }
+
+    .patient-info-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid #f093fb;
+    }
+
+    .patient-name {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .tratamiento-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .tratamiento-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+    }
+
+    .tratamiento-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .tratamiento-fecha {
+        font-weight: 600;
+        color: #f093fb;
+        font-size: 1.1rem;
+    }
+
+    .tratamiento-medicamento {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .tratamiento-detalles {
+        color: #666;
+        font-size: 0.95rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .badge-exitoso {
+        background: #28a745;
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    .badge-no-aplicado {
+        background: #dc3545;
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    .motivo-box {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 0.5rem;
+    }
+
+    .btn-back {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #f093fb;
+        opacity: 0.5;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="padding:20px;max-width:1400px">
+    <div class="page-header">
+        <h2><i class="bi bi-capsule-pill"></i> Historial de Tratamientos</h2>
+        <p>Registro completo de tratamientos aplicados</p>
+    </div>
+
+    <div class="patient-info-card">
+        <div class="patient-name">
+            <i class="bi bi-person-circle"></i> {{ ficha.paciente.persona.nombre_completo }}
+        </div>
+        <div style="color:#666;font-size:0.95rem">
+            <strong>RUT:</strong> {{ ficha.paciente.persona.rut_formateado }} |
+            <strong>Edad:</strong> {{ ficha.paciente.persona.edad }} años |
+            <strong>Ficha:</strong> {{ ficha.numero_ficha }}
+        </div>
+        <div style="margin-top:1rem">
+            <a href="{% url 'tens:lista_fichas_tratamiento' %}" class="btn-back">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    {% if tratamientos %}
+    {% for trat in tratamientos %}
+    <div class="tratamiento-card">
+        <div class="tratamiento-header">
+            <div>
+                <div class="tratamiento-fecha">
+                    <i class="bi bi-calendar-check"></i> {{ trat.fecha_aplicacion|date:"d/m/Y" }}
+                    <span style="font-size:0.9em;color:#888;margin-left:8px">
+                        <i class="bi bi-clock"></i> {{ trat.hora_aplicacion|date:"H:i" }}
+                    </span>
+                </div>
+                {% if trat.tens %}
+                <div style="color:#666;font-size:0.9rem">
+                    <i class="bi bi-person-badge"></i> {{ trat.tens.get_full_name|default:trat.tens.username }}
+                </div>
+                {% endif %}
+            </div>
+
+            {% if trat.aplicado_exitosamente %}
+            <span class="badge-exitoso"><i class="bi bi-check-circle"></i> Aplicado</span>
+            {% else %}
+            <span class="badge-no-aplicado"><i class="bi bi-x-circle"></i> No Aplicado</span>
+            {% endif %}
+        </div>
+
+        <div class="tratamiento-medicamento">
+            <i class="bi bi-capsule"></i> {{ trat.nombre_medicamento }}
+        </div>
+
+        <div class="tratamiento-detalles">
+            <strong>Dosis:</strong> {{ trat.dosis }} | <strong>Vía:</strong> {{ trat.via_administracion }}
+        </div>
+
+        {% if trat.se_realizo_lavado_manos %}
+        <div class="tratamiento-detalles">
+            <i class="bi bi-check-circle text-success"></i> Se realizó lavado de manos
+        </div>
+        {% endif %}
+
+        {% if not trat.aplicado_exitosamente and trat.motivo_no_aplicacion %}
+        <div class="motivo-box">
+            <strong><i class="bi bi-exclamation-triangle"></i> Motivo de no aplicación:</strong><br>
+            {{ trat.motivo_no_aplicacion }}
+        </div>
+        {% endif %}
+
+        {% if trat.observaciones %}
+        <div class="tratamiento-detalles" style="margin-top:0.5rem">
+            <strong>Observaciones:</strong> {{ trat.observaciones }}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <h4>No hay tratamientos registrados</h4>
+        <p>Aún no se han aplicado tratamientos a esta paciente</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

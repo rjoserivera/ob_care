@@ -570,3 +570,45 @@ class PerfilUsuario(models.Model):
             return "TENS"
         else:
             return "Sin rol asignado"
+
+
+# ============================================
+# MODELO: LOG DE SISTEMA
+# ============================================
+
+class LogSistema(models.Model):
+    """
+    Registro de auditoría de acciones del sistema.
+    Cumple con el requerimiento de registrar:
+    - Qué se hizo (Acción/Detalle)
+    - Quién lo hizo (Usuario/Rol)
+    - Cuándo (Fecha/Hora)
+    - Desde dónde (IP)
+    """
+    usuario = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Usuario"
+    )
+    
+    fecha_hora = models.DateTimeField(auto_now_add=True, verbose_name="Fecha y Hora")
+    
+    accion = models.CharField(max_length=255, verbose_name="Acción")
+    
+    detalle = models.TextField(blank=True, null=True, verbose_name="Detalle")
+    
+    modulo = models.CharField(max_length=100, blank=True, null=True, verbose_name="Módulo")
+    
+    rol_usuario = models.CharField(max_length=50, blank=True, null=True, verbose_name="Rol al momento de la acción")
+    
+    ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name="Dirección IP")
+    
+    class Meta:
+        verbose_name = "Log del Sistema"
+        verbose_name_plural = "Logs del Sistema"
+        ordering = ['-fecha_hora']
+        
+    def __str__(self):
+        return f"{self.fecha_hora} - {self.usuario} - {self.accion}"

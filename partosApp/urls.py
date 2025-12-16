@@ -5,6 +5,7 @@ URLs para partosApp - Registro de partos
 
 from django.urls import path
 from . import views
+from . import views_export
 
 app_name = 'partos'
 
@@ -26,4 +27,7 @@ urlpatterns = [
     # Detalle y lista
     path('registro/<int:registro_pk>/', views.detalle_registro_parto, name='detalle_registro'),
     path('registros/', views.lista_registros_parto, name='lista_registros'),
+    # ==================== EXPORTAR ====================    # Exportación
+    path('exportar-libro/', views_export.vista_exportar_libro, name='exportar_libro_partos'),
+    path('exportar-libro/generar/', views_export.generar_excel_libro, name='generar_excel_libro'),
 ]

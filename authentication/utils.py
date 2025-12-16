@@ -34,7 +34,7 @@ def get_dashboard_url_for_user(user) -> Optional[str]:
     if not user.is_authenticated:
         return None
 
-    if user.is_superuser or user.is_staff:
+    if user.is_superuser:
         return reverse_lazy("authentication:dashboard_admin")
 
     normalized_groups = {

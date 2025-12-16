@@ -1,0 +1,314 @@
+﻿{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Ficha {{ ficha.numero_ficha }} - TENS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(79, 172, 254, 0.3)
+    }
+
+    .page-header h2 {
+        color: white;
+        margin: 0 0 0.5rem 0;
+        font-weight: bold
+    }
+
+    .patient-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid #4facfe
+    }
+
+    .patient-name {
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 0.5rem
+    }
+
+    .patient-info {
+        color: #666;
+        font-size: 0.95rem
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 1.5rem
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white
+    }
+
+    .btn-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        color: white
+    }
+
+    .btn-tratamiento {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white
+    }
+
+    .btn-tratamiento:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
+        color: white
+    }
+
+    .section-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08)
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem
+    }
+
+    .medicamento-item {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        border-left: 3px solid #4facfe
+    }
+
+    .medicamento-nombre {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.3rem
+    }
+
+    .medicamento-detalles {
+        color: #666;
+        font-size: 0.9rem
+    }
+
+    .registro-item {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        border-left: 3px solid #667eea
+    }
+
+    .registro-fecha {
+        font-weight: 600;
+        color: #667eea;
+        margin-bottom: 0.5rem
+    }
+
+    .vitals-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+        margin-top: 0.5rem
+    }
+
+    .vital-badge {
+        background: white;
+        padding: 0.5rem;
+        border-radius: 6px;
+        text-align: center;
+        border: 1px solid #e0e0e0
+    }
+
+    .vital-label {
+        font-size: 0.75rem;
+        color: #999
+    }
+
+    .vital-value {
+        font-weight: bold;
+        color: #333;
+        font-size: 1.1rem
+    }
+
+    .empty-message {
+        text-align: center;
+        padding: 2rem;
+        color: #999
+    }
+
+    .btn-back {
+        background: #f0f0f0;
+        color: #666
+    }
+
+    .btn-back:hover {
+        background: #e0e0e0;
+        color: #333;
+        transform: translateY(-2px)
+    }
+
+    @media (max-width:768px) {
+        .action-buttons {
+            flex-direction: column
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="padding:20px;max-width:1400px">
+    <div class="page-header">
+        <h2><i class="bi bi-file-earmark-medical"></i> Ficha N° {{ ficha.numero_ficha }}</h2>
+        <p>Detalle de ficha obstétrica</p>
+    </div>
+    <div class="patient-card">
+        <div class="patient-name"><i class="bi bi-person-circle"></i> {{ persona.nombre_completo }}</div>
+        <div class="patient-info"><strong>RUT:</strong> {{ persona.rut_formateado }} | <strong>Edad:</strong> {{ persona.edad }} años | <strong>Sexo:</strong> {{ persona.Sexo }}{% if paciente.prevision %} |
+            <strong>Previsión:</strong> {{ paciente.prevision.nombre }}{% endif %}
+        </div>
+        <div class="patient-info" style="margin-top:0.5rem">{% if persona.Telefono %}<i class="bi bi-telephone"></i> {{ persona.Telefono }}{% endif %}{% if persona.Direccion %} | <i class="bi bi-geo-alt"></i> {{ persona.Direccion }}{% if persona.Comuna %}, {{ persona.Comuna }}{% endif %}{% endif %}</div>
+        <div class="action-buttons">
+            <a href="{% url 'tens:registrar_signos' ficha.pk %}" class="btn btn-primary"><i
+                    class="bi bi-heart-pulse"></i> Registrar Signos Vitales</a>
+            <a href="{% url 'tens:historial_signos' ficha.pk %}" class="btn btn-secondary"><i
+                    class="bi bi-clock-history"></i> Ver Historial</a>
+            <a href="{% url 'tens:registrar_tratamiento' ficha.pk %}" class="btn btn-tratamiento"><i
+                    class="bi bi-capsule-pill"></i> Aplicar Tratamiento</a>
+            <a href="{% url 'home' %}" class="btn btn-back"><i class="bi bi-arrow-left"></i> Volver</a>
+        </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:1.5rem">
+        <div class="section-card">
+            <div class="section-title"><i class="bi bi-capsule-pill"></i> Tratamientos Aplicados</div>
+            {% if tratamientos_hoy %}
+            {% for trat in tratamientos_hoy|slice:":5" %}
+            <div class="medicamento-item">
+                <div class="medicamento-nombre">{{ trat.nombre_medicamento }}{% if not trat.aplicado_exitosamente %}
+                    <span style="color:#dc3545;font-size:0.9rem">(No aplicado)</span>{% endif %}
+                </div>
+                <div class="medicamento-detalles"><strong>Fecha:</strong> {{ trat.fecha_aplicacion|date:"d/m/Y" }} |
+                    <strong>Dosis:</strong> {{ trat.dosis }} | <strong>Vía:</strong> {{ trat.via_administracion }}
+                </div>
+                {% if not trat.aplicado_exitosamente and trat.motivo_no_aplicacion %}<div class="medicamento-detalles"
+                    style="margin-top:0.3rem;color:#dc3545"><strong>Motivo:</strong> {{ trat.motivo_no_aplicacion }}
+                </div>{% endif %}
+            </div>
+            {% endfor %}
+            <div style="margin-top:1rem"><a href="{% url 'tens:historial_tratamientos' ficha.pk %}"
+                    class="btn btn-secondary"
+                    style="width:100%;justify-content:center;background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%)"><i
+                        class="bi bi-list-ul"></i> Ver Historial Completo</a></div>
+            {% else %}
+            <div class="empty-message"><i class="bi bi-inbox"
+                    style="font-size:2rem;display:block;margin-bottom:0.5rem"></i>No hay tratamientos aplicados</div>
+            {% endif %}
+        </div>
+        <div class="section-card">
+            <div class="section-title"><i class="bi bi-activity"></i> Últimos Signos Vitales</div>
+            {% if registros_tens %}
+            {% for registro in registros_tens|slice:":3" %}
+            <div class="registro-item">
+                <div class="registro-fecha"><i class="bi bi-calendar-check"></i> {{ registro.fecha_registro|date:"d/m/Y H:i" }}</div>
+                <div class="vitals-summary">
+                    {% if registro.temperatura %}<div class="vital-badge">
+                        <div class="vital-label">Temp.</div>
+                        <div class="vital-value">{{ registro.temperatura }}°C</div>
+                    </div>{% endif %}
+                    {% if registro.frecuencia_cardiaca %}<div class="vital-badge">
+                        <div class="vital-label">FC</div>
+                        <div class="vital-value">{{ registro.frecuencia_cardiaca }}</div>
+                    </div>{% endif %}
+                    {% if registro.presion_arterial_sistolica %}<div class="vital-badge">
+                        <div class="vital-label">PA</div>
+                        <div class="vital-value">{{ registro.presion_arterial }}</div>
+                    </div>{% endif %}
+                    {% if registro.saturacion_oxigeno %}<div class="vital-badge">
+                        <div class="vital-label">SpO₂</div>
+                        <div class="vital-value">{{ registro.saturacion_oxigeno }}%</div>
+                    </div>{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            <div style="margin-top:1rem"><a href="{% url 'tens:historial_signos' ficha.pk %}" class="btn btn-secondary"
+                    style="width:100%;justify-content:center"><i class="bi bi-list-ul"></i> Ver Historial Completo</a>
+            </div>
+            {% else %}
+            <div class="empty-message"><i class="bi bi-inbox"
+                    style="font-size:2rem;display:block;margin-bottom:0.5rem"></i>No hay registros de signos vitales
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% if administraciones_hoy %}
+    <div class="section-card">
+        <div class="section-title"><i class="bi bi-check2-circle"></i> Administraciones de Hoy</div>
+        {% for admin in administraciones_hoy %}
+        <div class="medicamento-item">
+            <div class="medicamento-nombre">{{ admin.medicamento_ficha.medicamento }}</div>
+            <div class="medicamento-detalles"><strong>Hora:</strong> {{ admin.fecha_hora_administracion|date:"H:i" }} |
+                <strong>Dosis:</strong> {{ admin.dosis_administrada }}{% if admin.tens %} | <strong>Por:</strong> {{ admin.tens.get_full_name|default:admin.tens.username }}{% endif %}
+            </div>
+            {% if admin.observaciones %}<div class="medicamento-detalles" style="margin-top:0.3rem">
+                <strong>Obs:</strong> {{ admin.observaciones }}
+            </div>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () { const cards = document.querySelectorAll('.section-card,.patient-card'); cards.forEach((card, index) => { card.style.opacity = '0'; card.style.transform = 'translateY(20px)'; setTimeout(() => { card.style.transition = 'all 0.4s ease'; card.style.opacity = '1'; card.style.transform = 'translateY(0)' }, index * 100) }) });
+</script>
+{% endblock %}

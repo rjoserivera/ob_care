@@ -339,7 +339,14 @@
     <div class="ficha-header">
         <h2><i class="bi bi-file-earmark-medical"></i> {{ titulo }}</h2>
         <p>{% if accion == 'editar' %}Modifica los datos de la ficha obstétrica{% else %}Completa los datos de la ficha obstétrica{% endif %}</p>
+        
+        <div style="margin-top: 1rem; font-size: 0.9rem; background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; display: inline-block;">
+            <i class="bi bi-clock"></i> 
+            <strong>Fecha de Creación:</strong> 
+            {% if ficha %}{{ ficha.fecha_creacion|date:"d/m/Y H:i" }}{% else %}{% now "d/m/Y H:i" %}{% endif %}
+        </div>
     </div>
+
 
     <!-- Información de la Persona -->
     {% if persona %}
@@ -399,7 +406,13 @@
             <!-- Navegación de Tabs -->
             <ul class="nav nav-tabs-custom" id="fichaFormTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="tab-contacto" data-bs-toggle="tab" data-bs-target="#panel-contacto" type="button" role="tab">
+                    <button class="nav-link active" id="tab-general" data-bs-toggle="tab" data-bs-target="#panel-general" type="button" role="tab">
+                        <i class="bi bi-card-checklist"></i>
+                        <span>General</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-contacto" data-bs-toggle="tab" data-bs-target="#panel-contacto" type="button" role="tab">
                         <i class="bi bi-telephone-fill"></i>
                         <span>Contacto</span>
                     </button>
@@ -414,6 +427,12 @@
                     <button class="nav-link" id="tab-embarazo" data-bs-toggle="tab" data-bs-target="#panel-embarazo" type="button" role="tab">
                         <i class="bi bi-calendar-heart"></i>
                         <span>Embarazo</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-controles" data-bs-toggle="tab" data-bs-target="#panel-controles" type="button" role="tab">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Controles</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -436,12 +455,67 @@
                 </li>
             </ul>
 
+
             <!-- Contenido de Tabs -->
             <div class="tab-content" id="fichaFormTabContent">
 
+                <!-- ==================== TAB 0: GENERAL (NUEVO) ==================== -->
+                <div class="tab-pane fade show active" id="panel-general" role="tabpanel">
+                    
+                    <!-- ==================== SECCIÓN: INFORMACIÓN GENERAL ==================== -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="bi bi-card-checklist"></i> Información General
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Tipo de Paciente</label>
+                                {{ form.tipo_paciente }}
+                                {% if form.tipo_paciente.errors %}
+                                    <div class="text-danger small">{{ form.tipo_paciente.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">N° ARO</label>
+                                {{ form.clasificacion_aro }}
+                            </div>
+
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-check-label">
+                                    {{ form.tiene_discapacidad }}
+                                    ¿Posee algún tipo de discapacidad?
+                                </label>
+                            </div>
+                            
+                            <div class="form-group" id="discapacidadContainer" style="display: none;">
+                                <label class="form-label">Tipo de Discapacidad</label>
+                                {{ form.discapacidad }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Navigation -->
+                    <div class="tab-navigation">
+                        <button type="button" class="btn-tab-nav btn-tab-prev" disabled>
+                            <i class="bi bi-arrow-left"></i> Anterior
+                        </button>
+                        <button type="button" class="btn-tab-nav btn-tab-next" onclick="nextTab('tab-contacto')">
+                            Siguiente <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- ==================== TAB 1: CONTACTO Y ACOMPAÑANTE ==================== -->
-                <div class="tab-pane fade show active" id="panel-contacto" role="tabpanel">
+                <div class="tab-pane fade" id="panel-contacto" role="tabpanel">
+
+
             <!-- ==================== SECCIÓN: CONTACTO DE EMERGENCIA ==================== -->
+
             <div class="form-section">
                 <div class="section-title">
                     <i class="bi bi-telephone-fill"></i> Contacto de Emergencia
@@ -539,13 +613,14 @@
 
             <!-- Tab Navigation -->
             <div class="tab-navigation">
-                <button type="button" class="btn-tab-nav btn-tab-prev" disabled>
+                <button type="button" class="btn-tab-nav btn-tab-prev" onclick="prevTab('tab-general')">
                     <i class="bi bi-arrow-left"></i> Anterior
                 </button>
                 <button type="button" class="btn-tab-nav btn-tab-next" onclick="nextTab('tab-medidas')">
                     Siguiente <i class="bi bi-arrow-right"></i>
                 </button>
             </div>
+
                 </div>
                 <!-- End Tab 1: Contacto -->
 
@@ -750,6 +825,8 @@
                                value="{% if ficha %}{{ ficha.numero_controles }}{% else %}{{ form.numero_controles.value|default:0 }}{% endif %}">
                     </div>
                 </div>
+
+
             </div>
 
             <!-- Tab Navigation -->
@@ -757,12 +834,64 @@
                 <button type="button" class="btn-tab-nav btn-tab-prev" onclick="prevTab('tab-medidas')">
                     <i class="bi bi-arrow-left"></i> Anterior
                 </button>
-                <button type="button" class="btn-tab-nav btn-tab-next" onclick="nextTab('tab-examenes')">
+                <button type="button" class="btn-tab-nav btn-tab-next" onclick="nextTab('tab-controles')">
                     Siguiente <i class="bi bi-arrow-right"></i>
                 </button>
             </div>
                 </div>
                 <!-- End Tab 3: Embarazo -->
+
+                <!-- ==================== TAB 3.5: CONTROLES PREVIOS ==================== -->
+                <div class="tab-pane fade" id="panel-controles" role="tabpanel">
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="bi bi-clock-history"></i> Historial de Controles Prenatales
+                        </div>
+                        
+                        {% if controles_previos %}
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover table-bordered mb-0" style="font-size: 0.9rem;">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>EG</th>
+                                        <th>Peso</th>
+                                        <th>PA</th>
+                                        <th>Lugar</th>
+                                        <th>Prof.</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for control in controles_previos %}
+                                    <tr>
+                                        <td>{{ control.fecha_control|date:"d/m/Y" }}</td>
+                                        <td>{{ control.semanas_gestacion }} sem</td>
+                                        <td>{{ control.peso_kg|default:"-" }} kg</td>
+                                        <td>{{ control.presion_sistolica }}/{{ control.presion_diastolica }}</td>
+                                        <td>{{ control.consultorio_origen|default:"-" }}</td>
+                                        <td>{{ control.profesional_nombre|default:"-" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> No hay controles prenatales registrados para esta paciente.
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="tab-navigation">
+                        <button type="button" class="btn-tab-nav btn-tab-prev" onclick="prevTab('tab-embarazo')">
+                            <i class="bi bi-arrow-left"></i> Anterior
+                        </button>
+                        <button type="button" class="btn-tab-nav btn-tab-next" onclick="nextTab('tab-emergencia')">
+                            Siguiente <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
 
 
 
@@ -814,7 +943,7 @@
 
                     <!-- Tab Navigation -->
                     <div class="tab-navigation">
-                        <button type="button" class="btn-tab-nav btn-tab-prev" onclick="prevTab('tab-embarazo')">
+                        <button type="button" class="btn-tab-nav btn-tab-prev" onclick="prevTab('tab-controles')">
                             <i class="bi bi-arrow-left"></i> Anterior
                         </button>
                         <button type="button" class="btn-tab-nav btn-tab-next" onclick="nextTab('tab-examenes')">
@@ -896,7 +1025,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
             <!-- Tab Navigation -->
             <div class="tab-navigation">
@@ -1018,7 +1146,22 @@
         section.style.display = checkbox.checked ? 'block' : 'none';
     }
 
+    // Toggle Discapacidad Section
+    function toggleDiscapacidad() {
+        const checkbox = document.getElementById('id_tiene_discapacidad');
+        const container = document.getElementById('discapacidadContainer');
+        if (checkbox && container) {
+            container.style.display = checkbox.checked ? 'block' : 'none';
+        }
+    }
+
+    // Initial check for Discapacidad
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleDiscapacidad();
+    });
+
     // Calcular IMC
+
     function calcularIMC() {
         const peso = parseFloat(document.getElementById('id_peso_actual').value);
         const talla = parseFloat(document.getElementById('id_talla_actual').value);

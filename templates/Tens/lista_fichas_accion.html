@@ -1,0 +1,250 @@
+﻿{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo }} - TENS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(79, 172, 254, 0.3)
+    }
+
+    .page-header h2 {
+        color: white;
+        margin: 0;
+        font-weight: bold
+    }
+
+    .search-box {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08)
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.8rem 1rem 0.8rem 2.5rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease
+    }
+
+    .search-input:focus {
+        border-color: #4facfe;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1)
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 2.3rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #4facfe
+    }
+
+    .ficha-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border-left: 4px solid #4facfe
+    }
+
+    .ficha-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(79, 172, 254, 0.2)
+    }
+
+    .ficha-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem
+    }
+
+    .ficha-numero {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333
+    }
+
+    .ficha-badge {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600
+    }
+
+    .paciente-info {
+        margin-bottom: 1rem
+    }
+
+    .paciente-nombre {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.3rem
+    }
+
+    .paciente-datos {
+        color: #666;
+        font-size: 0.9rem
+    }
+
+    .btn-action {
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        flex: 0 1 auto;
+        justify-content: center
+    }
+
+    .btn-action:hover {
+        transform: translateY(-2px);
+        color: white
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)
+    }
+
+    .btn-primary:hover {
+        box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4)
+    }
+
+    .btn-signos {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    }
+
+    .btn-signos:hover {
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4)
+    }
+
+    .btn-historial {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)
+    }
+
+    .btn-historial:hover {
+        box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4)
+    }
+
+    .btn-tratamiento {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%)
+    }
+
+    .btn-tratamiento:hover {
+        box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4)
+    }
+
+    .ficha-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08)
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #4facfe;
+        opacity: 0.5;
+        margin-bottom: 1rem
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="padding:20px;max-width:1400px">
+    <div class="page-header">
+        <h2><i
+                class="bi bi-{% if accion == 'signos' %}heart-pulse{% elif accion == 'historial' %}clock-history{% else %}capsule-pill{% endif %}"></i>
+            {{ titulo }}</h2>
+        <p>Seleccione la ficha de la paciente</p>
+    </div>
+    <div class="search-box">
+        <form method="get">
+            <div style="position:relative"><i class="bi bi-search search-icon"></i><input type="text" name="q"
+                    class="search-input" placeholder="Buscar por nombre, RUT o número de ficha..."
+                    value="{{ busqueda }}" autofocus></div>
+        </form>
+    </div>
+    {% if fichas %}
+    {% for ficha in fichas %}
+    <div class="ficha-card">
+        <div class="ficha-header">
+            <div class="ficha-numero"><i class="bi bi-file-text"></i> Ficha N° {{ ficha.numero_ficha }}</div><span
+                class="ficha-badge"><i class="bi bi-check-circle"></i> Activa</span>
+        </div>
+        <div class="paciente-info">
+            <div class="paciente-nombre"><i class="bi bi-person-circle"></i> {{ ficha.paciente.persona.nombre_completo }}</div>
+            <div class="paciente-datos"><strong>RUT:</strong> {{ ficha.paciente.persona.rut_formateado }} |
+                <strong>Edad:</strong> {{ ficha.paciente.persona.edad }} años{% if ficha.paciente.prevision %} |
+                <strong>Previsión:</strong> {{ ficha.paciente.prevision.nombre }}{% endif %}
+            </div>
+            <div class="paciente-datos" style="margin-top:0.3rem"><i class="bi bi-calendar-event"></i>
+                <strong>Creada:</strong> {{ ficha.fecha_creacion|date:"d/m/Y H:i" }}
+            </div>
+        </div>
+        {% if accion == 'signos' %}
+        <div class="ficha-actions">
+            <a href="{% url 'tens:registrar_signos' ficha.pk %}" class="btn-action btn-signos"><i
+                    class="bi bi-heart-pulse"></i> Registrar Signos</a>
+            <a href="{% url 'tens:detalle_ficha' ficha.pk %}" class="btn-action btn-primary"><i class="bi bi-eye"></i>
+                Ver Detalle</a>
+        </div>
+        {% elif accion == 'historial' %}
+        <a href="{% url 'tens:historial_signos' ficha.pk %}" class="btn-action btn-historial"><i
+                class="bi bi-clock-history"></i> Ver Historial</a>
+        {% else %}
+        <div class="ficha-actions">
+            <a href="{% url 'tens:registrar_tratamiento' ficha.pk %}" class="btn-action btn-tratamiento"><i
+                    class="bi bi-capsule-pill"></i> Aplicar Tratamiento</a>
+            <a href="{% url 'tens:historial_tratamientos' ficha.pk %}" class="btn-action btn-historial"><i
+                    class="bi bi-clock-history"></i> Ver Historial</a>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">{% if busqueda %}<i class="bi bi-inbox"></i>
+        <h4>No se encontraron fichas</h4>
+        <p>No hay fichas que coincidan con "{{ busqueda }}"</p>{% else %}<i class="bi bi-file-earmark-x"></i>
+        <h4>No hay fichas activas</h4>
+        <p>Actualmente no hay fichas obstétricas activas en el sistema</p>{% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () { const cards = document.querySelectorAll('.ficha-card'); cards.forEach((card, index) => { card.style.opacity = '0'; card.style.transform = 'translateY(20px)'; setTimeout(() => { card.style.transition = 'all 0.4s ease'; card.style.opacity = '1'; card.style.transform = 'translateY(0)' }, index * 80) }) });
+</script>
+{% endblock %}

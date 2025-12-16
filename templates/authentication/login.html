@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -25,12 +26,14 @@
             justify-content: center;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative; /* Para posicionamiento absoluto de hijos */
         }
 
         .login-container {
             width: 100%;
             max-width: 420px;
             padding: 20px;
+            z-index: 10; /* Asegurar que esté sobre elementos flotantes si los hay */
         }
 
         .login-card {
@@ -48,29 +51,37 @@
         }
 
         .login-header .logo {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.2);
+            width: 140px; /* Logo más grande */
+            height: 140px;
+            background: rgba(255, 255, 255, 0.15);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1rem;
+            margin: 0 auto 1.5rem;
+            padding: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            border: 4px solid rgba(255,255,255,0.3);
         }
 
-        .login-header .logo i {
-            font-size: 2.5rem;
+        .login-header .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
         }
 
         .login-header h1 {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             margin-bottom: 0.5rem;
+            font-weight: 700;
         }
 
         .login-header p {
             opacity: 0.9;
-            font-size: 0.9rem;
+            font-size: 1rem;
             margin: 0;
+            letter-spacing: 0.5px;
         }
 
         .login-body {
@@ -162,6 +173,7 @@
             color: #666;
             font-size: 0.85rem;
             margin: 0;
+            margin-bottom: 5px;
         }
 
         .version-badge {
@@ -195,7 +207,7 @@
             <!-- Header -->
             <div class="login-header">
                 <div class="logo">
-                    <i class="bi bi-hospital"></i>
+                     <img src="{% static 'Imagenes/Logo.png' %}" alt="Logo Hospital">
                 </div>
                 <h1>Sistema Obstétrico</h1>
                 <p>Hospital Clínico Herminda Martín</p>
@@ -254,13 +266,115 @@
 
             <!-- Footer -->
             <div class="login-footer">
-                <p>© 2025 Sistema de Trazabilidad Obstétrica</p>
-                <span class="version-badge">Beta 1.0</span>
+                <p>© 2025 Hospital Clínico Herminda Martín</p>
+                <div class="d-inline-flex align-items-center justify-content-center gap-2 px-3 py-1 rounded-pill bg-light border">
+                    <span class="badge bg-success rounded-circle p-1"> </span>
+                    <span class="fw-bold text-secondary small">Prototipo Funcional v1.0.4-beta</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contacto en esquina -->
+    <div class="position-fixed bottom-0 end-0 p-4" style="z-index: 100;">
+        <button class="btn btn-dark rounded-circle shadow-lg d-flex align-items-center justify-content-center border-0" 
+                style="width: 60px; height: 60px; background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); transition: transform 0.3s;"
+                onmouseover="this.style.transform='scale(1.1)'" 
+                onmouseout="this.style.transform='scale(1)'"
+                data-bs-toggle="modal" 
+                data-bs-target="#aboutModal"
+                title="Acerca de Obstetric Care">
+            <img src="{% static 'Imagenes/Logo.png' %}" alt="Logo" class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;">
+        </button>
+    </div>
+
+    <!-- About Modal (Reutilizado) -->
+    <div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true" style="color: #333;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-2xl" style="border-radius: 24px; overflow: hidden;">
+                <!-- Header con gradiente elegante -->
+                <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);">
+                    <h5 class="modal-title fw-bold d-flex align-items-center" id="aboutModalLabel">
+                        <i class="bi bi-info-circle-fill me-2 text-info"></i> Acerca del Sistema
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <!-- Body con diseño moderno -->
+                <div class="modal-body text-center p-5 bg-white">
+                    <!-- Logo con efecto de elevación -->
+                    <div class="mb-4 position-relative d-inline-block">
+                        <div class="position-absolute top-50 start-50 translate-middle rounded-circle bg-primary opacity-10" style="width: 140px; height: 140px;"></div>
+                        <img src="{% static 'Imagenes/Logo.png' %}" alt="Logo Hospital" class="rounded-circle shadow-lg position-relative" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid white;">
+                    </div>
+                    
+                    <h3 class="fw-bold text-dark mb-1">Obstetric Care</h3>
+                    <p class="text-uppercase text-secondary fw-bold small tracking-wide mb-4">Gestión Clínica Inteligente</p>
+                    
+                    <p class="text-muted mb-4 px-2" style="font-size: 1rem; line-height: 1.6;">
+                        Plataforma digital para la trazabilidad y gestión integral de pacientes en el 
+                        <strong>Hospital Clínico Herminda Martín</strong>.
+                    </p>
+
+                    <!-- Contacto de Emergencia Estilizado -->
+                    <div class="card border-0 rounded-4 mb-4 overflow-hidden text-white shadow" style="background-color: #ef4444;">
+                        <div class="card-body p-4 d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="bi bi-exclamation-triangle-fill" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <div class="text-start">
+                                <h5 class="fw-bold mb-1">Soporte</h5>
+                                <p class="mb-0 fw-medium" style="font-size: 0.95rem;">rjoseeliecer@gmail.com</p>
+                                <p class="mb-0 fw-bold fs-5 mt-1">+56 9 7342 5549</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Versión -->
+                    <div class="d-inline-flex align-items-center justify-content-center gap-2 px-3 py-1 rounded-pill bg-light border">
+                        <span class="badge bg-success rounded-circle p-1"> </span>
+                        <span class="fw-bold text-secondary small">Prototipo Funcional v1.0.4-beta</span>
+                    </div>
+                </div>
+
+                <!-- Footer Minimalista -->
+                <div class="modal-footer justify-content-center border-0 py-3 bg-light">
+                    <small class="text-muted fw-medium">© 2025 Hospital Clínico Herminda Martín</small>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Inactivity Redirect Script -->
+    <script>
+        let inactivityTime = function () {
+            let time;
+            // 30 seconds = 30000 milliseconds
+            const timeout = 30000; 
+            const redirectUrl = "{% url 'home' %}";
+
+            window.onload = resetTimer;
+            // DOM Events
+            document.onmousemove = resetTimer;
+            document.onkeypress = resetTimer;
+            document.ontouchstart = resetTimer; // Touchscreen support
+            document.onclick = resetTimer;      // Touchpad clicks
+            document.onscroll = resetTimer;     // Scrolling gestures
+
+            function logout() {
+                window.location.href = redirectUrl;
+            }
+
+            function resetTimer() {
+                clearTimeout(time);
+                time = setTimeout(logout, timeout);
+            }
+        };
+
+        inactivityTime();
+    </script>
 </body>
 </html>

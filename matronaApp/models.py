@@ -71,10 +71,59 @@ class CatalogoMedicamento(models.Model):
         verbose_name = "Medicamento"
         verbose_name_plural = "Medicamentos"
     
+    
     def __str__(self):
         if self.concentracion:
             return f"{self.nombre} ({self.concentracion})"
         return self.nombre
+
+
+# ============================================
+# CATÁLOGOS NUEVOS (REQ. USUARIO)
+# ============================================
+
+class CatalogoTipoPaciente(models.Model):
+    """Catálogo de tipos de paciente"""
+    nombre = models.CharField(max_length=100)
+    activo = models.BooleanField(default=True)
+    
+    class Meta:
+        app_label = 'matronaApp'
+        verbose_name = "Tipo de Paciente"
+        verbose_name_plural = "Tipos de Paciente"
+    
+    def __str__(self):
+        return self.nombre
+
+
+class CatalogoDiscapacidad(models.Model):
+    """Catálogo de discapacidades"""
+    nombre = models.CharField(max_length=100)
+    activo = models.BooleanField(default=True)
+    
+    class Meta:
+        app_label = 'matronaApp'
+        verbose_name = "Tipo de Discapacidad"
+        verbose_name_plural = "Tipos de Discapacidad"
+    
+    def __str__(self):
+        return self.nombre
+
+
+class CatalogoARO(models.Model):
+    """Catálogo de Alto Riesgo Obstétrico (ARO)"""
+    nombre = models.CharField(max_length=100)
+    activo = models.BooleanField(default=True)
+    
+    class Meta:
+        app_label = 'matronaApp'
+        verbose_name = "Clasificación ARO"
+        verbose_name_plural = "Clasificaciones ARO"
+    
+    def __str__(self):
+        return self.nombre
+
+
 
 
 # ============================================
@@ -121,6 +170,10 @@ class FichaObstetrica(models.Model):
         ('POSITIVO', 'Positivo'),
         ('INDETERMINADO', 'Indeterminado'),
     ]
+
+
+
+
     
     # ============================================
     # SECCIÓN 1: RELACIÓN CON PACIENTE
@@ -167,6 +220,40 @@ class FichaObstetrica(models.Model):
         default='PROGRAMADO',
         verbose_name='Tipo de Ingreso',
         help_text='Urgencia/Derivación activa parto inmediato'
+    )
+
+    tipo_paciente = models.ForeignKey(
+        CatalogoTipoPaciente,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Tipo de Paciente"
+    )
+
+    clasificacion_aro = models.ForeignKey(
+        CatalogoARO,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Clasificación ARO"
+    )
+
+
+
+
+
+    
+    tiene_discapacidad = models.BooleanField(
+        default=False,
+        verbose_name="¿Posee Discapacidad?"
+    )
+
+    discapacidad = models.ForeignKey(
+        CatalogoDiscapacidad,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Tipo de Discapacidad"
     )
     
     # ============================================
@@ -386,13 +473,14 @@ class FichaObstetrica(models.Model):
         verbose_name='Fecha VIH 2'
     )
     
+    
     vih_2_resultado = models.CharField(
         max_length=20,
         blank=True,
         choices=VIH_RESULTADO_CHOICES,
         verbose_name='Resultado VIH 2'
     )
-    
+
     # ============================================
     # SECCIÓN 10: PATOLOGÍAS (Booleanos)
     # ============================================
@@ -422,6 +510,8 @@ class FichaObstetrica(models.Model):
         verbose_name='Otras Patologías'
     )
     
+
+
     # ============================================
     # SECCIÓN 11: ESTADO DE DILATACIÓN
     # ============================================

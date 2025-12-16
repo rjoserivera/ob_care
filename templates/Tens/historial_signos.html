@@ -1,0 +1,197 @@
+﻿{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Historial de Signos - TENS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3)
+    }
+
+    .page-header h2 {
+        color: white;
+        margin: 0 0 0.5rem 0;
+        font-weight: bold
+    }
+
+    .patient-info-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid #667eea
+    }
+
+    .patient-name {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 0.5rem
+    }
+
+    .registro-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease
+    }
+
+    .registro-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12)
+    }
+
+    .registro-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0
+    }
+
+    .registro-fecha {
+        font-weight: 600;
+        color: #667eea;
+        font-size: 1.1rem
+    }
+
+    .registro-tens {
+        color: #666;
+        font-size: 0.9rem
+    }
+
+    .vitals-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem
+    }
+
+    .vital-item {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 3px solid #667eea
+    }
+
+    .vital-label {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 0.3rem
+    }
+
+    .vital-value {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333
+    }
+
+    .vital-value .unit {
+        font-size: 0.9rem;
+        font-weight: normal;
+        color: #999
+    }
+
+    .btn-back {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease
+    }
+
+    .btn-back:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="padding:20px;max-width:1400px">
+    <div class="page-header">
+        <h2><i class="bi bi-clock-history"></i> Historial de Signos Vitales</h2>
+        <p>Registro histórico de parámetros vitales</p>
+    </div>
+    <div class="patient-info-card">
+        <div class="patient-name"><i class="bi bi-person-circle"></i> {{ ficha.paciente.persona.nombre_completo }}</div>
+        <div style="color:#666;font-size:0.95rem">
+            <strong>RUT:</strong> {{ ficha.paciente.persona.rut_formateado }} |
+            <strong>Edad:</strong> {{ ficha.paciente.persona.edad }} años |
+            <strong>Ficha:</strong> {{ ficha.numero_ficha }}
+        </div>
+        <div style="margin-top:1rem">
+            <a href="{% url 'tens:lista_fichas_historial' %}" class="btn-back">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+    {% if registros %}
+    {% for registro in registros %}
+    <div class="registro-card">
+        <div class="registro-header">
+            <div>
+                <div class="registro-fecha"><i class="bi bi-calendar-check"></i> {{ registro.fecha|date:"d/m/Y" }} - {{ registro.fecha_registro|date:"H:i" }}</div>
+                {% if registro.tens_responsable %}
+                <div class="registro-tens"><i class="bi bi-person-badge"></i> {{ registro.tens_responsable.get_full_name|default:registro.tens_responsable.username }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="vitals-grid">
+            {% if registro.temperatura %}
+            <div class="vital-item">
+                <div class="vital-label"><i class="bi bi-thermometer-half"></i> Temperatura</div>
+                <div class="vital-value">{{ registro.temperatura }} <span class="unit">°C</span></div>
+            </div>
+            {% endif %}
+            {% if registro.frecuencia_cardiaca %}
+            <div class="vital-item">
+                <div class="vital-label"><i class="bi bi-heart-pulse"></i> FC</div>
+                <div class="vital-value">{{ registro.frecuencia_cardiaca }} <span class="unit">lpm</span></div>
+            </div>
+            {% endif %}
+            {% if registro.presion_arterial_sistolica %}
+            <div class="vital-item">
+                <div class="vital-label"><i class="bi bi-heart"></i> PA</div>
+                <div class="vital-value">{{ registro.presion_arterial }} <span class="unit">mmHg</span></div>
+            </div>
+            {% endif %}
+            {% if registro.frecuencia_respiratoria %}
+            <div class="vital-item">
+                <div class="vital-label"><i class="bi bi-lungs"></i> FR</div>
+                <div class="vital-value">{{ registro.frecuencia_respiratoria }} <span class="unit">rpm</span></div>
+            </div>
+            {% endif %}
+            {% if registro.saturacion_oxigeno %}
+            <div class="vital-item">
+                <div class="vital-label"><i class="bi bi-droplet"></i> SpO₂</div>
+                <div class="vital-value">{{ registro.saturacion_oxigeno }} <span class="unit">%</span></div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div style="text-align:center;padding:4rem 2rem;background:white;border-radius:12px">
+        <i class="bi bi-inbox" style="font-size:4rem;color:#667eea;opacity:0.5"></i>
+        <h4>No hay registros</h4>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

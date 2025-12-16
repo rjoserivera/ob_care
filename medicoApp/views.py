@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.db.models import Q, Count
 from django.contrib.auth.decorators import login_required
 from medicoApp.models import Patologias
+from matronaApp.models import FichaObstetrica, MedicamentoFicha, IngresoPaciente
 
 
 # ============================================
@@ -18,15 +19,11 @@ from medicoApp.models import Patologias
 def menu_medico(request):
     """Vista principal del módulo Médico"""
     context = {
-        'total_patologias': Patologias.objects.count(),
-        'patologias_activas': Patologias.objects.filter(estado='Activo').count(),
-        'patologias_inactivas': Patologias.objects.filter(estado='Inactivo').count(),
-        'patologias_alto_riesgo': Patologias.objects.filter(
-            nivel_de_riesgo__in=['Alto', 'Crítico'],
-            estado='Activo'
-        ).count(),
+        'total_ingresos': IngresoPaciente.objects.filter(activo=True).count(),
+        'total_medicamentos_asignados': MedicamentoFicha.objects.filter(activo=True).count(),
+        'total_fichas': FichaObstetrica.objects.filter(activa=True).count(),
     }
-    return render(request, 'Medico/menu_medico.html', context)
+    return render(request, 'Medico/Data/dashboard_medico.html', context)
 
 
 # ============================================

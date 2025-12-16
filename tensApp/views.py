@@ -286,10 +286,130 @@ def registrar_tratamiento(request, ficha_pk):
         
         messages.success(request, '✅ Tratamiento registrado correctamente')
         return redirect('tens:detalle_ficha', ficha_pk=ficha.pk)
+    return render(request, 'Tens/registrar_tratamiento.html', context)
+
+
+# ============================================
+# HISTORIAL DE TRATAMIENTOS
+# ============================================
+
+@login_required
+def historial_tratamientos(request, ficha_pk):
+    """Ver historial de tratamientos aplicados de una ficha"""
+    
+    ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk)
+    
+    tratamientos = Tratamiento_aplicado.objects.filter(
+        ficha=ficha
+    ).select_related('tens').order_by('-fecha_aplicacion')
     
     context = {
-        'titulo': 'Registrar Tratamiento',
+        'titulo': f'Historial Tratamientos - {ficha.numero_ficha}',
         'ficha': ficha,
+        'tratamientos': tratamientos,
     }
     
-    return render(request, 'Tens/registrar_tratamiento.html', context)
+    return render(request, 'Tens/historial_tratamientos.html', context)
+
+
+# ============================================
+# LISTAS ESPECÍFICAS POR ACCIÓN
+# ============================================
+
+@login_required
+def lista_fichas_signos(request):
+    """Lista de fichas activas para registrar signos vitales"""
+    
+    fichas = FichaObstetrica.objects.filter(
+        activa=True
+    ).select_related(
+        'paciente__persona'
+    ).order_by('-fecha_creacion')
+    
+    # Filtro por búsqueda
+    busqueda = request.GET.get('q', '')
+    if busqueda:
+        fichas = fichas.filter(
+            Q(paciente__persona__Nombre__icontains=busqueda) |
+            Q(paciente__persona__Apellido_Paterno__icontains=busqueda) |
+            Q(paciente__persona__Rut__icontains=busqueda) |
+            Q(numero_ficha__icontains=busqueda)
+        )
+    
+    context = {
+        'titulo': 'Registrar Signos Vitales',
+        'fichas': fichas,
+        'busqueda': busqueda,
+        'accion': 'signos',
+        'accion_url': 'tens:registrar_signos',
+        'accion_texto': 'Registrar Signos',
+        'accion_icono': 'bi-heart-pulse',
+    }
+    
+    return render(request, 'Tens/lista_fichas_accion.html', context)
+
+
+@login_required
+def lista_fichas_historial(request):
+    """Lista de fichas activas para ver historial"""
+    
+    fichas = FichaObstetrica.objects.filter(
+        activa=True
+    ).select_related(
+        'paciente__persona'
+    ).order_by('-fecha_creacion')
+    
+    # Filtro por búsqueda
+    busqueda = request.GET.get('q', '')
+    if busqueda:
+        fichas = fichas.filter(
+            Q(paciente__persona__Nombre__icontains=busqueda) |
+            Q(paciente__persona__Apellido_Paterno__icontains=busqueda) |
+            Q(paciente__persona__Rut__icontains=busqueda) |
+            Q(numero_ficha__icontains=busqueda)
+        )
+    
+    context = {
+        'titulo': 'Ver Historial de Pacientes',
+        'fichas': fichas,
+        'busqueda': busqueda,
+        'accion': 'historial',
+        'accion_url': 'tens:historial_signos',
+        'accion_texto': 'Ver Historial',
+        'accion_icono': 'bi-clock-history',
+    }
+    
+    return render(request, 'Tens/lista_fichas_accion.html', context)
+
+
+@login_required
+def lista_fichas_tratamiento(request):
+    """Lista de fichas activas para registrar tratamientos"""
+    
+    fichas = FichaObstetrica.objects.filter(
+        activa=True
+    ).select_related(
+        'paciente__persona'
+    ).order_by('-fecha_creacion')
+    
+    # Filtro por búsqueda
+    busqueda = request.GET.get('q', '')
+    if busqueda:
+        fichas = fichas.filter(
+            Q(paciente__persona__Nombre__icontains=busqueda) |
+            Q(paciente__persona__Apellido_Paterno__icontains=busqueda) |
+            Q(paciente__persona__Rut__icontains=busqueda) |
+            Q(numero_ficha__icontains=busqueda)
+        )
+    
+    context = {
+        'titulo': 'Registrar Tratamientos',
+        'fichas': fichas,
+        'busqueda': busqueda,
+        'accion': 'tratamiento',
+        'accion_url': 'tens:registrar_tratamiento',
+        'accion_texto': 'Registrar Tratamiento',
+        'accion_icono': 'bi-bandaid',
+    }
+    
+    return render(request, 'Tens/lista_fichas_accion.html', context)

@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views, views_logs
 from .views_telegram import ConfigurarTelegramView
 
 app_name = 'gestion'
@@ -19,4 +19,7 @@ urlpatterns = [
     
     # TELEGRAM
     path('configuracion/telegram/', ConfigurarTelegramView.as_view(), name='configurar_telegram'),
+    
+    # LOGS
+    path('logs/', views_logs.LogListView.as_view(), name='listar_logs'),
 ]

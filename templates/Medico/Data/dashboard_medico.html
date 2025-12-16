@@ -192,6 +192,18 @@
                 </a>
             </div>
         </div>
+
+        <!-- Exportar Datos - Solo para Médico -->
+        <div class="col-md-3 mb-4">
+            <div class="action-card">
+                <i class="bi bi-file-earmark-arrow-down"></i>
+                <h5>Exportar Datos</h5>
+                <a href="{% url 'partos:exportar_libro_partos' %}" class="btn btn-action">
+                    Ir
+                </a>
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}

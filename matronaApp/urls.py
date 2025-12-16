@@ -45,6 +45,10 @@ urlpatterns = [
     path('sala/<int:ficha_parto_id>/guardar/', views.guardar_registro_parto, name='guardar_registro_parto'),
     path('sala/<int:ficha_parto_id>/guardar-rn/', views.guardar_registro_rn, name='guardar_rn'),
     path('sala/<int:ficha_parto_id>/cierre/', views.cierre_parto_view, name='cierre_parto'),
+    path('sala/<int:ficha_parto_id>/resumen/', views.resumen_final_parto_view, name='resumen_final_parto'),
+    
+    # Detalle Registro Parto (Read-Only)
+    path('sala/<int:ficha_parto_id>/detalle/', views.detalle_registro_parto, name='detalle_registro_parto'),
     
     # NUEVO: Split RN
     path('sala/<int:ficha_parto_id>/asociar-rn/', views.crear_asociacion_rn, name='asociar_rn'),

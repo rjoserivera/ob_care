@@ -1,0 +1,227 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Exportar Libro de Partos{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-gradient bg-primary text-white p-4 rounded-top-4">
+            <h3 class="mb-0"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Exportar Libro de Partos</h3>
+            <p class="mb-0 opacity-75">Seleccione los datos que desea incluir en el reporte Excel</p>
+        </div>
+        
+        <div class="card-body p-4">
+            <form action="{% url 'partos:generar_excel_libro' %}" method="POST" id="exportForm">
+                {% csrf_token %}
+
+                <!-- Controls -->
+                <div class="d-flex justify-content-between mb-4 pb-3 border-bottom">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleAll(true)">
+                            <i class="bi bi-check-all"></i> Marcar Todo
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleAll(false)">
+                            <i class="bi bi-x-lg"></i> Desmarcar Todo
+                        </button>
+                    </div>
+                    <div class="text-muted small align-self-center">
+                        <i class="bi bi-info-circle"></i> Se generará una fila por cada recién nacido.
+                    </div>
+                </div>
+
+                <!-- FILTERS SECTION -->
+                <div class="card border-primary mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-funnel me-2"></i>Filtros de Exportación</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <!-- Date Range -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Rango de Fechas</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted small">Desde</span>
+                                    <input type="date" class="form-control" name="fecha_inicio" id="fecha_inicio">
+                                    <span class="input-group-text bg-light text-muted small">Hasta</span>
+                                    <input type="date" class="form-control" name="fecha_fin" id="fecha_fin">
+                                </div>
+                                <div class="form-text">Dejar vacío para exportar todos</div>
+                            </div>
+
+
+
+                            <!-- Tipo de Parto -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Tipo de Parto</label>
+                                <select class="form-select" name="tipo_parto" id="tipo_parto">
+                                    <option value="">Todos los tipos</option>
+                                    {% for tipo in tipos_parto %}
+                                    <option value="{{ tipo.id }}">{{ tipo.descripcion }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Robson Classification -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Clasificación Robson</label>
+                                <select class="form-select" name="clasificacion_robson" id="clasificacion_robson">
+                                    <option value="">Todas las clasificaciones</option>
+                                    {% for robson in clasificaciones_robson %}
+                                    <option value="{{ robson.id }}">Grupo {{ robson.numero_grupo }} - {{ robson.descripcion }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- 1. Identificación y Antecedentes -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm bg-light">
+                            <div class="card-header bg-white border-0 fw-bold text-primary">
+                                <i class="bi bi-person-vcard me-2"></i>Datos Generales
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-check" type="checkbox" name="categorias" value="identificacion" checked id="cat_identificacion">
+                                    <label class="form-check-label" for="cat_identificacion">Identificación (RUT, Edad, Previsión)</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-check" type="checkbox" name="categorias" value="obstetricos" checked id="cat_obstetricos">
+                                    <label class="form-check-label" for="cat_obstetricos">Historia Obstétrica y Patologías</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Ingreso y Exámenes -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm bg-light">
+                            <div class="card-header bg-white border-0 fw-bold text-warning">
+                                <i class="bi bi-clipboard-pulse me-2"></i>Exámenes y VIH
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-check" type="checkbox" name="categorias" value="examenes_ingreso" checked id="cat_examenes_ingreso">
+                                    <label class="form-check-label" for="cat_examenes_ingreso">VIH (Preparto/Sala)</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-check" type="checkbox" name="categorias" value="otros_examenes" checked id="cat_otros_examenes">
+                                    <label class="form-check-label" for="cat_otros_examenes">SGB, VDRL, Hepatitis B</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Trabajo de Parto -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm bg-light">
+                            <div class="card-header bg-white border-0 fw-bold text-danger">
+                                <i class="bi bi-heart-pulse me-2"></i>Trabajo de Parto
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-check" type="checkbox" name="categorias" value="tiempos_tp" checked id="cat_tiempos_tp">
+                                    <label class="form-check-label" for="cat_tiempos_tp">Tiempos y Monitorización</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-check" type="checkbox" name="categorias" value="manejo_tp" checked id="cat_manejo_tp">
+                                    <label class="form-check-label" for="cat_manejo_tp">Inducción y Rotura Membranas</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Parto y Puerperio -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm bg-light">
+                            <div class="card-header bg-white border-0 fw-bold text-info">
+                                <i class="bi bi-hospital me-2"></i>Parto y Puerperio
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-check" type="checkbox" name="categorias" value="datos_parto" checked id="cat_datos_parto">
+                                    <label class="form-check-label" for="cat_datos_parto">Tipo Parto, Robson, Posición</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-check" type="checkbox" name="categorias" value="puerperio" checked id="cat_puerperio">
+                                    <label class="form-check-label" for="cat_puerperio">Periné, Revisión, Esterilización</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-check" type="checkbox" name="categorias" value="placenta" checked id="cat_placenta">
+                                    <label class="form-check-label" for="cat_placenta">Datos Placenta</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Recién Nacido -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm bg-light">
+                            <div class="card-header bg-white border-0 fw-bold text-success">
+                                <i class="bi bi-bandaid me-2"></i>Recién Nacido
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-check" type="checkbox" name="categorias" value="rn_biometria" checked id="cat_rn_biometria">
+                                    <label class="form-check-label" for="cat_rn_biometria">Biometría y Apgar</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-check" type="checkbox" name="categorias" value="rn_apego" checked id="cat_rn_apego">
+                                    <label class="form-check-label" for="cat_rn_apego">Apego y Lactancia</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-check" type="checkbox" name="categorias" value="registro_civil" checked id="cat_registro_civil">
+                                    <label class="form-check-label" for="cat_registro_civil">Folio Registro Civil</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. Otros / Administrativo -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm bg-light">
+                            <div class="card-header bg-white border-0 fw-bold text-secondary">
+                                <i class="bi bi-folder2-open me-2"></i>Administrativo
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-check" type="checkbox" name="categorias" value="profesionales" checked id="cat_profesionales">
+                                    <label class="form-check-label" for="cat_profesionales">Profesionales Responsables</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-check" type="checkbox" name="categorias" value="ley_dominga" checked id="cat_ley_dominga">
+                                    <label class="form-check-label" for="cat_ley_dominga">Ley Dominga / Duelo</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input category-check" type="checkbox" name="categorias" value="acompanamiento" checked id="cat_acompanamiento">
+                                    <label class="form-check-label" for="cat_acompanamiento">Acompañamiento</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-end gap-3">
+                    <a href="{% url 'medico:menu_medico' %}" class="btn btn-light px-4">Cancelar</a>
+                    <button type="submit" class="btn btn-success btn-lg px-5">
+                        <i class="bi bi-file-earmark-spreadsheet me-2"></i>Generar Excel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleAll(checked) {
+        document.querySelectorAll('.category-check').forEach(checkbox => {
+            checkbox.checked = checked;
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,414 @@
+﻿{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Registrar Signos Vitales - TENS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .page-header h2 {
+        color: white;
+        margin: 0 0 0.5rem 0;
+        font-weight: bold;
+    }
+
+    .page-header p {
+        margin: 0;
+        opacity: 0.95;
+    }
+
+    .patient-info-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid #667eea;
+    }
+
+    .patient-name {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .patient-details {
+        color: #666;
+        font-size: 0.95rem;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #667eea;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-label .unit {
+        color: #667eea;
+        font-weight: normal;
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+
+    .form-control.is-valid {
+        border-color: #28a745;
+    }
+
+    .input-hint {
+        font-size: 0.85rem;
+        color: #999;
+        margin-top: 0.3rem;
+    }
+
+    .vital-signs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .blood-pressure-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #f0f0f0;
+        color: #666;
+    }
+
+    .btn-secondary:hover {
+        background: #e0e0e0;
+        color: #333;
+    }
+
+    .alert-info {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border-left: 4px solid #2196f3;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        color: #0d47a1;
+    }
+
+    .alert-info i {
+        color: #2196f3;
+        margin-right: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .vital-signs-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .blood-pressure-group {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="padding: 20px; max-width: 1200px;">
+    <div class="page-header">
+        <h2><i class="bi bi-heart-pulse-fill"></i> Registrar Signos Vitales</h2>
+        <p>Registro de parámetros vitales de la paciente</p>
+    </div>
+    <div class="patient-info-card">
+        <div class="patient-name">
+            <i class="bi bi-person-circle"></i> {{ paciente.persona.nombre_completo }}
+        </div>
+        <div class="patient-details">
+            <strong>RUT:</strong> {{ paciente.persona.rut_formateado }} |
+            <strong>Edad:</strong> {{ paciente.persona.edad }} años |
+            <strong>Ficha N°:</strong> {{ ficha.numero_ficha }}
+        </div>
+    </div>
+
+    <div class="form-card">
+        <div class="alert-info">
+            <i class="bi bi-info-circle-fill"></i>
+            <strong>Importante:</strong> Complete los signos vitales de la paciente. Todos los campos son opcionales,
+            pero se recomienda registrar la mayor cantidad de información posible.
+        </div>
+
+        <form method="post" id="signosVitalesForm">
+            {% csrf_token %}
+            <div class="form-section">
+                <div class="form-section-title">
+                    <i class="bi bi-activity"></i> Signos Vitales
+                </div>
+
+                <div class="vital-signs-grid">
+                    <!-- Temperatura -->
+                    <div class="form-group">
+                        <label class="form-label" for="temperatura">
+                            Temperatura <span class="unit">(°C)</span>
+                        </label>
+                        <input type="number" class="form-control" id="temperatura" name="temperatura" step="0.1"
+                            min="34.0" max="42.0" placeholder="36.5">
+                        <div class="input-hint">Rango normal: 36.0 - 37.5 °C</div>
+                    </div>
+
+                    <!-- Frecuencia Cardíaca -->
+                    <div class="form-group">
+                        <label class="form-label" for="frecuencia_cardiaca">
+                            Frecuencia Cardíaca <span class="unit">(lpm)</span>
+                        </label>
+                        <input type="number" class="form-control" id="frecuencia_cardiaca" name="frecuencia_cardiaca"
+                            min="30" max="200" placeholder="80">
+                        <div class="input-hint">Rango normal: 60 - 100 lpm</div>
+                    </div>
+
+                    <!-- Frecuencia Respiratoria -->
+                    <div class="form-group">
+                        <label class="form-label" for="frecuencia_respiratoria">
+                            Frecuencia Respiratoria <span class="unit">(rpm)</span>
+                        </label>
+                        <input type="number" class="form-control" id="frecuencia_respiratoria"
+                            name="frecuencia_respiratoria" min="8" max="40" placeholder="16">
+                        <div class="input-hint">Rango normal: 12 - 20 rpm</div>
+                    </div>
+
+                    <!-- Saturación de Oxígeno -->
+                    <div class="form-group">
+                        <label class="form-label" for="saturacion_oxigeno">
+                            Saturación O₂ <span class="unit">(%)</span>
+                        </label>
+                        <input type="number" class="form-control" id="saturacion_oxigeno" name="saturacion_oxigeno"
+                            min="50" max="100" placeholder="98">
+                        <div class="input-hint">Rango normal: 95 - 100 %</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Presión Arterial -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <i class="bi bi-heart"></i> Presión Arterial
+                </div>
+
+                <div class="blood-pressure-group">
+                    <!-- Presión Sistólica -->
+                    <div class="form-group">
+                        <label class="form-label" for="presion_arterial_sistolica">
+                            Sistólica <span class="unit">(mmHg)</span>
+                        </label>
+                        <input type="number" class="form-control" id="presion_arterial_sistolica"
+                            name="presion_arterial_sistolica" min="60" max="250" placeholder="120">
+                        <div class="input-hint">Rango normal: 90 - 120 mmHg</div>
+                    </div>
+
+                    <!-- Presión Diastólica -->
+                    <div class="form-group">
+                        <label class="form-label" for="presion_arterial_diastolica">
+                            Diastólica <span class="unit">(mmHg)</span>
+                        </label>
+                        <input type="number" class="form-control" id="presion_arterial_diastolica"
+                            name="presion_arterial_diastolica" min="30" max="150" placeholder="80">
+                        <div class="input-hint">Rango normal: 60 - 80 mmHg</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Observaciones -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <i class="bi bi-journal-text"></i> Observaciones
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="observaciones">
+                        Observaciones Adicionales
+                    </label>
+                    <textarea class="form-control" id="observaciones" name="observaciones" rows="4"
+                        placeholder="Ingrese cualquier observación relevante sobre el estado de la paciente..."></textarea>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="form-actions">
+                <a href="{% url 'tens:lista_fichas_signos'  %}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Guardar Signos Vitales
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('signosVitalesForm');
+
+        // Validación en tiempo real
+        const inputs = form.querySelectorAll('input[type="number"]');
+
+        inputs.forEach(input => {
+            input.addEventListener('input', function () {
+                validateInput(this);
+            });
+        });
+
+        function validateInput(input) {
+            const value = parseFloat(input.value);
+            const min = parseFloat(input.min);
+            const max = parseFloat(input.max);
+
+            if (input.value === '') {
+                input.classList.remove('is-invalid', 'is-valid');
+                return;
+            }
+
+            if (isNaN(value) || value < min || value > max) {
+                input.classList.add('is-invalid');
+                input.classList.remove('is-valid');
+            } else {
+                input.classList.add('is-valid');
+                input.classList.remove('is-invalid');
+            }
+        }
+
+        // Validación antes de enviar
+        form.addEventListener('submit', function (e) {
+            let hasValue = false;
+            let hasInvalid = false;
+
+            inputs.forEach(input => {
+                if (input.value !== '') {
+                    hasValue = true;
+                    validateInput(input);
+                    if (input.classList.contains('is-invalid')) {
+                        hasInvalid = true;
+                    }
+                }
+            });
+
+            if (!hasValue) {
+                e.preventDefault();
+                alert('Por favor, ingrese al menos un signo vital.');
+                return;
+            }
+
+            if (hasInvalid) {
+                e.preventDefault();
+                alert('Por favor, corrija los valores fuera de rango antes de continuar.');
+                return;
+            }
+        });
+
+        // Animación de entrada
+        const formCard = document.querySelector('.form-card');
+        formCard.style.opacity = '0';
+        formCard.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            formCard.style.transition = 'all 0.5s ease';
+            formCard.style.opacity = '1';
+            formCard.style.transform = 'translateY(0)';
+        }, 100);
+    });
+</script>
+{% endblock %}
