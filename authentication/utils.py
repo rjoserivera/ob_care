@@ -8,14 +8,14 @@ ROLE_REDIRECT_MAP = {
     "admin": "authentication:dashboard_admin",
     "administradores": "authentication:dashboard_admin",
 
-    "medico": "authentication:dashboard_medico",
-    "medicos": "authentication:dashboard_medico",
+    "medico": "medico:menu_medico",  # Actualizado para usar vista correcta
+    "medicos": "medico:menu_medico",
 
-    "matrona": "matrona:menu_matrona",
+    "matrona": "matrona:menu_matrona",  # Actualizado para usar vista correcta
     "matronas": "matrona:menu_matrona",
 
-    "tens": "authentication:dashboard_tens",
-    "tecnico en enfermeria": "authentication:dashboard_tens",
+    "tens": "tens:menu_tens",  # Actualizado para usar vista correcta
+    "tecnico en enfermeria": "tens:menu_tens",
 }
 
 def _normalize_role_name(name: str) -> str:

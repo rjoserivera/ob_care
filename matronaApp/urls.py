@@ -42,8 +42,13 @@ urlpatterns = [
     path('ficha/<int:ficha_pk>/iniciar-parto/', views.iniciar_proceso_parto, name='iniciar_parto'),
     path('ficha/<int:ficha_pk>/proceso-parto-iniciado/', views.proceso_parto_iniciado, name='proceso_parto_iniciado'),
     path('sala/<int:ficha_parto_id>/', views.sala_parto_view, name='sala_parto'),
-    path('sala/<int:ficha_parto_id>/guardar/', views.guardar_registro_parto, name='guardar_parto'),
+    path('sala/<int:ficha_parto_id>/guardar/', views.guardar_registro_parto, name='guardar_registro_parto'),
     path('sala/<int:ficha_parto_id>/guardar-rn/', views.guardar_registro_rn, name='guardar_rn'),
+    path('sala/<int:ficha_parto_id>/cierre/', views.cierre_parto_view, name='cierre_parto'),
+    
+    # NUEVO: Split RN
+    path('sala/<int:ficha_parto_id>/asociar-rn/', views.crear_asociacion_rn, name='asociar_rn'),
+    path('rn/<int:rn_id>/', views.ficha_rn_view, name='ficha_rn'),
     
     # ==================== APIs AJAX ====================
     # Dilatación
@@ -54,6 +59,10 @@ urlpatterns = [
     # Medicamentos AJAX
     path('api/ficha/<int:ficha_pk>/medicamento/agregar/', views.agregar_medicamento_ajax, name='api_agregar_medicamento'),
     path('api/medicamento/<int:medicamento_pk>/eliminar/', views.eliminar_medicamento_ajax, name='api_eliminar_medicamento'),
+    
+    # Administración Medicamentos
+    path('api/medicamento/<int:medicamento_id>/administraciones/', views.obtener_administraciones, name='api_obtener_administraciones'),
+    path('api/medicamento/<int:medicamento_id>/registrar_administracion/', views.registrar_administracion, name='api_registrar_administracion'),
     
     # Personal
     path('api/ficha/<int:ficha_pk>/personal/', views.obtener_personal_requerido, name='api_personal_requerido'),

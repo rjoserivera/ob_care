@@ -1,0 +1,188 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard TENS - Sistema Obstétrico{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --tens-primary: #4facfe;
+        --tens-secondary: #00f2fe;
+    }
+
+    .dashboard-header {
+        background: linear-gradient(135deg, var(--tens-primary) 0%, var(--tens-secondary) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid var(--tens-primary);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(79, 172, 254, 0.2);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        color: var(--tens-primary);
+        margin-bottom: 1rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .action-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(79, 172, 254, 0.2);
+    }
+
+    .action-card h3 {
+        color: var(--tens-primary);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .action-card p {
+        color: #666;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-tens {
+        background: linear-gradient(135deg, var(--tens-primary) 0%, var(--tens-secondary) 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-tens:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 100px;">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1><i class="bi bi-person-badge"></i> Panel TENS</h1>
+        <p style="margin: 0; opacity: 0.9;">Gestión de medicamentos y signos vitales</p>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="stat-value">{{ total_pacientes }}</div>
+            <div class="stat-label">Pacientes Activos</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-file-medical-fill"></i>
+            </div>
+            <div class="stat-value">{{ total_fichas_activas }}</div>
+            <div class="stat-label">Fichas Activas</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-capsule"></i>
+            </div>
+            <div class="stat-value">{{ administraciones_hoy }}</div>
+            <div class="stat-label">Administraciones Hoy</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <div class="stat-value">{{ medicamentos_pendientes }}</div>
+            <div class="stat-label">Medicamentos Pendientes</div>
+        </div>
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <h2 style="margin-bottom: 1.5rem; color: #333;"><i class="bi bi-lightning-fill"></i> Acciones Rápidas</h2>
+    <div class="actions-grid">
+        <div class="action-card">
+            <h3><i class="bi bi-search"></i> Buscar Paciente</h3>
+            <p>Encuentra un paciente para gestionar sus medicamentos y signos vitales</p>
+            <a href="{% url 'gestion:buscar_persona' %}" class="btn-tens">
+                <i class="bi bi-search"></i> Buscar
+            </a>
+        </div>
+
+        <div class="action-card">
+            <h3><i class="bi bi-file-earmark-medical"></i> Ver Fichas</h3>
+            <p>Consulta las fichas obstétricas activas</p>
+            <a href="{% url 'matrona:lista_fichas' %}" class="btn-tens">
+                <i class="bi bi-list"></i> Ver Fichas
+            </a>
+        </div>
+
+        <div class="action-card">
+            <h3><i class="bi bi-capsule-pill"></i> Administrar Medicamentos</h3>
+            <p>Registra la administración de medicamentos a pacientes</p>
+            <a href="{% url 'matrona:lista_fichas' %}" class="btn-tens">
+                <i class="bi bi-plus-circle"></i> Registrar
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

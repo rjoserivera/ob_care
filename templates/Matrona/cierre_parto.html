@@ -1,0 +1,107 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Cierre del Proceso de Parto{% endblock %}
+
+{% block extra_css %}
+<style>
+    .closure-container {
+        max-width: 800px;
+        margin: 3rem auto;
+        padding: 0 1rem;
+    }
+    
+    .closure-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        padding: 2.5rem;
+        border-top: 6px solid #198754; /* Success Green */
+    }
+    
+    .section-title {
+        color: #198754;
+        font-weight: bold;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .ley-dominga-box {
+        background: #f8f9fa;
+        border-left: 4px solid #0d6efd;
+        padding: 1.5rem;
+        border-radius: 6px;
+        margin-bottom: 2rem;
+    }
+    
+    .form-check-input:checked {
+        background-color: #198754;
+        border-color: #198754;
+    }
+    
+    .btn-finish {
+        background: #198754;
+        color: white;
+        padding: 1rem 2rem;
+        font-size: 1.2rem;
+        width: 100%;
+        border-radius: 8px;
+        border: none;
+        transition: all 0.2s;
+        font-weight: bold;
+    }
+    .btn-finish:hover {
+        background: #157347;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="closure-container">
+    <div class="closure-card">
+        <div class="text-center mb-4">
+            <h2 class="section-title"><i class="bi bi-check-circle-fill"></i> Cierre del Proceso de Parto</h2>
+            <p class="text-muted">Por favor, verifique los siguientes cumplimientos finales antes de cerrar la ficha.</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Ley Dominga Check -->
+            <div class="ley-dominga-box">
+                <h4 class="mb-3"><i class="bi bi-heart-pulse"></i> Ley Dominga</h4>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" name="ley_dominga_informada" id="checkLeyDominga" required>
+                    <label class="form-check-label fw-bold" for="checkLeyDominga">
+                        Se ha informado y cumplido con los protocolos de la Ley Dominga (si aplica)
+                    </label>
+                    <div class="form-text mt-1">
+                        Certifico que se ha brindado un trato digno y el acompañamiento necesario a la madre y familia.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Observaciones Finales -->
+            <div class="mb-4">
+                <label for="observaciones_cierre" class="form-label fw-bold">Observaciones Finales / Notas de Cierre</label>
+                <textarea class="form-control" name="observaciones_cierre" id="observaciones_cierre" rows="4" placeholder="Ingrese cualquier observación relevante para el cierre del proceso..."></textarea>
+            </div>
+
+            <!-- Confirmación -->
+            <div class="alert alert-warning d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" style="font-size: 1.5rem;"></i>
+                <div>
+                    <strong>Atención:</strong> Al confirmar, la ficha de parto se marcará como FINALIZADA y la sala quedará DISPONIBLE. Esta acción no se puede deshacer.
+                </div>
+            </div>
+
+            <button type="submit" class="btn-finish mt-3">
+                <i class="bi bi-archive-fill"></i> Finalizar y Cerrar Ficha
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

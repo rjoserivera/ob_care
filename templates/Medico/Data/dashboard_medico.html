@@ -139,10 +139,11 @@
         </div>
     </div>
 
-    <!-- Acciones disponibles -->
+    <!-- Acciones principales del médico -->
     <div class="row">
         <h4 class="mb-3">Acciones Disponibles</h4>
 
+        {% if puede_ingresar_paciente %}
         <div class="col-md-3 mb-4">
             <div class="action-card">
                 <i class="bi bi-person-check-fill"></i>
@@ -152,17 +153,9 @@
                 </a>
             </div>
         </div>
+        {% endif %}
 
-        <div class="col-md-3 mb-4">
-            <div class="action-card">
-                <i class="bi bi-capsule"></i>
-                <h5>Asignar Medicamentos</h5>
-                <a href="{% url 'medico:lista_fichas' %}" class="btn btn-action">
-                    Ir
-                </a>
-            </div>
-        </div>
-
+        {% if puede_buscar_paciente %}
         <div class="col-md-3 mb-4">
             <div class="action-card">
                 <i class="bi bi-search"></i>
@@ -172,6 +165,7 @@
                 </a>
             </div>
         </div>
+        {% endif %}
 
         <div class="col-md-3 mb-4">
             <div class="action-card">
@@ -183,15 +177,30 @@
             </div>
         </div>
 
+        <!-- Editar Ficha - Flujo específico -->
+        {% if puede_editar_ficha %}
         <div class="col-md-3 mb-4">
             <div class="action-card">
                 <i class="bi bi-pencil-square"></i>
                 <h5>Editar Ficha</h5>
-                <a href="{% url 'medico:lista_fichas' %}" class="btn btn-action">
+                <a href="{% url 'medico:lista_fichas' %}?accion=editar" class="btn btn-action">
                     Ir
                 </a>
             </div>
         </div>
+        {% endif %}
+
+        <!-- Exportar Datos - Solo para Médico -->
+        <div class="col-md-3 mb-4">
+            <div class="action-card">
+                <i class="bi bi-file-earmark-arrow-down"></i>
+                <h5>Exportar Datos</h5>
+                <a href="/partos/exportar-libro/" class="btn btn-action">
+                    Ir
+                </a>
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}

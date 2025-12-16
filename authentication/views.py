@@ -46,7 +46,7 @@ class DashboardAdminView(TemplateView):
     template_name = "Gestion/Data/dashboard_admin.html"
 
     def dispatch(self, request, *args, **kwargs):
-        if not (request.user.is_superuser or user_has_role(request.user, "administrador")):
+        if not (request.user.is_superuser or user_has_role(request.user, "administradores")):
             messages.error(request, "No tienes permisos para acceder al panel de administración.")
             return redirect("home")
         return super().dispatch(request, *args, **kwargs)
@@ -68,65 +68,41 @@ class DashboardAdminView(TemplateView):
 
 @method_decorator(login_required, name='dispatch')
 class DashboardMedicoView(TemplateView):
-    template_name = "Medico/Data/dashboard_medico.html"
-
+    """
+    DEPRECATED: Esta vista redirige al dashboard principal de médico
+    Usar directamente /medico/ en lugar de /dashboard/medico/
+    """
     def dispatch(self, request, *args, **kwargs):
-        if not (request.user.is_superuser or user_has_role(request.user, "medico")):
+        if not (request.user.is_superuser or user_has_role(request.user, "medicos")):
             messages.error(request, "No tienes permisos para acceder al dashboard médico.")
             return redirect("home")
-        return super().dispatch(request, *args, **kwargs)
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Dashboard Médico'
-        context['usuario'] = self.request.user
-        context['total_pacientes'] = Paciente.objects.filter(activo=True).count()
-        
-        # Permisos
-        context['puede_agregar_paciente'] = True
-        context['puede_editar_ficha'] = True
-        context['puede_iniciar_parto'] = True
-        
-        return context
+        # Redirigir a la vista correcta con todas las funcionalidades
+        return redirect("medico:menu_medico")
 
 
 @method_decorator(login_required, name='dispatch')
 class DashboardMatronaView(TemplateView):
-    template_name = "Matrona/Data/dashboard_matrona.html"
-
+    """
+    DEPRECATED: Esta vista redirige al dashboard principal de matrona
+    Usar directamente /matrona/ en lugar de /dashboard/matrona/
+    """
     def dispatch(self, request, *args, **kwargs):
-        if not (request.user.is_superuser or user_has_role(request.user, "matrona")):
+        if not (request.user.is_superuser or user_has_role(request.user, "matronas")):
             messages.error(request, "No tienes permisos para acceder al dashboard de matrona.")
             return redirect("home")
-        return super().dispatch(request, *args, **kwargs)
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Dashboard Matrona'
-        context['usuario'] = self.request.user
-        context['total_pacientes'] = Paciente.objects.filter(activo=True).count()
-        
-        # Importar aquí para evitar import circular
-        from matronaApp.models import FichaObstetrica
-        context['fichas_activas'] = FichaObstetrica.objects.filter(activa=True).count()
-        
-        return context
+        # Redirigir a la vista correcta con todas las funcionalidades
+        return redirect("matrona:menu_matrona")
 
 
 @method_decorator(login_required, name='dispatch')
 class DashboardTensView(TemplateView):
-    template_name = "Tens/Data/dashboard_tens.html"
-
+    """
+    DEPRECATED: Esta vista redirige al dashboard principal de TENS
+    Usar directamente /tens/ en lugar de /dashboard/tens/
+    """
     def dispatch(self, request, *args, **kwargs):
         if not (request.user.is_superuser or user_has_role(request.user, "tens")):
             messages.error(request, "No tienes permisos para acceder al dashboard TENS.")
             return redirect("home")
-        return super().dispatch(request, *args, **kwargs)
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Dashboard TENS'
-        context['usuario'] = self.request.user
-        context['total_pacientes'] = Paciente.objects.filter(activo=True).count()
-        
-        return context
+        # Redirigir a la vista correcta con todas las funcionalidades
+        return redirect("tens:menu_tens")

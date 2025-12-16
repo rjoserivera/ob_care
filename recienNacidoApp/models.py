@@ -138,13 +138,26 @@ class RegistroRecienNacido(models.Model):
         verbose_name='Perímetro Torácico (cm)'
     )
 
+    nombre_rn_temporal = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name='Nombre Temporal / Social',
+        help_text='Nombre asignado temporalmente por la madre'
+    )
+
+    pulsera_identificacion = models.BooleanField(
+        default=False,
+        verbose_name='¿Pulsera de Identificación Puesta?',
+        help_text='Brazalete con datos completos en muñeca'
+    )
+
     # ==========================
     # SECCIÓN 2: APGAR
     # ==========================
 
     apgar_1_minuto = models.PositiveIntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(10)],
-        verbose_name='Apgar al 1 Minuto'
+        validators=[MinValueValidator(0)],
+        verbose_name='Apgar minutos'
     )
 
     apgar_5_minutos = models.PositiveIntegerField(

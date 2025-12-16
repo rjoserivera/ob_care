@@ -1,28 +1,136 @@
 {% extends 'Shared/base.html' %}
 {% load static %}
 
-{% block title %}Seleccionar Paciente - Médico{% endblock %}
+{% block title %}Seleccionar Persona - Ficha Obstétrica{% endblock %}
 
 {% block extra_css %}
 <style>
-    .page-header {
+    .container-select {
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+
+    .header-section {
         background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
         color: white;
         padding: 2rem;
         border-radius: 15px;
         margin-bottom: 2rem;
+        text-align: center;
     }
 
-    .search-card {
+    .header-section h2 {
+        margin-bottom: 0.5rem;
+    }
+
+    .card-option {
         background: white;
-        padding: 1.5rem;
         border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-        border-left: 5px solid #38ef7d;
+        padding: 2rem;
         margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
     }
 
-    .btn-medico {
+    .option-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .option-title i {
+        color: #11998e;
+        font-size: 1.5rem;
+    }
+
+    .search-box {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1.5rem 0.75rem 3rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        border-color: #11998e;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(17, 153, 142, 0.1);
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #11998e;
+        pointer-events: none;
+    }
+
+    .search-results {
+        background: #f8f9fa;
+        border-radius: 10px;
+        max-height: 300px;
+        overflow-y: auto;
+        margin-top: 1rem;
+        display: none;
+    }
+
+    .search-results.active {
+        display: block;
+    }
+
+    .result-item {
+        padding: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .result-item:hover {
+        background: rgba(17, 153, 142, 0.1);
+    }
+
+    .result-item:last-child {
+        border-bottom: none;
+    }
+
+    .result-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.3rem;
+    }
+
+    .result-info {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .result-age {
+        display: inline-block;
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 0.2rem 0.6rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        margin-left: 0.5rem;
+    }
+
+    .no-results {
+        padding: 2rem;
+        text-align: center;
+        color: #666;
+    }
+
+    .btn-crear-persona {
         background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
         color: white;
         border: none;
@@ -30,176 +138,236 @@
         border-radius: 8px;
         font-weight: 600;
         cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
         transition: all 0.3s ease;
     }
 
-    .btn-medico:hover {
+    .btn-crear-persona:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+        box-shadow: 0 5px 15px rgba(56, 239, 125, 0.3);
         color: white;
     }
 
-    .breadcrumb-item a {
-        color: #38ef7d;
-        text-decoration: none;
+    .divider {
+        text-align: center;
+        margin: 2rem 0;
+        position: relative;
+    }
+
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #e0e0e0;
+    }
+
+    .divider span {
+        background: white;
+        padding: 0 1rem;
+        color: #999;
+        font-weight: 600;
+        position: relative;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #ddd;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .loading-spinner.active {
+        display: block;
+    }
+
+    .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #11998e;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb-item {
+        color: #11998e;
     }
 
     .breadcrumb-item.active {
         color: #666;
     }
 
-    .table-container {
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-    }
+    @media (max-width: 768px) {
+        .container-select {
+            margin: 1rem;
+        }
 
-    .table th {
-        background: #f8f9fa;
-        font-weight: 600;
-        color: #333;
-    }
+        .card-option {
+            padding: 1.5rem;
+        }
 
-    .btn-select {
-        background: #e0f2f1;
-        color: #00695c;
-        border: 1px solid #11998e;
-        padding: 0.4rem 1rem;
-        border-radius: 6px;
-        transition: all 0.3s;
-        text-decoration: none;
-        font-weight: 500;
-        display: inline-block;
-    }
-
-    .btn-select:hover {
-        background: #11998e;
-        color: white;
-        text-decoration: none;
-    }
-
-    .pagination .page-item.active .page-link {
-        background-color: #11998e;
-        border-color: #11998e;
-    }
-
-    .pagination .page-link {
-        color: #11998e;
+        .search-results {
+            max-height: 250px;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
+<div class="container-select">
+    <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
             <li class="breadcrumb-item"><a href="{% url 'medico:menu_medico' %}">Médico</a></li>
-            <li class="breadcrumb-item active">Seleccionar Paciente</li>
+            <li class="breadcrumb-item active">Crear Ficha Obstétrica</li>
         </ol>
     </nav>
 
-    <div class="page-header">
-        <h2><i class="bi bi-person-check-fill"></i> Seleccionar Paciente</h2>
-        <p>Busca un paciente para crear una nueva ficha obstétrica</p>
+    <!-- Header -->
+    <div class="header-section">
+        <h2><i class="bi bi-file-earmark-medical"></i> Crear Ficha Obstétrica</h2>
+        <p>Selecciona una persona existente o crea una nueva</p>
     </div>
 
-    <!-- Buscador -->
-    <div class="search-card">
-        <form method="get" class="row g-3 align-items-center">
-            <div class="col-md-10">
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-search"></i>
-                    </span>
-                    <input type="text" name="q" class="form-control border-start-0"
-                        placeholder="Buscar por RUT, Nombre o Apellido..." value="{{ query }}">
-                </div>
+    <!-- OPCIÓN 1: BUSCAR PERSONA EXISTENTE -->
+    <div class="card-option">
+        <div class="option-title">
+            <i class="bi bi-search"></i> Buscar Persona Existente
+        </div>
+
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Busca por nombre, apellido o RUN..."
+                autocomplete="off" minlength="2">
+        </div>
+
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner"></div>
+        </div>
+
+        <div class="search-results" id="searchResults">
+            <div class="no-results" id="noResults">
+                Escribe al menos 2 caracteres para buscar
             </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-medico w-100">Buscar</button>
-            </div>
-        </form>
+        </div>
     </div>
-
-    <!-- Resultados -->
-    <div class="table-container">
-        <table class="table table-hover mb-0">
-            <thead>
-                <tr>
-                    <th class="ps-4">Nombre Completo</th>
-                    <th>RUT</th>
-                    <th>Fecha Nacimiento</th>
-                    <th class="text-center">Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for paciente in pacientes %}
-                <tr>
-                    <td class="ps-4">
-                        <strong>
-                            {{ paciente.persona.Nombre }}
-                            {{ paciente.persona.Apellido_Paterno }}
-                            {{ paciente.persona.Apellido_Materno }}
-                        </strong>
-                    </td>
-                    <td>{{ paciente.persona.Rut }}</td>
-                    <td>{{ paciente.persona.Fecha_nacimiento|date:"d/m/Y" }}</td>
-                    <td class="text-center">
-                        <a href="{% url 'medico:crear_ficha_persona' paciente.persona.pk %}" class="btn-select">
-                            <i class="bi bi-check-lg"></i> Seleccionar
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4" class="text-center py-5 text-muted">
-                        {% if query %}
-                        <i class="bi bi-search display-6 d-block mb-3"></i>
-                        No se encontraron pacientes con "{{ query }}"
-                        {% else %}
-                        <i class="bi bi-people display-6 d-block mb-3"></i>
-                        Busca un paciente para comenzar
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Paginación -->
-    {% if page_obj.has_other_pages %}
-    <nav class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link"
-                    href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">
-                    &laquo;
-                </a>
-            </li>
-            {% endif %}
-
-            {% for num in page_obj.paginator.page_range %}
-            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-                <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">
-                    {{ num }}
-                </a>
-            </li>
-            {% endfor %}
-
-            {% if page_obj.has_next %}
-            <li class="page-item">
-                <a class="page-link"
-                    href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">
-                    &raquo;
-                </a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const noResults = document.getElementById('noResults');
+
+        let searchTimeout;
+
+        searchInput.addEventListener('input', function () {
+            const query = this.value.trim();
+
+            // Limpiar timeout anterior
+            clearTimeout(searchTimeout);
+
+            // Si hay menos de 2 caracteres, no buscar
+            if (query.length < 2) {
+                searchResults.classList.remove('active');
+                return;
+            }
+
+            // Mostrar spinner
+            loadingSpinner.classList.add('active');
+            searchResults.classList.add('active');
+
+            // Esperar 300ms antes de buscar (debounce)
+            searchTimeout = setTimeout(function () {
+                // Realizar búsqueda AJAX
+                fetch(`{% url 'gestion:api_buscar_persona' %}?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        loadingSpinner.classList.remove('active');
+
+                        if (data.resultados && data.resultados.length > 0) {
+                            let html = '';
+
+                            data.resultados.forEach(persona => {
+                                html += `
+                                <div class="result-item" onclick="selectPersona(${persona.id}, '${persona.nombre}')">
+                                    <div class="result-name">
+                                        ${persona.nombre}
+                                        ${persona.edad !== 'N/A' ? `<span class="result-age">${persona.edad} años</span>` : ''}
+                                    </div>
+                                    <div class="result-info">
+                                        <strong>RUN:</strong> ${persona.rut}
+                                    </div>
+                                </div>
+                            `;
+                            });
+
+                            searchResults.innerHTML = html;
+                        } else {
+                            noResults.textContent = 'No se encontraron resultados para "' + query + '"';
+                            searchResults.innerHTML = noResults.outerHTML;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        loadingSpinner.classList.remove('active');
+                        noResults.textContent = 'Error en la búsqueda. Intenta de nuevo.';
+                        searchResults.innerHTML = noResults.outerHTML;
+                    });
+            }, 300);
+        });
+
+        // Cerrar resultados al hacer clic fuera
+        document.addEventListener('click', function (e) {
+            if (e.target !== searchInput && !searchResults.contains(e.target)) {
+                searchResults.classList.remove('active');
+            }
+        });
+    });
+
+    function selectPersona(personaId, personaNombre) {
+        // Redirigir a crear ficha con persona pre-seleccionada
+        window.location.href = `/medico/ficha/crear-persona/${personaId}/`;
+    }
+</script>
 {% endblock %}

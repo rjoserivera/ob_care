@@ -16,17 +16,63 @@ from medicoApp.models import Patologias
 
 @login_required
 def menu_medico(request):
-    """Vista principal del módulo Médico"""
+    """
+    Menú principal de médico (Dashboard)
+    URL: /medico/
+    """
+    from matronaApp.models import FichaObstetrica, IngresoPaciente, MedicamentoFicha
+    
+    # Estadísticas
+    total_fichas = FichaObstetrica.objects.filter(activa=True).count()
+    fichas_recientes = FichaObstetrica.objects.filter(
+        activa=True
+    ).select_related('paciente__persona').order_by('-fecha_creacion')[:5]
+    
+    # Fichas con proceso de parto activo
+    fichas_en_parto = FichaObstetrica.objects.filter(
+        activa=True, 
+        proceso_parto_iniciado=True
+    ).count()
+    
+    # Fichas con estancamiento
+    fichas_estancadas = FichaObstetrica.objects.filter(
+        activa=True,
+        estado_dilatacion='ESTANCADA'
+    ).count()
+    
+    # Fichas listas para parto
+    fichas_listas = FichaObstetrica.objects.filter(
+        activa=True,
+        estado_dilatacion='LISTA'
+    ).count()
+    
+    # Datos para el dashboard
+    total_ingresos = IngresoPaciente.objects.filter(activo=True).count()
+    total_medicamentos_asignados = MedicamentoFicha.objects.filter(activo=True).count()
+    
+    # Permisos específicos de médico
+    puede_ingresar_paciente = True
+    puede_asignar_medicamentos = True
+    puede_buscar_paciente = True
+    puede_editar_ficha = True
+    puede_iniciar_parto = True  # Solo médico puede iniciar parto
+    
     context = {
-        'total_patologias': Patologias.objects.count(),
-        'patologias_activas': Patologias.objects.filter(estado='Activo').count(),
-        'patologias_inactivas': Patologias.objects.filter(estado='Inactivo').count(),
-        'patologias_alto_riesgo': Patologias.objects.filter(
-            nivel_de_riesgo__in=['Alto', 'Crítico'],
-            estado='Activo'
-        ).count(),
+        'titulo': 'Dashboard Médico',
+        'total_fichas': total_fichas,
+        'fichas_recientes': fichas_recientes,
+        'fichas_en_parto': fichas_en_parto,
+        'fichas_estancadas': fichas_estancadas,
+        'fichas_listas': fichas_listas,
+        'total_ingresos': total_ingresos,
+        'total_medicamentos_asignados': total_medicamentos_asignados,
+        'puede_ingresar_paciente': puede_ingresar_paciente,
+        'puede_asignar_medicamentos': puede_asignar_medicamentos,
+        'puede_buscar_paciente': puede_buscar_paciente,
+        'puede_editar_ficha': puede_editar_ficha,
+        'puede_iniciar_parto': puede_iniciar_parto,
     }
-    return render(request, 'Medico/menu_medico.html', context)
+    return render(request, 'Medico/Data/dashboard_medico.html', context)
 
 
 # ============================================
@@ -349,11 +395,15 @@ def editar_ficha_obstetrica(request, ficha_pk):
 def detalle_ficha_obstetrica(request, ficha_pk):
     """Ver detalle de ficha obstétrica - Versión Médico"""
     from matronaApp.models import FichaObstetrica
+    from legacyApp.models import ControlesPrevios
 
     ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk)
     paciente = ficha.paciente
     persona = paciente.persona
     medicamentos = ficha.medicamentos.filter(activo=True)
+    
+    # Obtener controles previos (legacy data) usando el RUT - devolver queryset para iterar
+    controles_previos = ControlesPrevios.objects.filter(paciente_rut=persona.Rut)
     
     edad = calcular_edad(persona.Fecha_nacimiento)
     
@@ -363,6 +413,7 @@ def detalle_ficha_obstetrica(request, ficha_pk):
         'persona': persona,
         'edad': edad,
         'medicamentos': medicamentos,
+        'controles_previos': controles_previos,
         'titulo': f'Ficha {ficha.numero_ficha}',
         'edad_gestacional': f"{ficha.edad_gestacional_semanas}+{ficha.edad_gestacional_dias}"
     }
@@ -370,35 +421,49 @@ def detalle_ficha_obstetrica(request, ficha_pk):
 
 
 def lista_fichas_obstetrica(request):
-    """Listar fichas obstétricas - Versión Médico"""
+    """
+    Listar todas las fichas obstétricas - Versión Médico
+    URL: /medico/fichas/
+    """
     from matronaApp.models import FichaObstetrica
-    from django.core.paginator import Paginator
     from django.db.models import Q
     
     fichas = FichaObstetrica.objects.filter(activa=True).select_related(
-        'paciente__persona',
-        'matrona_responsable__persona'
+        'paciente__persona', 'matrona_responsable__persona', 'consultorio_origen'
     ).order_by('-fecha_creacion')
     
-    busqueda = request.GET.get('q', '').strip()
+    # Filtros
+    estado = request.GET.get('estado', '')
+    if estado == 'estancada':
+        fichas = fichas.filter(estado_dilatacion='ESTANCADA')
+    elif estado == 'en_parto':
+        fichas = fichas.filter(proceso_parto_iniciado=True)
+    elif estado == 'lista':
+        fichas = fichas.filter(estado_dilatacion='LISTA')
+    
+    # Búsqueda
+    busqueda = request.GET.get('q', '')
     if busqueda:
         fichas = fichas.filter(
             Q(paciente__persona__Nombre__icontains=busqueda) |
             Q(paciente__persona__Apellido_Paterno__icontains=busqueda) |
             Q(paciente__persona__Apellido_Materno__icontains=busqueda) |
-            Q(paciente__persona__Rut__icontains=busqueda)
+            Q(paciente__persona__Rut__icontains=busqueda) |
+            Q(numero_ficha__icontains=busqueda)
         )
     
-    paginator = Paginator(fichas, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    
-    return render(request, 'Medico/lista_fichas.html', {
-        'page_obj': page_obj,
-        'fichas': page_obj,
+    # Acción (editar vs ver)
+    accion = request.GET.get('accion', '')
+    titulo = 'Seleccionar Ficha para Editar' if accion == 'editar' else 'Fichas Obstétricas'
+
+    context = {
+        'fichas': fichas,
+        'titulo': titulo,
+        'estado_filtro': estado,
         'busqueda': busqueda,
-        'titulo': 'Fichas Obstétricas'
-    })
+        'accion': accion,
+    }
+    return render(request, 'Medico/lista_fichas.html', context)
 
 
 def agregar_medicamento(request, ficha_pk):
@@ -477,3 +542,16 @@ def seleccionar_persona_ficha(request):
         'query': query,
         'titulo': 'Seleccionar Paciente'
     })
+
+
+# ============================================
+# IMPORTAR VISTAS COMPARTIDAS DESDE MATRONA
+# ============================================
+# El médico puede realizar las mismas acciones que la matrona
+# en cuanto a parto y dilatación
+
+from matronaApp.views import (
+    iniciar_proceso_parto,
+    registrar_dilatacion,
+    agregar_medicamento_ajax,
+)

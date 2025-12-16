@@ -14,6 +14,11 @@ urlpatterns = [
     path('', views.menu_medico, name='menu_medico'),
     
     # ============================================
+    # SELECCIONAR PERSONA
+    # ============================================
+    path('seleccionar-persona/', views.seleccionar_persona_ficha, name='seleccionar_persona_ficha'),
+    
+    # ============================================
     # FICHAS OBSTÉTRICAS
     # ============================================
     path('ficha/crear/<int:paciente_pk>/', views.crear_ficha_obstetrica, name='crear_ficha'),
@@ -27,7 +32,20 @@ urlpatterns = [
     # ============================================
     path('ficha/<int:ficha_pk>/medicamento/agregar/', views.agregar_medicamento, name='agregar_medicamento'),
     path('medicamento/<int:medicamento_pk>/eliminar/', views.eliminar_medicamento, name='eliminar_medicamento'),
-    path('seleccionar-persona/', views.seleccionar_persona_ficha, name='seleccionar_persona_ficha'),
+    
+    # ============================================
+    # PARTO (Médico puede iniciar parto)
+    # ============================================
+    path('ficha/<int:ficha_pk>/iniciar-parto/', views.iniciar_proceso_parto, name='iniciar_parto'),
+    
+    # ============================================
+    # APIs AJAX
+    # ============================================
+    # Dilatación
+    path('api/ficha/<int:ficha_id>/dilatacion/registrar/', views.registrar_dilatacion, name='registrar_dilatacion'),
+    
+    # Medicamentos AJAX
+    path('api/ficha/<int:ficha_pk>/medicamento/agregar/', views.agregar_medicamento_ajax, name='api_agregar_medicamento'),
     
     # ============================================
     # GESTIÓN DE PATOLOGÍAS

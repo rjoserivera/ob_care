@@ -1,274 +1,370 @@
 {% extends 'Shared/base.html' %}
 {% load static %}
 
-{% block title %}Fichas Obstétricas - Sistema Obstétrico{% endblock %}
+{% block title %}{{ titulo }} - Sistema Obstétrico{% endblock %}
 
 {% block extra_css %}
 <style>
-    .page-header {
+    .lista-container {
+        max-width: 1100px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .lista-header {
         background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
         color: white;
-        padding: 2rem;
+        padding: 1.5rem 2rem;
         border-radius: 15px;
         margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 8px 25px rgba(56, 239, 125, 0.3);
     }
 
-    .page-header h2 {
-        margin-bottom: 0.5rem;
+    .lista-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
     }
 
-    .filters-box {
+    .filtros-card {
         background: white;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
     }
 
-    .table-container {
-        background: white;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-    }
-
-    .table {
-        margin-bottom: 0;
-    }
-
-    .table thead {
-        background: #f8f9fa;
-        border-bottom: 2px solid #dee2e6;
-    }
-
-    .table th {
-        color: #333;
-        font-weight: 600;
-        padding: 1rem;
-        text-align: left;
-    }
-
-    .table td {
-        padding: 1rem;
-        border-bottom: 1px solid #dee2e6;
-        vertical-align: middle;
-    }
-
-    .table tbody tr:hover {
-        background: rgba(240, 147, 251, 0.05);
-    }
-
-    .btn-action {
+    .filtro-btn {
         padding: 0.5rem 1rem;
-        border-radius: 5px;
-        font-size: 0.9rem;
-        margin-right: 0.5rem;
+        border: 2px solid #11998e;
+        border-radius: 25px;
+        background: white;
+        color: #11998e;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
         text-decoration: none;
+        font-size: 0.9rem;
     }
 
-    .btn-ver {
-        background: #38ef7d;
-        color: white;
-    }
-
-    .btn-ver:hover {
-        background: #e04759;
-        color: white;
-    }
-
-    .btn-editar {
+    .filtro-btn:hover, .filtro-btn.active {
         background: #11998e;
         color: white;
     }
 
-    .btn-editar:hover {
-        background: #e07fe8;
-        color: white;
+    .fichas-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
     }
 
-    .badge-estado {
-        padding: 0.4rem 0.8rem;
-        border-radius: 20px;
+    .ficha-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        border-left: 5px solid #11998e;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .ficha-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+
+    .ficha-card.estancada {
+        border-left-color: #dc3545;
+        background: #fff5f5;
+    }
+
+    .ficha-card.en-parto {
+        border-left-color: #28a745;
+        background: #f0fff4;
+    }
+
+    .ficha-card.lista {
+        border-left-color: #007bff;
+        background: #f0f7ff;
+    }
+
+    .ficha-info {
+        flex: 1;
+    }
+
+    .ficha-numero {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.3rem;
+    }
+
+    .ficha-paciente {
+        font-size: 1rem;
+        color: #555;
+        margin-bottom: 0.2rem;
+    }
+
+    .ficha-paciente i {
+        color: #11998e;
+        margin-right: 0.3rem;
+    }
+
+    .ficha-meta {
+        display: flex;
+        gap: 1.5rem;
         font-size: 0.85rem;
+        color: #888;
+    }
+
+    .ficha-meta span i {
+        margin-right: 0.3rem;
+    }
+
+    .ficha-badges {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .badge {
+        padding: 0.3rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
         font-weight: 600;
     }
 
-    .badge-activo {
-        background: rgba(240, 147, 251, 0.2);
-        color: #38ef7d;
-        border: 1px solid #38ef7d;
+    .badge-success {
+        background: #d4edda;
+        color: #155724;
     }
 
-    .badge-completado {
-        background: #cce5ff;
-        color: #004085;
+    .badge-danger {
+        background: #f8d7da;
+        color: #721c24;
     }
 
-    .empty-state {
-        text-align: center;
-        padding: 3rem;
-        color: #666;
+    .badge-info {
+        background: #d1ecf1;
+        color: #0c5460;
     }
 
-    .empty-state i {
-        font-size: 3rem;
-        color: #ddd;
-        margin-bottom: 1rem;
-        display: block;
+    .badge-warning {
+        background: #fff3cd;
+        color: #856404;
     }
 
-    .btn-nueva {
+    .ficha-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-ver {
+        padding: 0.6rem 1.2rem;
         background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
         color: white;
         border: none;
-        padding: 0.75rem 1.5rem;
         border-radius: 8px;
         font-weight: 600;
         cursor: pointer;
         text-decoration: none;
+        transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.4rem;
+    }
+
+    .btn-ver:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+        color: white;
+    }
+
+    .btn-nueva {
+        padding: 0.6rem 1.2rem;
+        background: white;
+        color: #11998e;
+        border: 2px solid white;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
     }
 
     .btn-nueva:hover {
-        color: white;
-        text-decoration: none;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(56, 239, 125, 0.3);
+        background: rgba(255,255,255,0.9);
+        color: #11998e;
     }
 
-    .breadcrumb {
-        background: transparent;
-        padding: 0;
-        margin-bottom: 2rem;
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
     }
 
-    .breadcrumb-item {
-        color: #38ef7d;
+    .empty-state i {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 1rem;
     }
 
-    .breadcrumb-item.active {
+    .empty-state h3 {
         color: #666;
+        margin-bottom: 0.5rem;
     }
 
-    /* Botón con paleta de Médico */
-    .btn-medico {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        color: white;
-        border: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
+    .empty-state p {
+        color: #999;
     }
 
-    .btn-medico:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
-        color: white;
+    @media (max-width: 768px) {
+        .ficha-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .ficha-actions {
+            width: 100%;
+        }
+
+        .btn-ver {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .lista-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .ficha-meta {
+            flex-direction: column;
+            gap: 0.3rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'medico:menu_medico' %}">Médico</a></li>
-            <li class="breadcrumb-item active">{{ titulo }}</li>
-        </ol>
-    </nav>
-
-    <!-- Header -->
-    <div class="page-header">
-        <h2><i class="bi bi-file-earmark-medical"></i> {{ titulo }}</h2>
-        <p>Todas las fichas obstétricas creadas</p>
-    </div>
-
-    <!-- Botón nuevo -->
-    <div style="margin-bottom: 2rem;">
+<div class="lista-container">
+    <!-- HEADER -->
+    <div class="lista-header">
+        <div>
+            <h2><i class="bi bi-file-earmark-medical"></i> {{ titulo }}</h2>
+            <p style="margin: 0; opacity: 0.9;">Gestión de fichas obstétricas activas</p>
+        </div>
         <a href="{% url 'medico:seleccionar_persona_ficha' %}" class="btn-nueva">
-            <i class="bi bi-plus-circle-fill"></i> Crear Nueva Ficha
+            <i class="bi bi-plus-circle"></i> Nueva Ficha
         </a>
     </div>
 
-    <!-- Filtros -->
-    <div class="filters-box">
-        <form method="get" class="row g-3">
-            <div class="col-md-4">
-                <input type="text" name="q" class="form-control" placeholder="Buscar por paciente...">
+    <!-- FILTROS -->
+    <div class="filtros-card" style="flex-direction: column; align-items: stretch; gap: 1.5rem;">
+        
+        <!-- BUSCADOR -->
+        <form method="GET" style="display: flex; gap: 10px; width: 100%;">
+            {% if accion %}<input type="hidden" name="accion" value="{{ accion }}">{% endif %}
+            {% if estado_filtro %}<input type="hidden" name="estado" value="{{ estado_filtro }}">{% endif %}
+            
+            <div style="position: relative; flex: 1;">
+                <i class="bi bi-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #11998e;"></i>
+                <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar por Nombre, RUT o N° Ficha..." 
+                       style="width: 100%; padding: 0.8rem 1rem 0.8rem 2.5rem; border: 2px solid #d4f4e7; border-radius: 50px; outline: none; transition: all 0.3s ease; background: #f0fdf7;"
+                       onfocus="this.style.borderColor='#11998e'; this.style.backgroundColor='white'; this.style.boxShadow='0 0 0 4px rgba(17, 153, 142, 0.1)'"
+                       onblur="this.style.borderColor='#d4f4e7'; this.style.backgroundColor='#f0fdf7'; this.style.boxShadow='none'">
             </div>
-            <div class="col-md-4">
-                <select name="estado" class="form-select">
-                    <option value="">-- Todos los estados --</option>
-                    <option value="activa">Activa</option>
-                    <option value="completada">Completada</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <button type="submit" class="btn btn-medico w-100">
-                    <i class="bi bi-search"></i> Filtrar
-                </button>
-            </div>
+            <button type="submit" class="btn-ver" style="padding: 0 1.5rem; border-radius: 50px;">Buscar</button>
+            {% if busqueda %}
+                <a href="{% url 'medico:lista_fichas' %}{% if accion %}?accion={{ accion }}{% endif %}" class="btn-ver" style="background: #e9ecef; color: #555; display: flex; align-items: center; justify-content: center; padding: 0 1rem; border-radius: 50px; box-shadow: none;" title="Limpiar búsqueda">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            {% endif %}
         </form>
-    </div>
 
-    <!-- Tabla de fichas -->
-    {% if fichas %}
-    <div class="table-container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Paciente</th>
-                    <th>RUT</th>
-                    <th>Fecha Ingreso</th>
-                    <th>Semanas</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ficha in fichas %}
-                <tr>
-                    <td>
-                        <strong>
-                            {{ ficha.paciente.persona.Nombre }} {{ ficha.paciente.persona.Apellido_Paterno }}
-                        </strong>
-                    </td>
-                    <td>{{ ficha.paciente.persona.Rut }}</td>
-                    <td>{{ ficha.fecha_creacion|date:"d/m/Y" }}</td>
-                    <td>{{ ficha.edad_gestacional_semanas|default:"-" }} semanas</td>
-                    <td>
-                        {% if ficha.activa %}
-                        <span class="badge-estado badge-activo">Activa</span>
-                        {% else %}
-                        <span class="badge-estado badge-completado">Completada</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{% url 'medico:detalle_ficha' ficha.pk %}" class="btn-action btn-ver">
-                            <i class="bi bi-eye"></i> Ver
-                        </a>
-                        <a href="{% url 'medico:editar_ficha' ficha.pk %}" class="btn-action btn-editar">
-                            <i class="bi bi-pencil"></i> Editar
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div class="table-container">
-        <div class="empty-state">
-            <i class="bi bi-inbox"></i>
-            <h4>No hay fichas creadas</h4>
-            <p>Comienza creando una nueva ficha obstétrica</p>
-            <a href="{% url 'medico:seleccionar_persona_ficha' %}" class="btn-nueva" style="margin-top: 1rem;">
-                <i class="bi bi-plus-circle-fill"></i> Crear Primera Ficha
+        <hr style="margin: 0; border-top: 1px dashed #e0e0e0;">
+
+        <!-- BOTONES DE FILTRO -->
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <span style="font-weight: 600; color: #666;"><i class="bi bi-funnel"></i> Filtrar Estado:</span>
+            <a href="{% url 'medico:lista_fichas' %}{% if accion %}?accion={{ accion }}{% endif %}" class="filtro-btn {% if not estado_filtro %}active{% endif %}">
+                Todas
+            </a>
+            <a href="{% url 'medico:lista_fichas' %}?estado=en_parto{% if accion %}&accion={{ accion }}{% endif %}" class="filtro-btn {% if estado_filtro == 'en_parto' %}active{% endif %}">
+                🏥 En Parto
+            </a>
+            <a href="{% url 'medico:lista_fichas' %}?estado=lista{% if accion %}&accion={{ accion }}{% endif %}" class="filtro-btn {% if estado_filtro == 'lista' %}active{% endif %}">
+                ✅ Listas
+            </a>
+            <a href="{% url 'medico:lista_fichas' %}?estado=estancada{% if accion %}&accion={{ accion }}{% endif %}" class="filtro-btn {% if estado_filtro == 'estancada' %}active{% endif %}">
+                ⚠️ Estancadas
             </a>
         </div>
+    </div>
+
+    <!-- LISTA DE FICHAS -->
+    {% if fichas %}
+    <div class="fichas-grid">
+        {% for ficha in fichas %}
+        <div class="ficha-card {% if ficha.estado_dilatacion == 'ESTANCADA' %}estancada{% elif ficha.proceso_parto_iniciado %}en-parto{% elif ficha.estado_dilatacion == 'LISTA' %}lista{% endif %}">
+            <div class="ficha-info">
+                <div class="ficha-numero">{{ ficha.numero_ficha }}</div>
+                <div class="ficha-paciente">
+                    <i class="bi bi-person-fill"></i>
+                    {{ ficha.paciente.persona.Nombre }} {{ ficha.paciente.persona.Apellido_Paterno }} {{ ficha.paciente.persona.Apellido_Materno|default:"" }}
+                </div>
+                <div class="ficha-meta">
+                    <span><i class="bi bi-credit-card"></i> {{ ficha.paciente.persona.Rut }}</span>
+                    <span><i class="bi bi-calendar"></i> {{ ficha.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                </div>
+                <div class="ficha-badges">
+                    {% if ficha.proceso_parto_iniciado %}
+                        <span class="badge badge-success">🏥 En Proceso de Parto</span>
+                    {% endif %}
+                    {% if ficha.estado_dilatacion == 'ESTANCADA' %}
+                        <span class="badge badge-danger">⚠️ Dilatación Estancada</span>
+                    {% elif ficha.estado_dilatacion == 'LISTA' %}
+                        <span class="badge badge-info">✅ Lista para Parto</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="ficha-actions">
+                {% if accion == 'editar' %}
+                <a href="{% url 'medico:editar_ficha' ficha.pk %}" class="btn-ver">
+                    <i class="bi bi-pencil-square"></i> Editar Ficha
+                </a>
+                {% else %}
+                <a href="{% url 'medico:detalle_ficha' ficha.pk %}" class="btn-ver">
+                    <i class="bi bi-eye"></i> Ver Detalle
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <h3>No hay fichas {% if estado_filtro %}con este filtro{% endif %}</h3>
+        <p>{% if estado_filtro %}Prueba con otro filtro o{% else %}Comienza{% endif %} creando una nueva ficha obstétrica</p>
+        <a href="{% url 'medico:seleccionar_persona_ficha' %}" class="btn-ver" style="margin-top: 1rem;">
+            <i class="bi bi-plus-circle"></i> Crear Nueva Ficha
+        </a>
     </div>
     {% endif %}
 </div>

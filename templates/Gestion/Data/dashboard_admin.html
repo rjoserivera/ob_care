@@ -441,6 +441,7 @@
                         <li><a href="/gestion/personas/" class="admin-link"><i class="bi bi-people-fill"></i> Ver Todas las Personas</a></li>
                         <li><a href="/gestion/buscar-persona/" class="admin-link"><i class="bi bi-search"></i> Buscar Persona por RUT</a></li>
                         <li><a href="#" class="admin-link"><i class="bi bi-gear-fill"></i> Configuración del Sistema</a></li>
+                        <li><a href="{% url 'gestion:configurar_telegram' %}" class="admin-link text-primary"><i class="bi bi-telegram"></i> Configurar Telegram</a></li>
                     </ul>
                 </div>
             </div>
@@ -453,6 +454,28 @@
                     <span class="count">{{ total_medicos|default:"0" }} activos</span>
                 </div>
                 <div class="role-body">
+                    <!-- Advertencia Permanente sobre Modificación de Datos -->
+                    <div class="alert alert-warning border-start border-4 mb-3 shadow-sm" role="alert" style="background-color: #fff3cd; border-left-color: #11998e !important; font-size: 0.85rem;">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-exclamation-triangle-fill text-warning me-2" style="font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <div style="flex: 1;">
+                                <h6 class="alert-heading mb-1" style="color: #11998e; font-size: 0.9rem; font-weight: 700;">
+                                    <i class="bi bi-shield-exclamation"></i> Advertencia Legal - Modificación de Datos
+                                </h6>
+                                <p class="mb-1" style="font-size: 0.8rem; line-height: 1.4;">
+                                    <strong>Ley N° 19.628 - Protección de la Vida Privada:</strong> 
+                                    Toda modificación de datos de pacientes debe estar debidamente justificada y documentada. 
+                                    La alteración sin autorización puede constituir una violación a la privacidad del paciente.
+                                </p>
+                                <hr style="border-color: #11998e; opacity: 0.25; margin: 0.5rem 0;">
+                                <p class="mb-0" style="font-size: 0.75rem;">
+                                    <i class="bi bi-info-circle-fill text-info"></i> 
+                                    <strong>Recuerde:</strong> Toda modificación queda registrada con fecha, hora y usuario responsable.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <ul class="function-list">
                         <li><a href="/medico/" class="medico-link"><i class="bi bi-house-door-fill"></i> Menú Principal Médico</a></li>
                         <li><a href="/medico/fichas/" class="medico-link"><i class="bi bi-folder-fill"></i> Ver Fichas Obstétricas</a></li>
@@ -471,6 +494,28 @@
                     <span class="count">{{ total_matronas|default:"0" }} activos</span>
                 </div>
                 <div class="role-body">
+                    <!-- Advertencia Permanente sobre Modificación de Datos -->
+                    <div class="alert alert-warning border-start border-4 mb-3 shadow-sm" role="alert" style="background-color: #fff3cd; border-left-color: #f5576c !important; font-size: 0.85rem;">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-exclamation-triangle-fill text-warning me-2" style="font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <div style="flex: 1;">
+                                <h6 class="alert-heading mb-1" style="color: #f5576c; font-size: 0.9rem; font-weight: 700;">
+                                    <i class="bi bi-shield-exclamation"></i> Advertencia Legal - Modificación de Datos
+                                </h6>
+                                <p class="mb-1" style="font-size: 0.8rem; line-height: 1.4;">
+                                    <strong>Ley N° 19.628 - Protección de la Vida Privada:</strong> 
+                                    Toda modificación de datos de pacientes debe estar debidamente justificada y documentada. 
+                                    La alteración sin autorización puede constituir una violación a la privacidad del paciente.
+                                </p>
+                                <hr style="border-color: #f5576c; opacity: 0.25; margin: 0.5rem 0;">
+                                <p class="mb-0" style="font-size: 0.75rem;">
+                                    <i class="bi bi-info-circle-fill text-info"></i> 
+                                    <strong>Recuerde:</strong> Toda modificación queda registrada con fecha, hora y usuario responsable.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <ul class="function-list">
                         <li><a href="/matrona/" class="matrona-link"><i class="bi bi-house-door-fill"></i> Menú Principal Matrona</a></li>
                         <li><a href="/matrona/seleccionar-persona/" class="matrona-link"><i class="bi bi-file-earmark-plus-fill"></i> Crear Ficha Obstétrica</a></li>
@@ -488,6 +533,28 @@
                     <span class="count">{{ total_tens|default:"0" }} activos</span>
                 </div>
                 <div class="role-body">
+                    <!-- Advertencia Permanente sobre Modificación de Datos -->
+                    <div class="alert alert-warning border-start border-4 mb-3 shadow-sm" role="alert" style="background-color: #fff3cd; border-left-color: #4facfe !important; font-size: 0.85rem;">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-exclamation-triangle-fill text-warning me-2" style="font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <div style="flex: 1;">
+                                <h6 class="alert-heading mb-1" style="color: #4facfe; font-size: 0.9rem; font-weight: 700;">
+                                    <i class="bi bi-shield-exclamation"></i> Advertencia Legal - Modificación de Datos
+                                </h6>
+                                <p class="mb-1" style="font-size: 0.8rem; line-height: 1.4;">
+                                    <strong>Ley N° 19.628 - Protección de la Vida Privada:</strong> 
+                                    Toda modificación de datos de pacientes debe estar debidamente justificada y documentada. 
+                                    La alteración sin autorización puede constituir una violación a la privacidad del paciente.
+                                </p>
+                                <hr style="border-color: #4facfe; opacity: 0.25; margin: 0.5rem 0;">
+                                <p class="mb-0" style="font-size: 0.75rem;">
+                                    <i class="bi bi-info-circle-fill text-info"></i> 
+                                    <strong>Recuerde:</strong> Toda modificación queda registrada con fecha, hora y usuario responsable.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <ul class="function-list">
                         <li><a href="/tens/" class="tens-link"><i class="bi bi-house-door-fill"></i> Menú Principal TENS</a></li>
                         <li><a href="/tens/buscar-paciente/" class="tens-link"><i class="bi bi-search"></i> Buscar Paciente</a></li>

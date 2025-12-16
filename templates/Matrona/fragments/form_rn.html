@@ -1,0 +1,83 @@
+<form id="form-rn-{{ suffix }}">
+    <div class="row g-3">
+        <!-- Identity -->
+        <h5 class="text-secondary border-bottom pb-2">Identificación RN {{ suffix }}</h5>
+        <div class="col-md-4">
+            <label class="form-label">RUT (Provisorio/Definitivo)</label>
+            <input type="text" class="form-control" name="rut_rn_{{ suffix }}" placeholder="12345678-9">
+        </div>
+        <div class="col-md-5">
+            <label class="form-label">Nombre Completo</label>
+            <input type="text" class="form-control" name="nombre_rn_{{ suffix }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Sexo</label>
+            <select class="form-select" name="sexo_rn_{{ suffix }}">
+                <option value="M">Masculino</option>
+                <option value="F">Femenino</option>
+                <option value="I">Indeterminado</option>
+            </select>
+        </div>
+
+        <!-- Nacimiento Info -->
+        <h5 class="text-secondary border-bottom pb-2 mt-4">Detalles Nacimiento</h5>
+        <div class="col-md-3">
+            <label class="form-label">Fecha Nac.</label>
+            <input type="date" class="form-control" name="fecha_nac_rn_{{ suffix }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Hora Nac.</label>
+            <input type="time" class="form-control" name="hora_nac_rn_{{ suffix }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Peso (g)</label>
+            <input type="number" class="form-control" name="peso_rn_{{ suffix }}" placeholder="3500">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Talla (cm)</label>
+            <input type="number" class="form-control" name="talla_rn_{{ suffix }}" placeholder="50">
+        </div>
+        
+        <!-- Apgar -->
+        <h5 class="text-secondary border-bottom pb-2 mt-4">Puntuación APGAR</h5>
+        <div class="col-md-4">
+            <label class="form-label">Apgar 1 min</label>
+            <input type="number" class="form-control" name="apgar1_rn_{{ suffix }}" min="0" max="10">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Apgar 5 min</label>
+            <input type="number" class="form-control" name="apgar5_rn_{{ suffix }}" min="0" max="10">
+        </div>
+
+        <!-- Responsables -->
+        <h5 class="text-secondary border-bottom pb-2 mt-4">Responsables</h5>
+        <div class="col-md-6">
+            <label class="form-label">Matrona Responsable</label>
+             {% comment %}
+               Aquí deberíamos iterar sobre 'matronas_staff' filtrados. 
+               Como es un fragment, asumimos que el contexto padre tiene 'matronas_staff' disponible.
+               Para simplificar, en este snippet ponemos un select genérico o usamos el queryset global si esta disponible.
+            {% endcomment %}
+            <select class="form-select" name="matrona_resp_rn_{{ suffix }}">
+                 <option value="">Seleccione...</option>
+                 {% for m in matronas_staff %}
+                    <option value="{{ m.usuario.id }}">{{ m.usuario.get_full_name }}</option>
+                 {% endfor %}
+            </select>
+        </div>
+        
+    </div>
+    
+    <div class="text-end mt-4">
+        <button type="button" class="btn-save" onclick="guardarRN('{{ suffix }}')">
+             <i class="bi bi-person-check-fill"></i> Guardar Recién Nacido {{ suffix }}
+        </button>
+    </div>
+</form>
+
+<script>
+    function guardarRN(suffix) {
+        alert("Guardando RN " + suffix + "... (Lógica AJAX pendiente)");
+        // Implementar fetch a /sala/guardar-rn/ con suffix
+    }
+</script>

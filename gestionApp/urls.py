@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views_telegram import ConfigurarTelegramView
 
 app_name = 'gestion'
 
@@ -15,4 +16,7 @@ urlpatterns = [
     
     # API
     path('api/buscar-persona/', views.api_buscar_persona, name='api_buscar_persona'),
+    
+    # TELEGRAM
+    path('configuracion/telegram/', ConfigurarTelegramView.as_view(), name='configurar_telegram'),
 ]

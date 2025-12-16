@@ -1,0 +1,200 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Configurar Telegram{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-telegram text-primary"></i> Configuración de Telegram</h2>
+        <a href="{% url 'authentication:dashboard_admin' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver al Dashboard
+        </a>
+    </div>
+
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Sección de Ayuda -->
+    <div class="accordion mb-4" id="accordionHelp">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingHelp">
+                <button class="accordion-button collapsed text-info fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHelp" aria-expanded="false" aria-controls="collapseHelp">
+                    <i class="bi bi-question-circle-fill me-2"></i> ¿Cómo obtener el Chat ID?
+                </button>
+            </h2>
+            <div id="collapseHelp" class="accordion-collapse collapse" aria-labelledby="headingHelp" data-bs-parent="#accordionHelp">
+                <div class="accordion-body bg-light">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h6 class="fw-bold"><i class="bi bi-1-circle-fill text-primary"></i> Paso 1: Iniciar el Bot</h6>
+                            <p class="mb-2">Busca a nuestro bot en Telegram o usa el enlace directo:</p>
+                            
+                            <div class="input-group input-group-sm mb-3" style="max-width: 450px;">
+                                <span class="input-group-text bg-light"><i class="bi bi-link-45deg"></i></span>
+                                <input type="text" class="form-control bg-white font-monospace text-muted" value="https://t.me/Hospital_obtetrico_bot" id="botLink" readonly>
+                                <button class="btn btn-outline-primary" type="button" onclick="copiarLink()" title="Copiar enlace">
+                                    <i class="bi bi-clipboard"></i> Copiar
+                                </button>
+                                <a href="https://t.me/Hospital_obtetrico_bot" target="_blank" class="btn btn-primary" title="Abrir en Telegram">
+                                    <i class="bi bi-box-arrow-up-right"></i> Abrir
+                                </a>
+                            </div>
+                            
+                            <h6 class="fw-bold"><i class="bi bi-2-circle-fill text-primary"></i> Paso 2: Enviar comando</h6>
+                            <p class="mb-2">Envía el mensaje <code>/start</code> al bot.</p>
+                            
+                            <h6 class="fw-bold"><i class="bi bi-3-circle-fill text-primary"></i> Paso 3: Copiar ID</h6>
+                            <p class="mb-3">El bot te responderá con un número (Tu Chat ID). Copia ese número y pégalo en el campo correspondiente abajo.</p>
+                            
+                            <div class="alert alert-info alert-dismissible fade show d-flex align-items-center mb-0" role="alert">
+                                <i class="bi bi-lightbulb-fill flex-shrink-0 me-2 fs-5"></i>
+                                <div>
+                                    <small><strong>Nota Técnica:</strong> Se sugiere considerar el desarrollo de una aplicación móvil nativa propia en el futuro para manejar notificaciones críticas de emergencia sin depender de servicios de terceros (como Telegram).</small>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <i class="bi bi-phone-vibrate text-secondary" style="font-size: 3rem;"></i>
+                            <p class="text-muted small mt-2">Recibirás notificaciones de turnos y urgencias directamente en tu celular.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Usuarios -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h5 class="card-title mb-0">Usuarios del Sistema</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Usuario</th>
+                            <th>Nombre Completo</th>
+                            <th>Rol / Cargo</th>
+                            <th>Telegram Chat ID</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in users %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-2 bg-light text-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <span class="fw-bold">{{ usuario.username }}</span>
+                                </div>
+                            </td>
+                            <td>{{ usuario.get_full_name|default:"-" }}</td>
+                            <td>
+                                {% if usuario.perfil %}
+                                    <span class="badge bg-info text-dark">{{ usuario.perfil.cargo }}</span>
+                                {% else %}
+                                    <span class="text-muted fst-italic">Sin perfil</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'gestion:configurar_telegram' %}" class="d-flex align-items-center gap-2">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="user_id" value="{{ usuario.id }}">
+                                    <input type="text" 
+                                           name="chat_id" 
+                                           class="form-control form-control-sm font-monospace" 
+                                           value="{{ usuario.perfil.telegram_chat_id|default:'' }}" 
+                                           placeholder="Ej: 123456789"
+                                           style="width: 150px;">
+                                    <button type="submit" name="action" value="save" class="btn btn-sm btn-outline-primary" title="Guardar">
+                                        <i class="bi bi-save"></i>
+                                    </button>
+                                    {% if usuario.perfil.telegram_chat_id %}
+                                    <button type="submit" name="action" value="test" class="btn btn-sm btn-outline-info" title="Enviar prueba">
+                                        <i class="bi bi-send"></i>
+                                    </button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                            <td class="text-end pe-4">
+                                {% if usuario.perfil.telegram_chat_id %}
+                                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> Conectado</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-circle"></i> Pendiente</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No hay usuarios registrados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-circle {
+        font-size: 0.9rem;
+    }
+    input::placeholder {
+        font-size: 0.8rem;
+        color: #adb5bd;
+    }
+</style>
+
+<script>
+    function copiarLink() {
+        var copyText = document.getElementById("botLink");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // Para móviles
+        
+        navigator.clipboard.writeText(copyText.value).then(function() {
+            // Feedback visual
+            mostrarFeedback();
+        }, function(err) {
+            // Fallback si falla navigator
+            document.execCommand('copy');
+            mostrarFeedback();
+        });
+    }
+
+    function mostrarFeedback() {
+        var btn = document.querySelector('button[onclick="copiarLink()"]');
+        var originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check2"></i> Copiado';
+        btn.classList.replace('btn-outline-primary', 'btn-success');
+        
+        setTimeout(function() {
+            btn.innerHTML = originalHtml;
+            btn.classList.replace('btn-success', 'btn-outline-primary');
+        }, 2000);
+    }
+
+    // Auto-cerrar Toasts después de 3 segundos
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast');
+        toasts.forEach(function(toastEl) {
+            // Inicializar Bootstrap Toast si no lo está
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
+        });
+    });
+</script>
+{% endblock %}
