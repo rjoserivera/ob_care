@@ -2,6 +2,28 @@ from django.utils import timezone
 from .models import LogSistema
 from .utils import get_client_ip, get_user_role
 
+
+class NoCacheMiddleware:
+    """
+    Middleware para prevenir el cacheo de páginas en el navegador.
+    Esto evita que usuarios accedan a páginas sensibles al usar el botón de retroceder.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        
+        # Solo aplicar a páginas HTML autenticadas (no a archivos estáticos)
+        if request.user.is_authenticated and response.get('Content-Type', '').startswith('text/html'):
+            # Headers para prevenir cacheo
+            response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+            response['Pragma'] = 'no-cache'
+            response['Expires'] = '0'
+        
+        return response
+
+
 class SystemAuditMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response

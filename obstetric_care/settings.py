@@ -71,6 +71,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'gestionApp.middleware.NoCacheMiddleware',  # Prevenir cacheo de páginas sensibles
     'gestionApp.middleware.SystemAuditMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -107,6 +108,9 @@ import pymysql
 pymysql.install_as_MySQLdb()
 
 DATABASES = {
+    # ──────────────────────────────────────────────────────────────
+    # CONFIGURACIÓN CASA (ACTIVA)
+    # ──────────────────────────────────────────────────────────────
     # Base principal del sistema (es la que usa Django para migraciones nuevas)
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -128,6 +132,29 @@ DATABASES = {
         'PORT': '3306',
         'OPTIONS': {'charset': 'utf8mb4'},
     },
+
+    # ──────────────────────────────────────────────────────────────
+    # CONFIGURACIÓN UNIVERSIDAD (COMENTADA)
+    # ──────────────────────────────────────────────────────────────
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'obstetric_carebdd',
+    #     'USER': 'root',
+    #     'PASSWORD': '12345678',
+    #     'HOST': '192.168.18.100',
+    #     'PORT': '3306',
+    #     'OPTIONS': {'charset': 'utf8mb4'},
+    # },
+    #
+    # 'legacy': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'legacy_obstetric',
+    #     'USER': 'root',
+    #     'PASSWORD': '12345678',
+    #     'HOST': '192.168.18.100',
+    #     'PORT': '3306',
+    #     'OPTIONS': {'charset': 'utf8mb4'},
+    # },
 }
 
 # Router para impedir migraciones y escrituras en la base legacy

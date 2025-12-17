@@ -194,6 +194,11 @@
     <!-- jQuery (opcional) -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
+    {% if user.is_authenticated %}
+    <!-- Prevención de caché para páginas sensibles -->
+    <script src="{% static 'js/prevent-cache.js' %}"></script>
+    {% endif %}
+
     {% block extra_js %}{% endblock %}
 
     {% if user.is_authenticated %}

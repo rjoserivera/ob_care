@@ -500,5 +500,38 @@
     
     updateDateTime();
     setInterval(updateDateTime, 60000);
+
+    // ═══════════════════════════════════════════════════════════════
+    // PREVENIR ACCESO A PÁGINA CACHEADA AL RETROCEDER
+    // ═══════════════════════════════════════════════════════════════
+    
+    // Detectar si la página se cargó desde el caché del navegador (botón retroceder)
+    window.addEventListener('pageshow', function(event) {
+        // Si la página viene del caché (persisted = true), recargar
+        if (event.persisted) {
+            console.log('Página cargada desde caché - Recargando para validar permisos...');
+            window.location.reload();
+        }
+    });
+
+    // Marcar la página como "no cacheable" usando performance API
+    if (performance.navigation.type === 2) {
+        // type 2 = página cargada desde caché (botón retroceder)
+        console.log('Navegación desde caché detectada - Recargando...');
+        window.location.reload();
+    }
+
+    // Prevenir que la página se guarde en el caché del navegador
+    window.addEventListener('beforeunload', function() {
+        // Esto ayuda a que el navegador no cachee la página
+        document.body.style.display = 'none';
+    });
+
+    // Detectar cuando el usuario vuelve a esta página usando el historial
+    window.addEventListener('popstate', function(event) {
+        // Forzar recarga cuando se usa el botón retroceder
+        console.log('Navegación con botón retroceder detectada - Recargando...');
+        window.location.reload();
+    });
 </script>
 {% endblock %}
