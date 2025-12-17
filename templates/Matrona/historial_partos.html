@@ -1,0 +1,224 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Historial de Partos{% endblock %}
+
+{% block extra_css %}
+<style>
+    .history-container { max-width: 1400px; margin: 2rem auto; padding: 0 1rem; }
+    .history-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .delivery-card {
+        transition: all 0.3s ease;
+        border-left: 4px solid #667eea;
+        cursor: pointer;
+    }
+    .delivery-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+    }
+    .patient-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    .delivery-badge {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.8rem;
+    }
+    .stat-box {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 0.75rem;
+        text-align: center;
+    }
+    .stat-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: #6c757d;
+        font-weight: 600;
+    }
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="history-container">
+    
+    <!-- HEADER -->
+    <div class="history-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1"><i class="bi bi-clock-history me-2"></i>Historial de Partos</h2>
+                <p class="mb-0 opacity-75">Registro completo de atenciones de parto realizadas</p>
+            </div>
+            <div class="text-end">
+                <div class="stat-box bg-white bg-opacity-25 text-white">
+                    <div class="stat-label">Total Registros</div>
+                    <div class="stat-value">{{ registros.count }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BARRA DE BÚSQUEDA -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-10">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control border-start-0" 
+                               name="q" 
+                               value="{{ busqueda }}"
+                               placeholder="Buscar por nombre, apellido o RUT de la paciente...">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- LISTA DE PARTOS -->
+    {% if registros %}
+    <div class="row g-4">
+        {% for registro in registros %}
+        <div class="col-12">
+            <div class="card delivery-card shadow-sm border-0" 
+                 onclick="window.open('{% url 'matrona:resumen_final_parto' registro.ficha_ingreso_parto.id %}', '_blank')">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        
+                        <!-- COLUMNA 1: PACIENTE -->
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-circle bg-primary bg-opacity-10 text-primary" 
+                                     style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 1.5rem; font-weight: bold;">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                                <div>
+                                    <div class="patient-name">
+                                        {{ registro.ficha_ingreso_parto.ficha_obstetrica.paciente.persona.nombre_completo }}
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="bi bi-credit-card me-1"></i>
+                                        {{ registro.ficha_ingreso_parto.ficha_obstetrica.paciente.persona.rut_formateado }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- COLUMNA 2: INFORMACIÓN DEL PARTO -->
+                        <div class="col-md-4">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="small text-muted mb-1">
+                                        <i class="bi bi-calendar3 me-1"></i>Fecha
+                                    </div>
+                                    <div class="fw-bold">{{ registro.fecha_creacion|date:"d/m/Y" }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="small text-muted mb-1">
+                                        <i class="bi bi-clock me-1"></i>Hora
+                                    </div>
+                                    <div class="fw-bold">{{ registro.fecha_creacion|time:"H:i" }}</div>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <span class="delivery-badge badge {% if registro.tipo_parto.codigo == 'VAGINAL' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                                        <i class="bi bi-heart-pulse me-1"></i>{{ registro.tipo_parto }}
+                                    </span>
+                                    {% if registro.clasificacion_robson %}
+                                    <span class="delivery-badge badge bg-info text-dark ms-1">
+                                        Robson {{ registro.clasificacion_robson.numero_grupo }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- COLUMNA 3: RECIÉN NACIDOS -->
+                        <div class="col-md-3">
+                            <div class="stat-box">
+                                <div class="stat-label">
+                                    <i class="bi bi-balloon-heart me-1"></i>Recién Nacidos
+                                </div>
+                                <div class="stat-value text-success">
+                                    {{ registro.recien_nacidos.count }}
+                                </div>
+                                {% if registro.recien_nacidos.count > 0 %}
+                                <div class="small text-muted mt-1">
+                                    {% for rn in registro.recien_nacidos.all %}
+                                    <span class="badge {% if rn.sexo.codigo == 'M' %}bg-primary{% elif rn.sexo.codigo == 'F' %}bg-danger{% else %}bg-secondary{% endif %} badge-sm">
+                                        {{ rn.sexo.codigo|default:"?" }}
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- COLUMNA 4: ACCIÓN -->
+                        <div class="col-md-1 text-end">
+                            <i class="bi bi-chevron-right fs-3 text-muted"></i>
+                        </div>
+
+                    </div>
+
+                    <!-- INFORMACIÓN ADICIONAL (OPCIONAL) -->
+                    {% if registro.tiene_complicaciones %}
+                    <div class="alert alert-danger border-0 mt-3 mb-0 py-2 px-3 small">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                        <strong>Complicaciones registradas</strong>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- PAGINACIÓN (OPCIONAL) -->
+    {% if registros.count > 20 %}
+    <div class="text-center mt-4">
+        <p class="text-muted">Mostrando {{ registros.count }} registros</p>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- SIN RESULTADOS -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-inbox fs-1 text-muted mb-3 d-block"></i>
+            <h5 class="text-muted">No se encontraron registros</h5>
+            {% if busqueda %}
+            <p class="text-muted">No hay resultados para "{{ busqueda }}"</p>
+            <a href="{% url 'matrona:historial_partos' %}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Limpiar búsqueda
+            </a>
+            {% else %}
+            <p class="text-muted">Aún no hay partos registrados en el sistema</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

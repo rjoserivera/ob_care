@@ -15,6 +15,7 @@ ROLE_REDIRECT_MAP = {
     "matronas": "authentication:dashboard_matrona",
 
     "tecnico en enfermeria": "authentication:dashboard_tens",
+    "tens": "authentication:dashboard_tens",
 }
 
 ROLE_ALIASES = {

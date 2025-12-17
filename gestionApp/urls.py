@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views, views_logs
-from .views_telegram import ConfigurarTelegramView
+from .views_telegram import ConfigurarTelegramView, IniciarBotView
 
 app_name = 'gestion'
 
@@ -19,6 +19,7 @@ urlpatterns = [
     
     # TELEGRAM
     path('configuracion/telegram/', ConfigurarTelegramView.as_view(), name='configurar_telegram'),
+    path('configuracion/telegram/iniciar/', IniciarBotView.as_view(), name='iniciar_bot_telegram'),
     
     # LOGS
     path('logs/', views_logs.LogListView.as_view(), name='listar_logs'),

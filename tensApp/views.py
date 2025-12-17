@@ -57,6 +57,40 @@ def buscar_paciente_tens(request):
     return render(request, 'Tens/buscar_paciente.html', context)
 
 
+
+@login_required
+def buscar_paciente_medicamentos(request):
+    """Buscar fichas que tengan medicamentos recetados activos"""
+    
+    # Filtrar fichas activas que tengan al menos un medicamento activo
+    fichas = FichaObstetrica.objects.filter(
+        activa=True,
+        medicamentos__activo=True
+    ).distinct().select_related(
+        'paciente__persona'
+    ).prefetch_related(
+        'medicamentos'
+    ).order_by('-fecha_creacion')
+    
+    # Filtro por búsqueda
+    busqueda = request.GET.get('q', '')
+    if busqueda:
+        fichas = fichas.filter(
+            Q(paciente__persona__Nombre__icontains=busqueda) |
+            Q(paciente__persona__Apellido_Paterno__icontains=busqueda) |
+            Q(paciente__persona__Rut__icontains=busqueda) |
+            Q(numero_ficha__icontains=busqueda)
+        )
+    
+    context = {
+        'titulo': 'Pacientes con Medicamentos',
+        'fichas': fichas,
+        'busqueda': busqueda,
+    }
+    
+    return render(request, 'Tens/lista_fichas_tens.html', context)
+
+
 # ============================================
 # MENÚ PRINCIPAL TENS
 # ============================================
@@ -181,21 +215,38 @@ def administrar_medicamento(request, medicamento_pk):
     if request.method == 'POST':
         dosis = request.POST.get('dosis_administrada', medicamento.dosis)
         observaciones = request.POST.get('observaciones', '')
+        se_realizo_lavado = request.POST.get('se_realizo_lavado') == 'on'
+        
+        # Procesar fecha y hora
+        fecha_str = request.POST.get('fecha')
+        hora_str = request.POST.get('hora')
+        
+        if fecha_str and hora_str:
+            from django.utils.dateparse import parse_datetime
+            fecha_hora_str = f"{fecha_str} {hora_str}"
+            # Convertir a aware datetime
+            import datetime
+            dt_naive = datetime.datetime.strptime(fecha_hora_str, "%Y-%m-%d %H:%M")
+            fecha_hora = timezone.make_aware(dt_naive)
+        else:
+            fecha_hora = timezone.now()
         
         # Crear registro de administración
         AdministracionMedicamento.objects.create(
             medicamento_ficha=medicamento,
-            tens=request.user,  # Ahora es User directamente
+            tens=request.user,
             dosis_administrada=dosis,
             observaciones=observaciones,
-            fecha_hora_administracion=timezone.now()
+            fecha_hora_administracion=fecha_hora,
+            se_realizo_lavado=se_realizo_lavado
         )
         
         messages.success(
             request, 
             f'✅ Medicamento {medicamento.medicamento} administrado correctamente'
         )
-        return redirect('tens:detalle_ficha', ficha_pk=ficha.pk)
+        # Redirigir a la gestión de medicamentos de la ficha
+        return redirect('tens:gestion_medicamentos', ficha_pk=ficha.pk)
     
     context = {
         'titulo': 'Administrar Medicamento',
@@ -204,6 +255,33 @@ def administrar_medicamento(request, medicamento_pk):
     }
     
     return render(request, 'Tens/administrar_medicamento.html', context)
+
+
+
+@login_required
+def gestion_medicamentos(request, ficha_pk):
+    """Gestión de medicamentos: Lista de activos e historial de administraciones"""
+    
+    ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk)
+    paciente = ficha.paciente
+    
+    # Medicamentos ACTIVOS
+    medicamentos = ficha.medicamentos.filter(activo=True).select_related('via_administracion')
+    
+    # Historial de administraciones (de TODOS los medicamentos de esta ficha)
+    administraciones = AdministracionMedicamento.objects.filter(
+        medicamento_ficha__ficha=ficha
+    ).select_related('medicamento_ficha', 'tens').order_by('-fecha_hora_administracion')
+    
+    context = {
+        'titulo': f'Gestión Medicamentos - {ficha.numero_ficha}',
+        'ficha': ficha,
+        'paciente': paciente,
+        'medicamentos': medicamentos,
+        'administraciones': administraciones,
+    }
+    
+    return render(request, 'Tens/gestion_medicamentos.html', context)
 
 
 # ============================================
@@ -407,7 +485,7 @@ def lista_fichas_tratamiento(request):
         'fichas': fichas,
         'busqueda': busqueda,
         'accion': 'tratamiento',
-        'accion_url': 'tens:registrar_tratamiento',
+        'accion_url': 'tens:gestion_medicamentos',
         'accion_texto': 'Registrar Tratamiento',
         'accion_icono': 'bi-bandaid',
     }

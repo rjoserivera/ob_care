@@ -534,6 +534,11 @@ class RegistroParto(models.Model):
         default=False,
         verbose_name='¿Tuvo Acompañamiento con RN?'
     )
+
+    ley_mila_respetada = models.BooleanField(
+        default=False,
+        verbose_name='Acompañamiento (Ley Mila) Respetado'
+    )
     
     motivo_parto_no_acompanado = models.ForeignKey(
         CatalogoMotivoPartoNoAcompanado,  # ✅ NOMBRE CORREGIDO

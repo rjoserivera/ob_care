@@ -1,0 +1,70 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Administrar Medicamento - {{ medicamento.medicamento }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="bi bi-capsule"></i> Administrar Medicamento</h4>
+            <a href="{% url 'tens:gestion_medicamentos' ficha.pk %}" class="btn btn-light btn-sm"><i class="bi bi-arrow-left"></i> Volver</a>
+        </div>
+        
+        <div class="card-body bg-light">
+            <!-- Detalles del Medicamento -->
+            <div class="alert alert-info border-0 shadow-sm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><strong>Medicamento:</strong> {{ medicamento.nombre_display }}</h5>
+                        <p class="mb-1"><strong>Dosis Recetada:</strong> {{ medicamento.dosis }}</p>
+                        <p class="mb-1"><strong>Vía:</strong> {{ medicamento.via_administracion }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>Frecuencia:</strong> {{ medicamento.frecuencia }}</p>
+                        <p class="mb-0"><strong>Indicaciones:</strong> {{ medicamento.indicaciones }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <form method="post" class="mt-4 bg-white p-4 rounded shadow-sm">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Fecha de Administración</label>
+                        <input type="date" name="fecha" class="form-control" required value="{% now 'Y-m-d' %}">
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Hora de Administración</label>
+                        <input type="time" name="hora" class="form-control" required value="{% now 'H:i' %}">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Dosis Administrada</label>
+                        <input type="text" name="dosis_administrada" class="form-control" value="{{ medicamento.dosis }}" required>
+                        <div class="form-text">Confirme la dosis efectivamente administrada.</div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Observaciones</label>
+                    <textarea name="observaciones" class="form-control" rows="3" placeholder="Comentarios adicionales..."></textarea>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="checkLavado" name="se_realizo_lavado">
+                    <label class="form-check-label" for="checkLavado">Se realizó lavado de manos previo</label>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-check-circle-fill"></i> Registrar Administración
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

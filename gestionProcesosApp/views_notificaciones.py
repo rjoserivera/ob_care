@@ -82,3 +82,47 @@ def pagina_notificaciones(request):
         'notificaciones': notificaciones,
         'total': len(notificaciones)
     })
+
+
+import json
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
+
+@require_POST
+def responder_asignacion(request, asignacion_id):
+    """
+    API para aceptar o rechazar una asignación
+    URL: /procesos/api/responder-asignacion/<id>/
+    Body: { "accion": "ACEPTAR" | "RECHAZAR" }
+    """
+    try:
+        data = json.loads(request.body)
+        accion = data.get('accion')
+        
+        asignacion = AsignacionPersonal.objects.filter(
+            id=asignacion_id,
+            personal__usuario=request.user
+        ).first()
+        
+        if not asignacion:
+            return JsonResponse({'success': False, 'error': 'Asignación no encontrada o no pertenece al usuario'})
+            
+        if accion == 'ACEPTAR':
+            asignacion.estado_respuesta = 'ACEPTADA'
+            asignacion.confirmo_asistencia = True
+            asignacion.timestamp_confirmacion = timezone.now()
+            asignacion.save()
+            return JsonResponse({'success': True, 'message': 'Asignación aceptada'})
+            
+        elif accion == 'RECHAZAR':
+            asignacion.estado_respuesta = 'RECHAZADA'
+            asignacion.confirmo_asistencia = False
+            asignacion.save()
+            return JsonResponse({'success': True, 'message': 'Asignación rechazada'})
+            
+        else:
+            return JsonResponse({'success': False, 'error': 'Acción no válida'})
+            
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

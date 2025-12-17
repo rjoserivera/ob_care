@@ -1,0 +1,29 @@
+
+        <h3><i class="bi bi-people-fill"></i> Equipo Confirmado</h3>
+        
+        <!-- Lista de Aceptados -->
+        {% for asignacion in asignados_aceptados %}
+        <div class="team-member">
+            <div class="badge rounded-pill me-3" style="min-width: 100px; padding: 0.6rem; font-size: 0.85rem; background: 
+                {% if asignacion.personal.rol == 'MEDICO' %}#f093fb
+                {% elif asignacion.personal.rol == 'MATRONA' %}#ff5858
+                {% else %}#43e97b{% endif %};">
+                {{ asignacion.personal.get_rol_display|upper }}
+            </div>
+            <div>
+                <strong>{{ asignacion.personal.usuario.get_full_name }}</strong>
+                <div class="text-muted small">{{ asignacion.personal.get_rol_display }}</div>
+            </div>
+            <div style="margin-left: auto; color: #28a745;">
+                <i class="bi bi-check-circle-fill"></i> Confirmado
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Slots Pendientes -->
+        {% for slot in slots_pendientes %}
+        <div class="pending-slot">
+            <div class="spinner-border spinner-border-sm text-secondary me-2" role="status"></div>
+            <strong>{{ slot.rol }}</strong> (Faltan {{ slot.cantidad }}) - Esperando respuesta...
+        </div>
+        {% endfor %}

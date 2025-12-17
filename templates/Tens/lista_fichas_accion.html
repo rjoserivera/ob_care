@@ -223,8 +223,9 @@
         <a href="{% url 'tens:historial_signos' ficha.pk %}" class="btn-action btn-historial"><i
                 class="bi bi-clock-history"></i> Ver Historial</a>
         {% else %}
+        {% else %}
         <div class="ficha-actions">
-            <a href="{% url 'tens:registrar_tratamiento' ficha.pk %}" class="btn-action btn-tratamiento"><i
+            <a href="{% url 'tens:gestion_medicamentos' ficha.pk %}" class="btn-action btn-tratamiento"><i
                     class="bi bi-capsule-pill"></i> Aplicar Tratamiento</a>
             <a href="{% url 'tens:historial_tratamientos' ficha.pk %}" class="btn-action btn-historial"><i
                     class="bi bi-clock-history"></i> Ver Historial</a>

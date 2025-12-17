@@ -23,9 +23,9 @@
     
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-bottom: 2rem;
+        grid-template-columns: repeat(3, 1fr); /* 3 Columns fixed as requested */
+        gap: 1.5rem;
+        margin-top: 1rem;
     }
     
     .stat-card {
@@ -176,30 +176,128 @@
         opacity: 0.95;
     }
     
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem; /* Wider gap */
+        margin-top: 1.5rem;
+    }
+
     .sala-card {
-        border: 2px solid #ddd;
-        border-radius: 8px;
-        padding: 1rem;
-        width: 100%;
-        text-align: center;
+        background: #ffffff;
+        border: 2px solid #eef2f6; /* Subtle border */
+        border-radius: 20px; /* More rounded */
+        padding: 0; /* Reset padding for internal layout */
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         cursor: pointer;
-        transition: all 0.2s;
-        background: white;
+        position: relative;
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); /* Soft shadow */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow: hidden;
+        height: 100%;
+        min-height: 220px;
     }
+
     .sala-card:hover:not(:disabled) {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px -10px rgba(13, 110, 253, 0.15); /* Blue glow on hover */
         border-color: #0d6efd;
-        transform: translateY(-2px);
     }
+
     .sala-card.selected {
         border-color: #0d6efd;
-        background: #e7f1ff;
+        background: #ffffff;
         box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2);
     }
+    
     .sala-card.ocupada {
-        background: #f8d7da;
-        border-color: #dc3545;
+        background: #f8f9fa;
+        opacity: 0.6;
         cursor: not-allowed;
-        opacity: 0.7;
+        border-style: dashed;
+    }
+    
+    .sala-icon {
+        background: linear-gradient(135deg, #eef5ff 0%, #f0f7ff 100%);
+        width: 100%;
+        padding: 2rem 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 3.5rem;
+        color: #0d6efd;
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+    }
+    
+    .sala-card.selected .sala-icon {
+        background: #0d6efd;
+        color: white;
+    }
+    
+    .sala-card.ocupada .sala-icon {
+        background: #e9ecef;
+        color: #adb5bd;
+    }
+
+    .sala-content {
+        padding: 1.5rem;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .sala-name {
+        font-weight: 800;
+        font-size: 1.25rem;
+        color: #2c3e50;
+        letter-spacing: -0.5px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .status-badge.available {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+    
+    .status-badge.busy {
+        background: #f8d7da;
+        color: #842029;
+    }
+    
+    .select-indicator {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 30px;
+        height: 30px;
+        background: #0d6efd;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: scale(0.5);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .sala-card.selected .select-indicator {
+        opacity: 1;
+        transform: scale(1);
     }
     
     .btn-start {
@@ -232,7 +330,7 @@
                 <h2 class="mb-2"><i class="bi bi-hospital"></i> Centro de Control - Sala de Preparación</h2>
                 <h4 class="mb-0 fw-bold">{{ ficha.paciente.persona.nombre_completo }}</h4>
                 <div class="mt-2 opacity-75">
-                    <span class="me-3"><i class="bi bi-card-text"></i> RUT: {{ ficha.paciente.persona.rut }}-{{ ficha.paciente.persona.dv }}</span>
+                    <span class="me-3"><i class="bi bi-card-text"></i> RUT: {{ ficha.paciente.persona.rut_formateado }}</span>
                     <span class="me-3"><i class="bi bi-person"></i> Edad: {{ ficha.paciente.edad }} años</span>
                     <span class="me-3"><i class="bi bi-folder"></i> Ficha: {{ ficha.numero_ficha }}</span>
                 </div>
@@ -295,37 +393,23 @@
 
 
 
-    <!-- Equipo Confirmado -->
-    <div class="team-list mt-4 mb-4">
-        <h3><i class="bi bi-people-fill"></i> Equipo Confirmado</h3>
-        
-        <!-- Lista de Aceptados -->
-        {% for asignacion in asignados_aceptados %}
-        <div class="team-member">
-            <div class="badge rounded-pill me-3" style="min-width: 100px; padding: 0.6rem; font-size: 0.85rem; background: 
-                {% if asignacion.personal.rol == 'MEDICO' %}#f093fb
-                {% elif asignacion.personal.rol == 'MATRONA' %}#ff5858
-                {% else %}#43e97b{% endif %};">
-                {{ asignacion.personal.get_rol_display|upper }}
-            </div>
-            <div>
-                <strong>{{ asignacion.personal.usuario.get_full_name }}</strong>
-                <div class="text-muted small">{{ asignacion.personal.get_rol_display }}</div>
-            </div>
-            <div style="margin-left: auto; color: #28a745;">
-                <i class="bi bi-check-circle-fill"></i> Confirmado
-            </div>
-        </div>
-        {% endfor %}
-        
-        <!-- Slots Pendientes -->
-        {% for slot in slots_pendientes %}
-        <div class="pending-slot">
-            <div class="spinner-border spinner-border-sm text-secondary me-2" role="status"></div>
-            <strong>{{ slot.rol }}</strong> (Faltan {{ slot.cantidad }}) - Esperando respuesta...
-        </div>
-        {% endfor %}
+    <div class="team-list mt-4 mb-4" id="team-list-container">
+        {% include 'Matrona/partials/equipo_confirmado_list.html' %}
     </div>
+
+    <!-- Script Polling Equipo -->
+    <script>
+        setInterval(function() {
+            fetch("{% url 'matrona:equipo_confirmado_partial' ficha.pk %}")
+                .then(response => response.text())
+                .then(html => {
+                    if(html.length > 10) { // Simple check to ensure we got content
+                        document.getElementById('team-list-container').innerHTML = html;
+                    }
+                })
+                .catch(err => console.error("Error polling equipo:", err));
+        }, 3000); // Actualizar cada 3 segundos
+    </script>
 
     <!-- Selección de Sala -->
     <div class="invite-section mt-4">
@@ -334,17 +418,38 @@
         
         <div class="stats-grid"> 
             {% for info in salas %}
+                {% if "Urgencia" not in info.sala.nombre and "urgencia" not in info.sala.nombre %}
                 <button type="button" 
                         class="sala-card {% if info.ocupada %}ocupada{% endif %}" 
                         onclick="seleccionarSala('{{ info.sala.id }}', '{{ info.sala.nombre }}')"
                         {% if info.ocupada %}disabled{% endif %}>
-                    <h4><i class="bi bi-hospital"></i> {{ info.sala.nombre }}</h4>
-                     {% if info.ocupada %}
-                        <span class="badge bg-danger">Ocupada ({{ info.tiempo_str }})</span>
-                    {% else %}
-                        <span class="badge bg-success">Disponible</span>
-                    {% endif %}
+                    
+                    <div class="sala-icon">
+                        <i class="bi bi-hospital"></i>
+                    </div>
+                    
+                    <div class="sala-content">
+                        <div class="sala-name">{{ info.sala.nombre }}</div>
+                        
+                        {% if info.ocupada %}
+                            <div class="status-badge busy">
+                                <i class="bi bi-x-circle-fill"></i> Ocupada
+                                <span style="margin-left:5px; background:rgba(255,255,255,0.4); padding:2px 6px; border-radius:10px; font-size:0.75rem;">
+                                    {{ info.tiempo_str }}
+                                </span>
+                            </div>
+                        {% else %}
+                             <div class="status-badge available">
+                                <i class="bi bi-check-circle-fill"></i> Disponible
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="select-indicator">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
                 </button>
+                {% endif %}
             {% endfor %}
         </div>
         <input type="hidden" id="sala_seleccionada_id">
@@ -619,7 +724,7 @@ function autoFillEquipo() {
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    mostrarResultado(true, 'Equipo Auto-Rellenado', `Se asignaron: ${data.asignados}. Notificando a médicos. Recargando...`);
+                    mostrarResultado(true, 'Equipo Auto-Rellenado', `Se usó el método de pruebas para rellenar el equipo. Se asignaron: ${data.asignados}.`);
                     setTimeout(() => location.reload(), 2000);
                 } else {
                     mostrarResultado(false, 'Error Debug', data.error);

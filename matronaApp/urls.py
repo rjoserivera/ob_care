@@ -28,6 +28,12 @@ urlpatterns = [
     # Editar ficha
     path('ficha/<int:ficha_pk>/editar/', views.editar_ficha_obstetrica, name='editar_ficha'),
     
+    # API Polling Equipo
+    path('api/parto/<int:ficha_pk>/equipo-confirmado/', views.equipo_confirmado_partial, name='equipo_confirmado_partial'),
+    
+    # API Debug
+    path('api/debug/rellenar-equipo/<int:ficha_parto_id>/', views.debug_rellenar_equipo, name='debug_rellenar_equipo'),
+    
     # Detalle de ficha
     path('ficha/<int:ficha_pk>/', views.detalle_ficha_obstetrica, name='detalle_ficha'),
     
@@ -53,6 +59,10 @@ urlpatterns = [
     # NUEVO: Split RN
     path('sala/<int:ficha_parto_id>/asociar-rn/', views.crear_asociacion_rn, name='asociar_rn'),
     path('rn/<int:rn_id>/', views.ficha_rn_view, name='ficha_rn'),
+    path('rn/<int:rn_id>/detalle/', views.detalle_rn_view, name='detalle_rn'),
+    
+    # Historial de Partos
+    path('historial-partos/', views.historial_partos_view, name='historial_partos'),
     
     # ==================== APIs AJAX ====================
     # Dilatación

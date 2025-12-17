@@ -8,6 +8,10 @@ from gestionApp.models import PerfilUsuario
 
 from gestionProcesosApp.telegram_utils import enviar_telegram
 
+import subprocess
+import sys
+import os
+
 # Decorador para asegurar que solo administrativos accedan
 def admin_required(user):
     return user.is_superuser or user.groups.filter(name='Administradores').exists()
@@ -61,5 +65,35 @@ class ConfigurarTelegramView(View):
             messages.error(request, "Usuario no encontrado.")
         except Exception as e:
             messages.error(request, f"Error: {e}")
+            
+        return redirect('gestion:configurar_telegram')
+
+
+@method_decorator(login_required, name='dispatch')
+class IniciarBotView(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not admin_required(request.user):
+            messages.error(request, "Acceso denegado.")
+            return redirect('home')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            # Path to manage.py
+            manage_py = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'manage.py')
+            
+            # Command to run
+            # Use sys.executable to ensure we use the same python interpreter (venv)
+            cmd = [sys.executable, manage_py, 'telegram_bot']
+            
+            # Spawn process (Windows specific flags for new console to stay alive)
+            CREATE_NEW_CONSOLE = 0x00000010
+            
+            # Use Popen to run detached
+            subprocess.Popen(cmd, creationflags=CREATE_NEW_CONSOLE, close_fds=True)
+            
+            messages.success(request, "✅ Servicio de Bot iniciado exitosamente en una nueva ventana.")
+        except Exception as e:
+            messages.error(request, f"❌ Error iniciando el bot: {str(e)}")
             
         return redirect('gestion:configurar_telegram')

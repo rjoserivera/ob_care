@@ -227,16 +227,7 @@ class Persona(models.Model):
         default=False,
         verbose_name="¿Es Inmigrante?"
     )
-    Discapacidad = models.BooleanField(
-        default=False,
-        verbose_name="¿Tiene Discapacidad?"
-    )
-    Tipo_de_Discapacidad = models.CharField(
-        max_length=200,
-        blank=True,
-        null=True,
-        verbose_name="Tipo de Discapacidad"
-    )
+
     Privada_de_Libertad = models.BooleanField(
         default=False,
         verbose_name="¿Privada de Libertad?"

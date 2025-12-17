@@ -105,7 +105,7 @@ class PersonaAdmin(admin.ModelAdmin):
         'tiene_usuario',
         'Activo'
     ]
-    list_filter = ['Activo', 'Sexo', 'Nacionalidad', 'Inmigrante', 'Discapacidad']
+    list_filter = ['Activo', 'Sexo', 'Nacionalidad', 'Inmigrante']
     search_fields = ['Rut', 'Nombre', 'Apellido_Paterno', 'Apellido_Materno', 'Telefono']
     ordering = ['Apellido_Paterno', 'Apellido_Materno', 'Nombre']
     
@@ -117,7 +117,7 @@ class PersonaAdmin(admin.ModelAdmin):
             'fields': ('Sexo', 'Nacionalidad', 'Pueblos_originarios', 'Estado_civil')
         }),
         ('⚠️ Condiciones Especiales', {
-            'fields': ('Inmigrante', 'Discapacidad', 'Tipo_de_Discapacidad', 'Privada_de_Libertad', 'Trans_Masculino'),
+            'fields': ('Inmigrante', 'Privada_de_Libertad', 'Trans_Masculino'),
             'classes': ('collapse',)
         }),
         ('📞 Contacto', {

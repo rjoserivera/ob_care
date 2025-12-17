@@ -429,12 +429,7 @@
                     </label>
                 </div>
 
-                <div class="form-check">
-                    {{ form.Discapacidad }}
-                    <label class="form-check-label" for="{{ form.Discapacidad.id_for_label }}">
-                        Tiene Discapacidad
-                    </label>
-                </div>
+
 
                 <div class="form-check">
                     {{ form.Privada_de_Libertad }}
@@ -444,20 +439,7 @@
                 </div>
             </div>
 
-            <!-- Tipo de Discapacidad -->
-            <div class="form-group" id="tipo_discapacidad_container">
-                <label for="{{ form.Tipo_de_Discapacidad.id_for_label }}" class="form-label">
-                    Tipo de Discapacidad
-                </label>
-                {{ form.Tipo_de_Discapacidad }}
-                {% if form.Tipo_de_Discapacidad.errors %}
-                    <ul class="errorlist">
-                        {% for error in form.Tipo_de_Discapacidad.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
+
 
             <!-- Botones -->
             <div class="button-group">
@@ -490,18 +472,7 @@
             });
         }
 
-        // Mostrar/ocultar campo tipo de discapacidad
-        const discapacidadCheck = document.querySelector('[name="Discapacidad"]');
-        const tipoDiscapacidadContainer = document.getElementById('tipo_discapacidad_container');
-        
-        if (discapacidadCheck && tipoDiscapacidadContainer) {
-            function toggleTipoDiscapacidad() {
-                tipoDiscapacidadContainer.style.display = discapacidadCheck.checked ? 'block' : 'none';
-            }
-            
-            toggleTipoDiscapacidad();
-            discapacidadCheck.addEventListener('change', toggleTipoDiscapacidad);
-        }
+
     });
 </script>
 {% endblock %}

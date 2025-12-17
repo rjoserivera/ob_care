@@ -110,6 +110,21 @@ class RegistroRecienNacido(models.Model):
         verbose_name='Sexo'
     )
 
+    es_mortinato = models.BooleanField(
+        default=False,
+        verbose_name='¿Nació Muerto? (Mortinato)',
+        help_text='Si es verdadero, activa Ley Dominga'
+    )
+
+    # ==========================
+    # LEY DOMINGA (Muerte Gestacional)
+    # ==========================
+    ley_dominga_brazalete = models.BooleanField(default=False, verbose_name='LD: Brazalete de nacimiento')
+    ley_dominga_huellas = models.BooleanField(default=False, verbose_name='LD: Huellas')
+    ley_dominga_pelo = models.BooleanField(default=False, verbose_name='LD: Mechón de pelo')
+    ley_dominga_cordon = models.BooleanField(default=False, verbose_name='LD: Cordón umbilical')
+    ley_dominga_no_quiso = models.BooleanField(default=False, verbose_name='LD: No quiso recuerdos')
+
     peso_gramos = models.PositiveIntegerField(
         validators=[MinValueValidator(500), MaxValueValidator(6000)],
         verbose_name='Peso (gramos)'

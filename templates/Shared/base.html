@@ -162,7 +162,7 @@
     {% if messages %}
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 10000; margin-top: 60px;">
         {% for message in messages %}
-        <div class="toast align-items-center text-white bg-{{ message.tags|yesno:'success,danger,warning,info' }} border-0 show fade" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast align-items-center text-white bg-{{ message.tags|yesno:'success,danger,warning,info' }} border-0 fade django-message-toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body">
                     {% if message.tags == 'success' %}<i class="bi bi-check-circle-fill me-2"></i>{% endif %}
@@ -314,7 +314,7 @@
                          document.getElementById('toast-title').innerText = data.latest_title || 'Alerta';
                          document.getElementById('toast-body').innerText = data.latest_msg || 'Nueva Solicitud';
                          const t = document.getElementById('liveToast');
-                         new bootstrap.Toast(t, {autohide:false}).show();
+                         new bootstrap.Toast(t, {autohide:true, delay:5000}).show();
                     }
                 }).catch(e=>{ console.error("Notif Error:", e); });
             }
@@ -342,6 +342,14 @@
             
             // Intervalo regular (cada 10s) en modo normal
             setInterval(() => checkNotifications(false), 10000);
+
+            // Initialize Django Messages Toasts
+            var toastElList = [].slice.call(document.querySelectorAll('.django-message-toast'))
+            var toastList = toastElList.map(function (toastEl) {
+                var toast = new bootstrap.Toast(toastEl, { autohide: true, delay: 5000 });
+                toast.show();
+                return toast;
+            });
         });
     </script>
     {% endif %}

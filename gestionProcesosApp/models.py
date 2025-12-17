@@ -20,7 +20,7 @@ class Sala(models.Model):
     ]
     
     nombre = models.CharField(max_length=50, unique=True)
-    codigo = models.CharField(max_length=10, unique=True)
+    codigo = models.CharField(max_length=50, unique=True)
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='DISPONIBLE')
     capacidad_maxima = models.IntegerField()
     activa = models.BooleanField(default=True)

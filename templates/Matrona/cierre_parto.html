@@ -71,6 +71,7 @@
             {% csrf_token %}
             
             <!-- Ley Dominga Check -->
+            {% if has_mortinato %}
             <div class="ley-dominga-box">
                 <h4 class="mb-3"><i class="bi bi-heart-pulse"></i> Ley Dominga</h4>
                 <div class="form-check mb-3">
@@ -83,6 +84,7 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
 
             <!-- Observaciones Finales -->
             <div class="mb-4">

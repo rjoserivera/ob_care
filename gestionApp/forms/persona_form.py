@@ -29,8 +29,6 @@ class PersonaForm(forms.ModelForm):
             'Email',  # ✅ AGREGADO
             'Direccion',
             'Inmigrante',
-            'Discapacidad',
-            'Tipo_de_Discapacidad',
             'Privada_de_Libertad',
         ]
         
@@ -97,18 +95,8 @@ class PersonaForm(forms.ModelForm):
                 'placeholder': 'Dirección completa',
             }),
             
-            # Tipo de Discapacidad
-            'Tipo_de_Discapacidad': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Especifique el tipo de discapacidad',
-            }),
-            
             # Checkboxes
             'Inmigrante': forms.CheckboxInput(attrs={
-                'class': 'form-check-input',
-            }),
-            
-            'Discapacidad': forms.CheckboxInput(attrs={
                 'class': 'form-check-input',
             }),
             

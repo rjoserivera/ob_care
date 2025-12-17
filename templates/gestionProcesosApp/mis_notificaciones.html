@@ -136,7 +136,7 @@ function responderInvitacion(asignacionId, accion) {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken')
         },
-        body: JSON.stringify({ accion: accion })
+        body: JSON.stringify({ accion: accion.toUpperCase() })
     })
     .then(r => r.json())
     .then(data => {

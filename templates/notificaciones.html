@@ -153,13 +153,13 @@ function responderInvitacion(asignacionId, accion) {
         return;
     }
     
-    fetch(`/matrona/api/responder-asignacion/${asignacionId}/`, {
+    fetch(`/procesos/api/responder-asignacion/${asignacionId}/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken')
         },
-        body: JSON.stringify({ accion: accion })
+        body: JSON.stringify({ accion: accion.toUpperCase() })
     })
     .then(r => r.json())
     .then(data => {

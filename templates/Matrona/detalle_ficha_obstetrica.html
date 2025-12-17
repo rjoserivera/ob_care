@@ -1092,30 +1092,10 @@
                         <div class="info-value">{{ ficha.fecha_ultima_regla|date:"d/m/Y"|default:"No registrada" }}
                         </div>
                     </div>
-                    <div class="info-item">
-                        <div class="info-label"><i class="bi bi-activity"></i> Estado TTC</div>
-                        <div class="info-value">
-                            {% if ficha.ttc_estado == 'NO_INDICADO' %}
-                            <span class="badge-custom badge-secondary">No indicado</span>
-                            {% elif ficha.ttc_estado == 'SOLICITADO' %}
-                            <span class="badge-custom badge-info">Solicitado</span>
-                            {% elif ficha.ttc_estado == 'EN_ESPERA' %}
-                            <span class="badge-custom badge-warning">En espera</span>
-                            {% elif ficha.ttc_estado == 'REALIZADO' %}
-                            <span class="badge-custom badge-success">Realizado</span>
-                            {% elif ficha.ttc_estado == 'SUSPENDIDO' %}
-                            <span class="badge-custom badge-danger">Suspendido</span>
-                            {% elif ficha.ttc_estado == 'CONTRAINDICADO' %}
-                            <span class="badge-custom badge-danger">Contraindicado</span>
-                            {% else %}
-                            {{ ficha.ttc_estado }}
-                            {% endif %}
-                        </div>
-                    </div>
+
                     <div class="info-item">
                         <div class="info-label">Edad Gestacional</div>
-                        <div class="info-value">{{ ficha.edad_gestacional_semanas|default:"--" }}+{{
-                            ficha.edad_gestacional_dias|default:"0" }} semanas</div>
+                        <div class="info-value">{{ ficha.edad_gestacional_semanas|default:"--" }} + {{ ficha.edad_gestacional_dias|default:"0" }} semanas</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">FPP</div>
@@ -2335,6 +2315,60 @@
                 </button>
             </div>
         </form>
+    </div>
+</div>
+
+
+<!-- Modal Administracion (Historial y Registro) -->
+<div id="modalAdministracion" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="background: white; max-width: 600px; border-radius: 15px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 1.5rem 2rem;">
+            <h3 class="modal-title" style="font-weight: 700; margin: 0;">
+                <i class="bi bi-clock-history"></i> Administraciones
+            </h3>
+            <button class="close-btn" type="button" onclick="cerrarModalAdministracion()" style="background: transparent; border: none; color: white; font-size: 2rem; line-height: 1;">&times;</button>
+        </div>
+
+        <div class="modal-body" style="padding: 2rem;">
+            <div id="adminMedInfo" class="alert alert-info mb-4"></div>
+            <input type="hidden" id="admin_medicamento_id">
+
+            <!-- Formulario de Nueva Administración -->
+            <div class="card mb-4 border-0 shadow-sm bg-light">
+                <div class="card-body">
+                    <h6 class="card-title fw-bold text-primary mb-3"><i class="bi bi-plus-circle"></i> Registrar Nueva Administración</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha/Hora</label>
+                            <input type="datetime-local" id="admin_fecha" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Dosis</label>
+                            <input type="text" id="admin_dosis" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Observaciones</label>
+                        <textarea id="admin_obs" class="form-control" rows="2" placeholder="Opcional..."></textarea>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="admin_lavado">
+                        <label class="form-check-label" for="admin_lavado">
+                            Lavado de manos realizado
+                        </label>
+                    </div>
+                    <button class="btn btn-primary w-100" onclick="guardarAdministracion()">
+                        Registrar Ahora
+                    </button>
+                </div>
+            </div>
+
+            <!-- Historial -->
+            <h5 class="mb-3 border-bottom pb-2">Historial Reciente</h5>
+            <div id="listaAdministraciones" style="max-height: 300px; overflow-y: auto;">
+                <!-- Cargado via AJAX -->
+            </div>
+        </div>
     </div>
 </div>
 

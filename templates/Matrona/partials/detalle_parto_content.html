@@ -205,20 +205,21 @@
                 {% if recien_nacidos %}
                 <div class="list-group list-group-flush">
                     {% for rn in recien_nacidos %}
-                    <div class="list-group-item p-4 border-0 border-bottom">
+                    <a href="{% url 'matrona:detalle_rn' rn.id %}" target="_blank" class="list-group-item p-4 border-0 border-bottom text-decoration-none" style="transition: 0.2s;">
                         <div class="d-flex align-items-center">
-                            <div class="avatar-circle {% if rn.sexo == 'M' %}bg-primary bg-opacity-10 text-primary{% elif rn.sexo == 'F' %}bg-danger bg-opacity-10 text-danger{% else %}bg-secondary bg-opacity-10 text-secondary{% endif %} me-3">
-                                {% if rn.sexo == 'M' %}M{% elif rn.sexo == 'F' %}F{% else %}?{% endif %}
+                            <div class="avatar-circle {% if rn.sexo.codigo == 'M' %}bg-primary bg-opacity-10 text-primary{% elif rn.sexo.codigo == 'F' %}bg-danger bg-opacity-10 text-danger{% else %}bg-secondary bg-opacity-10 text-secondary{% endif %} me-3">
+                                {% if rn.sexo.codigo == 'M' %}M{% elif rn.sexo.codigo == 'F' %}F{% else %}?{% endif %}
                             </div>
                             <div class="flex-grow-1">
-                                <h6 class="fw-bold mb-1">RN #{{ forloop.counter }}</h6>
+                                <h6 class="fw-bold mb-1 text-dark">RN #{{ forloop.counter }}</h6>
                                 <div class="d-flex flex-wrap gap-2 text-muted small">
                                     <span>{{ rn.hora_nacimiento|time:"H:i" }}</span>
                                     <span>{{ rn.peso_gramos }}g</span>
                                 </div>
                             </div>
+                            <i class="bi bi-chevron-right text-muted"></i>
                         </div>
-                    </div>
+                    </a>
                     {% endfor %}
                 </div>
                 {% else %}
@@ -238,7 +239,8 @@
                 {% if registro.acompanamiento_parto %}
                     <div class="alert alert-success border-0 mb-3">
                         <i class="bi bi-check-circle-fill me-2"></i> <strong>Acompañada</strong>
-                        <div class="small mt-1">{{ registro.nombre_acompanante }} ({{ registro.persona_acompanante }})</div>
+                        <div class="small mt-1 fw-bold fs-6">{{ registro.ficha_ingreso_parto.ficha_obstetrica.nombre_acompanante|default:"Nombre no registrado" }}</div>
+                        <div class="small text-muted">({{ registro.persona_acompanante|default:"Relación no especificada" }})</div>
                     </div>
                     <ul class="small text-muted mb-0">
                         {% if registro.acompanamiento_preparto %}<li>En Preparto</li>{% endif %}
@@ -273,7 +275,9 @@
             <div class="card-body">
                 {% if staff_asignado %}
                     {% for p in staff_asignado %}
-                    <div class="d-flex align-items-center mb-3">
+                    <!-- Staff Item Clickable -->
+                    <div class="d-flex align-items-center mb-3 p-2 rounded cursor-pointer hover-bg-light" style="cursor: pointer; transition: 0.2s;" 
+                         data-bs-toggle="modal" data-bs-target="#staffModal{{ p.id }}">
                          <div class="avatar-circle bg-white text-dark me-3 shadow-sm opacity-75">
                              {% if p.rol == 'MATRONA' %}<i class="bi bi-person-fill"></i>
                              {% else %}<i class="bi bi-person"></i>{% endif %}
@@ -281,6 +285,41 @@
                         <div>
                             <small class="d-block opacity-75">{{ p.get_rol_display }}</small>
                             <div class="fw-bold">{{ p.usuario.get_full_name|default:"Sin Nombre" }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Modal for Staff Detail -->
+                    <div class="modal fade" id="staffModal{{ p.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content text-dark">
+                                <div class="modal-header border-0">
+                                    <h5 class="modal-title fw-bold">Detalle del Profesional</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body text-center pb-4">
+                                    <div class="avatar-circle bg-primary text-white mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                                        {% if p.rol == 'MATRONA' %}<i class="bi bi-person-fill"></i>
+                                        {% else %}<i class="bi bi-person"></i>{% endif %}
+                                    </div>
+                                    <h4 class="fw-bold mb-1">{{ p.usuario.get_full_name }}</h4>
+                                    <p class="text-muted mb-3">{{ p.get_rol_display }}</p>
+                                    
+                                    <ul class="list-group list-group-flush text-start mx-4">
+                                        <li class="list-group-item d-flex justify-content-between px-0">
+                                            <span><i class="bi bi-envelope me-2"></i>Email</span>
+                                            <span class="text-muted">{{ p.usuario.email|default:"No registrado" }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between px-0">
+                                            <span><i class="bi bi-person-badge me-2"></i>Usuario</span>
+                                            <span class="text-muted">{{ p.usuario.username }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between px-0">
+                                            <span><i class="bi bi-calendar-check me-2"></i>Inicio Turno</span>
+                                            <span class="text-muted">{{ p.fecha_inicio|default:"-" }}</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     {% endfor %}

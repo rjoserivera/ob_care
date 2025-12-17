@@ -798,7 +798,7 @@ def iniciar_proceso_parto(request, ficha_pk):
         generar_placeholders_personal(ficha)
         
         tipo_texto = 'parto vaginal' if tipo_parto == 'VAGINAL' else 'cesárea'
-        messages.success(request, f'âœ… Proceso de {tipo_texto} iniciado exitosamente.')
+        messages.success(request, f'Proceso de {tipo_texto} iniciado exitosamente.')
     
     # Redirigir a página dedicada de proceso de parto
     return redirect('matrona:proceso_parto_iniciado', ficha_pk=ficha.pk)
@@ -831,6 +831,29 @@ def proceso_parto_iniciado(request, ficha_pk):
             'creado_por': request.user
         }
     )
+
+    # 1.5 Auto-Confirmar al usuario actual si es personal clínico (NO ADMIN puro)
+    # "El usuario llega a esta ventana y pasa a confirmarse automáticamente"
+    # Buscar si tiene turno activo
+    current_turno = PersonalTurno.objects.filter(
+        usuario=request.user, 
+        estado='DISPONIBLE',
+        fecha_fin_turno__gte=timezone.now()
+    ).first()
+
+    if current_turno and current_turno.rol in ['MEDICO', 'MATRONA', 'TENS']:
+        # Verificar si ya existe asignación
+        if not AsignacionPersonal.objects.filter(proceso=ficha_parto, personal=current_turno).exists():
+            AsignacionPersonal.objects.create(
+                proceso=ficha_parto,
+                personal=current_turno,
+                estado_respuesta='ACEPTADA',
+                confirmo_asistencia=True,
+                timestamp_confirmacion=timezone.now(),
+                timestamp_notificacion=timezone.now() # Fake notification time
+            )
+            # Opcional: Feedback al usuario
+            # messages.success(request, f"Te has unido al equipo como {current_turno.rol}")
 
     # 2. Calcular Requerimientos
     # 2. Calcular Requerimientos
@@ -1504,8 +1527,22 @@ def cierre_parto_view(request, ficha_parto_id):
         messages.success(request, f'Proceso de parto finalizado para ficha {ficha_parto.numero_ficha_parto}. Sala liberada.')
         return redirect('matrona:resumen_final_parto', ficha_parto_id=ficha_parto.id)
 
+    # Detectar si hay mortinato para activar Ley Dominga
+    has_mortinato = False
+    try:
+        if hasattr(ficha_parto, 'registro_parto'):
+            # Accessing related name or querying directly
+            from recienNacidoApp.models import RegistroRecienNacido
+            has_mortinato = RegistroRecienNacido.objects.filter(
+                registro_parto=ficha_parto.registro_parto, 
+                es_mortinato=True
+            ).exists()
+    except Exception:
+        pass
+
     return render(request, 'Matrona/cierre_parto.html', {
-        'ficha': ficha_parto
+        'ficha': ficha_parto,
+        'has_mortinato': has_mortinato
     })
 
 # ============================================
@@ -1736,7 +1773,9 @@ def crear_asociacion_rn(request, ficha_parto_id):
     )
     
     messages.success(request, f"Recién Nacido creado exitosamente.")
-    return redirect('matrona:ficha_rn', rn_id=rn.id)
+    from django.urls import reverse
+    url = reverse('matrona:ficha_rn', args=[rn.id]) + '?new=1'
+    return redirect(url)
 
 @login_required
 def ficha_rn_view(request, rn_id):
@@ -1766,14 +1805,45 @@ def ficha_rn_view(request, rn_id):
             rn.hora_nacimiento = request.POST.get('hora_nacimiento')
             rn.sexo_id = request.POST.get('sexo')
             
+            # NUEVO: Estado Born Dead (Ley Dominga)
+            rn.es_mortinato = 'es_mortinato' in request.POST
+            
+            if rn.es_mortinato:
+                # GUARDAR SOLO LEY DOMINGA (y defaults requeridos)
+                rn.ley_dominga_brazalete = 'ld_brazalete' in request.POST
+                rn.ley_dominga_huellas = 'ld_huellas' in request.POST
+                rn.ley_dominga_pelo = 'ld_pelo' in request.POST
+                rn.ley_dominga_cordon = 'ld_cordon' in request.POST
+                rn.ley_dominga_no_quiso = 'ld_no_quiso' in request.POST
+                
+                # Defaults mínimos para validar modelo (ya que usuario no ingresa esto)
+                rn.peso_gramos = request.POST.get('peso') or 500
+                rn.talla_centimetros = request.POST.get('talla') or 30
+                rn.apgar_1_minuto = 0
+                rn.apgar_5_minutos = 0
+                
+            else:
+                # RN VIVO - Limpiar Ley Dominga
+                rn.ley_dominga_brazalete = False
+                rn.ley_dominga_huellas = False
+                rn.ley_dominga_pelo = False
+                rn.ley_dominga_cordon = False
+                rn.ley_dominga_no_quiso = False
+            
+                rn.peso_gramos = request.POST.get('peso') or 3000
+                rn.talla_centimetros = request.POST.get('talla') or 50
+                rn.apgar_1_minuto = request.POST.get('apgar1') or 0 
+
             # Nuevos Campos ID
             rn.nombre_rn_temporal = request.POST.get('nombre_temporal', '')
             rn.pulsera_identificacion = 'pulsera_id' in request.POST
             
-            rn.peso_gramos = request.POST.get('peso') or 3000
-            rn.talla_centimetros = request.POST.get('talla') or 50
-            rn.perimetro_cefalico = request.POST.get('pc')
-            rn.perimetro_torax = request.POST.get('pt')
+            # Correction: Handle empty strings for decimals
+            pc = request.POST.get('pc')
+            rn.perimetro_cefalico = pc if pc else None
+            
+            pt = request.POST.get('pt')
+            rn.perimetro_torax = pt if pt else None
             
             # 2. Apgar (Simplified)
             # Only if checkApgar was visible/checked ideally, but saving value if present is fine
@@ -1832,14 +1902,25 @@ def ficha_rn_view(request, rn_id):
                 rn.tens_responsable = u.get_full_name()
             
             rn.save()
-            messages.success(request, 'Ficha Recién Nacido guardada correctamente. Proceda al cierre del parto.')
-            # Redirigir al cierre del parto como solicitó el usuario ("activarse el cerrar ficha parto")
-            return redirect('matrona:cierre_parto', ficha_parto_id=ficha_parto.id)
+            
+            if rn.es_mortinato:
+                messages.success(request, 'Ley Dominga registrada. Procediendo al Cierre del Parto.')
+                return redirect('matrona:cierre_parto', ficha_parto_id=ficha_parto.id)
+            else:
+                messages.success(request, 'Ficha Recién Nacido guardada correctamente.')
+                # Return to list/detail view or stay? Usually back to sala_parto to see updated list
+                # Or detalle_registro_parto to see the summary?
+                # User complaint was "si no se marco ... no deberia redirijir aqui [cierre]".
+                # So I redirect to sala_parto (main workspace)
+                return redirect('matrona:sala_parto', ficha_parto_id=ficha_parto.id)
 
             
         except Exception as e:
             messages.error(request, f'Error al guardar: {str(e)}')
             
+    # DETECT NEW (via query param)
+    is_new = request.GET.get('new') == '1'
+
     return render(request, 'Matrona/ficha_rn.html', {
         'rn': rn,
         'ficha_parto': ficha_parto,
@@ -1848,7 +1929,55 @@ def ficha_rn_view(request, rn_id):
         'motivos_hospitalizacion': motivos_hospitalizacion,
         'matronas_staff': matronas_staff,
         'tens_staff': tens_staff,
-    })    
+        'is_new': is_new,
+    })
+
+@login_required
+def detalle_rn_view(request, rn_id):
+    """
+    Vista de solo lectura para ver el detalle completo de un recién nacido
+    """
+    rn = get_object_or_404(RegistroRecienNacido, pk=rn_id)
+    
+    return render(request, 'Matrona/detalle_rn.html', {
+        'rn': rn,
+    })
+    
+@login_required
+def historial_partos_view(request):
+    """
+    Vista de historial de partos completados
+    Muestra todos los registros de parto finalizados
+    """
+    from django.db.models import Q, Count
+    
+    # Obtener todos los registros de parto con información relacionada
+    registros = RegistroParto.objects.select_related(
+        'ficha_ingreso_parto__ficha_obstetrica__paciente__persona',
+        'tipo_parto',
+        'clasificacion_robson'
+    ).prefetch_related(
+        'recien_nacidos'
+    ).order_by('-fecha_creacion')
+    
+    # Filtros opcionales
+    busqueda = request.GET.get('q', '')
+    if busqueda:
+        registros = registros.filter(
+            Q(ficha_ingreso_parto__ficha_obstetrica__paciente__persona__Nombre__icontains=busqueda) |
+            Q(ficha_ingreso_parto__ficha_obstetrica__paciente__persona__Apellido_Paterno__icontains=busqueda) |
+            Q(ficha_ingreso_parto__ficha_obstetrica__paciente__persona__Rut__icontains=busqueda)
+        )
+    
+    return render(request, 'Matrona/historial_partos.html', {
+        'registros': registros,
+        'busqueda': busqueda,
+    })
+    
+# ============================================
+# LEGACY CODE - STAFF FILTERING (DUPLICATED)
+# ============================================
+    
     # Staff Filtering using PersonalAsignadoParto
     assigned_staff = PersonalAsignadoParto.objects.filter(
         ficha=ficha_parto.ficha_obstetrica, 
@@ -1955,6 +2084,13 @@ def guardar_registro_parto(request, ficha_parto_id):
                         pass
                 
                 registro.save()
+                
+                # GUARDAR NOMBRE ACOMPAÑANTE EN FICHA OBSTÉTRICA
+                nombre_acompanante = request.POST.get('nombre_acompanante', '').strip()
+                if nombre_acompanante:
+                    ficha_obstetrica = ficha_parto.ficha_obstetrica
+                    ficha_obstetrica.nombre_acompanante = nombre_acompanante
+                    ficha_obstetrica.save(update_fields=['nombre_acompanante'])
                 
                 # URL de redirección al detalle
                 redirect_url = reverse('matrona:detalle_registro_parto', args=[ficha_parto.id])
@@ -2138,3 +2274,110 @@ def resumen_final_parto_view(request, ficha_parto_id):
             )
         ).order_by('rol_order', 'usuario__first_name')
     })
+
+
+@login_required
+def equipo_confirmado_partial(request, ficha_pk):
+    """
+    Vista parcial para actualizar la lista de equipo confirmado (polling)
+    """
+    from ingresoPartoApp.models import FichaParto
+    from gestionProcesosApp.models import AsignacionPersonal
+    from django.shortcuts import get_object_or_404
+    from django.http import HttpResponse
+    from django.db.models import IntegerField
+    
+    ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk)
+    
+    # Obtener Ficha de Parto (debería existir)
+    ficha_parto = FichaParto.objects.filter(ficha_obstetrica=ficha).first()
+    if not ficha_parto:
+        return HttpResponse("") # No renderizar nada si no existe
+        
+    # Calcular Requerimientos (Duplicado de la vista principal por seguridad)
+    cantidad_bebes = ficha_parto.ficha_obstetrica.cantidad_bebes
+    if cantidad_bebes < 1: cantidad_bebes = 1
+    
+    medicos_req = cantidad_bebes * 1
+    matronas_req = cantidad_bebes * 2
+    tens_req = cantidad_bebes * 3
+    
+    # Obtener Asignaciones Aceptadas
+    asignaciones = AsignacionPersonal.objects.filter(proceso=ficha_parto)
+    asignados_aceptados = asignaciones.filter(estado_respuesta='ACEPTADA').order_by('-timestamp_confirmacion')
+    
+    # Calcular Counts
+    medicos_aceptados = asignados_aceptados.filter(personal__rol='MEDICO').count()
+    matronas_aceptadas = asignados_aceptados.filter(personal__rol='MATRONA').count()
+    tens_aceptados = asignados_aceptados.filter(personal__rol='TENS').count()
+    
+    # Calcular Slots Pendientes
+    slots_pendientes = []
+    if medicos_aceptados < medicos_req:
+        slots_pendientes.append({'rol': 'Médico', 'cantidad': medicos_req - medicos_aceptados})
+    if matronas_aceptadas < matronas_req:
+        slots_pendientes.append({'rol': 'Matrona', 'cantidad': matronas_req - matronas_aceptadas})
+    if tens_aceptados < tens_req:
+        slots_pendientes.append({'rol': 'TENS', 'cantidad': tens_req - tens_aceptados})
+        
+    context = {
+        'asignados_aceptados': asignados_aceptados,
+        'slots_pendientes': slots_pendientes
+    }
+    
+    return render(request, 'Matrona/partials/equipo_confirmado_list.html', context)
+
+
+@login_required
+@require_POST
+def debug_rellenar_equipo(request, ficha_parto_id):
+    """
+    API DEBUG: Rellena automáticamente el equipo con usuarios disponibles.
+    Solo para TEST.
+    """
+    from ingresoPartoApp.models import FichaParto
+    from gestionProcesosApp.models import PersonalTurno, AsignacionPersonal
+    from django.shortcuts import get_object_or_404
+    from django.utils import timezone
+    from django.http import JsonResponse
+    
+    ficha_parto = get_object_or_404(FichaParto, pk=ficha_parto_id)
+    
+    # Requisitos
+    reqs = {
+        'MEDICO': ficha_parto.ficha_obstetrica.cantidad_bebes * 1,
+        'MATRONA': ficha_parto.ficha_obstetrica.cantidad_bebes * 2,
+        'TENS': ficha_parto.ficha_obstetrica.cantidad_bebes * 3,
+    }
+    
+    asignados_count = 0
+    now = timezone.now()
+    
+    for rol, cantidad_necesaria in reqs.items():
+        # Cuantos tenemos ya aceptados/asignados
+        actuales = AsignacionPersonal.objects.filter(proceso=ficha_parto, personal__rol=rol, estado_respuesta='ACEPTADA').count()
+        faltan = cantidad_necesaria - actuales
+        
+        if faltan > 0:
+            # Buscar disponibles
+            candidatos = PersonalTurno.objects.filter(
+                rol=rol, 
+                estado='DISPONIBLE',
+                fecha_fin_turno__gte=now
+            ).exclude(
+                id__in=AsignacionPersonal.objects.filter(proceso=ficha_parto).values('personal_id')
+            )[:faltan]
+            
+            for personal in candidatos:
+                AsignacionPersonal.objects.create(
+                    proceso=ficha_parto,
+                    personal=personal,
+                    rol_en_proceso=rol,
+                    estado_respuesta='ACEPTADA',
+                    confirmo_asistencia=True,
+                    timestamp_notificacion=now,
+                    timestamp_confirmacion=now
+                )
+                asignados_count += 1
+                
+    return JsonResponse({'success': True, 'asignados': asignados_count})

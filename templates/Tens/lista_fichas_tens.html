@@ -171,8 +171,7 @@
                 class="ficha-badge"><i class="bi bi-check-circle"></i> Activa</span>
         </div>
         <div class="paciente-info">
-            <div class="paciente-nombre"><i class="bi bi-person-circle"></i> {{ ficha.paciente.persona.nombre_completo
-                }}</div>
+            <div class="paciente-nombre"><i class="bi bi-person-circle"></i> {{ ficha.paciente.persona.nombre_completo }}</div>
             <div class="paciente-datos"><strong>RUT:</strong> {{ ficha.paciente.persona.rut_formateado }} |
                 <strong>Edad:</strong> {{ ficha.paciente.persona.edad }} años{% if ficha.paciente.prevision %} |
                 <strong>Previsión:</strong> {{ ficha.paciente.prevision.nombre }}{% endif %}</div>

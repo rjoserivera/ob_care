@@ -1,0 +1,311 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Detalle Recién Nacido{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-container { max-width: 1000px; margin: 2rem auto; }
+    .detail-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .detail-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        margin-bottom: 0.25rem;
+        font-weight: 700;
+    }
+    .detail-value {
+        font-weight: 500;
+        font-size: 1rem;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+    .section-card {
+        border-left: 4px solid #667eea;
+        margin-bottom: 1.5rem;
+    }
+    .avatar-xl {
+        width: 100px;
+        height: 100px;
+        font-size: 3rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    
+    <!-- HEADER -->
+    <div class="detail-header">
+        <div class="d-flex align-items-center gap-4">
+            <div class="avatar-xl {% if rn.sexo.codigo == 'M' %}bg-primary bg-opacity-25 text-white{% elif rn.sexo.codigo == 'F' %}bg-danger bg-opacity-25 text-white{% else %}bg-secondary bg-opacity-25 text-white{% endif %}">
+                {% if rn.sexo.codigo == 'M' %}M{% elif rn.sexo.codigo == 'F' %}F{% else %}?{% endif %}
+            </div>
+            <div class="flex-grow-1">
+                <h2 class="mb-1">Recién Nacido #{{ rn.id }}</h2>
+                {% if rn.nombre_rn_temporal %}
+                <p class="mb-0 opacity-75">"{{ rn.nombre_rn_temporal }}"</p>
+                {% endif %}
+                <small class="opacity-75">Madre: {{ rn.registro_parto.ficha_ingreso_parto.ficha_obstetrica.paciente.persona.nombre_completo }}</small>
+            </div>
+            <div class="text-end">
+                <a href="{% url 'matrona:ficha_rn' rn.id %}" class="btn btn-light btn-lg">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        
+        <!-- COLUMNA IZQUIERDA -->
+        <div class="col-lg-6">
+            
+            <!-- DATOS BÁSICOS -->
+            <div class="card section-card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold text-primary">
+                        <i class="bi bi-info-circle me-2"></i>Datos Básicos
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="detail-label">Sexo</div>
+                            <div class="detail-value">{{ rn.sexo }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-label">Fecha Nacimiento</div>
+                            <div class="detail-value">{{ rn.fecha_nacimiento|date:"d/m/Y" }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-label">Hora Nacimiento</div>
+                            <div class="detail-value fw-bold fs-4">{{ rn.hora_nacimiento|time:"H:i" }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-label">Pulsera ID</div>
+                            <div class="detail-value">
+                                {% if rn.pulsera_identificacion %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle"></i> Instalada</span>
+                                {% else %}
+                                <span class="badge bg-secondary">No instalada</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ANTROPOMETRÍA -->
+            <div class="card section-card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold text-success">
+                        <i class="bi bi-rulers me-2"></i>Antropometría
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="detail-label">Peso</div>
+                            <div class="detail-value">{{ rn.peso_gramos }} g</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-label">Talla</div>
+                            <div class="detail-value">{{ rn.talla_centimetros }} cm</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-label">Perímetro Cefálico</div>
+                            <div class="detail-value">{{ rn.perimetro_cefalico|default:"-" }} cm</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-label">Perímetro Torácico</div>
+                            <div class="detail-value">{{ rn.perimetro_torax|default:"-" }} cm</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- APGAR -->
+            <div class="card section-card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold text-info">
+                        <i class="bi bi-heart-pulse me-2"></i>Evaluación Apgar
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-around text-center">
+                        <div>
+                            <div class="detail-label">1 Minuto</div>
+                            <div class="badge bg-primary fs-4 px-4 py-2">{{ rn.apgar_1_minuto }}</div>
+                        </div>
+                        <div>
+                            <div class="detail-label">5 Minutos</div>
+                            <div class="badge bg-success fs-4 px-4 py-2">{{ rn.apgar_5_minutos }}</div>
+                        </div>
+                        <div>
+                            <div class="detail-label">10 Minutos</div>
+                            <div class="badge bg-secondary fs-4 px-4 py-2">{{ rn.apgar_10_minutos|default:"-" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- COLUMNA DERECHA -->
+        <div class="col-lg-6">
+            
+            <!-- CORDÓN UMBILICAL -->
+            <div class="card section-card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold text-warning">
+                        <i class="bi bi-diagram-3 me-2"></i>Cordón Umbilical
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="detail-label">Número de Vasos</div>
+                    <div class="detail-value">{{ rn.numero_vasos_cordon }}</div>
+                    
+                    <div class="detail-label">Ligadura Tardía</div>
+                    <div class="detail-value">
+                        {{ rn.ligadura_tardia_cordon|yesno:"Sí,No" }}
+                        {% if rn.ligadura_tardia_cordon and rn.tiempo_ligadura_minutos %}
+                        ({{ rn.tiempo_ligadura_minutos }} min)
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- APEGO Y LACTANCIA -->
+            <div class="card section-card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold text-success">
+                        <i class="bi bi-heart me-2"></i>Apego y Lactancia
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="detail-label">Apego Piel con Piel</div>
+                    <div class="detail-value">
+                        {% if rn.apego_piel_con_piel %}
+                        <i class="bi bi-check-circle text-success"></i> Sí ({{ rn.tiempo_primer_apego_minutos }} min)
+                        {% else %}No{% endif %}
+                    </div>
+                    
+                    <div class="detail-label">Apego Canguro</div>
+                    <div class="detail-value">
+                        {% if rn.apego_canguro %}
+                        <i class="bi bi-check-circle text-success"></i> Sí ({{ rn.duracion_apego_canguro_minutos }} min)
+                        {% else %}No{% endif %}
+                    </div>
+                    
+                    <div class="detail-label">Lactancia Iniciada</div>
+                    <div class="detail-value">
+                        {% if rn.lactancia_iniciada %}
+                        <span class="text-success fw-bold"><i class="bi bi-check2"></i> Sí ({{ rn.tiempo_inicio_lactancia_minutos }} min)</span>
+                        {% else %}
+                        <span class="text-muted">No iniciada</span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if rn.alimentacion_con_formula %}
+                    <div class="alert alert-warning p-2 mt-2 mb-0 small">
+                        <strong>Fórmula:</strong> {{ rn.razon_formula }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- PROFILAXIS -->
+            <div class="card section-card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold text-primary">
+                        <i class="bi bi-shield-check me-2"></i>Profilaxis
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" {% if rn.profilaxis_oftalmologica %}checked{% endif %} disabled>
+                                <label class="form-check-label">Oftalmológica</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" {% if rn.vitamina_k %}checked{% endif %} disabled>
+                                <label class="form-check-label">Vitamina K</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" {% if rn.vacuna_hepatitis_b %}checked{% endif %} disabled>
+                                <label class="form-check-label">Hepatitis B</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" {% if rn.examen_fisico_completo %}checked{% endif %} disabled>
+                                <label class="form-check-label">Examen Físico</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPLICACIONES -->
+            <div class="card section-card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold text-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Complicaciones
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if rn.dificultad_respiratoria %}<span class="badge bg-danger mb-1">Dif. Respiratoria</span>{% endif %}
+                    {% if rn.hipoglucemia %}<span class="badge bg-danger mb-1">Hipoglucemia</span>{% endif %}
+                    {% if rn.hipotermia %}<span class="badge bg-danger mb-1">Hipotermia</span>{% endif %}
+                    {% if rn.ictericia %}<span class="badge bg-warning text-dark mb-1">Ictericia</span>{% endif %}
+                    
+                    {% if rn.traumatismo_obstetrico %}
+                    <div class="alert alert-danger p-2 mt-2 mb-0 small">
+                        <strong>Traumatismo:</strong> {{ rn.descripcion_traumatismo }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if not rn.dificultad_respiratoria and not rn.hipoglucemia and not rn.hipotermia and not rn.ictericia and not rn.traumatismo_obstetrico %}
+                    <div class="text-success"><i class="bi bi-shield-check"></i> Sin complicaciones registradas</div>
+                    {% endif %}
+                    
+                    {% if rn.requiere_hospitalizacion %}
+                    <div class="alert alert-danger mt-3 mb-0 p-2 small">
+                        <strong>Hospitalizado:</strong><br>
+                        {{ rn.motivo_hospitalizacion|default:"Sin motivo especificado" }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- BOTÓN VOLVER -->
+    <div class="text-center mt-4">
+        <a href="javascript:history.back()" class="btn btn-secondary btn-lg px-5">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+</div>
+{% endblock %}

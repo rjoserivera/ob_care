@@ -188,22 +188,10 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="{{ form.Discapacidad.id_for_label }}" class="form-label">
-                                    ¿Tiene Discapacidad?
-                                </label>
-                                {{ form.Discapacidad }}
-                                {% if form.Discapacidad.errors %}
-                                    <div class="text-danger mt-1">{{ form.Discapacidad.errors }}</div>
-                                {% endif %}
+                            <!-- Field removed -->
                             </div>
                             <div class="col-md-6">
-                                <label for="{{ form.Tipo_de_Discapacidad.id_for_label }}" class="form-label">
-                                    Tipo de Discapacidad
-                                </label>
-                                {{ form.Tipo_de_Discapacidad }}
-                                {% if form.Tipo_de_Discapacidad.errors %}
-                                    <div class="text-danger mt-1">{{ form.Tipo_de_Discapacidad.errors }}</div>
-                                {% endif %}
+                            <!-- Field removed -->
                             </div>
                         </div>
 
@@ -275,44 +263,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const rutCuerpo = document.getElementById('id_rut_cuerpo');
     const rutDv = document.getElementById('id_rut_dv');
-    const discapacidad = document.getElementById('id_Discapacidad');
-    const tipoDiscapacidad = document.getElementById('id_Tipo_de_Discapacidad');
 
-    if (rutCuerpo) {
-        rutCuerpo.addEventListener('input', function(e) {
-            let valor = e.target.value.replace(/\D/g, '');
-            e.target.value = valor.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-        });
-
-        rutCuerpo.addEventListener('blur', function() {
-            const cuerpo = this.value.replace(/\./g, '');
-            if (cuerpo.length >= 7) {
-                const dvCalculado = RutValidator.calcularDV(cuerpo);
-                if (rutDv && !rutDv.value) {
-                    rutDv.value = dvCalculado;
-                }
-            }
-        });
-    }
-
-    if (rutDv) {
-        rutDv.addEventListener('input', function(e) {
-            e.target.value = e.target.value.toUpperCase().slice(0, 1);
-        });
-    }
-
-    if (discapacidad && tipoDiscapacidad) {
-        function toggleTipoDiscapacidad() {
-            const tieneDiscapacidad = discapacidad.value === 'Si';
-            tipoDiscapacidad.disabled = !tieneDiscapacidad;
-            if (!tieneDiscapacidad) {
-                tipoDiscapacidad.value = '';
-            }
-        }
-        
-        toggleTipoDiscapacidad();
-        discapacidad.addEventListener('change', toggleTipoDiscapacidad);
-    }
 });
 </script>
 {% endblock %}

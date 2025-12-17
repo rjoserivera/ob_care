@@ -137,7 +137,14 @@ class DashboardTensView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Dashboard TENS'
         context['usuario'] = self.request.user
-        context['total_pacientes'] = Paciente.objects.filter(activo=True).count()
+        # Copiando lógica de Medico para consistencia
+        from matronaApp.models import FichaObstetrica
+        from django.contrib.auth.models import User
+        
+        context['total_fichas'] = FichaObstetrica.objects.filter(activa=True).count()
+        context['total_matronas'] = User.objects.filter(groups__name='Matronas', is_active=True).count()
+        context['total_tens'] = User.objects.filter(groups__name='TENS', is_active=True).count()
+        context['total_medicos'] = User.objects.filter(groups__name='Medicos', is_active=True).count()
         
         return context
 

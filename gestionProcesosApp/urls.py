@@ -12,6 +12,8 @@ urlpatterns = [
     path('api/notificacion/<int:notificacion_id>/marcar-leida/', views.marcar_notificacion_leida, name='marcar_notificacion_leida'),
     
     # api endpoints
+    path('api/responder-asignacion/<int:asignacion_id>/', views_notificaciones.responder_asignacion, name='responder_asignacion'),
+    path('api/check-notificaciones/', views.check_nuevas_notificaciones, name='check_nuevas_notificaciones'),
     path('api/notificacion/<int:notificacion_id>/marcar-leida/', views.marcar_notificacion_leida, name='marcar_notificacion_leida'),
 
     

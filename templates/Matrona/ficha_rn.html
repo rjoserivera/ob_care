@@ -98,6 +98,75 @@
         <form method="post" id="form-rn">
             {% csrf_token %}
             
+            <!-- SELECCIÓN ESTADO (Ley Dominga) -->
+            <div class="card mb-4 border-info">
+                <div class="card-header bg-info-subtle fw-bold text-info-emphasis">
+                    <i class="bi bi-heart-pulse"></i> Estado del Recién Nacido
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-4 align-items-center">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="status_nacimiento" id="rnVivo" value="vivo" 
+                                   {% if not rn.es_mortinato and not request.GET.new %}checked{% endif %} onchange="toggleMortinato()">
+                            <label class="form-check-label fw-bold" for="rnVivo">Nacido VIVO</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="status_nacimiento" id="rnMuerto" value="muerto" 
+                                   {% if rn.es_mortinato %}checked{% endif %} onchange="toggleMortinato()">
+                            <label class="form-check-label fw-bold text-danger" for="rnMuerto">Nacido MUERTO (Mortinato)</label>
+                        </div>
+                    </div>
+                    <!-- Checkbox oculto para backend -->
+                    <input type="checkbox" name="es_mortinato" id="realEsMortinato" style="display:none;" {% if rn.es_mortinato %}checked{% endif %}>
+                </div>
+            </div>
+
+            <!-- LEY DOMINGA CONTAINER -->
+            <div id="leyDomingaContainer" style="display:none;" class="mb-5">
+                <h5 class="text-white bg-secondary p-3 rounded mb-4">
+                    <i class="bi bi-heart-break"></i> Ley Dominga N°21.371 (Muerte Gestacional)
+                </h5>
+                <div class="card border-secondary shadow-sm">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Recuerdos Entregados (Checklist)</h6>
+                        <div class="row row-cols-md-2 g-3">
+                            <div class="col">
+                                <div class="form-check p-3 border rounded bg-light">
+                                    <input class="form-check-input" type="checkbox" name="ld_brazalete" id="ld1" {% if rn.ley_dominga_brazalete %}checked{% endif %}>
+                                    <label class="form-check-label" for="ld1">Brazalete de nacimiento</label>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-check p-3 border rounded bg-light">
+                                    <input class="form-check-input" type="checkbox" name="ld_huellas" id="ld2" {% if rn.ley_dominga_huellas %}checked{% endif %}>
+                                    <label class="form-check-label" for="ld2">Huellas (Manos/Pies)</label>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-check p-3 border rounded bg-light">
+                                    <input class="form-check-input" type="checkbox" name="ld_pelo" id="ld3" {% if rn.ley_dominga_pelo %}checked{% endif %}>
+                                    <label class="form-check-label" for="ld3">Mechón de Pelo</label>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-check p-3 border rounded bg-light">
+                                    <input class="form-check-input" type="checkbox" name="ld_cordon" id="ld4" {% if rn.ley_dominga_cordon %}checked{% endif %}>
+                                    <label class="form-check-label" for="ld4">Cordón Umbilical</label>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="my-4">
+                        <div class="form-check">
+                             <input class="form-check-input" type="checkbox" name="ld_no_quiso" id="ldNo" {% if rn.ley_dominga_no_quiso %}checked{% endif %}>
+                             <label class="form-check-label fw-bold text-muted" for="ldNo">Familia NO quiso recibir recuerdos</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STANDARD DATA CONTAINER -->
+            <div id="standardDataContainer">
+            
                 <h5 class="text-info mb-4 border-bottom pb-2">Datos del Nacimiento</h5>
                 <div class="row g-4 mb-3">
                      <!-- Nuevos Campos Solicitados -->
@@ -346,12 +415,40 @@
                 </div>
             </div>
             
+            </div>
+            <!-- END STANDARD DATA CONTAINER -->
+            
             <div class="text-end mt-5 pt-4 border-top">
                 <button type="submit" class="btn btn-primary px-5 py-3 fw-bold fs-5">
                     <i class="bi bi-save-fill"></i> GUARDAR FICHA
                 </button>
             </div>
         </form>
+        
+        <script>
+            function toggleMortinato() {
+                const isDead = document.getElementById('rnMuerto').checked;
+                const hiddenCheck = document.getElementById('realEsMortinato');
+                if(hiddenCheck) hiddenCheck.checked = isDead;
+                
+                const std = document.getElementById('standardDataContainer');
+                const ld = document.getElementById('leyDomingaContainer');
+                
+                if (!std || !ld) return;
+
+                if (isDead) {
+                    std.style.display = 'none';
+                    ld.style.display = 'block';
+                } else {
+                    std.style.display = 'block';
+                    ld.style.display = 'none';
+                }
+            }
+            
+            document.addEventListener('DOMContentLoaded', function() {
+                toggleMortinato();
+            });
+        </script>
     </div>
 </div>
 {% endblock %}

@@ -155,7 +155,7 @@ def generar_excel_libro(request):
         ("DATOS GENERALES", "Nacionalidad", lambda x: safe_get(x['parto'], 'ficha_obstetrica.paciente.persona.Nacionalidad.nombre', 'CHILENA')),
         ("DATOS GENERALES", "Pueblo Originario", lambda x: safe_get(x['parto'], 'ficha_obstetrica.paciente.persona.Pueblos_originarios.nombre', '-')),
         ("DATOS GENERALES", "Edad", lambda x: safe_get(x['parto'], 'ficha_obstetrica.paciente.persona.edad', '-')),
-        ("DATOS GENERALES", "Discapacidad", lambda x: get_si_no(safe_get(x['parto'], 'ficha_obstetrica.paciente.persona.Discapacidad', False))),
+        ("DATOS GENERALES", "Discapacidad", lambda x: get_si_no(safe_get(x['parto'], 'ficha_obstetrica.tiene_discapacidad', False))),
         ("DATOS GENERALES", "Privada de Libertad", lambda x: get_si_no(safe_get(x['parto'], 'ficha_obstetrica.paciente.persona.Privada_de_Libertad', False))),
         ("DATOS GENERALES", "Trans Masculino", lambda x: get_si_no(safe_get(x['parto'], 'ficha_obstetrica.paciente.persona.Trans_Masculino', False))),
         ("DATOS GENERALES", "IMC", lambda x: safe_get(x['parto'], 'ficha_obstetrica.imc', '-')),

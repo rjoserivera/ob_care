@@ -1,0 +1,108 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Gestión de Medicamentos - TENS{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="padding: 20px; max-width: 1400px;">
+    
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-prescription2"></i> Gestión de Medicamentos</h2>
+            <p class="text-muted mb-0">Paciente: <strong>{{ ficha.paciente.persona.nombre_completo }}</strong> | RUT: {{ ficha.paciente.persona.rut_formateado }}</p>
+        </div>
+        <a href="{% url 'tens:detalle_ficha' ficha.pk %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a Ficha
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Columna Izquierda: Medicamentos Recetados Activos -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-capsule"></i> Medicamentos Recetados (Activos)</h5>
+                </div>
+                <div class="card-body">
+                    {% if medicamentos %}
+                        <div class="d-grid gap-3">
+                        {% for med in medicamentos %}
+                            <div class="card border-primary mb-2">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary fw-bold">{{ med.nombre_display }}</h5>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <p class="mb-1"><small class="text-muted">Dosis:</small> <strong>{{ med.dosis }}</strong></p>
+                                            <p class="mb-1"><small class="text-muted">Vía:</small> {{ med.via_administracion }}</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <p class="mb-1"><small class="text-muted">Frecuencia:</small> {{ med.frecuencia }}</p>
+                                            <p class="mb-1"><small class="text-muted">Indicaciones:</small> {{ med.indicaciones|truncatechars:30 }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 d-grid">
+                                        <a href="{% url 'tens:administrar_medicamento' med.pk %}" class="btn btn-success">
+                                            <i class="bi bi-plus-circle"></i> ADMINISTRAR
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-prescription display-4 mb-3 d-block"></i>
+                            <p>No hay medicamentos activos recetados para esta paciente.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Historial de Administraciones -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> Historial de Aplicaciones</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Fecha/Hora</th>
+                                    <th>Medicamento</th>
+                                    <th>Dosis</th>
+                                    <th>TENS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for admin in administraciones %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">{{ admin.fecha_hora_administracion|date:"d/m/Y" }}</div>
+                                        <small class="text-muted">{{ admin.fecha_hora_administracion|date:"H:i" }}</small>
+                                    </td>
+                                    <td>{{ admin.medicamento_ficha.nombre_display }}</td>
+                                    <td>{{ admin.dosis_administrada }}</td>
+                                    <td>
+                                        <small>{{ admin.tens.get_full_name|default:admin.tens.username }}</small>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">
+                                        No hay historial de administraciones.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

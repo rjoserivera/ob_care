@@ -317,7 +317,24 @@ class FichaPartoForm(forms.ModelForm):
             self.fields['resultado_ctg'].queryset = CatalogoResultadoCTG.objects.filter(activo=True).order_by('orden')
         
         if 'sala_asignada' in self.fields:
-            self.fields['sala_asignada'].queryset = CatalogoSalaAsignada.objects.filter(activo=True).order_by('nombre')
+            # Lógica para filtrar salas ocupadas
+            # 1. Obtener todas las fichas activas
+            fichas_activas = FichaParto.objects.filter(activa=True)
+            
+            # 2. Si estamos editando (instance.pk existe), excluir nuestra propia ficha
+            # para que la sala actual siga apareciendo disponible para nosotros
+            if self.instance and self.instance.pk:
+                fichas_activas = fichas_activas.exclude(pk=self.instance.pk)
+            
+            # 3. Obtener IDs de salas ocupadas
+            salas_ocupadas_ids = fichas_activas.values_list('sala_asignada_id', flat=True)
+            
+            # 4. Filtrar el queryset excluyendo las salas ocupadas
+            self.fields['sala_asignada'].queryset = CatalogoSalaAsignada.objects.filter(
+                activo=True
+            ).exclude(
+                id__in=salas_ocupadas_ids
+            ).order_by('nombre')
 
     def clean(self):
         cleaned_data = super().clean()

@@ -23,6 +23,27 @@
     </div>
     {% endif %}
 
+    <!-- Tarjeta de Instrucciones Destacada -->
+    <div class="card shadow-sm border-0 mb-4" style="background: linear-gradient(135deg, #24A1DE 0%, #54C9FF 100%);">
+        <div class="card-body d-flex align-items-center justify-content-between text-white p-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-white bg-opacity-25 rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <i class="bi bi-telegram fs-2"></i>
+                </div>
+                <div>
+                    <h4 class="mb-1 fw-bold">1. Iniciar Bot de Telegram</h4>
+                    <p class="mb-0 opacity-90">
+                        Para recibir notificaciones, inicia el bot y envía el comando <strong>/start</strong>. <br>
+                        <small class="text-white-50"><em>* Este paso solo es necesario realizarlo una vez para obtener tu Chat ID.</em></small>
+                    </p>
+                </div>
+            </div>
+            <a href="{% url 'gestion:iniciar_bot_telegram' %}" class="btn btn-light rounded-pill px-4 fw-bold text-primary shadow-sm">
+                <i class="bi bi-play-fill me-2"></i> Iniciar Servicio del Bot
+            </a>
+        </div>
+    </div>
+
     <!-- Sección de Ayuda -->
     <div class="accordion mb-4" id="accordionHelp">
         <div class="accordion-item">
@@ -75,9 +96,13 @@
 
     <!-- Tabla de Usuarios -->
     <div class="card shadow-sm">
-        <div class="card-header bg-white py-3">
-            <h5 class="card-title mb-0">Usuarios del Sistema</h5>
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <h5 class="card-title mb-0">Usuarios del Sistema</h5>
+        <div class="input-group" style="max-width: 300px;">
+            <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+            <input type="text" id="userSearchInput" class="form-control border-start-0 ps-0" placeholder="Buscar usuario..." onkeyup="filterUsers()">
         </div>
+    </div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
@@ -185,6 +210,31 @@
             btn.innerHTML = originalHtml;
             btn.classList.replace('btn-success', 'btn-outline-primary');
         }, 2000);
+    }
+
+    function filterUsers() {
+        const input = document.getElementById('userSearchInput');
+        const filter = input.value.toLowerCase();
+        const table = document.querySelector('table tbody');
+        const rows = table.getElementsByTagName('tr');
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            // Skip empty message row if strictly checking data rows, but simpler to just text-check all
+            if (row.getElementsByTagName('td').length < 2) continue; // Skip "No users" row
+
+            const username = row.cells[0].textContent || row.cells[0].innerText;
+            const fullname = row.cells[1].textContent || row.cells[1].innerText;
+            const role = row.cells[2].textContent || row.cells[2].innerText;
+            
+            const text = (username + " " + fullname + " " + role).toLowerCase();
+
+            if (text.indexOf(filter) > -1) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        }
     }
 
     // Auto-cerrar Toasts después de 3 segundos

@@ -132,7 +132,15 @@ def check_nuevas_notificaciones(request):
         ts_notif = last_notif.timestamp_envio.timestamp() if last_notif else 0
         ts_asig = last_asig.timestamp_notificacion.timestamp() if (last_asig and last_asig.timestamp_notificacion) else 0
         
-        if ts_asig > ts_notif:
+        # Lógica robusta: Si hay asignación y (no hay notificacion O la asignación es más nueva/igual), ganar asignación
+        use_asig = False
+        if last_asig:
+            if not last_notif:
+                 use_asig = True
+            elif ts_asig >= ts_notif:
+                 use_asig = True
+        
+        if use_asig:
              # Ganó Asignación
              last_notif_data = {
                 'latest_id': f"asig_{last_asig.id}", # Prefijo para evitar colisión IDs

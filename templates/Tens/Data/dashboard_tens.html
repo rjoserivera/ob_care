@@ -99,23 +99,57 @@
     </div>
 
     <!-- Estadísticas -->
+    <!-- Estadísticas -->
     <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="stat-box">
-                <div class="stat-number">{{ total_tratamientos|default:0 }}</div>
-                <div class="stat-label">Tratamientos Aplicados</div>
+        <!-- Fichas Activas -->
+        <div class="col-md-3">
+            <div class="stat-box d-flex align-items-center gap-3">
+                <div class="stat-icon p-3 rounded" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                    <i class="bi bi-file-earmark-medical-fill fs-3"></i>
+                </div>
+                <div>
+                    <div class="stat-number lh-1">{{ total_fichas|default:"0" }}</div>
+                    <div class="stat-label small">Fichas Activas</div>
+                </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="stat-box">
-                <div class="stat-number">{{ total_registros_tens|default:0 }}</div>
-                <div class="stat-label">Signos Vitales Registrados</div>
+        
+        <!-- Médicos Activos -->
+        <div class="col-md-3">
+            <div class="stat-box d-flex align-items-center gap-3">
+                <div class="stat-icon p-3 rounded" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white;">
+                    <i class="bi bi-heart-pulse-fill fs-3"></i>
+                </div>
+                <div>
+                    <div class="stat-number lh-1">{{ total_medicos|default:"0" }}</div>
+                    <div class="stat-label small">Médicos Activos</div>
+                </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="stat-box">
-                <div class="stat-number">{{ total_pacientes|default:0 }}</div>
-                <div class="stat-label">Pacientes en Atención</div>
+        
+        <!-- Matronas Activas -->
+        <div class="col-md-3">
+            <div class="stat-box d-flex align-items-center gap-3">
+                <div class="stat-icon p-3 rounded" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <i class="bi bi-person-heart fs-3"></i>
+                </div>
+                <div>
+                    <div class="stat-number lh-1">{{ total_matronas|default:"0" }}</div>
+                    <div class="stat-label small">Matronas Activas</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TENS Activos -->
+        <div class="col-md-3">
+            <div class="stat-box d-flex align-items-center gap-3">
+                <div class="stat-icon p-3 rounded" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                    <i class="bi bi-person-badge-fill fs-3"></i>
+                </div>
+                <div>
+                    <div class="stat-number lh-1">{{ total_tens|default:"0" }}</div>
+                    <div class="stat-label small">TENS Activos</div>
+                </div>
             </div>
         </div>
     </div>
@@ -128,7 +162,7 @@
             <div class="action-card">
                 <i class="bi bi-search"></i>
                 <h5>Buscar Paciente</h5>
-                <a href="{% url 'tens:buscar_paciente' %}" class="btn btn-action">
+                <a href="{% url 'tens:buscar_medicamentos' %}" class="btn btn-action">
                     Ir
                 </a>
             </div>
@@ -138,7 +172,7 @@
             <div class="action-card">
                 <i class="bi bi-heart-pulse"></i>
                 <h5>Registrar Signos Vitales</h5>
-                <a href="{% url 'tens:parametros_tens' %}" class="btn btn-action">
+                <a href="{% url 'tens:lista_fichas_signos' %}" class="btn btn-action">
                     Ir
                 </a>
             </div>
@@ -148,7 +182,7 @@
             <div class="action-card">
                 <i class="bi bi-clipboard-data"></i>
                 <h5>Ver Historial de Signos</h5>
-                <a href="{% url 'tens:buscar_paciente' %}" class="btn btn-action">
+                <a href="{% url 'tens:lista_fichas_historial' %}" class="btn btn-action">
                     Ir
                 </a>
             </div>
@@ -158,7 +192,7 @@
             <div class="action-card">
                 <i class="bi bi-prescription2"></i>
                 <h5>Aplicar Tratamiento</h5>
-                <a href="{% url 'tens:buscar_paciente' %}" class="btn btn-action">
+                <a href="{% url 'tens:lista_fichas_tratamiento' %}" class="btn btn-action">
                     Ir
                 </a>
             </div>
