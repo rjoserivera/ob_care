@@ -64,10 +64,10 @@ class DashboardAdminView(TemplateView):
         
         context['total_pacientes'] = Paciente.objects.filter(activo=True).count()
         context['total_personas'] = Persona.objects.filter(Activo=True).count()
-        context['total_medicos'] = User.objects.filter(groups__name='Medicos', is_active=True).count()
-        context['total_matronas'] = User.objects.filter(groups__name='Matronas', is_active=True).count()
+        context['total_medicos'] = User.objects.filter(groups__name='Medico', is_active=True).count()
+        context['total_matronas'] = User.objects.filter(groups__name='Matrona', is_active=True).count()
         context['total_tens'] = User.objects.filter(groups__name='TENS', is_active=True).count()
-        context['total_administradores'] = User.objects.filter(Q(groups__name='Administradores') | Q(is_superuser=True), is_active=True).distinct().count()
+        context['total_administradores'] = User.objects.filter(Q(groups__name='Administrador') | Q(is_superuser=True), is_active=True).distinct().count()
         
         # Fichas Obstétricas Activas
         context['total_fichas'] = FichaObstetrica.objects.filter(activa=True).count()
@@ -92,6 +92,30 @@ class DashboardMedicoView(TemplateView):
         context['usuario'] = self.request.user
         context['total_pacientes'] = Paciente.objects.filter(activo=True).count()
         
+        # Importar aquí para evitar import circular
+        from matronaApp.models import FichaObstetrica
+        from django.contrib.auth.models import User, Group
+        
+        context['total_fichas'] = FichaObstetrica.objects.filter(activa=True).count()
+        
+        try:
+            matronas_group = Group.objects.get(name='Matrona')
+            context['total_matronas'] = matronas_group.user_set.filter(is_active=True).count()
+        except Group.DoesNotExist:
+            context['total_matronas'] = 0
+
+        try:
+            tens_group = Group.objects.get(name='TENS')
+            context['total_tens'] = tens_group.user_set.filter(is_active=True).count()
+        except Group.DoesNotExist:
+             context['total_tens'] = 0
+
+        try:
+            medico_group = Group.objects.get(name='Medico')
+            context['total_medicos'] = medico_group.user_set.filter(is_active=True).count()
+        except Group.DoesNotExist:
+            context['total_medicos'] = 0
+        
         # Permisos
         context['puede_agregar_paciente'] = True
         context['puede_editar_ficha'] = True
@@ -115,11 +139,35 @@ class DashboardMatronaView(TemplateView):
         context['titulo'] = 'Dashboard Matrona'
         context['usuario'] = self.request.user
         context['total_pacientes'] = Paciente.objects.filter(activo=True).count()
+        print("DEBUG: DashboardMatronaView executing...")
         
         # Importar aquí para evitar import circular
+        # Importar aquí para evitar import circular
         from matronaApp.models import FichaObstetrica
+        from django.contrib.auth.models import User, Group
+        
         context['fichas_activas'] = FichaObstetrica.objects.filter(activa=True).count()
         
+        try:
+            matronas_group = Group.objects.get(name='Matrona')
+            context['total_matronas'] = matronas_group.user_set.filter(is_active=True).count()
+        except Group.DoesNotExist:
+            print("DEBUG: Group Matrona not found")
+            context['total_matronas'] = 0
+
+        try:
+            tens_group = Group.objects.get(name='TENS')
+            context['total_tens'] = tens_group.user_set.filter(is_active=True).count()
+        except Group.DoesNotExist:
+             context['total_tens'] = 0
+
+        try:
+            medico_group = Group.objects.get(name='Medico')
+            context['total_medicos'] = medico_group.user_set.filter(is_active=True).count()
+        except Group.DoesNotExist:
+            print("DEBUG: Group Medico not found")
+            context['total_medicos'] = 0
+
         return context
 
 
@@ -142,9 +190,9 @@ class DashboardTensView(TemplateView):
         from django.contrib.auth.models import User
         
         context['total_fichas'] = FichaObstetrica.objects.filter(activa=True).count()
-        context['total_matronas'] = User.objects.filter(groups__name='Matronas', is_active=True).count()
+        context['total_matronas'] = User.objects.filter(groups__name='Matrona', is_active=True).count()
         context['total_tens'] = User.objects.filter(groups__name='TENS', is_active=True).count()
-        context['total_medicos'] = User.objects.filter(groups__name='Medicos', is_active=True).count()
+        context['total_medicos'] = User.objects.filter(groups__name='Medico', is_active=True).count()
         
         return context
 

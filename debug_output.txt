@@ -1,0 +1,56 @@
+======================================================================
+EJECUTANDO GENERADOR DE DATOS DEMO
+======================================================================
+
+======================================================================
+GENERANDO 5 FICHAS COMPLETAS - ANO 2025
+======================================================================
+
+--- Procesando registro 1/5 ---
+  [OK] Paciente: Sofia Pérez
+  [OK] Ficha Obstétrica creada
+  [OK] Ficha de Ingreso a Parto creada
+  [OK] Registro de Parto creada
+  [OK] 1 Recién Nacido(s) creado(s)
+  [ERROR] ERROR en registro 1: MedicamentoFicha() got unexpected keyword arguments: 'fecha_administracion', 'responsable', 'observaciones'
+
+--- Procesando registro 2/5 ---
+  [OK] Paciente: Isabella Rojas
+  [OK] Ficha Obstétrica creada
+  [OK] Ficha de Ingreso a Parto creada
+  [OK] Registro de Parto creada
+  [OK] 1 Recién Nacido(s) creado(s)
+  [ERROR] ERROR en registro 2: MedicamentoFicha() got unexpected keyword arguments: 'fecha_administracion', 'responsable', 'observaciones'
+
+--- Procesando registro 3/5 ---
+  [OK] Paciente: Sofia Silva
+  [OK] Ficha Obstétrica creada
+  [OK] Ficha de Ingreso a Parto creada
+  [OK] Registro de Parto creada
+  [OK] 1 Recién Nacido(s) creado(s)
+  [ERROR] ERROR en registro 3: MedicamentoFicha() got unexpected keyword arguments: 'fecha_administracion', 'responsable', 'observaciones'
+
+--- Procesando registro 4/5 ---
+  [OK] Paciente: Valentina Pérez
+  [OK] Ficha Obstétrica creada
+  [OK] Ficha de Ingreso a Parto creada
+  [OK] Registro de Parto creada
+  [OK] 1 Recién Nacido(s) creado(s)
+
+--- Procesando registro 5/5 ---
+  [OK] Paciente: Martina Silva
+  [OK] Ficha Obstétrica creada
+  [OK] Ficha de Ingreso a Parto creada
+  [OK] Registro de Parto creada
+  [OK] 1 Recién Nacido(s) creado(s)
+
+======================================================================
+PROCESO FINALIZADO
+======================================================================
+Total Fichas Obstétricas: 5
+Total Registros de Parto: 5
+Total Recién Nacidos:     5
+Errores:                  3
+======================================================================
+
+[OK] Comando ejecutado exitosamente

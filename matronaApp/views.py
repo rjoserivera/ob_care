@@ -103,17 +103,29 @@ class DashboardMatronaView(TemplateView):
         context['titulo'] = 'Dashboard Matrona'
         context['usuario'] = self.request.user
         
+        
         # 1. Fichas Activas
         context['total_fichas'] = FichaObstetrica.objects.filter(activa=True).count()
         
-        # 2. Médicos Activos
-        context['total_medicos'] = User.objects.filter(groups__name='Medicos', is_active=True).count()
+        from django.contrib.auth.models import Group
         
-        # 3. Matronas Activas
-        context['total_matronas'] = User.objects.filter(groups__name='Matronas', is_active=True).count()
-        
-        # 4. TENS Activos
-        context['total_tens'] = User.objects.filter(groups__name='TENS', is_active=True).count()
+        try:
+            medico_group = Group.objects.get(name='Medico')
+            context['total_medicos'] = medico_group.user_set.filter(is_active=True).count()
+        except Group.DoesNotExist:
+            context['total_medicos'] = 0
+
+        try:
+            matronas_group = Group.objects.get(name='Matrona')
+            context['total_matronas'] = matronas_group.user_set.filter(is_active=True).count()
+        except Group.DoesNotExist:
+            context['total_matronas'] = 0
+
+        try:
+            tens_group = Group.objects.get(name='TENS')
+            context['total_tens'] = tens_group.user_set.filter(is_active=True).count()
+        except Group.DoesNotExist:
+            context['total_tens'] = 0
 
         # Permisos
         context['puede_ingresar_paciente'] = True

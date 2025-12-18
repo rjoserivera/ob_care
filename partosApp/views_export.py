@@ -143,7 +143,7 @@ def generar_excel_libro(request):
     
     columns_map = [
         # --- DATOS GENERALES (Identificación + Patologías) ---
-        ("DATOS GENERALES", "Tipo de Paciente", lambda x: safe_get(x['parto'], 'ficha_obstetrica.tipo_paciente.nombre', 'SIN PREVISIÓN')),
+        ("DATOS GENERALES", "Previsión", lambda x: safe_get(x['parto'], 'ficha_obstetrica.paciente.prevision.nombre', 'SIN PREVISIÓN')),
         ("DATOS GENERALES", "Origen Ingreso", lambda x: safe_get(x['parto'], 'ficha_obstetrica.tipo_ingreso', '-')),
         ("DATOS GENERALES", "FECHA", lambda x: (safe_val(x['parto'], 'fecha_hora_parto') or safe_val(x['parto'], 'ficha_obstetrica.fecha_creacion')).strftime('%d/%m/%Y') if (safe_val(x['parto'], 'fecha_hora_parto') or safe_val(x['parto'], 'ficha_obstetrica.fecha_creacion')) else '-'),
         ("DATOS GENERALES", "Hora", lambda x: (safe_val(x['parto'], 'fecha_hora_parto') or safe_val(x['parto'], 'ficha_obstetrica.fecha_creacion')).strftime('%H:%M') if (safe_val(x['parto'], 'fecha_hora_parto') or safe_val(x['parto'], 'ficha_obstetrica.fecha_creacion')) else '-'),
@@ -198,7 +198,7 @@ def generar_excel_libro(request):
         ("TOMA DE VIH / EXÁMENES", "VIH 1 - Resultado", lambda x: safe_get(x['parto'], 'ficha_obstetrica.vih_1_resultado', '-')),
         ("TOMA DE VIH / EXÁMENES", "VIH 2 - Fecha", lambda x: safe_val(x['parto'], 'ficha_obstetrica.vih_2_fecha').strftime('%d/%m/%Y') if safe_val(x['parto'], 'ficha_obstetrica.vih_2_fecha') else '-'),
         ("TOMA DE VIH / EXÁMENES", "VIH 2 - Resultado", lambda x: safe_get(x['parto'], 'ficha_obstetrica.vih_2_resultado', '-')),
-        ("TOMA DE VIH / EXÁMENES", "VIH 3 (Intraparto)", lambda x: safe_get(x['parto'], 'ficha_ingreso_parto.vih_resultado', '-')),
+
         
         ("SGB", "Pesquisa", lambda x: get_si_no(safe_get(x['parto'], 'ficha_ingreso_parto.sgb_pesquisa', False))),
         ("SGB", "Resultado", lambda x: safe_get(x['parto'], 'ficha_ingreso_parto.sgb_resultado', '-')),
@@ -214,13 +214,12 @@ def generar_excel_libro(request):
         ("TRABAJO DE PARTO", "Inducción", lambda x: get_si_no(safe_get(x['parto'], 'induccion', False))),
         ("TRABAJO DE PARTO", "Aceleración ó Corrección", lambda x: get_si_no(safe_get(x['parto'], 'aceleracion', False))),
         ("TRABAJO DE PARTO", "Rotura membrana", lambda x: "SI" if safe_get(x['parto'], 'tipo_rotura_membrana') else "NO"),
-        ("TRABAJO DE PARTO", "Tiempo dilatación (min)", lambda x: safe_get(x['parto'], 'tiempo_dilatacion_minutos', '-')),
-        ("TRABAJO DE PARTO", "Tiempo Expulsivo (min)", lambda x: safe_get(x['parto'], 'tiempo_expulsivo_minutos', '-')),
+
 
 
         # --- PARTO ---
         ("PARTO", "Libertad de Movimiento", lambda x: get_si_no(safe_get(x['parto'], 'libertad_movimiento', False))),
-        ("PARTO", "Tipo de Régimen", lambda x: safe_get(x['parto'], 'regimen_parto.descripcion', '-')),
+
         ("PARTO", "Tipo de parto", lambda x: safe_get(x['parto'], 'tipo_parto.descripcion', '-')),
         ("PARTO", "Alumbramiento Dirigido", lambda x: get_si_no(safe_get(x['parto'], 'alumbramiento_dirigido', False))),
         ("PARTO", "Clasificación de Robson", lambda x: safe_get(x['parto'], 'clasificacion_robson.descripcion', '-')),
@@ -350,13 +349,28 @@ def generar_excel_libro(request):
     from django.db.models import Q
     
     # Filtro por rango de fechas
-    fecha_inicio = request.POST.get('fecha_inicio')
-    fecha_fin = request.POST.get('fecha_fin')
+    fecha_inicio_str = request.POST.get('fecha_inicio')
+    fecha_fin_str = request.POST.get('fecha_fin') # input type="date" returns YYYY-MM-DD
     
-    if fecha_inicio:
-        queryset = queryset.filter(fecha_hora_parto__date__gte=fecha_inicio)
-    if fecha_fin:
-        queryset = queryset.filter(fecha_hora_parto__date__lte=fecha_fin)
+    if fecha_inicio_str:
+        try:
+            # Crear datetime inicio del día (00:00:00)
+            fi = datetime.strptime(fecha_inicio_str, "%Y-%m-%d")
+            fi_aware = timezone.make_aware(fi) # Asigna timezone del proyecto
+            queryset = queryset.filter(fecha_hora_parto__gte=fi_aware)
+        except ValueError:
+            pass # Ignorar formato inválido
+
+    if fecha_fin_str:
+        try:
+            # Crear datetime fin del día (23:59:59)
+            ff = datetime.strptime(fecha_fin_str, "%Y-%m-%d")
+            # Ajustar al final del día
+            ff = ff.replace(hour=23, minute=59, second=59, microsecond=999999)
+            ff_aware = timezone.make_aware(ff)
+            queryset = queryset.filter(fecha_hora_parto__lte=ff_aware)
+        except ValueError:
+            pass
     
 
     
