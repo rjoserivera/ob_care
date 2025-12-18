@@ -1,26 +1,29 @@
 from django.urls import path
 from . import views, views_logs
-from .views_telegram import ConfigurarTelegramView, IniciarBotView
+from .views_telegram import ConfigurarTelegramView, IniciarBotView, AsignarRolesView
 
 app_name = 'gestion'
 
 urlpatterns = [
     # PERSONAS
-    path('registrar-persona/', views.registrar_persona, name='registrar_persona'),
-    path('persona/<int:pk>/', views.detalle_persona, name='detalle_persona'),
-    path('persona/<int:pk>/editar/', views.editar_persona, name='editar_persona'),
-    path('persona/<int:pk>/desactivar/', views.desactivar_persona, name='desactivar_persona'),
-    path('persona/<int:pk>/activar/', views.activar_persona, name='activar_persona'),
-    path('personas/', views.persona_list, name='persona_list'),
-    path('buscar-persona/', views.buscar_persona, name='buscar_persona'),
+    path('profiles/new/', views.registrar_persona, name='registrar_persona'),
+    path('profiles/<int:pk>/', views.detalle_persona, name='detalle_persona'),
+    path('profiles/<int:pk>/edit/', views.editar_persona, name='editar_persona'),
+    path('profiles/<int:pk>/disable/', views.desactivar_persona, name='desactivar_persona'),
+    path('profiles/<int:pk>/enable/', views.activar_persona, name='activar_persona'),
+    path('profiles/', views.persona_list, name='persona_list'),
+    path('search/', views.buscar_persona, name='buscar_persona'),
     
     # API
-    path('api/buscar-persona/', views.api_buscar_persona, name='api_buscar_persona'),
+    path('api/search/', views.api_buscar_persona, name='api_buscar_persona'),
     
     # TELEGRAM
-    path('configuracion/telegram/', ConfigurarTelegramView.as_view(), name='configurar_telegram'),
-    path('configuracion/telegram/iniciar/', IniciarBotView.as_view(), name='iniciar_bot_telegram'),
+    path('settings/notifications/', ConfigurarTelegramView.as_view(), name='configurar_telegram'),
+    path('settings/notifications/start/', IniciarBotView.as_view(), name='iniciar_bot_telegram'),
+    
+    # ROLES
+    path('settings/roles/', AsignarRolesView.as_view(), name='asignar_roles'),
     
     # LOGS
-    path('logs/', views_logs.LogListView.as_view(), name='listar_logs'),
+    path('activity/', views_logs.LogListView.as_view(), name='listar_logs'),
 ]

@@ -1,4 +1,5 @@
 {% extends 'Shared/base.html' %}
+{% load url_encryption_tags %}
 
 {% block title %}Centro de Control - Sala de Preparación{% endblock %}
 
@@ -160,7 +161,7 @@
                 Bebés: <strong>{{ cantidad_bebes }}</strong>
             </p>
         </div>
-        <a href="{% url 'matrona:detalle_ficha' ficha.id %}" class="btn btn-outline-secondary">
+        <a href="{% url 'matrona:detalle_ficha' ficha_pk=ficha.id|encrypt %}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Volver
         </a>
     </div>

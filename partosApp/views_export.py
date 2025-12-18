@@ -29,6 +29,7 @@ def vista_exportar_libro(request):
     
     return render(request, 'Partos/exportar_seleccion.html', context)
 
+
 # ==========================================
 # HELPERS
 # ==========================================
@@ -212,9 +213,7 @@ def generar_excel_libro(request):
         ("TRABAJO DE PARTO", "TTC", lambda x: safe_get(x['parto'], 'tiempo_trabajo_parto_total_minutos', '-')),
         ("TRABAJO DE PARTO", "Inducción", lambda x: get_si_no(safe_get(x['parto'], 'induccion', False))),
         ("TRABAJO DE PARTO", "Aceleración ó Corrección", lambda x: get_si_no(safe_get(x['parto'], 'aceleracion', False))),
-        ("TRABAJO DE PARTO", "N° TV", lambda x: safe_get(x['parto'], 'ficha_obstetrica.registros_dilatacion.count', '-')),
         ("TRABAJO DE PARTO", "Rotura membrana", lambda x: "SI" if safe_get(x['parto'], 'tipo_rotura_membrana') else "NO"),
-        ("TRABAJO DE PARTO", "Tiempo membranas rotas (hrs)", lambda x: safe_get(x['parto'], 'ficha_ingreso_parto.tiempo_ruptura_horas', '-')),
         ("TRABAJO DE PARTO", "Tiempo dilatación (min)", lambda x: safe_get(x['parto'], 'tiempo_dilatacion_minutos', '-')),
         ("TRABAJO DE PARTO", "Tiempo Expulsivo (min)", lambda x: safe_get(x['parto'], 'tiempo_expulsivo_minutos', '-')),
 
@@ -271,14 +270,11 @@ def generar_excel_libro(request):
         ("INFORMACION DE LOS PROFESIONALES", "OBSERVACIONES", lambda x: safe_get(x['parto'], 'observaciones', '-')),
         ("INFORMACION DE LOS PROFESIONALES", "USO DE SALA SAIP (SI/NO)", lambda x: get_si_no(safe_get(x['parto'], 'uso_sala_saip', False))),
 
-        # --- LEY DOMINGA / PLACENTA / REGISTRO CIVIL ---
+        # --- LEY DOMINGA / PLACENTA ---
         ("Ley N° 21.372 Dominga", "Recuerdos Entregados", lambda x: safe_get(x['parto'], 'ley_dominga_recuerdos', '-')),
         ("Ley N° 21.372 Dominga", "Justificación (No entrega)", lambda x: safe_get(x['parto'], 'ley_dominga_justificacion', '-')),
         ("Placenta", "Retira Placenta", lambda x: get_si_no(safe_get(x['parto'], 'retira_placenta', False))),
         ("Placenta", "Estampado de Placenta", lambda x: get_si_no(safe_get(x['parto'], 'estampado_placenta', False))),
-        ("Registro Civil", "FOLIO VALIDO", lambda x: safe_get(x['rn'], 'documentos_parto.numero_folio', '-') if x['rn'] and safe_get(x['rn'], 'documentos_parto.folio_valido') else '-'),
-        ("Registro Civil", "FOLIO/S NULO/S", lambda x: safe_get(x['rn'], 'documentos_parto.folios_nulos', '-') if x['rn'] else '-'),
-        ("", "Manejo del Dolor No Farmacologico", lambda x: ", ".join([m.descripcion for m in x['parto'].metodos_no_farmacologicos.all()]) if x['parto'].metodos_no_farmacologicos.exists() else '-'),
     ]
     
     # ---------------------------------------------------------

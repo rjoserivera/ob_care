@@ -54,7 +54,7 @@ def buscar_paciente_tens(request):
         'query': query,
     }
     
-    return render(request, 'Tens/buscar_paciente.html', context)
+    return render(request, 'Gestion/buscar_persona.html', context)
 
 
 

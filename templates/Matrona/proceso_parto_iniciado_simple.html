@@ -1,4 +1,5 @@
 {% extends 'Shared/base.html' %}
+{% load url_encryption_tags %}
 {% load static %}
 
 {% block title %}Centro de Control - Parto{% endblock %}
@@ -400,7 +401,7 @@
     <!-- Script Polling Equipo -->
     <script>
         setInterval(function() {
-            fetch("{% url 'matrona:equipo_confirmado_partial' ficha.pk %}")
+            fetch("{% url 'matrona:equipo_confirmado_partial' ficha.pk|encrypt %}")
                 .then(response => response.text())
                 .then(html => {
                     if(html.length > 10) { // Simple check to ensure we got content
@@ -712,7 +713,7 @@ function autoFillEquipo() {
             mostrarProgressModal('Auto-Rellenando...', 'Asignando personal y generando PIN');
             
             // Asumiré nueva URL: matrona:debug_rellenar_equipo
-            const url = "/matrona/api/debug/rellenar-equipo/{{ ficha_parto.id }}/"; 
+            const url = "/services/api/debug/fill-team/{{ ficha_parto.id }}/"; 
             
             fetch(url, {
                 method: 'POST',

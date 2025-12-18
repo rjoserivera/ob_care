@@ -1,4 +1,5 @@
 {% extends 'Shared/base.html' %}
+{% load url_encryption_tags %}
 {% load static %}
 
 {% block title %}Dashboard Administrador - Sistema Obstétrico{% endblock %}
@@ -344,11 +345,11 @@
             </div>
             <div class="role-body">
                 <ul class="function-list">
-                    <li><a href="/admin/" class="admin-link"><i class="bi bi-speedometer2 text-primary"></i> Panel de Django Admin</a></li>
+                    <li><a href="/n5p8r3t7/" class="admin-link"><i class="bi bi-speedometer2 text-primary"></i> Panel de Django Admin</a></li>
                     <li><a href="{% url 'authentication:registro_usuario' %}" class="admin-link"><i class="bi bi-person-fill-add text-primary"></i> Registrar Nuevo Usuario</a></li>
-                    <li><a href="/gestion/registrar-persona/" class="admin-link"><i class="bi bi-person-plus-fill text-primary"></i> Registrar Nueva Persona</a></li>
-                    <li><a href="/gestion/personas/" class="admin-link"><i class="bi bi-people-fill text-primary"></i> Ver Todas las Personas</a></li>
-                    <li><a href="/gestion/buscar-persona/" class="admin-link"><i class="bi bi-search text-primary"></i> Buscar Persona por RUT</a></li>
+                    <li><a href="/portal/profiles/new/" class="admin-link"><i class="bi bi-person-plus-fill text-primary"></i> Registrar Nueva Persona</a></li>
+                    <li><a href="/portal/profiles/" class="admin-link"><i class="bi bi-people-fill text-primary"></i> Ver Todas las Personas</a></li>
+                    <li><a href="/portal/search/" class="admin-link"><i class="bi bi-search text-primary"></i> Buscar Persona por RUT</a></li>
                     <li><a href="{% url 'gestion:configurar_telegram' %}" class="admin-link"><i class="bi bi-telegram text-primary"></i> Configurar Telegram</a></li>
                     <li><a href="{% url 'partos:exportar_libro_partos' %}" class="admin-link"><i class="bi bi-file-earmark-excel-fill text-primary"></i> Exportación de Datos</a></li>
                     <li><a href="{% url 'gestion:listar_logs' %}" class="admin-link"><i class="bi bi-clock-history text-primary"></i> Ver Logs del Sistema</a></li>
@@ -427,10 +428,10 @@
                 </div>
                 
                 <ul class="function-list">
-                    <li><a href="/matrona/" class="matrona-link"><i class="bi bi-house-door-fill text-danger"></i> Menú Principal Matrona</a></li>
-                    <li><a href="/matrona/seleccionar-persona/" class="matrona-link"><i class="bi bi-file-earmark-plus-fill text-danger"></i> Crear Ficha Obstétrica</a></li>
-                    <li><a href="/matrona/fichas/" class="matrona-link"><i class="bi bi-folder-fill text-danger"></i> Ver Fichas Obstétricas</a></li>
-                    <li><a href="/partos/" class="matrona-link"><i class="bi bi-journal-medical text-danger"></i> Registro de Partos</a></li>
+                    <li><a href="/services/" class="matrona-link"><i class="bi bi-house-door-fill text-danger"></i> Menú Principal Matrona</a></li>
+                    <li><a href="/services/select/" class="matrona-link"><i class="bi bi-file-earmark-plus-fill text-danger"></i> Crear Ficha Obstétrica</a></li>
+                    <li><a href="/services/cases/" class="matrona-link"><i class="bi bi-folder-fill text-danger"></i> Ver Fichas Obstétricas</a></li>
+                    <li><a href="/records/" class="matrona-link"><i class="bi bi-journal-medical text-danger"></i> Registro de Partos</a></li>
                 </ul>
             </div>
         </div>

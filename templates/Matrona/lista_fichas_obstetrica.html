@@ -1,4 +1,5 @@
 {% extends 'Shared/base.html' %}
+{% load url_encryption_tags %}
 {% load static %}
 
 {% block title %}{{ titulo }} - Sistema Obstétrico{% endblock %}
@@ -96,6 +97,17 @@
         background: #f0f7ff;
     }
 
+    .ficha-card.cerrada {
+        border-left-color: #6c757d;
+        background: #f8f9fa;
+        opacity: 0.85;
+    }
+
+    .ficha-card.completada {
+        border-left-color: #20c997;
+        background: #f0fff8;
+    }
+
     .ficha-info {
         flex: 1;
     }
@@ -160,6 +172,16 @@
     .badge-warning {
         background: #fff3cd;
         color: #856404;
+    }
+
+    .badge-secondary {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+
+    .badge-teal {
+        background: #d1f2eb;
+        color: #0c5460;
     }
 
     .ficha-actions {
@@ -321,7 +343,7 @@
     {% if fichas %}
     <div class="fichas-grid">
         {% for ficha in fichas %}
-        <div class="ficha-card {% if ficha.estado_dilatacion == 'ESTANCADA' %}estancada{% elif ficha.proceso_parto_iniciado %}en-parto{% elif ficha.estado_dilatacion == 'LISTA' %}lista{% endif %}">
+        <div class="ficha-card {% if ficha.ficha_cerrada %}cerrada{% elif ficha.parto_completado %}completada{% elif ficha.estado_dilatacion == 'ESTANCADA' %}estancada{% elif ficha.proceso_parto_iniciado %}en-parto{% elif ficha.estado_dilatacion == 'LISTA' %}lista{% endif %}">
             <div class="ficha-info">
                 <div class="ficha-numero">{{ ficha.numero_ficha }}</div>
                 <div class="ficha-paciente">
@@ -333,23 +355,29 @@
                     <span><i class="bi bi-calendar"></i> {{ ficha.fecha_creacion|date:"d/m/Y H:i" }}</span>
                 </div>
                 <div class="ficha-badges">
-                    {% if ficha.proceso_parto_iniciado %}
+                    {% if ficha.ficha_cerrada %}
+                        <span class="badge badge-secondary">🔒 Ficha Cerrada</span>
+                        <span class="badge badge-secondary" style="font-size: 0.7rem;">{{ ficha.fecha_cierre|date:"d/m/Y H:i" }}</span>
+                    {% elif ficha.parto_completado %}
+                        <span class="badge badge-teal">✅ Parto Completado</span>
+                        <span class="badge badge-warning">⚠️ Pendiente de Cierre</span>
+                    {% elif ficha.proceso_parto_iniciado %}
                         <span class="badge badge-success">🏥 En Proceso de Parto</span>
                     {% endif %}
-                    {% if ficha.estado_dilatacion == 'ESTANCADA' %}
+                    {% if not ficha.ficha_cerrada and ficha.estado_dilatacion == 'ESTANCADA' %}
                         <span class="badge badge-danger">⚠️ Dilatación Estancada</span>
-                    {% elif ficha.estado_dilatacion == 'LISTA' %}
+                    {% elif not ficha.ficha_cerrada and ficha.estado_dilatacion == 'LISTA' %}
                         <span class="badge badge-info">✅ Lista para Parto</span>
                     {% endif %}
                 </div>
             </div>
             <div class="ficha-actions">
                 {% if accion == 'editar' %}
-                <a href="{% url 'matrona:editar_ficha' ficha.pk %}" class="btn-ver">
+                <a href="{% url 'matrona:editar_ficha' ficha_pk=ficha.pk|encrypt %}" class="btn-ver">
                     <i class="bi bi-pencil-square"></i> Editar Ficha
                 </a>
                 {% else %}
-                <a href="{% url 'matrona:detalle_ficha' ficha.pk %}" class="btn-ver">
+                <a href="{% url 'matrona:detalle_ficha' ficha_pk=ficha.pk|encrypt %}" class="btn-ver">
                     <i class="bi bi-eye"></i> Ver Detalle
                 </a>
                 {% endif %}

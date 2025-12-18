@@ -1,4 +1,5 @@
 {% load static %}
+{% load url_encryption_tags %}
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
     <div class="container-fluid">
         <a class="navbar-brand" href="{% url 'home' %}">
@@ -12,13 +13,18 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/admin/">
+                    <a class="nav-link" href="/n5p8r3t7/">
                         <i class="bi bi-shield-lock"></i> Panel Django
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'gestion_procesos:panel_notificaciones_admin' %}">
                         <i class="bi bi-broadcast"></i> Enviar Notificación
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'gestion:asignar_roles' %}">
+                        <i class="bi bi-person-badge"></i> Asignar Roles
                     </a>
                 </li>
                 
@@ -73,9 +79,6 @@
                                 <i class="bi bi-shield-lock"></i> Administrador
                             </span></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">
-                            <i class="bi bi-gear"></i> Configuración
-                        </a></li>
                         <li><a class="dropdown-item" href="{% url 'gestion:configurar_telegram' %}">
                             <i class="bi bi-telegram"></i> Telegram
                         </a></li>

@@ -14,7 +14,7 @@ import os
 
 # Decorador para asegurar que solo administrativos accedan
 def admin_required(user):
-    return user.is_superuser or user.groups.filter(name='Administradores').exists()
+    return user.is_superuser or user.groups.filter(name='Administrador').exists()
 
 @method_decorator(login_required, name='dispatch')
 class ConfigurarTelegramView(View):
@@ -97,3 +97,71 @@ class IniciarBotView(View):
             messages.error(request, f"❌ Error iniciando el bot: {str(e)}")
             
         return redirect('gestion:configurar_telegram')
+
+
+@method_decorator(login_required, name='dispatch')
+class AsignarRolesView(View):
+    template_name = "Gestion/Data/asignar_roles.html"
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not admin_required(request.user):
+            messages.error(request, "Acceso denegado. Se requieren permisos de administrador.")
+            return redirect('home')
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get(self, request):
+        from django.contrib.auth.models import Group
+        
+        # Obtener parámetro de búsqueda
+        search_query = request.GET.get('search', '').strip()
+        
+        # Obtener todos los grupos disponibles
+        grupos = Group.objects.all().order_by('name')
+        
+        # Buscar usuarios
+        users = None
+        if search_query:
+            users = User.objects.filter(
+                username__icontains=search_query
+            ) | User.objects.filter(
+                first_name__icontains=search_query
+            ) | User.objects.filter(
+                last_name__icontains=search_query
+            )
+            users = users.select_related('perfil').distinct().order_by('username')
+        
+        context = {
+            'users': users,
+            'grupos': grupos,
+            'search_query': search_query
+        }
+        return render(request, self.template_name, context)
+    
+    def post(self, request):
+        from django.contrib.auth.models import Group
+        
+        user_id = request.POST.get('user_id')
+        grupo_id = request.POST.get('grupo_id')
+        
+        try:
+            user = User.objects.get(id=user_id)
+            grupo = Group.objects.get(id=grupo_id)
+            
+            # Asignar grupo al usuario
+            user.groups.add(grupo)
+            
+            messages.success(request, f"✅ Rol '{grupo.name}' asignado a {user.username}")
+            
+        except User.DoesNotExist:
+            messages.error(request, "Usuario no encontrado.")
+        except Group.DoesNotExist:
+            messages.error(request, "Grupo no encontrado.")
+        except Exception as e:
+            messages.error(request, f"Error: {e}")
+        
+        # Redirigir con el parámetro de búsqueda si existe
+        search_query = request.POST.get('search_query', '')
+        if search_query:
+            return redirect(f"{request.path}?search={search_query}")
+        return redirect('gestion:asignar_roles')
+

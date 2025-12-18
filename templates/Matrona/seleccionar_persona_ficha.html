@@ -1,4 +1,5 @@
 {% extends 'Shared/base.html' %}
+{% load url_encryption_tags %}
 {% load static %}
 
 {% block title %}Seleccionar Persona - Ficha Obstétrica{% endblock %}
@@ -388,7 +389,7 @@
 
     function selectPersona(personaId, personaNombre) {
         // Redirigir a crear ficha con persona pre-seleccionada
-        window.location.href = `/matrona/ficha/crear-persona/${personaId}/`;
+        window.location.href = `/services/case/create/${personaId}/`;
     }
 </script>
 {% endblock %}

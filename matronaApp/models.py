@@ -548,6 +548,32 @@ class FichaObstetrica(models.Model):
         verbose_name='Fecha/Hora Inicio Proceso Parto'
     )
     
+    # Nuevos campos para control de cierre de ficha
+    parto_completado = models.BooleanField(
+        default=False,
+        verbose_name='Parto Completado y Registrado'
+    )
+    
+    ficha_cerrada = models.BooleanField(
+        default=False,
+        verbose_name='Ficha Cerrada Definitivamente'
+    )
+    
+    fecha_cierre = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Fecha/Hora de Cierre de Ficha'
+    )
+    
+    usuario_cierre = models.ForeignKey(
+        'auth.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='fichas_cerradas',
+        verbose_name='Usuario que Cerró la Ficha'
+    )
+    
     # ============================================
     # SECCIÓN 13: CONTROL Y ESTADO
     # ============================================
@@ -641,6 +667,18 @@ class FichaObstetrica(models.Model):
         2. Dilatación >= 8 cm → Parto vaginal
         3. Dilatación estancada (3 registros iguales) → Posible cesárea
         """
+        # VALIDACIÓN 0: Verificar si la ficha está cerrada
+        if self.ficha_cerrada:
+            return False, '🔒 La ficha obstétrica está cerrada definitivamente', None
+        
+        # VALIDACIÓN 1: Verificar si el parto ya fue completado
+        if self.parto_completado:
+            return False, '✅ El parto ya fue completado y registrado. Debe cerrar la ficha.', None
+        
+        # VALIDACIÓN 2: Verificar si ya está en proceso
+        if self.proceso_parto_iniciado:
+            return False, '⏳ El proceso de parto ya está en curso', None
+        
         # Condición 1: Tipo de ingreso urgente
         if self.tipo_ingreso == 'URGENCIA':
             return True, '🚨 Ingreso por URGENCIA - Proceso de parto habilitado inmediatamente', 'URGENTE'

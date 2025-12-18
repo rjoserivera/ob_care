@@ -1,4 +1,5 @@
 {% extends 'Shared/base.html' %}
+{% load url_encryption_tags %}
 {% load static %}
 
 {% block title %}Ficha {{ ficha.numero_ficha }} - Sistema Obstétrico{% endblock %}
@@ -812,7 +813,7 @@
             </div>
             <div style="display: flex; gap: 10px; align-items: center;">
                 {% if puede_editar_ficha %}
-                <a href="{% url 'matrona:editar_ficha' ficha.pk %}" class="btn btn-light btn-sm shadow-sm"
+                <a href="{% url 'matrona:editar_ficha' ficha_pk=ficha.pk|encrypt %}" class="btn btn-light btn-sm shadow-sm"
                     style="color: #f5576c; font-weight: 700; border-radius: 20px; padding: 0.4rem 1rem;">
                     <i class="bi bi-pencil-square"></i> Editar Ficha
                 </a>
@@ -852,25 +853,73 @@
         </div>
     </div>
 
-    <!-- Card de Acción: Iniciar Parto (solo si cumple condiciones) -->
-    <!-- Card de Acción: Iniciar Parto (Status Monitor) -->
-    <div class="action-card {% if puede_parto %}status-active{% else %}status-waiting{% endif %}">
+    <!-- Card de Acción: Estado del Parto -->
+    <div class="action-card {% if ficha.ficha_cerrada %}status-closed{% elif ficha.parto_completado %}status-completed{% elif puede_parto %}status-active{% else %}status-waiting{% endif %}">
         <div class="action-card-content">
-            {% if puede_parto %}
-            <h3><i class="bi bi-exclamation-circle-fill me-2"></i>PARTO HABILITADO</h3>
-            <p>{{ razon_parto }}</p>
-            <p>Tipo sugerido: <strong>{{ tipo_parto_sugerido }}</strong></p>
+            {% if ficha.ficha_cerrada %}
+                <!-- FICHA CERRADA -->
+                <h3 style="color: #6c757d;"><i class="bi bi-lock-fill me-2"></i>FICHA CERRADA</h3>
+                <p>Esta ficha fue cerrada el {{ ficha.fecha_cierre|date:"d/m/Y H:i" }}</p>
+                <small class="text-muted">Cerrada por: {{ ficha.usuario_cierre.get_full_name }}</small>
+            
+            {% elif ficha.parto_completado %}
+                <!-- PARTO COMPLETADO - PENDIENTE DE CIERRE -->
+                <h3 style="color: #20c997;"><i class="bi bi-check-circle-fill me-2"></i>PARTO COMPLETADO</h3>
+                <p>El parto ya fue completado y registrado. Debe cerrar la ficha.</p>
+                <small class="text-muted">Esta acción es irreversible y moverá la ficha al historial.</small>
+            
+            {% elif puede_parto %}
+                <!-- PARTO HABILITADO -->
+                <h3><i class="bi bi-exclamation-circle-fill me-2"></i>PARTO HABILITADO</h3>
+                <p>{{ razon_parto }}</p>
+                <p>Tipo sugerido: <strong>{{ tipo_parto_sugerido }}</strong></p>
+            
             {% else %}
-            <h3 style="color: #6c757d;"><i class="bi bi-hourglass-split me-2"></i>Monitoreo de Parto</h3>
-            <p>{{ razon_parto }}</p>
-            <small class="text-muted">El botón se habilitará automáticamente al cumplir criterios.</small>
+                <!-- MONITOREO -->
+                <h3 style="color: #6c757d;"><i class="bi bi-hourglass-split me-2"></i>Monitoreo de Parto</h3>
+                <p>{{ razon_parto }}</p>
+                <small class="text-muted">El botón se habilitará automáticamente al cumplir criterios.</small>
             {% endif %}
         </div>
 
-        <button type="button" class="btn-parto" onclick="abrirModalParto()" {% if not puede_parto %}disabled
-            style="opacity: 0.5; cursor: not-allowed; background: #ccc;" {% endif %}>
-            <i class="bi bi-heart-pulse-fill"></i> INICIAR PROCESO DE PARTO
-        </button>
+        <!-- BOTONES SEGÚN ESTADO -->
+        {% if ficha.ficha_cerrada %}
+            <!-- Ficha cerrada: solo ver historial -->
+            <a href="{% url 'matrona:historial_partos' %}" class="btn-parto" style="background: #6c757d;">
+                <i class="bi bi-clock-history"></i> VER HISTORIAL DE PARTOS
+            </a>
+        
+        {% elif ficha.parto_completado %}
+            <!-- Parto completado: botón de cerrar + ver detalle -->
+            <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+                <form method="post" action="{% url 'matrona:cerrar_ficha' ficha.pk|encrypt %}" 
+                      onsubmit="return confirm('¿Está seguro de cerrar definitivamente esta ficha?\n\nEsta acción:\n• Marcará la ficha como cerrada\n• La moverá al historial\n• NO se puede deshacer\n\n¿Desea continuar?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-parto" style="background: #dc3545; width: 100%;">
+                        <i class="bi bi-lock-fill"></i> CERRAR FICHA DEFINITIVAMENTE
+                    </button>
+                </form>
+                {% if ficha.fichas_parto.first %}
+                <a href="{% url 'matrona:resumen_final_parto' ficha_parto_id=ficha.fichas_parto.first.id|encrypt %}" 
+                   class="btn-parto" style="background: #0dcaf0;">
+                    <i class="bi bi-file-earmark-text"></i> VER DETALLE DEL PARTO
+                </a>
+                {% endif %}
+            </div>
+        
+        {% elif ficha.proceso_parto_iniciado %}
+            <!-- Parto en proceso: continuar -->
+            <a href="{% url 'matrona:proceso_parto_iniciado' ficha.pk|encrypt %}" class="btn-parto" style="background: #0d6efd;">
+                <i class="bi bi-arrow-right-circle-fill"></i> CONTINUAR CON EL PROCESO
+            </a>
+        
+        {% else %}
+            <!-- Estado inicial: iniciar parto -->
+            <button type="button" class="btn-parto" onclick="abrirModalParto()" {% if not puede_parto %}disabled
+                style="opacity: 0.5; cursor: not-allowed; background: #ccc;" {% endif %}>
+                <i class="bi bi-heart-pulse-fill"></i> INICIAR PROCESO DE PARTO
+            </button>
+        {% endif %}
     </div>
 
     <!-- Navegación de Tabs -->
@@ -1902,7 +1951,7 @@
 
     <!-- Botones de Acción -->
     <div class="btn-actions">
-        <a href="{% url 'matrona:editar_ficha' ficha.pk %}" class="btn-gradient">
+        <a href="{% url 'matrona:editar_ficha' ficha_pk=ficha.pk|encrypt %}" class="btn-gradient">
             <i class="bi bi-pencil"></i> Editar Ficha
         </a>
         <a href="{% url 'matrona:lista_fichas' %}" class="btn-outline">
@@ -2510,7 +2559,7 @@
         const container = document.getElementById('listaAdministraciones');
         container.innerHTML = '<div class="text-center text-muted py-3"><i class="spinner-border spinner-border-sm"></i> Cargando...</div>';
         
-        fetch(`/matrona/api/medicamento/${medId}/administraciones/`)
+        fetch(`/services/api/treatment/${medId}/doses/`)
             .then(res => res.json())
             .then(data => {
                 if(data.administraciones && data.administraciones.length > 0) {
@@ -2558,7 +2607,7 @@
             observaciones: obs
         };
         
-        fetch(`/matrona/api/medicamento/${medId}/registrar_administracion/`, {
+        fetch(`/services/api/treatment/${medId}/administer/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -2650,7 +2699,7 @@
                 <button type="button" class="btn-close btn-close-white" onclick="cerrarModalParto()"
                     style="background: transparent; border: none; color: white; font-size: 1.5rem;">&times;</button>
             </div>
-            <form action="{% url 'matrona:iniciar_parto' ficha.id %}" method="POST">
+            <form action="{% url 'matrona:iniciar_parto' ficha_pk=ficha.id|encrypt %}" method="POST">
                 {% csrf_token %}
                 <div class="modal-body p-4">
                     <div class="text-center mb-4">

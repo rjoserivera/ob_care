@@ -1,0 +1,125 @@
+{% extends 'Shared/base.html' %}
+{% load static %}
+
+{% block title %}Asignar Roles - Obstetric Care{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-badge"></i> Asignar Roles a Usuarios
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Formulario de Búsqueda -->
+                    <form method="get" class="mb-4">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-8">
+                                <label for="search" class="form-label fw-bold">Buscar Usuario</label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="search" 
+                                    name="search" 
+                                    placeholder="Ingrese nombre de usuario, nombre o apellido..."
+                                    value="{{ search_query }}"
+                                >
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-search"></i> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Resultados de Búsqueda -->
+                    {% if search_query %}
+                        {% if users %}
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Se encontraron {{ users.count }} usuario(s)
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Usuario</th>
+                                            <th>Nombre Completo</th>
+                                            <th>Roles Actuales</th>
+                                            <th>Asignar Rol</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in users %}
+                                        <tr>
+                                            <td>
+                                                <i class="bi bi-person"></i> {{ user.username }}
+                                            </td>
+                                            <td>{{ user.get_full_name|default:"Sin nombre" }}</td>
+                                            <td>
+                                                {% if user.groups.all %}
+                                                    {% for group in user.groups.all %}
+                                                        {% if group.name == 'Administrador' %}
+                                                            <span class="badge bg-danger me-1">{{ group.name }}</span>
+                                                        {% elif group.name == 'Medico' %}
+                                                            <span class="badge bg-primary me-1">{{ group.name }}</span>
+                                                        {% elif group.name == 'Matrona' %}
+                                                            <span class="badge bg-success me-1">{{ group.name }}</span>
+                                                        {% elif group.name == 'TENS' %}
+                                                            <span class="badge bg-warning text-dark me-1">{{ group.name }}</span>
+                                                        {% else %}
+                                                            <span class="badge bg-secondary me-1">{{ group.name }}</span>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <span class="badge bg-warning text-dark">Sin perfil</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <form method="post" class="d-flex gap-2">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                                    <input type="hidden" name="search_query" value="{{ search_query }}">
+                                                    <select name="grupo_id" class="form-select form-select-sm" required>
+                                                        <option value="">-- Seleccione un rol --</option>
+                                                        {% for grupo in grupos %}
+                                                            <option value="{{ grupo.id }}">{{ grupo.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <button type="submit" class="btn btn-sm btn-primary">
+                                                        <i class="bi bi-plus-circle"></i> Asignar
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i> No se encontraron usuarios con el criterio de búsqueda "{{ search_query }}"
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-secondary text-center">
+                            <i class="bi bi-search"></i> Ingrese un criterio de búsqueda para encontrar usuarios
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Botón para volver -->
+            <div class="mt-3">
+                <a href="{% url 'gestion:configurar_telegram' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver a Configuración
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

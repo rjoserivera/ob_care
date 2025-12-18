@@ -1,4 +1,5 @@
 {% extends 'Shared/base.html' %}
+{% load url_encryption_tags %}
 {% load static %}
 
 {% block title %}Dashboard Matrona - Sistema Obstétrico{% endblock %}
@@ -229,7 +230,7 @@
             <div class="action-card">
                 <i class="bi bi-person-check-fill"></i>
                 <h5>Ingresar Paciente</h5>
-                <a href="/matrona/seleccionar-persona/" class="btn btn-action">
+                <a href="/services/select/" class="btn btn-action">
                     Ir
                 </a>
             </div>
@@ -239,7 +240,7 @@
             <div class="action-card">
                 <i class="bi bi-search"></i>
                 <h5>Buscar Paciente</h5>
-                <a href="/gestion/buscar-persona/" class="btn btn-action">
+                <a href="/portal/search/" class="btn btn-action">
                     Ir
                 </a>
             </div>
@@ -249,12 +250,11 @@
             <div class="action-card">
                 <i class="bi bi-file-earmark-medical"></i>
                 <h5>Ver Fichas</h5>
-                <a href="/matrona/fichas/" class="btn btn-action">
+                <a href="/services/cases/" class="btn btn-action">
                     Ir
                 </a>
             </div>
         </div>
-
 
         <div class="col-md-3 mb-4">
             <div class="action-card">
@@ -265,6 +265,8 @@
                 </a>
             </div>
         </div>
+
+
     </div>
 </div>
 {% endblock %}

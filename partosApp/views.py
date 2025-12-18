@@ -420,7 +420,7 @@ def menu_partos(request):
     """
     fichas_parto = FichaParto.objects.select_related(
         'ficha_obstetrica__paciente__persona'
-    ).filter(activo=True).order_by('-fecha_creacion')
+    ).filter(activa=True).order_by('-fecha_creacion')
     
     context = {
         'fichas_parto': fichas_parto,

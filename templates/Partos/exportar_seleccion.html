@@ -1,4 +1,5 @@
 {% extends 'Shared/base.html' %}
+{% load url_encryption_tags %}
 {% load static %}
 
 {% block title %}Exportar Libro de Partos{% endblock %}
@@ -223,5 +224,77 @@
             checkbox.checked = checked;
         });
     }
+
+    // Manejar el envío del formulario de exportación
+    document.getElementById('exportForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Mostrar mensaje de "Generando..."
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Generando Excel...';
+        
+        // Crear FormData y enviar
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.blob())
+        .then(blob => {
+            // Crear link de descarga
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'Libro_Partos_' + new Date().toISOString().slice(0,10) + '.xlsx';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            // Mostrar mensaje de éxito
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+            alertDiv.style.zIndex = '9999';
+            alertDiv.innerHTML = `
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong>¡Exportación exitosa!</strong> El archivo se ha descargado correctamente.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+            
+            // Auto-cerrar después de 5 segundos
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+            
+            // Restaurar botón
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            
+            // Mostrar mensaje de error
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+            alertDiv.style.zIndex = '9999';
+            alertDiv.innerHTML = `
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Error</strong> No se pudo generar el archivo. Intenta nuevamente.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+            
+            // Restaurar botón
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        });
+    });
 </script>
 {% endblock %}

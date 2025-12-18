@@ -16,77 +16,65 @@ urlpatterns = [
     path('', views.menu_matrona, name='menu_matrona'),
     
     # ==================== SELECCIONAR PERSONA ====================
-    path('seleccionar-persona/', views.seleccionar_persona_ficha, name='seleccionar_persona_ficha'),
+    path('select/', views.seleccionar_persona_ficha, name='seleccionar_persona_ficha'),
     
     # ==================== FICHAS OBSTÉTRICAS ====================
-    # Crear ficha desde paciente existente
-    path('ficha/crear/<int:paciente_pk>/', views.crear_ficha_obstetrica, name='crear_ficha'),
-    
-    # Crear ficha desde persona (crea paciente automáticamente)
-    path('ficha/crear-persona/<int:persona_pk>/', views.crear_ficha_obstetrica_persona, name='crear_ficha_persona'),
-    
-    # Editar ficha
-    path('ficha/<int:ficha_pk>/editar/', views.editar_ficha_obstetrica, name='editar_ficha'),
+    path('case/new/<str:paciente_pk>/', views.crear_ficha_obstetrica, name='crear_ficha'),
+    path('case/create/<str:persona_pk>/', views.crear_ficha_obstetrica_persona, name='crear_ficha_persona'),
+    path('case/<str:ficha_pk>/edit/', views.editar_ficha_obstetrica, name='editar_ficha'),
+    path('case/<str:ficha_pk>/', views.detalle_ficha_obstetrica, name='detalle_ficha'),
+    path('cases/', views.lista_fichas_obstetrica, name='lista_fichas'),
     
     # API Polling Equipo
-    path('api/parto/<int:ficha_pk>/equipo-confirmado/', views.equipo_confirmado_partial, name='equipo_confirmado_partial'),
-    
-    # API Debug
-    path('api/debug/rellenar-equipo/<int:ficha_parto_id>/', views.debug_rellenar_equipo, name='debug_rellenar_equipo'),
-    
-    # Detalle de ficha
-    path('ficha/<int:ficha_pk>/', views.detalle_ficha_obstetrica, name='detalle_ficha'),
-    
-    # Lista de fichas
-    path('fichas/', views.lista_fichas_obstetrica, name='lista_fichas'),
+    path('api/process/<str:ficha_pk>/team-status/', views.equipo_confirmado_partial, name='equipo_confirmado_partial'),
+    path('api/debug/fill-team/<str:ficha_parto_id>/', views.debug_rellenar_equipo, name='debug_rellenar_equipo'),
     
     # ==================== MEDICAMENTOS ====================
-    path('ficha/<int:ficha_pk>/medicamento/agregar/', views.agregar_medicamento, name='agregar_medicamento'),
-    path('medicamento/<int:medicamento_pk>/eliminar/', views.eliminar_medicamento, name='eliminar_medicamento'),
+    path('case/<str:ficha_pk>/treatment/add/', views.agregar_medicamento, name='agregar_medicamento'),
+    path('treatment/<str:medicamento_pk>/remove/', views.eliminar_medicamento, name='eliminar_medicamento'),
     
     # ==================== PARTO ====================
-    path('ficha/<int:ficha_pk>/iniciar-parto/', views.iniciar_proceso_parto, name='iniciar_parto'),
-    path('ficha/<int:ficha_pk>/proceso-parto-iniciado/', views.proceso_parto_iniciado, name='proceso_parto_iniciado'),
-    path('sala/<int:ficha_parto_id>/', views.sala_parto_view, name='sala_parto'),
-    path('sala/<int:ficha_parto_id>/guardar/', views.guardar_registro_parto, name='guardar_registro_parto'),
-    path('sala/<int:ficha_parto_id>/guardar-rn/', views.guardar_registro_rn, name='guardar_rn'),
-    path('sala/<int:ficha_parto_id>/cierre/', views.cierre_parto_view, name='cierre_parto'),
-    path('sala/<int:ficha_parto_id>/resumen/', views.resumen_final_parto_view, name='resumen_final_parto'),
+    path('case/<str:ficha_pk>/procedure/start/', views.iniciar_proceso_parto, name='iniciar_parto'),
+    path('case/<str:ficha_pk>/procedure/active/', views.proceso_parto_iniciado, name='proceso_parto_iniciado'),
+    path('case/<str:ficha_pk>/close/', views.cerrar_ficha_definitivamente, name='cerrar_ficha'),
+    path('room/<str:ficha_parto_id>/', views.sala_parto_view, name='sala_parto'),
+    path('room/<str:ficha_parto_id>/save/', views.guardar_registro_parto, name='guardar_registro_parto'),
+    path('room/<str:ficha_parto_id>/save-newborn/', views.guardar_registro_rn, name='guardar_rn'),
+    path('room/<str:ficha_parto_id>/close/', views.cierre_parto_view, name='cierre_parto'),
+    path('room/<str:ficha_parto_id>/summary/', views.resumen_final_parto_view, name='resumen_final_parto'),
+    path('room/<str:ficha_parto_id>/details/', views.detalle_registro_parto, name='detalle_registro_parto'),
     
-    # Detalle Registro Parto (Read-Only)
-    path('sala/<int:ficha_parto_id>/detalle/', views.detalle_registro_parto, name='detalle_registro_parto'),
+    # ==================== RN ====================
+    path('room/<str:ficha_parto_id>/link-patient/', views.crear_asociacion_rn, name='asociar_rn'),
+    path('patient/<str:rn_id>/', views.ficha_rn_view, name='ficha_rn'),
+    path('patient/<str:rn_id>/info/', views.detalle_rn_view, name='detalle_rn'),
     
-    # NUEVO: Split RN
-    path('sala/<int:ficha_parto_id>/asociar-rn/', views.crear_asociacion_rn, name='asociar_rn'),
-    path('rn/<int:rn_id>/', views.ficha_rn_view, name='ficha_rn'),
-    path('rn/<int:rn_id>/detalle/', views.detalle_rn_view, name='detalle_rn'),
-    
-    # Historial de Partos
-    path('historial-partos/', views.historial_partos_view, name='historial_partos'),
+    # ==================== HISTORIAL ====================
+    path('history/', views.historial_partos_view, name='historial_partos'),
     
     # ==================== APIs AJAX ====================
     # Dilatación
-    path('api/ficha/<int:ficha_pk>/dilatacion/agregar/', views.agregar_registro_dilatacion, name='api_agregar_dilatacion'),
-    path('api/ficha/<int:ficha_pk>/dilatacion/estado/', views.verificar_estado_dilatacion, name='api_estado_dilatacion'),
-    path('api/ficha/<int:ficha_id>/dilatacion/registrar/', views.registrar_dilatacion, name='registrar_dilatacion'),
+    path('api/case/<str:ficha_pk>/progress/add/', views.agregar_registro_dilatacion, name='api_agregar_dilatacion'),
+    path('api/case/<str:ficha_pk>/progress/status/', views.verificar_estado_dilatacion, name='api_estado_dilatacion'),
+    path('api/case/<str:ficha_id>/progress/register/', views.registrar_dilatacion, name='registrar_dilatacion'),
     
     # Medicamentos AJAX
-    path('api/ficha/<int:ficha_pk>/medicamento/agregar/', views.agregar_medicamento_ajax, name='api_agregar_medicamento'),
-    path('api/medicamento/<int:medicamento_pk>/eliminar/', views.eliminar_medicamento_ajax, name='api_eliminar_medicamento'),
+    path('api/case/<str:ficha_pk>/treatment/add/', views.agregar_medicamento_ajax, name='api_agregar_medicamento'),
+    path('api/treatment/<str:medicamento_pk>/remove/', views.eliminar_medicamento_ajax, name='api_eliminar_medicamento'),
     
     # Administración Medicamentos
-    path('api/medicamento/<int:medicamento_id>/administraciones/', views.obtener_administraciones, name='api_obtener_administraciones'),
-    path('api/medicamento/<int:medicamento_id>/registrar_administracion/', views.registrar_administracion, name='api_registrar_administracion'),
+    path('api/treatment/<str:medicamento_id>/doses/', views.obtener_administraciones, name='api_obtener_administraciones'),
+    path('api/treatment/<str:medicamento_id>/administer/', views.registrar_administracion, name='api_registrar_administracion'),
     
     # Personal
-    path('api/ficha/<int:ficha_pk>/personal/', views.obtener_personal_requerido, name='api_personal_requerido'),
-    path('api/asignar-personal/<int:ficha_parto_id>/', views.asignar_personal_parto, name='asignar_personal_parto'),
-    path('api/invitar-rol/<int:ficha_parto_id>/', views_simple.invitar_personal_rol, name='invitar_personal_rol'),
-    path('api/limpiar-invitaciones/<int:ficha_parto_id>/', views_limpiar.limpiar_invitaciones_ajax, name='limpiar_invitaciones_ajax'),
-    path('api/finalizar-asignacion/<int:ficha_parto_id>/', views.finalizar_asignacion_parto, name='finalizar_asignacion_parto'),
-    path('api/responder-asignacion/<int:asignacion_id>/', views.responder_asignacion, name='responder_asignacion'),
-    path('api/verificar-pin/<int:ficha_parto_id>/', views.verificar_pin, name='verificar_pin'),
+    path('api/case/<str:ficha_pk>/staff/', views.obtener_personal_requerido, name='api_personal_requerido'),
+    path('api/assign-staff/<str:ficha_parto_id>/', views.asignar_personal_parto, name='asignar_personal_parto'),
+    path('api/invite-role/<str:ficha_parto_id>/', views_simple.invitar_personal_rol, name='invitar_personal_rol'),
+    path('api/clear-invites/<str:ficha_parto_id>/', views_limpiar.limpiar_invitaciones_ajax, name='limpiar_invitaciones_ajax'),
+    path('api/finalize-assignment/<str:ficha_parto_id>/', views.finalizar_asignacion_parto, name='finalizar_asignacion_parto'),
+    path('api/respond-assignment/<str:asignacion_id>/', views.responder_asignacion, name='responder_asignacion'),
+    path('api/verify-pin/<str:ficha_parto_id>/', views.verificar_pin, name='verificar_pin'),
     
     # DEBUG
-    path('api/debug/rellenar-equipo/<int:ficha_parto_id>/', views.debug_rellenar_equipo, name='debug_rellenar_equipo'),
+    path('api/debug/fill-team/<str:ficha_parto_id>/', views.debug_rellenar_equipo, name='debug_rellenar_equipo'),
 ]

@@ -1,4 +1,5 @@
 {% load static %}
+{% load url_encryption_tags %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -295,8 +296,10 @@
                          lastNotifId = serverId;
                          localStorage.setItem('lastNotifId', lastNotifId);
 
-                         // 2. Si es inicialización (carga de página), NO SALIMOS. Mostramos la alerta igual para verificar.
-                         // (Eliminado if isInit return)
+                         // 2. Si es inicialización (carga de página), NO mostramos alerta
+                         if (isInit) {
+                             return;
+                         }
 
                          // 3. SOLO SI NO ES INIT mostramos la alerta
                          // Sound & Vibrate

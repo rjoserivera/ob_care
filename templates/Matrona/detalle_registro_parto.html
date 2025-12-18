@@ -1,4 +1,5 @@
 {% extends 'Shared/base.html' %}
+{% load url_encryption_tags %}
 {% load static %}
 
 {% block title %}Detalle de Parto - {{ registro.numero_registro }}{% endblock %}
@@ -89,7 +90,7 @@
                         <a href="{% url 'matrona:cierre_parto' ficha_parto.id %}" class="btn btn-dark rounded-pill px-4">
                              <i class="bi bi-check-circle me-2"></i> Finalizar / Cierre
                         </a>
-                        <a href="{% url 'matrona:sala_parto' ficha_parto.id %}" class="btn btn-outline-primary rounded-pill px-4">
+                        <a href="{% url 'matrona:sala_parto' ficha_parto_id=ficha_parto.id|encrypt %}" class="btn btn-outline-primary rounded-pill px-4">
                             <i class="bi bi-pencil me-2"></i> Editar
                         </a>
                         <button onclick="window.print()" class="btn btn-primary rounded-pill px-4">

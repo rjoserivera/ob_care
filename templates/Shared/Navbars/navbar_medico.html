@@ -1,4 +1,5 @@
 {% load static %}
+{% load url_encryption_tags %}
 {% load static %}
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top navbar-medico">
     <div class="container-fluid">
@@ -18,7 +19,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/medico/seleccionar-persona/">
+                    <a class="nav-link" href="{% url 'medico:seleccionar_persona_ficha' %}">
                         <i class="bi bi-file-earmark-plus-fill"></i> Crear Ficha Obstétrica
                     </a>
                 </li>
@@ -28,8 +29,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/partos/">
-                        <i class="bi bi-journal-medical"></i> Registro de Partos
+                    <a class="nav-link" href="{% url 'matrona:historial_partos' %}">
+                        <i class="bi bi-clock-history"></i> Historial de Partos
                     </a>
                 </li>
                 <li class="nav-item">
