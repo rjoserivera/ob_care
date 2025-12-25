@@ -149,8 +149,6 @@ class FichaObstetrica(models.Model):
         ('AMIGA', 'Amiga'),
         ('OTRO', 'Otro'),
     ]
-    
-    # ===== NUEVO: TIPOS DE INGRESO =====
     TIPO_INGRESO_CHOICES = [
         ('PROGRAMADO', 'Ingreso Programado (Electivo)'),
         ('SALA', 'Ingreso a Sala (Hospitalización)'),
@@ -278,8 +276,7 @@ class FichaObstetrica(models.Model):
     )
     
     parentesco_acompanante = models.CharField(
-        max_length=20,
-        choices=PARENTESCO_CHOICES,
+        max_length=50, # Increased length just in case
         blank=True,
         verbose_name='Parentesco del Acompañante'
     )
@@ -307,8 +304,7 @@ class FichaObstetrica(models.Model):
     )
     
     parentesco_contacto_emergencia = models.CharField(
-        max_length=20,
-        choices=PARENTESCO_CHOICES,
+        max_length=50,
         blank=True,
         verbose_name='Parentesco Contacto Emergencia'
     )

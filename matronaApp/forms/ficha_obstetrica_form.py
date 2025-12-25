@@ -14,6 +14,7 @@ from ..models import (
     CatalogoDiscapacidad,
     CatalogoARO
 )
+from gestionApp.models import CatalogoParentesco
 from decimal import Decimal, ROUND_HALF_UP
 
 
@@ -386,6 +387,19 @@ class FichaObstetricaForm(forms.ModelForm):
                 self.fields['discapacidad'].required = False
             except:
                 pass
+
+        # Queryset para Parentesco (Manual population for CharField with Select widget)
+        try:
+            p_items = CatalogoParentesco.objects.filter(activo=True).order_by('orden', 'nombre')
+            p_choices = [('', 'Seleccione parentesco...')] + [(p.nombre, p.nombre) for p in p_items]
+            
+            if 'parentesco_acompanante' in self.fields:
+                self.fields['parentesco_acompanante'].widget.choices = p_choices
+            
+            if 'parentesco_contacto_emergencia' in self.fields:
+                self.fields['parentesco_contacto_emergencia'].widget.choices = p_choices
+        except:
+            pass
 
 
 

@@ -44,13 +44,13 @@ class DashboardMedicoView(TemplateView):
         context['total_fichas'] = FichaObstetrica.objects.filter(activa=True).count()
         
         # 2. Matronas Activas
-        context['total_matronas'] = User.objects.filter(groups__name='Matronas', is_active=True).count()
+        context['total_matronas'] = User.objects.filter(groups__name='Matrona', is_active=True).count()
         
         # 3. TENS Activos
         context['total_tens'] = User.objects.filter(groups__name='TENS', is_active=True).count()
         
         # 4. Médicos Activos
-        context['total_medicos'] = User.objects.filter(groups__name='Medicos', is_active=True).count()
+        context['total_medicos'] = User.objects.filter(groups__name='Medico', is_active=True).count()
         
         # Permisos
         context['puede_agregar_paciente'] = True

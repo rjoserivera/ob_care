@@ -74,6 +74,7 @@ urlpatterns = [
     path('api/finalize-assignment/<str:ficha_parto_id>/', views.finalizar_asignacion_parto, name='finalizar_asignacion_parto'),
     path('api/respond-assignment/<str:asignacion_id>/', views.responder_asignacion, name='responder_asignacion'),
     path('api/verify-pin/<str:ficha_parto_id>/', views.verificar_pin, name='verificar_pin'),
+    path('api/resend-pin/<str:ficha_parto_id>/', views.reenviar_pin, name='reenviar_pin'),
     
     # DEBUG
     path('api/debug/fill-team/<str:ficha_parto_id>/', views.debug_rellenar_equipo, name='debug_rellenar_equipo'),

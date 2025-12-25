@@ -1,4 +1,4 @@
-"""
+﻿"""
 matronaApp/views.py
 Vistas para matronaApp - Fichas obstÃ©tricas, medicamentos, dilatación y parto
 COMPLETO: Con TODAS las vistas existentes + nuevas funcionalidades
@@ -29,7 +29,7 @@ from gestionApp.url_encryption import decrypt_id, encrypt_id
 # ============================================
 
 # Modelos de gestionApp (Persona, Paciente, etc.)
-from gestionApp.models import Persona, Paciente
+from gestionApp.models import Persona, Paciente, CatalogoParentesco
 
 # Modelos de matronaApp
 from .models import (
@@ -190,7 +190,7 @@ def crear_ficha_obstetrica(request, paciente_pk):
     ficha_existente = FichaObstetrica.objects.filter(paciente=paciente, activa=True).first()
     if ficha_existente:
         messages.warning(request, 'Esta paciente ya tiene una ficha obstÃ©trica activa.')
-        return redirect('matrona:detalle_ficha', ficha_pk=ficha_existente.pk)
+        return redirect('matrona:detalle_ficha', ficha_pk=encrypt_id(ficha_existente.pk))
     
     edad = calcular_edad(persona.Fecha_nacimiento)
     
@@ -211,7 +211,7 @@ def crear_ficha_obstetrica(request, paciente_pk):
                 procesar_dilatacion_post(request, ficha)
                 
                 messages.success(request, f'âœ… Ficha Obstétrica {ficha.numero_ficha} creada exitosamente')
-                return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
+                return redirect('matrona:detalle_ficha', ficha_pk=encrypt_id(ficha.pk))
         else:
             messages.error(request, 'Por favor corrige los errores en el formulario')
     else:
@@ -254,7 +254,7 @@ def crear_ficha_obstetrica_persona(request, persona_pk):
     ficha_existente = FichaObstetrica.objects.filter(paciente=paciente, activa=True).first()
     if ficha_existente:
         messages.warning(request, 'Esta paciente ya tiene una ficha obstÃ©trica activa.')
-        return redirect('matrona:detalle_ficha', ficha_pk=ficha_existente.pk)
+        return redirect('matrona:detalle_ficha', ficha_pk=encrypt_id(ficha_existente.pk))
     
     edad = calcular_edad(persona.Fecha_nacimiento)
     
@@ -275,7 +275,7 @@ def crear_ficha_obstetrica_persona(request, persona_pk):
                 procesar_dilatacion_post(request, ficha)
                 
                 messages.success(request, f'âœ… Ficha Obstétrica {ficha.numero_ficha} creada exitosamente')
-                return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
+                return redirect('matrona:detalle_ficha', ficha_pk=encrypt_id(ficha.pk))
         else:
             messages.error(request, 'Por favor corrige los errores en el formulario')
     else:
@@ -303,6 +303,7 @@ def crear_ficha_obstetrica_persona(request, persona_pk):
         'consultorios': consultorios,
         'controles_previos': controles_previos,
         'derivaciones_hepatitis': CatalogoDerivacion.objects.filter(activo=True),
+        'parentescos': CatalogoParentesco.objects.filter(activo=True).order_by('orden', 'nombre'),
     }
     return render(request, 'Matrona/crear_ficha_obstetrica.html', context)
 
@@ -312,6 +313,7 @@ def crear_ficha_obstetrica_persona(request, persona_pk):
 # ============================================
 
 @login_required
+@decrypt_url_params('ficha_pk')
 def editar_ficha_obstetrica(request, ficha_pk):
     """
     Editar ficha obstÃ©trica existente
@@ -336,7 +338,7 @@ def editar_ficha_obstetrica(request, ficha_pk):
                 procesar_dilatacion_post(request, ficha)
                 
                 messages.success(request, f'âœ… Ficha {ficha.numero_ficha} actualizada')
-                return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
+                return redirect('matrona:detalle_ficha', ficha_pk=encrypt_id(ficha.pk))
     else:
         form = FichaObstetricaForm(instance=ficha)
     
@@ -369,6 +371,7 @@ def editar_ficha_obstetrica(request, ficha_pk):
         'consultorios': consultorios,
         'controles_previos': controles_previos,
         'derivaciones_hepatitis': CatalogoDerivacion.objects.filter(activo=True),
+        'parentescos': CatalogoParentesco.objects.filter(activo=True).order_by('orden', 'nombre'),
     }
     return render(request, 'Matrona/crear_ficha_obstetrica.html', context)
 
@@ -490,6 +493,7 @@ def lista_fichas_obstetrica(request):
 # ============================================
 
 @login_required
+@decrypt_url_params('ficha_pk')
 def agregar_medicamento(request, ficha_pk):
     """
     Agregar medicamento a una ficha
@@ -556,15 +560,34 @@ def eliminar_medicamento(request, medicamento_pk):
 
 @login_required
 @require_POST
+@decrypt_url_params('ficha_pk')
 def agregar_medicamento_ajax(request, ficha_pk):
     """
     API para agregar medicamento vía AJAX
     URL: /matrona/api/ficha/<ficha_pk>/medicamento/agregar/
     """
-    ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk, activa=True)
-    
     try:
+        ficha = get_object_or_404(FichaObstetrica, pk=ficha_pk, activa=True)
+        
         data = json.loads(request.body)
+        
+        # Parse fecha_inicio
+        fecha_inicio = timezone.now()
+        if data.get('fecha_inicio'):
+            try:
+                fecha_inicio = parse_datetime(data.get('fecha_inicio'))
+                if not fecha_inicio:  # parse_datetime returns None if invalid
+                    fecha_inicio = timezone.now()
+            except:
+                fecha_inicio = timezone.now()
+        
+        # Parse fecha_termino
+        fecha_termino = None
+        if data.get('fecha_termino'):
+            try:
+                fecha_termino = parse_datetime(data.get('fecha_termino'))
+            except:
+                fecha_termino = None
         
         medicamento = MedicamentoFicha.objects.create(
             ficha=ficha,
@@ -574,8 +597,8 @@ def agregar_medicamento_ajax(request, ficha_pk):
             via_administracion_id=data.get('via_administracion_id'),
             frecuencia=data.get('frecuencia', ''),
             cantidad=int(data.get('cantidad', 1)),
-            fecha_inicio=parse_datetime(data.get('fecha_inicio')) if data.get('fecha_inicio') else timezone.now(),
-            fecha_termino=parse_datetime(data.get('fecha_termino')) if data.get('fecha_termino') else None,
+            fecha_inicio=fecha_inicio,
+            fecha_termino=fecha_termino,
             indicaciones=data.get('indicaciones', ''),
         )
         
@@ -589,8 +612,12 @@ def agregar_medicamento_ajax(request, ficha_pk):
                 'frecuencia': medicamento.frecuencia,
             }
         })
+    except json.JSONDecodeError as e:
+        return JsonResponse({'success': False, 'error': f'JSON inválido: {str(e)}'}, status=400)
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
 # ============================================
@@ -655,6 +682,7 @@ def buscar_medicamentos(request):
 
 @login_required
 @require_POST
+@decrypt_url_params('ficha_pk')
 def agregar_registro_dilatacion(request, ficha_pk):
     """
     API para agregar un nuevo registro de dilatación
@@ -684,7 +712,7 @@ def agregar_registro_dilatacion(request, ficha_pk):
                 return JsonResponse({'success': False, 'error': error_msg})
             else:
                 messages.error(request, error_msg)
-                return redirect('matrona:detalle_ficha', ficha_pk=ficha.pk)
+                return redirect('matrona:detalle_ficha', ficha_pk=encrypt_id(ficha.pk))
         
         # Crear registro
         registro = RegistroDilatacion.objects.create(
@@ -750,6 +778,7 @@ def agregar_registro_dilatacion(request, ficha_pk):
 # ============================================
 
 @login_required
+@decrypt_url_params('ficha_pk')
 def verificar_estado_dilatacion(request, ficha_pk):
     """
     API para verificar el estado actual de dilatación
@@ -786,6 +815,7 @@ def verificar_estado_dilatacion(request, ficha_pk):
 
 @login_required
 @require_POST
+@decrypt_url_params('ficha_pk')
 def iniciar_proceso_parto(request, ficha_pk):
     """
     Iniciar proceso de parto
@@ -818,7 +848,7 @@ def iniciar_proceso_parto(request, ficha_pk):
         messages.success(request, f'Proceso de {tipo_texto} iniciado exitosamente.')
     
     # Redirigir a página dedicada de proceso de parto
-    return redirect('matrona:proceso_parto_iniciado', ficha_pk=ficha.pk)
+    return redirect('matrona:proceso_parto_iniciado', ficha_pk=encrypt_id(ficha.pk))
 
 
 # ============================================
@@ -826,6 +856,7 @@ def iniciar_proceso_parto(request, ficha_pk):
 # ============================================
 
 @login_required
+@decrypt_url_params('ficha_pk')
 def proceso_parto_iniciado(request, ficha_pk):
     """
     Centro de Control - Sala de Preparación (REDISEÑADO)
@@ -912,6 +943,20 @@ def proceso_parto_iniciado(request, ficha_pk):
     
     # 7. Verificar si equipo está completo
     equipo_esta_completo = equipo_completo(ficha_parto)
+    
+    # 7.5 Auto-generar PIN si equipo completo y no existe PIN
+    if equipo_esta_completo and not ficha_parto.pin_inicio_parto:
+        from gestionProcesosApp.pin_utils import generar_pin, enviar_pin_a_medicos
+        pin = generar_pin()
+        ficha_parto.pin_inicio_parto = pin
+        ficha_parto.pin_generado_en = timezone.now()
+        ficha_parto.save(update_fields=['pin_inicio_parto', 'pin_generado_en'])
+        
+        # Enviar PIN a médicos
+        try:
+            enviar_pin_a_medicos(ficha_parto, pin)
+        except Exception as e:
+            print(f"Error enviando PIN: {e}")
     
     # 8. Monitor de Salas
     if Sala.objects.count() == 0:
@@ -1315,6 +1360,7 @@ def verificar_pin(request, ficha_parto_id):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @login_required
+@decrypt_url_params('ficha_pk')
 def obtener_personal_requerido(request, ficha_pk):
     """
     API para obtener personal requerido para el parto
@@ -1415,7 +1461,10 @@ def generar_placeholders_personal(ficha):
                 ficha=ficha, rol='MATRONA', bebe_numero=bebe_num
             )
             
-            # 2 TENS
+            # 2 TENS -> 3 TENS per baby
+            PersonalAsignadoParto.objects.create(
+                ficha=ficha, rol='TENS', bebe_numero=bebe_num
+            )
             PersonalAsignadoParto.objects.create(
                 ficha=ficha, rol='TENS', bebe_numero=bebe_num
             )
@@ -1433,6 +1482,7 @@ def generar_placeholders_personal(ficha):
 
 @require_POST
 @login_required
+@decrypt_url_params('ficha_id')
 def registrar_dilatacion(request, ficha_id):
     """
     Registra una nueva dilatación para la ficha obstétrica
@@ -1659,14 +1709,23 @@ def debug_rellenar_equipo(request, ficha_parto_id):
                 ficha_parto.pin_inicio_parto = pin
                 ficha_parto.pin_generado_en = timezone.now()
                 ficha_parto.save()
+                ficha_parto.save()
                 enviar_pin_a_medicos(ficha_parto, pin)
-            else:
-                pin = ficha_parto.pin_inicio_parto
+                
+                return JsonResponse({
+                    'success': True,
+                    'asignados': asignados_nuevos,
+                    'pin': pin,
+                    'message': f'Equipo relleno. PIN generado: {pin}'
+                })
+                # Re-enviar PIN si ya existe (para pruebas)
+                enviar_pin_a_medicos(ficha_parto, pin)
                 
                 return JsonResponse({
             'success': True,
             'asignados': asignados_nuevos,
-            # 'pin': pin  <-- Ocultado por seguridad/solicitud
+            'pin': pin,
+            'message': f'Equipo relleno. PIN: {pin} (Enviado a médicos)'
         })
             
     except Exception as e:
@@ -2294,6 +2353,7 @@ def resumen_final_parto_view(request, ficha_parto_id):
 
 
 @login_required
+@decrypt_url_params('ficha_pk')
 def equipo_confirmado_partial(request, ficha_pk):
     """
     Vista parcial para actualizar la lista de equipo confirmado (polling)
@@ -2433,3 +2493,24 @@ def cerrar_ficha_definitivamente(request, ficha_pk):
     
     messages.success(request, 'Ficha obstétrica cerrada exitosamente. La ficha ahora está en modo solo lectura.')
     return redirect('matrona:historial_partos')
+
+
+@login_required
+@require_POST
+def reenviar_pin(request, ficha_parto_id):
+    """
+    Reenvía el PIN al equipo médico (Telegram).
+    """
+    from ingresoPartoApp.models import FichaParto
+    from gestionProcesosApp.pin_utils import enviar_pin_a_medicos
+    
+    ficha_parto = get_object_or_404(FichaParto, pk=ficha_parto_id)
+    
+    if not ficha_parto.pin_inicio_parto:
+        return JsonResponse({'success': False, 'error': 'No hay PIN generado aún.'})
+
+    try:
+        enviar_pin_a_medicos(ficha_parto, ficha_parto.pin_inicio_parto)
+        return JsonResponse({'success': True, 'message': 'PIN reenviado a los médicos.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

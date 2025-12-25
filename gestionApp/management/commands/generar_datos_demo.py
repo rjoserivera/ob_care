@@ -142,6 +142,7 @@ class Command(BaseCommand):
         self.posiciones_fetales = list(CatalogoPosicionFetal.objects.filter(activo=True))
         self.alturas_presentacion = list(CatalogoAlturaPresentacion.objects.filter(activo=True))
         self.salas = list(CatalogoSalaAsignada.objects.filter(activo=True))
+        self.aros = list(CatalogoARO.objects.filter(activo=True))
 
         # Catálogos Adicionales
         self.pueblos_originarios = list(CatalogoPuebloOriginario.objects.filter(activo=True))
@@ -232,6 +233,7 @@ class Command(BaseCommand):
             peso_actual=random.uniform(55, 95),
             talla_actual=random.randint(155, 175),
             consultorio_origen=random.choice(self.consultorios) if self.consultorios else None,
+            clasificacion_aro=random.choice(self.aros) if self.aros else None,
             # Acompañante
             tiene_acompanante=True,
             nombre_acompanante="Juan Pérez" if random.random() < 0.5 else "Pedro Soto",

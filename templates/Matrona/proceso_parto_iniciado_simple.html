@@ -214,10 +214,11 @@
     }
     
     .sala-card.ocupada {
-        background: #f8f9fa;
-        opacity: 0.6;
+        background: #fee;
+        opacity: 0.9;
         cursor: not-allowed;
-        border-style: dashed;
+        border: 2px solid #dc3545;
+        border-style: solid;
     }
     
     .sala-icon {
@@ -239,8 +240,8 @@
     }
     
     .sala-card.ocupada .sala-icon {
-        background: #e9ecef;
-        color: #adb5bd;
+        background: #dc3545;
+        color: white;
     }
 
     .sala-content {
@@ -514,9 +515,12 @@
         
         <input type="text" id="inputPinParto" class="form-control text-center fs-3 my-3" placeholder="------" maxlength="6" style="letter-spacing: 5px; font-weight: bold;">
         
-        <div style="display: flex; gap: 1rem; justify-content: center;">
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-direction: column;">
             <button class="btn-close-modal" onclick="verificarPinYComenzar()" style="background: #0d6efd; width: 100%;">
                 <i class="bi bi-check-lg"></i> Autorizar Inicio
+            </button>
+            <button class="btn btn-link text-muted mt-0" onclick="solicitarReenvioPin()">
+                 Reenviar PIN al Médico
             </button>
         </div>
         <button onclick="document.getElementById('pinModal').classList.remove('active')" class="btn btn-link text-muted mt-2">Cancelar</button>
@@ -539,6 +543,33 @@
 </div>
 
 <script>
+// ... existing getCookie etc ...
+
+function solicitarReenvioPin() {
+    if(!confirm("¿Reenviar el PIN por Telegram al equipo médico?")) return;
+    
+    mostrarProgressModal('Reenviando...', 'Enviando PIN a médicos...');
+    
+    fetch("{% url 'matrona:reenviar_pin' ficha_parto.id %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            mostrarResultado(true, 'PIN Reenviado', 'Se ha enviado el PIN a los médicos vía Telegram.');
+        } else {
+            mostrarResultado(false, 'Error', data.error);
+        }
+    })
+    .catch(error => {
+        mostrarResultado(false, 'Error de conexión', error.toString());
+    });
+}
+
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -740,6 +771,7 @@ function autoFillEquipo() {
 
 let salaId = null;
 const equipoCompleto = {{ equipo_completo|yesno:"true,false" }};
+const pinAutorizado = "{{ ficha_parto.pin_inicio_parto|default:'' }}"; // PIN from server
 
 function seleccionarSala(id, nombre) {
     // Reset visual
@@ -752,10 +784,13 @@ function seleccionarSala(id, nombre) {
     salaId = id;
     const btn = document.getElementById('btn-iniciar-parto');
     
-    if (equipoCompleto) {
+    if (equipoCompleto && pinAutorizado) {
         btn.disabled = false;
         btn.innerHTML = `<i class="bi bi-play-circle-fill"></i> INICIAR PARTO EN ${nombre}`;
         // btn.classList.add('pulse-animation');
+    } else if (equipoCompleto && !pinAutorizado) {
+        btn.innerHTML = `ESPERANDO GENERACIÓN DE PIN...`;
+        btn.disabled = true;
     } else {
         btn.innerHTML = `ESPERANDO EQUIPO COMPLETO...`;
         btn.disabled = true;
@@ -764,10 +799,17 @@ function seleccionarSala(id, nombre) {
 
 function iniciarPartoDefinitivo() {
     if(!salaId) return;
-    // Abrir Modal de PIN
-    document.getElementById('inputPinParto').value = '';
-    document.getElementById('pinModal').classList.add('active');
-    document.getElementById('inputPinParto').focus();
+    
+    // Si tenemos PIN autorizado, proceder directamente sin mostrar modal
+    if(pinAutorizado) {
+        procederConInicio();
+    } else {
+        // Abrir Modal de PIN para entrada manual (fallback si no hay PIN)
+        document.getElementById('inputPinParto').value = '';
+        document.getElementById('inputPinParto').removeAttribute('readonly');
+        document.getElementById('pinModal').classList.add('active');
+        document.getElementById('inputPinParto').focus();
+    }
 }
 
 function verificarPinYComenzar() {
@@ -778,6 +820,12 @@ function verificarPinYComenzar() {
     }
     
     document.getElementById('pinModal').classList.remove('active');
+    procederConInicio();
+}
+
+function procederConInicio() {
+    const pin = pinAutorizado || document.getElementById('inputPinParto').value.trim();
+    
     mostrarProgressModal('Validando...', 'Verificando PIN y asignando sala...');
     
     fetch("{% url 'matrona:verificar_pin' ficha_parto.id %}", {

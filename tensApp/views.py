@@ -298,11 +298,11 @@ def registrar_signos_vitales(request, ficha_pk):
         # Crear registro de signos vitales
         registro = RegistroTens.objects.create(
             ficha=ficha,
-            tens=request.user,  # Ahora es User directamente
+            tens_responsable=request.user,  # Campo correcto del modelo
             temperatura=request.POST.get('temperatura') or None,
             frecuencia_cardiaca=request.POST.get('frecuencia_cardiaca') or None,
-            presion_sistolica=request.POST.get('presion_sistolica') or None,
-            presion_diastolica=request.POST.get('presion_diastolica') or None,
+            presion_arterial_sistolica=request.POST.get('presion_sistolica') or None,
+            presion_arterial_diastolica=request.POST.get('presion_diastolica') or None,
             frecuencia_respiratoria=request.POST.get('frecuencia_respiratoria') or None,
             saturacion_oxigeno=request.POST.get('saturacion_oxigeno') or None,
             observaciones=request.POST.get('observaciones', ''),
@@ -332,7 +332,7 @@ def historial_signos(request, ficha_pk):
     
     registros = RegistroTens.objects.filter(
         ficha=ficha
-    ).select_related('tens').order_by('-fecha_registro')
+    ).select_related('tens_responsable').order_by('-fecha_registro')
     
     context = {
         'titulo': f'Historial - {ficha.numero_ficha}',
@@ -364,6 +364,12 @@ def registrar_tratamiento(request, ficha_pk):
         
         messages.success(request, '✅ Tratamiento registrado correctamente')
         return redirect('tens:detalle_ficha', ficha_pk=ficha.pk)
+    
+    context = {
+        'titulo': 'Registrar Tratamiento',
+        'ficha': ficha,
+        'paciente': ficha.paciente,
+    }
     return render(request, 'Tens/registrar_tratamiento.html', context)
 
 

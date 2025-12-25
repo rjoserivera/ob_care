@@ -171,6 +171,22 @@ class CatalogoTurno(models.Model):
         ordering = ['orden', 'nombre']
 
 
+class CatalogoParentesco(models.Model):
+    """Catálogo de parentescos"""
+    codigo = models.CharField(max_length=20, unique=True)
+    nombre = models.CharField(max_length=50)
+    activo = models.BooleanField(default=True)
+    orden = models.IntegerField(default=0)
+    
+    def __str__(self):
+        return self.nombre
+    
+    class Meta:
+        verbose_name = "Catálogo Parentesco"
+        verbose_name_plural = "Catálogo Parentescos"
+        ordering = ['orden', 'nombre']
+
+
 # ============================================
 # MODELO PRINCIPAL: PERSONA
 # ============================================

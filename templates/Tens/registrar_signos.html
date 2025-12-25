@@ -232,7 +232,7 @@
             pero se recomienda registrar la mayor cantidad de información posible.
         </div>
 
-        <form method="post" id="signosVitalesForm">
+        <form method="post" action="{% url 'tens:registrar_signos' ficha.pk %}" id="signosVitalesForm">
             {% csrf_token %}
             <div class="form-section">
                 <div class="form-section-title">
@@ -294,8 +294,8 @@
                         <label class="form-label" for="presion_arterial_sistolica">
                             Sistólica <span class="unit">(mmHg)</span>
                         </label>
-                        <input type="number" class="form-control" id="presion_arterial_sistolica"
-                            name="presion_arterial_sistolica" min="60" max="250" placeholder="120">
+                        <input type="number" class="form-control" id="presion_sistolica"
+                            name="presion_sistolica" min="60" max="250" placeholder="120">
                         <div class="input-hint">Rango normal: 90 - 120 mmHg</div>
                     </div>
 
@@ -304,8 +304,8 @@
                         <label class="form-label" for="presion_arterial_diastolica">
                             Diastólica <span class="unit">(mmHg)</span>
                         </label>
-                        <input type="number" class="form-control" id="presion_arterial_diastolica"
-                            name="presion_arterial_diastolica" min="30" max="150" placeholder="80">
+                        <input type="number" class="form-control" id="presion_diastolica"
+                            name="presion_diastolica" min="30" max="150" placeholder="80">
                         <div class="input-hint">Rango normal: 60 - 80 mmHg</div>
                     </div>
                 </div>

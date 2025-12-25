@@ -2163,7 +2163,7 @@
 
                 const csrftoken = getCookie('csrftoken');
                 // Ensure URL is rendered correctly
-                const url = "{% url 'matrona:registrar_dilatacion' ficha.id %}";
+                const url = "{% url 'matrona:registrar_dilatacion' ficha.pk|encrypt %}";
                 console.log('Enviando a URL:', url);
 
                 fetch(url, {
@@ -2651,8 +2651,10 @@
                 const data = {};
                 formData.forEach((value, key) => data[key] = value);
 
-                const url = "{% url 'matrona:api_agregar_medicamento' ficha.pk %}";
+
+                const url = "{% url 'matrona:api_agregar_medicamento' ficha.pk|encrypt %}";
                 const csrftoken = getCookie('csrftoken');
+
 
                 fetch(url, {
                     method: 'POST',

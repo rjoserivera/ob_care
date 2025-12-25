@@ -146,10 +146,10 @@ class DashboardAdminView(TemplateView):
 
         context['total_pacientes'] = Paciente.objects.filter(activo=True).count()
         context['total_personas'] = Persona.objects.filter(Activo=True).count()
-        context['total_medicos'] = User.objects.filter(groups__name='Medicos', is_active=True).count()
-        context['total_matronas'] = User.objects.filter(groups__name='Matronas', is_active=True).count()
+        context['total_medicos'] = User.objects.filter(groups__name='Medico', is_active=True).count()
+        context['total_matronas'] = User.objects.filter(groups__name='Matrona', is_active=True).count()
         context['total_tens'] = User.objects.filter(groups__name='TENS', is_active=True).count()
-        context['total_administradores'] = User.objects.filter(Q(groups__name='Administradores') | Q(is_superuser=True), is_active=True).distinct().count()
+        context['total_administradores'] = User.objects.filter(Q(groups__name='Administrador') | Q(is_superuser=True), is_active=True).distinct().count()
         
         context['total_fichas'] = FichaObstetrica.objects.filter(activa=True).count()
         context['total_usuarios'] = User.objects.filter(is_active=True).count()

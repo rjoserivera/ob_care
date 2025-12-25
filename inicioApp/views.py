@@ -28,12 +28,12 @@ def home(request):
 
     # Contar usuarios activos por grupo
     medicos_activos = User.objects.filter(
-        groups__name='Medicos',
+        groups__name='Medico',
         is_active=True
     ).count()
     
     matronas_activas = User.objects.filter(
-        groups__name='Matronas',
+        groups__name='Matrona',
         is_active=True
     ).count()
     
